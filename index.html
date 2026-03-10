@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Walton Bell Schedule</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: background-color 1s ease;
+        }
+
+        .header-logo, .footer-logo {
+            max-width: 250px;
+            height: auto;
+            margin: 10px auto;
+            display: block;
+        }
+
+        h1 { 
+            color: #003366; 
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+
+        .top-bar {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        /* Top Bar Action Buttons */
+        .top-actions {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        #clock {
+            font-size: 6rem;
+            font-weight: bold;
+            padding: 20px 40px;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            color: #003366;
+            text-align: center;
+        }
+
+        .dashboard-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            max-width: 1300px;
+            margin: 0 auto;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            flex: 1;
+            min-width: 320px;
+            max-width: 400px;
+            background: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            align-self: flex-start;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            display: none;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 2;
+            min-width: 600px; 
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        .schedule-container {
+            background: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 100%;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .schedule-header-wrap {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .schedule-header-wrap h3 { margin: 0; }
+
+        .control-group { margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 15px;}
+        .control-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
+        .control-group label.title { font-weight: bold; display: block; margin-bottom: 8px; color: #003366; }
+        select, input[type="time"], input[type="text"] {
+            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 1rem;
+        }
+
+        .volume-container { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+        input[type="range"] { flex-grow: 1; cursor: pointer; }
+
+        /* Split-Button Dropdown Styles */
+        .split-button-container {
+            display: flex;
+            align-items: stretch;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .split-button-main {
+            flex-grow: 1;
+            background-color: #5bc0de;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px 0 0 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background-color 0.2s;
+            text-align: left;
+            margin: 0;
+        }
+        .split-button-main:hover { background-color: #31b0d5; }
+
+        .dropdown { position: relative; display: flex; }
+        
+        .split-button-caret {
+            background-color: #46b8da;
+            color: white;
+            border: none;
+            border-left: 1px solid #31b0d5;
+            padding: 0 15px;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+            margin: 0;
+        }
+        .split-button-caret:hover { background-color: #31b0d5; }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: #fff;
+            min-width: 240px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 10;
+            border-radius: 5px;
+            overflow: hidden;
+            border: 1px solid #ddd;
+        }
+        
+        .dropdown-content.show { display: block; }
+        
+        .dropdown-content button {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            background: none;
+            border: none;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+            margin: 0;
+            border-radius: 0;
+            font-weight: normal;
+        }
+        .dropdown-content button:last-child { border-bottom: none; }
+        .dropdown-content button:hover { background-color: #f1f1f1; color: #003366; }
+
+        /* General Button Styles */
+        .btn {
+            background-color: #003366; color: white; border: none; padding: 12px 20px;
+            border-radius: 5px; cursor: pointer; font-size: 1rem; width: 100%; margin-top: 10px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .btn.inline { width: auto; margin-top: 0; }
+        .btn:hover { background-color: #002244; }
+        .btn-danger { background-color: #d9534f; }
+        .btn-danger:hover { background-color: #c9302c; }
+        .btn-success { background-color: #5cb85c; }
+        .btn-success:hover { background-color: #4cae4c; }
+        .btn-outline { background-color: transparent; border: 2px solid #003366; color: #003366; }
+        .btn-outline:hover { background-color: #003366; color: white; }
+
+        .file-input-wrapper { margin-top: 10px; }
+        .file-input-wrapper input[type="file"] { font-size: 0.9rem; padding: 5px; width: 100%; }
+
+        #custom-builder { display: none; margin-top: 10px; }
+        
+        /* Grid Layout for Schedule */
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: 80px repeat(4, 1fr) 130px;
+            gap: 10px;
+            align-items: center;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .schedule-header {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #003366;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        
+        #schedule-list { list-style-type: none; padding: 0; margin: 0; }
+        #schedule-list li { 
+            padding: 12px 5px; 
+            border-bottom: 1px solid #eee; 
+            transition: all 0.2s ease;
+        }
+        #schedule-list li:nth-child(even) { background-color: #f9f9fc; }
+        #schedule-list input[type="checkbox"] { cursor: pointer; transform: scale(1.4); margin: 0; }
+
+        .period-name { font-weight: bold; text-align: left; font-size: 1.1rem; transition: all 0.3s ease;}
+        .period-time { text-align: right; font-size: 1rem; color: #555; transition: all 0.3s ease;}
+
+        /* STUDENT VIEW (Hidden Options, Large Text) */
+        .student-view .options-col { display: none; }
+        .student-view .schedule-grid { 
+            grid-template-columns: 1fr 1fr; /* Name and Time only */
+            padding: 10px 20px;
+        }
+        .student-view .period-name { font-size: 2rem; color: #003366; }
+        .student-view .period-time { font-size: 1.8rem; font-weight: bold; color: #333; }
+        .student-view .schedule-header { display: none; } /* Hide column headers completely in student view */
+
+        .footer { margin-top: 40px; padding-top: 20px; font-size: 1rem; color: #555; width: 100%; text-align: center;}
+    </style>
+</head>
+<body>
+
+    <img src="https://drive.google.com/thumbnail?id=1XJEeGiblu9O3iGevy_j8RLR06LcyimqQ&sz=w800" alt="Walton Logo" class="header-logo">
+    <h1>Walton Bell Schedule</h1>
+
+    <div class="top-bar">
+        <div class="top-actions">
+            <button id="sidebarToggleBtn" class="btn btn-outline inline" onclick="toggleSidebar()">⚙️ Hide Settings</button>
+        </div>
+        <div id="clock">00:00:00 AM</div>
+    </div>
+
+    <div class="dashboard-wrapper">
+        <div class="sidebar" id="sidebar">
+            <div class="control-group">
+                <label class="title">1. Audio Settings & Testing</label>
+                
+                <label style="font-size: 0.9rem; color: #555;">Announcement Voice:</label>
+                <select id="voicePreference" onchange="changeVoicePref()" style="margin-bottom: 15px;">
+                    <option value="female">Female Voice (Default)</option>
+                    <option value="male">Male Voice</option>
+                </select>
+
+                <div class="volume-container">
+                    <span>🔈</span>
+                    <input type="range" id="volumeControl" min="0" max="1" step="0.05" value="1" onchange="changeVolume()">
+                    <span>🔊</span>
+                </div>
+
+                <div class="split-button-container">
+                    <button id="playBtn" class="split-button-main" onclick="testSelectedSound()">▶ Play Class Start (3x)</button>
+                    <div class="dropdown">
+                        <button class="split-button-caret" onclick="toggleDropdown(event)">▼</button>
+                        <div id="soundDropdown" class="dropdown-content">
+                            <button onclick="selectTestSound('start', 'Class Start (3x)')">Class Start (3 Rings & Caddy)</button>
+                            <button onclick="selectTestSound('end', 'Class End (3x)')">Class End (3 Rings)</button>
+                            <button onclick="selectTestSound('warning1m', '1-Min Warning (1x)')">1-Min Warning (1 Ring & Caddy)</button>
+                            <button onclick="selectTestSound('attendance', 'Take Attendance')">Take Attendance Voice</button>
+                            <button onclick="selectTestSound('cleanup', '5-Min Clean-Up')">5-Min Clean-Up Voice</button>
+                            <button onclick="selectTestSound('retrieve', 'Phone Retrieve')">Phone Retrieve Voice</button>
+                        </div>
+                    </div>
+                </div>
+                <p style="font-size: 0.8rem; color: #666; margin-top: 8px; text-align: center;">Testing a sound enables your browser to play alerts automatically.</p>
+            </div>
+
+            <div class="control-group">
+                <label class="title" for="scheduleMode">2. Select Schedule Mode:</label>
+                <select id="scheduleMode" onchange="changeMode()">
+                    <option value="regular">Regular Bell Schedule</option>
+                    <option value="web">WEB Bell Schedule</option>
+                    <option value="custom">Custom Bell Schedule</option>
+                </select>
+            </div>
+
+            <div class="control-group" id="custom-builder">
+                <label class="title">Custom Schedule Builder:</label>
+                <input type="text" id="customName" placeholder="Period Name (e.g., 1st Period)" style="margin-bottom:10px;">
+                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <input type="time" id="customStart" required>
+                    <input type="time" id="customEnd" required>
+                </div>
+                <button class="btn" onclick="addCustomPeriod()">Add to Custom Schedule</button>
+                <button class="btn btn-danger" onclick="clearCustomSchedule()">Clear Schedule</button>
+            </div>
+
+            <div class="control-group">
+                <label class="title">3. Backup & Share</label>
+                <button class="btn btn-success" onclick="exportAllSettings()">Export All Settings & Schedules</button>
+                <div class="file-input-wrapper">
+                    <label style="font-size:0.9rem; margin-bottom:3px; display:block;">Import Settings (.json):</label>
+                    <input type="file" id="importFile" accept=".json" onchange="importAllSettings(event)">
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="schedule-container" id="schedule-container">
+                <div class="schedule-header-wrap">
+                    <h3 id="schedule-title">Active Schedule</h3>
+                    <button id="studentViewBtn" class="btn btn-outline inline" onclick="toggleStudentView()">👁️ Student View</button>
+                </div>
+                
+                <div class="schedule-grid schedule-header">
+                    <div class="period-name">Class</div>
+                    <div class="options-col">Phone Caddy</div>
+                    <div class="options-col">Take Attend.</div>
+                    <div class="options-col">5-Min Clean</div>
+                    <div class="options-col">Phone Ret.</div>
+                    <div class="period-time">Time</div>
+                </div>
+                
+                <ul id="schedule-list"></ul>
+                <p id="disclaimer-text" style="font-size: 0.8rem; color: #888; text-align: right; margin-top: 10px;">*The 1-Minute Warning bell is always active by default.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Brought to you by Walton Engineering.</p>
+        <img src="https://drive.google.com/thumbnail?id=1C_7ujbANbJaMShbWDxuXx0m4ZTJLtkSE&sz=w800" alt="Walton Engineering Logo" class="footer-logo">
+    </div>
+
+    <audio id="regularBellAudio" src="https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3" preload="auto"></audio>
+
+    <script>
+        let predefinedSchedules = {
+            regular: [
+                { name: "0 pd", start: "07:10", end: "08:13" },
+                { name: "1st", start: "08:20", end: "09:13" },
+                { name: "HR", start: "09:20", end: "09:30" },
+                { name: "2nd", start: "09:37", end: "10:30" },
+                { name: "3rd", start: "10:37", end: "11:30" },
+                { name: "4th", start: "11:37", end: "12:30" },
+                { name: "5th", start: "12:37", end: "13:30" },
+                { name: "6th", start: "13:37", end: "14:30" },
+                { name: "7th", start: "14:37", end: "15:30" }
+            ],
+            web: [
+                { name: "0 pd", start: "07:10", end: "08:13" },
+                { name: "1st", start: "08:20", end: "08:50" },
+                { name: "HR", start: "08:56", end: "09:05" },
+                { name: "2nd", start: "09:11", end: "09:40" },
+                { name: "3rd", start: "09:46", end: "10:15" },
+                { name: "4th", start: "10:21", end: "10:50" },
+                { name: "5th", start: "10:56", end: "11:25" },
+                { name: "6th", start: "11:31", end: "12:00" },
+                { name: "7th", start: "12:06", end: "12:35" },
+                { name: "Q Block", start: "12:35", end: "12:55" },
+                { name: "A Block", start: "13:00", end: "13:25" },
+                { name: "B Block", start: "13:30", end: "13:55" },
+                { name: "C Block", start: "14:00", end: "14:25" },
+                { name: "D Block", start: "14:30", end: "14:55" },
+                { name: "Dept Meetings", start: "15:00", end: "15:30" }
+            ],
+            custom: []
+        };
+
+        let currentMode = 'regular';
+        let activeSchedule = predefinedSchedules.regular;
+        let lastPlayedAction = null; 
+        let globalVolume = 1.0;
+        let globalVoicePref = 'female';
+        let classSettings = {};
+        let currentTestSound = 'start'; 
+        
+        // Layout State
+        let sidebarVisible = true;
+        let isStudentView = false;
+
+        window.speechSynthesis.getVoices();
+
+        function toggleSidebar() {
+            sidebarVisible = !sidebarVisible;
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.getElementById('sidebarToggleBtn');
+            
+            if (sidebarVisible) {
+                sidebar.classList.remove('collapsed');
+                toggleBtn.innerText = '⚙️ Hide Settings';
+            } else {
+                sidebar.classList.add('collapsed');
+                toggleBtn.innerText = '⚙️ Show Settings';
+            }
+            saveLocalSettings();
+        }
+
+        function toggleStudentView() {
+            isStudentView = !isStudentView;
+            const container = document.getElementById('schedule-container');
+            const btn = document.getElementById('studentViewBtn');
+            const disclaimer = document.getElementById('disclaimer-text');
+            
+            if (isStudentView) {
+                container.classList.add('student-view');
+                btn.innerText = '⚙️ Edit Class Options';
+                disclaimer.style.display = 'none';
+            } else {
+                container.classList.remove('student-view');
+                btn.innerText = '👁️ Student View';
+                disclaimer.style.display = 'block';
+            }
+            saveLocalSettings();
+        }
+
+        function saveLocalSettings() {
+            try {
+                const dataToSave = {
+                    mode: currentMode,
+                    volume: globalVolume,
+                    voicePref: globalVoicePref,
+                    testSound: currentTestSound,
+                    sidebarVisible: sidebarVisible,
+                    isStudentView: isStudentView,
+                    customSchedule: predefinedSchedules.custom,
+                    settings: classSettings
+                };
+                localStorage.setItem('waltonBellState', JSON.stringify(dataToSave));
+            } catch (e) {
+                console.log("Browser blocked local storage save.");
+            }
+        }
+
+        function loadLocalSettings() {
+            try {
+                const savedData = localStorage.getItem('waltonBellState');
+                if (savedData) {
+                    const parsedData = JSON.parse(savedData);
+                    
+                    if (parsedData.customSchedule) predefinedSchedules.custom = parsedData.customSchedule;
+                    if (parsedData.settings) classSettings = parsedData.settings;
+                    
+                    if (parsedData.mode) {
+                        currentMode = parsedData.mode;
+                        document.getElementById('scheduleMode').value = currentMode;
+                    }
+
+                    if (parsedData.voicePref) {
+                        globalVoicePref = parsedData.voicePref;
+                        document.getElementById('voicePreference').value = globalVoicePref;
+                    }
+                    
+                    if (parsedData.volume !== undefined) {
+                        globalVolume = parsedData.volume;
+                        document.getElementById('volumeControl').value = globalVolume;
+                        document.getElementById('regularBellAudio').volume = globalVolume;
+                    }
+                    
+                    if (parsedData.testSound) {
+                        currentTestSound = parsedData.testSound;
+                        const labels = {
+                            'start': 'Class Start (3x)',
+                            'end': 'Class End (3x)',
+                            'warning1m': '1-Min Warning (1x)',
+                            'attendance': 'Take Attendance',
+                            'cleanup': '5-Min Clean-Up',
+                            'retrieve': 'Phone Retrieve'
+                        };
+                        if (labels[currentTestSound]) {
+                            document.getElementById("playBtn").innerHTML = "▶ Play " + labels[currentTestSound];
+                        }
+                    }
+
+                    if (parsedData.sidebarVisible !== undefined && !parsedData.sidebarVisible) {
+                        toggleSidebar(); // it starts visible, this flips it
+                    }
+
+                    if (parsedData.isStudentView) {
+                        toggleStudentView(); // starts false, this flips it
+                    }
+                }
+            } catch (e) {
+                console.log("Browser blocked local storage read.");
+            }
+        }
+
+        function toggleDropdown(event) {
+            event.stopPropagation();
+            document.getElementById("soundDropdown").classList.toggle("show");
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.split-button-caret')) {
+                let dropdowns = document.getElementsByClassName("dropdown-content");
+                for (let i = 0; i < dropdowns.length; i++) {
+                    let openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+
+        function selectTestSound(value, label) {
+            currentTestSound = value;
+            document.getElementById("playBtn").innerHTML = "▶ Play " + label;
+            document.getElementById("soundDropdown").classList.remove("show");
+            saveLocalSettings();
+        }
+
+        function changeVolume() {
+            globalVolume = document.getElementById('volumeControl').value;
+            document.getElementById('regularBellAudio').volume = globalVolume;
+            saveLocalSettings();
+        }
+
+        function changeVoicePref() {
+            globalVoicePref = document.getElementById('voicePreference').value;
+            saveLocalSettings();
+        }
+
+        function playBellWithQueue(timesLeft = 1, onCompleteCallback = null) {
+            const audio = document.getElementById('regularBellAudio');
+            audio.currentTime = 0;
+            
+            audio.onended = () => {
+                if (timesLeft > 1) {
+                    playBellWithQueue(timesLeft - 1, onCompleteCallback);
+                } else {
+                    audio.onended = null; 
+                    if (onCompleteCallback) {
+                        onCompleteCallback();
+                    }
+                }
+            };
+            
+            audio.play().catch(e => console.log("Audio play failed.", e));
+        }
+
+        function speak(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.9; 
+            utterance.volume = globalVolume;
+            
+            const voices = window.speechSynthesis.getVoices();
+            let selectedVoice = null;
+            
+            if (globalVoicePref === 'male') {
+                selectedVoice = voices.find(v => /david|alex|mark|daniel|brian|male/i.test(v.name));
+            } else {
+                selectedVoice = voices.find(v => /zira|samantha|victoria|google us english|female/i.test(v.name));
+            }
+            
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+            }
+            
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function testSelectedSound() {
+            triggerVisualAlert();
+
+            if (currentTestSound === 'start') {
+                playBellWithQueue(3, () => speak("Class is beginning. Please place your phones in the cell phone caddy."));
+            } else if (currentTestSound === 'end') {
+                playBellWithQueue(3);
+            } else if (currentTestSound === 'warning1m') {
+                playBellWithQueue(1, () => speak("One minute until class begins. Please place your phones in the cell phone caddy."));
+            } else if (currentTestSound === 'attendance') {
+                speak("Reminder. Please take attendance.");
+            } else if (currentTestSound === 'cleanup') {
+                speak("Five minutes remaining. Please begin cleaning up your area.");
+            } else if (currentTestSound === 'retrieve') {
+                speak("One minute remaining. You may retrieve your cell phones.");
+            }
+        }
+
+        function changeMode() {
+            currentMode = document.getElementById('scheduleMode').value;
+            activeSchedule = predefinedSchedules[currentMode];
+            
+            document.getElementById('custom-builder').style.display = (currentMode === 'custom') ? 'block' : 'none';
+            
+            const titles = { 'regular': 'Regular Schedule', 'web': 'WEB Schedule', 'custom': 'Custom Schedule' };
+            document.getElementById('schedule-title').innerText = titles[currentMode];
+            
+            renderSchedule();
+            saveLocalSettings();
+        }
+
+        function toggleSetting(periodName, settingType, isChecked) {
+            const key = `${currentMode}-${periodName}`;
+            if (!classSettings[key]) {
+                classSettings[key] = { putaway: false, attendance: false, cleanup: false, retrieve: false };
+            }
+            classSettings[key][settingType] = isChecked;
+            saveLocalSettings();
+        }
+
+        function renderSchedule() {
+            const list = document.getElementById('schedule-list');
+            list.innerHTML = '';
+            
+            if (activeSchedule.length === 0) {
+                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>No periods added yet. Use the custom builder on the left.</em></li>';
+                return;
+            }
+
+            activeSchedule.forEach(period => {
+                const key = `${currentMode}-${period.name}`;
+                const settings = classSettings[key] || { putaway: false, attendance: false, cleanup: false, retrieve: false };
+
+                const li = document.createElement('li');
+                li.className = 'schedule-grid';
+                
+                li.innerHTML = `
+                    <div class="period-name">${period.name}</div>
+                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'putaway', this.checked)" ${settings.putaway ? 'checked' : ''} title="Phone Caddy"></div>
+                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'attendance', this.checked)" ${settings.attendance ? 'checked' : ''} title="Take Attendance"></div>
+                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'cleanup', this.checked)" ${settings.cleanup ? 'checked' : ''} title="5-Min Clean Up"></div>
+                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'retrieve', this.checked)" ${settings.retrieve ? 'checked' : ''} title="Phone Retrieve"></div>
+                    <div class="period-time">${formatTime12(period.start)} - ${formatTime12(period.end)}</div>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function addCustomPeriod() {
+            const name = document.getElementById('customName').value;
+            const start = document.getElementById('customStart').value;
+            const end = document.getElementById('customEnd').value;
+
+            if (name && start && end) {
+                predefinedSchedules.custom.push({ name, start, end });
+                predefinedSchedules.custom.sort((a, b) => a.start.localeCompare(b.start));
+                renderSchedule();
+                saveLocalSettings();
+                
+                document.getElementById('customName').value = '';
+                document.getElementById('customStart').value = '';
+                document.getElementById('customEnd').value = '';
+            }
+        }
+
+        function clearCustomSchedule() {
+            if(confirm("Are you sure you want to clear your custom schedule?")) {
+                predefinedSchedules.custom = [];
+                Object.keys(classSettings).forEach(key => {
+                    if (key.startsWith('custom-')) delete classSettings[key];
+                });
+                renderSchedule();
+                saveLocalSettings();
+            }
+        }
+
+        function exportAllSettings() {
+            const exportData = {
+                customSchedule: predefinedSchedules.custom,
+                settings: classSettings
+            };
+            
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "Walton_Bell_Settings.json");
+            document.body.appendChild(downloadAnchorNode); 
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function importAllSettings(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    if (importedData.customSchedule !== undefined && importedData.settings !== undefined) {
+                        predefinedSchedules.custom = importedData.customSchedule;
+                        classSettings = importedData.settings;
+                        
+                        document.getElementById('scheduleMode').value = currentMode; 
+                        changeMode(); 
+                        alert("Settings and Custom Schedule imported successfully!");
+                    } else {
+                        alert("Invalid file format. Make sure you are using a file exported from this app.");
+                    }
+                } catch (error) {
+                    alert("Error reading file. Make sure it is a valid JSON export.");
+                }
+                event.target.value = ''; 
+            };
+            reader.readAsText(file);
+        }
+
+        function formatTime12(time24) {
+            let [hours, minutes] = time24.split(':');
+            let ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12;
+            return `${hours}:${minutes} ${ampm}`;
+        }
+
+        function subtractMinutes(time24, minsToSubtract) {
+            let [hours, minutes] = time24.split(':').map(Number);
+            let date = new Date();
+            date.setHours(hours, minutes, 0, 0);
+            date.setMinutes(date.getMinutes() - minsToSubtract);
+            return date.getHours().toString().padStart(2, '0') + ':' + 
+                   date.getMinutes().toString().padStart(2, '0');
+        }
+
+        function addMinutes(time24, minsToAdd) {
+            let [hours, minutes] = time24.split(':').map(Number);
+            let date = new Date();
+            date.setHours(hours, minutes, 0, 0);
+            date.setMinutes(date.getMinutes() + minsToAdd);
+            return date.getHours().toString().padStart(2, '0') + ':' + 
+                   date.getMinutes().toString().padStart(2, '0');
+        }
+
+        function triggerVisualAlert() {
+            document.body.style.backgroundColor = '#fff3cd'; 
+            setTimeout(() => {
+                document.body.style.backgroundColor = '#f4f4f9'; 
+            }, 6000); 
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US');
+            document.getElementById('clock').innerText = timeString;
+            checkScheduleEvents(now);
+        }
+
+        function checkScheduleEvents(now) {
+            let current24 = now.getHours().toString().padStart(2, '0') + ':' + 
+                            now.getMinutes().toString().padStart(2, '0');
+
+            activeSchedule.forEach(period => {
+                const key = `${currentMode}-${period.name}`;
+                const settings = classSettings[key] || { putaway: false, attendance: false, cleanup: false, retrieve: false };
+
+                const startMinus1 = subtractMinutes(period.start, 1);
+                const startPlus5 = addMinutes(period.start, 5);
+                const endMinus5 = subtractMinutes(period.end, 5);
+                const endMinus1 = subtractMinutes(period.end, 1);
+
+                if (current24 === period.start) {
+                    triggerEvent(current24, `start-${period.name}`, () => {
+                        triggerVisualAlert();
+                        if (settings.putaway) {
+                            playBellWithQueue(3, () => speak("Class is beginning. Please place your phones in the cell phone caddy."));
+                        } else {
+                            playBellWithQueue(3);
+                        }
+                    });
+                }
+                
+                if (current24 === period.end) {
+                    triggerEvent(current24, `end-${period.name}`, () => {
+                        triggerVisualAlert();
+                        playBellWithQueue(3);
+                    });
+                }
+
+                if (current24 === startMinus1) {
+                    triggerEvent(current24, `warning1m-${period.name}`, () => {
+                        triggerVisualAlert();
+                        let speechText = "One minute until class begins.";
+                        if (settings.putaway) {
+                            speechText += " Please place your phones in the cell phone caddy.";
+                        }
+                        playBellWithQueue(1, () => speak(speechText));
+                    });
+                }
+
+                if (settings.attendance && current24 === startPlus5) {
+                    triggerEvent(current24, `attendance5m-${period.name}`, () => {
+                        triggerVisualAlert();
+                        speak("Reminder. Please take attendance.");
+                    });
+                }
+
+                if (settings.cleanup && current24 === endMinus5) {
+                    triggerEvent(current24, `cleanup5m-${period.name}`, () => {
+                        triggerVisualAlert();
+                        speak("Five minutes remaining. Please begin cleaning up your area.");
+                    });
+                }
+
+                if (settings.retrieve && current24 === endMinus1) {
+                    triggerEvent(current24, `phone1m-${period.name}`, () => {
+                        triggerVisualAlert();
+                        speak("One minute remaining. You may retrieve your cell phones.");
+                    });
+                }
+            });
+        }
+
+        function triggerEvent(time, action, callback) {
+            const eventKey = `${time}-${action}`;
+            if (lastPlayedAction !== eventKey) {
+                callback();
+                lastPlayedAction = eventKey;
+            }
+        }
+
+        // Web Worker keeps clock ticking in background tab
+        const workerCode = `
+            setInterval(() => {
+                postMessage('tick');
+            }, 1000);
+        `;
+        const blob = new Blob([workerCode], { type: 'application/javascript' });
+        const worker = new Worker(URL.createObjectURL(blob));
+        
+        worker.onmessage = function() {
+            updateClock();
+        };
+
+        // Initialize App
+        loadLocalSettings(); 
+        changeMode(); 
+        updateClock();
+    </script>
+</body>
+</html>
