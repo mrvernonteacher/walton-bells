@@ -15,6 +15,7 @@
             flex-direction: column;
             min-height: 100vh;
             transition: background-color 1s ease;
+            overflow-x: hidden;
         }
 
         .header-logo, .footer-logo {
@@ -31,20 +32,37 @@
             margin-bottom: 5px;
         }
 
+        /* Top Bar & Hamburger Menu */
         .top-bar {
             width: 100%;
+            max-width: 1300px;
+            margin: 0 auto 30px auto;
             display: flex;
             justify-content: center;
+            align-items: center;
             position: relative;
-            margin-bottom: 30px;
         }
 
-        /* Top Bar Action Buttons */
-        .top-actions {
+        .hamburger-btn {
+            background: none;
+            border: none;
+            font-size: 2.5rem;
+            color: #003366;
+            cursor: pointer;
             position: absolute;
             left: 0;
             top: 50%;
             transform: translateY(-50%);
+            padding: 10px;
+            border-radius: 8px;
+            transition: background-color 0.2s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hamburger-btn:hover {
+            background-color: #e2e2ec;
         }
 
         #clock {
@@ -56,6 +74,7 @@
             box-shadow: 0 6px 15px rgba(0,0,0,0.1);
             color: #003366;
             text-align: center;
+            margin: 0;
         }
 
         .dashboard-wrapper {
@@ -65,10 +84,10 @@
             max-width: 1300px;
             margin: 0 auto;
             width: 100%;
-            transition: all 0.3s ease;
+            align-items: flex-start;
         }
 
-        /* Sidebar Styles */
+        /* Sidebar with Smooth Collapse Animation */
         .sidebar {
             flex: 1;
             min-width: 320px;
@@ -77,21 +96,29 @@
             padding: 25px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            align-self: flex-start;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            opacity: 1;
+            overflow: hidden;
+            transform-origin: left center;
         }
 
         .sidebar.collapsed {
-            display: none;
+            min-width: 0;
+            max-width: 0;
+            padding-left: 0;
+            padding-right: 0;
+            margin-left: -30px; /* Pulls the main content left smoothly */
+            opacity: 0;
+            transform: scaleX(0);
+            border: none;
         }
 
-        /* Main Content Styles */
         .main-content {
             flex: 2;
-            min-width: 600px; 
+            min-width: 650px; 
             display: flex;
             flex-direction: column;
-            transition: all 0.3s ease;
+            transition: all 0.4s ease;
         }
 
         .schedule-container {
@@ -101,7 +128,6 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             width: 100%;
             box-sizing: border-box;
-            position: relative;
         }
 
         .schedule-header-wrap {
@@ -250,15 +276,15 @@
         .period-name { font-weight: bold; text-align: left; font-size: 1.1rem; transition: all 0.3s ease;}
         .period-time { text-align: right; font-size: 1rem; color: #555; transition: all 0.3s ease;}
 
-        /* STUDENT VIEW (Hidden Options, Large Text) */
+        /* STUDENT VIEW */
         .student-view .options-col { display: none; }
         .student-view .schedule-grid { 
-            grid-template-columns: 1fr 1fr; /* Name and Time only */
+            grid-template-columns: 1fr 1fr; 
             padding: 10px 20px;
         }
         .student-view .period-name { font-size: 2rem; color: #003366; }
         .student-view .period-time { font-size: 1.8rem; font-weight: bold; color: #333; }
-        .student-view .schedule-header { display: none; } /* Hide column headers completely in student view */
+        .student-view .schedule-header { display: none; } 
 
         .footer { margin-top: 40px; padding-top: 20px; font-size: 1rem; color: #555; width: 100%; text-align: center;}
     </style>
@@ -269,9 +295,7 @@
     <h1>Walton Bell Schedule</h1>
 
     <div class="top-bar">
-        <div class="top-actions">
-            <button id="sidebarToggleBtn" class="btn btn-outline inline" onclick="toggleSidebar()">⚙️ Hide Settings</button>
-        </div>
+        <button id="hamburgerBtn" class="hamburger-btn" onclick="toggleSidebar()" title="Toggle Settings">☰</button>
         <div id="clock">00:00:00 AM</div>
     </div>
 
@@ -409,7 +433,6 @@
         let classSettings = {};
         let currentTestSound = 'start'; 
         
-        // Layout State
         let sidebarVisible = true;
         let isStudentView = false;
 
@@ -418,14 +441,11 @@
         function toggleSidebar() {
             sidebarVisible = !sidebarVisible;
             const sidebar = document.getElementById('sidebar');
-            const toggleBtn = document.getElementById('sidebarToggleBtn');
             
             if (sidebarVisible) {
                 sidebar.classList.remove('collapsed');
-                toggleBtn.innerText = '⚙️ Hide Settings';
             } else {
                 sidebar.classList.add('collapsed');
-                toggleBtn.innerText = '⚙️ Show Settings';
             }
             saveLocalSettings();
         }
@@ -507,11 +527,11 @@
                     }
 
                     if (parsedData.sidebarVisible !== undefined && !parsedData.sidebarVisible) {
-                        toggleSidebar(); // it starts visible, this flips it
+                        toggleSidebar(); 
                     }
 
                     if (parsedData.isStudentView) {
-                        toggleStudentView(); // starts false, this flips it
+                        toggleStudentView(); 
                     }
                 }
             } catch (e) {
@@ -843,7 +863,6 @@
             }
         }
 
-        // Web Worker keeps clock ticking in background tab
         const workerCode = `
             setInterval(() => {
                 postMessage('tick');
@@ -856,7 +875,6 @@
             updateClock();
         };
 
-        // Initialize App
         loadLocalSettings(); 
         changeMode(); 
         updateClock();
