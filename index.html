@@ -154,7 +154,9 @@
         }
         
         .schedule-header { font-size: 0.8rem; font-weight: bold; color: #003366; border-bottom: 2px solid #ccc; padding-bottom: 8px; margin-bottom: 8px; transition: color 0.3s ease; }
-        .options-col[title] { cursor: help; border-bottom: 1px dotted rgba(0,0,0,0.3); padding-bottom: 2px; } /* Tooltip styling */
+        
+        /* Tooltip styling for headers */
+        .options-col[title] { cursor: help; border-bottom: 1px dotted rgba(0,0,0,0.3); padding-bottom: 2px; } 
         body.dark-mode .options-col[title] { border-bottom: 1px dotted rgba(255,255,255,0.4); }
         
         #schedule-list { list-style-type: none; padding: 0; margin: 0; }
@@ -295,7 +297,7 @@
                     <div class="options-col" title="5-Min Clean Up: Reminds students to clean their area 5 minutes before class ends.">Clean</div>
                     <div class="options-col" title="Phone Retrieve: Reminds students to grab their phones 1 minute before the bell.">Retrie.</div>
                     <div class="options-col" title="Lunch 1: Reminder for 1st Half Lunch Duty right after the starting bell.">Lunch 1</div>
-                    <div class="options-col" title="Lunch 2: Reminder for 2nd Half Lunch Duty at the mathematical midpoint of the period.">Lunch 2</div>
+                    <div class="options-col" title="Lunch 2: Reminder for 2nd Half Lunch Duty exactly halfway through the period.">Lunch 2</div>
                     <div class="period-time">Time</div>
                 </div>
                 
@@ -313,7 +315,6 @@
     <audio id="regularBellAudio" src="https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3" preload="auto"></audio>
 
     <script>
-        // --- GOOGLE APPS SCRIPT WEB APP URL ---
         const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec"; 
 
         const DEFAULT_PREFS = { putaway: false, attendance: false, cleanup: false, retrieve: false, lunch1: false, lunch2: false };
@@ -372,42 +373,46 @@
         // --- Google Calendar Auto-Fetch ---
         async function fetchDailySchedule() {
             if (!GOOGLE_CALENDAR_SCRIPT_URL) return;
-            try {
-                const response = await fetch(GOOGLE_CALENDAR_SCRIPT_URL);
-                const data = await response.json();
-                
-                if (data && data.mode) {
-                    let fetchedMode = data.mode;
+            
+            // 1-second timeout helps bypass sudden browser CORS issues on initial load
+            setTimeout(async () => {
+                try {
+                    const response = await fetch(GOOGLE_CALENDAR_SCRIPT_URL, { cache: "no-store" });
+                    const data = await response.json();
                     
-                    // If the script sent a custom schedule array (from Google Sheets)
-                    if (data.schedule && data.schedule.length > 0) {
-                        predefinedSchedules['synced'] = data.schedule;
+                    if (data && data.mode) {
+                        let fetchedMode = data.mode;
                         
-                        let select = document.getElementById('scheduleMode');
-                        let syncedOpt = select.querySelector('option[value="synced"]');
-                        if (!syncedOpt) {
-                            syncedOpt = document.createElement('option');
-                            syncedOpt.value = 'synced';
-                            select.appendChild(syncedOpt);
+                        // Check if script delivered a dynamic schedule from Sheets
+                        if (data.schedule && data.schedule.length > 0) {
+                            predefinedSchedules['synced'] = data.schedule;
+                            
+                            let select = document.getElementById('scheduleMode');
+                            let syncedOpt = select.querySelector('option[value="synced"]');
+                            if (!syncedOpt) {
+                                syncedOpt = document.createElement('option');
+                                syncedOpt.value = 'synced';
+                                select.appendChild(syncedOpt);
+                            }
+                            syncedOpt.innerText = `Synced: ${fetchedMode.toUpperCase()}`;
+                            select.value = 'synced';
+                        } else {
+                            // Fallback
+                            let safeMode = predefinedSchedules[fetchedMode] ? fetchedMode : 'regular';
+                            document.getElementById('scheduleMode').value = safeMode;
                         }
-                        syncedOpt.innerText = `Synced: ${fetchedMode.toUpperCase()}`;
-                        select.value = 'synced';
-                    } else {
-                        // Fallback
-                        let safeMode = predefinedSchedules[fetchedMode] ? fetchedMode : 'regular';
-                        document.getElementById('scheduleMode').value = safeMode;
-                    }
 
-                    document.getElementById('autoIndicator').style.display = 'block';
-                    document.getElementById('autoIndicator').innerText = `✓ Auto-Synced: ${fetchedMode.toUpperCase()}`;
-                    
-                    changeMode(); 
+                        document.getElementById('autoIndicator').style.display = 'block';
+                        document.getElementById('autoIndicator').innerText = `✓ Auto-Synced: ${fetchedMode.toUpperCase()}`;
+                        
+                        changeMode(); 
+                    }
+                } catch (err) { 
+                    console.error("Could not sync with Google Calendar. Using local defaults.", err);
+                    document.getElementById('scheduleMode').value = 'regular';
+                    changeMode();
                 }
-            } catch (err) { 
-                console.error("Could not sync with Google Calendar", err);
-                document.getElementById('scheduleMode').value = 'regular';
-                changeMode();
-            }
+            }, 1000);
         }
 
         // --- Core App Logic ---
@@ -543,6 +548,13 @@
             
             activeSchedule = predefinedSchedules[currentMode];
             document.getElementById('custom-builder').style.display = (currentMode === 'custom') ? 'block' : 'none';
+            
+            // Adjust title text depending on if we are running the auto-synced array or a default one
+            let displayTitle = currentMode === 'regular' ? 'Regular Schedule' : 
+                               currentMode === 'web' ? 'WEB Schedule' : 
+                               currentMode === 'custom' ? 'Custom Schedule' : 'Auto-Fetched Schedule';
+                               
+            document.getElementById('schedule-title').childNodes[0].nodeValue = displayTitle + ' '; 
             
             renderSchedule();
             saveLocalSettings();
