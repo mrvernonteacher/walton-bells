@@ -154,6 +154,9 @@
         }
         
         .schedule-header { font-size: 0.8rem; font-weight: bold; color: #003366; border-bottom: 2px solid #ccc; padding-bottom: 8px; margin-bottom: 8px; transition: color 0.3s ease; }
+        .options-col[title] { cursor: help; border-bottom: 1px dotted rgba(0,0,0,0.3); padding-bottom: 2px; } /* Tooltip styling */
+        body.dark-mode .options-col[title] { border-bottom: 1px dotted rgba(255,255,255,0.4); }
+        
         #schedule-list { list-style-type: none; padding: 0; margin: 0; }
         #schedule-list li { padding: 10px 5px; border-bottom: 1px solid #eee; transition: all 0.2s ease; }
         #schedule-list li:nth-child(even) { background-color: #f9f9fc; }
@@ -172,7 +175,7 @@
         .student-view .schedule-header { display: none; } 
 
         .footer { margin-top: 40px; padding-top: 20px; font-size: 1rem; color: #555; text-align: center; width: 100%; }
-        .footer-logo { max-width: 250px; height: auto; margin-top: 10px; }
+        .footer-logo { max-width: 250px; height: auto; margin-top: 10px; display: inline-block; }
     </style>
 </head>
 <body>
@@ -244,6 +247,10 @@
                     <option value="custom">Custom Bell Schedule</option>
                 </select>
                 
+                <div id="autoIndicator" style="display: none; margin-bottom: 10px; font-size: 0.85rem; background: #dff0d8; color: #3c763d; padding: 6px 10px; border-radius: 5px; font-weight: bold; border: 1px solid #d6e9c6;">
+                    ✓ Auto-Synced
+                </div>
+                
                 <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; color: #555;">
                     <input type="checkbox" id="showZeroPeriod" onchange="changeMode()"> Show 0 Period
                 </label>
@@ -273,10 +280,7 @@
             <div class="schedule-container" id="schedule-container">
                 
                 <div class="schedule-header-wrap">
-                    <h3 id="schedule-title" style="display: flex; align-items: center; gap: 10px;">
-                        Active Schedule 
-                        <span id="autoIndicator" style="display: none; font-size: 0.8rem; background: #5cb85c; color: white; padding: 3px 10px; border-radius: 12px; font-weight: bold; letter-spacing: 0.5px;">Auto-Synced</span>
-                    </h3>
+                    <h3 id="schedule-title">Active Schedule</h3>
                     <button id="studentViewBtn" class="waffle-btn-global" onclick="toggleStudentView()" title="Toggle Options">
                         <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
                             <rect x="4" y="4" width="4" height="4" rx="1"/><rect x="10" y="4" width="4" height="4" rx="1"/><rect x="16" y="4" width="4" height="4" rx="1"/><rect x="4" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="16" y="10" width="4" height="4" rx="1"/><rect x="4" y="16" width="4" height="4" rx="1"/><rect x="10" y="16" width="4" height="4" rx="1"/><rect x="16" y="16" width="4" height="4" rx="1"/>
@@ -286,12 +290,12 @@
                 
                 <div class="schedule-grid schedule-header">
                     <div class="period-name">Class</div>
-                    <div class="options-col">Caddy</div>
-                    <div class="options-col">Attend.</div>
-                    <div class="options-col">Clean</div>
-                    <div class="options-col">Retrie.</div>
-                    <div class="options-col">Lunch 1</div>
-                    <div class="options-col">Lunch 2</div>
+                    <div class="options-col" title="Cell Phone Caddy: Reminds students to put phones away at the start of class.">Caddy</div>
+                    <div class="options-col" title="Take Attendance: Sends an automated reminder 5 minutes into the period.">Attend.</div>
+                    <div class="options-col" title="5-Min Clean Up: Reminds students to clean their area 5 minutes before class ends.">Clean</div>
+                    <div class="options-col" title="Phone Retrieve: Reminds students to grab their phones 1 minute before the bell.">Retrie.</div>
+                    <div class="options-col" title="Lunch 1: Reminder for 1st Half Lunch Duty right after the starting bell.">Lunch 1</div>
+                    <div class="options-col" title="Lunch 2: Reminder for 2nd Half Lunch Duty at the mathematical midpoint of the period.">Lunch 2</div>
                     <div class="period-time">Time</div>
                 </div>
                 
@@ -348,7 +352,6 @@
             const selectedURI = globalVoicePref;
             voiceSelect.innerHTML = '';
             
-            // Only grab English voices to keep the list clean
             const enVoices = voices.filter(v => v.lang.startsWith('en'));
             
             enVoices.forEach(voice => {
@@ -373,21 +376,35 @@
                 const response = await fetch(GOOGLE_CALENDAR_SCRIPT_URL);
                 const data = await response.json();
                 
-                let fetchedMode = data && data.mode ? data.mode : 'regular';
-                
-                // Fallback protection: if event says "pep rally" but we only coded "regular" and "web" so far
-                if (!predefinedSchedules[fetchedMode]) {
-                    fetchedMode = 'regular'; 
-                }
+                if (data && data.mode) {
+                    let fetchedMode = data.mode;
+                    
+                    // If the script sent a custom schedule array (from Google Sheets)
+                    if (data.schedule && data.schedule.length > 0) {
+                        predefinedSchedules['synced'] = data.schedule;
+                        
+                        let select = document.getElementById('scheduleMode');
+                        let syncedOpt = select.querySelector('option[value="synced"]');
+                        if (!syncedOpt) {
+                            syncedOpt = document.createElement('option');
+                            syncedOpt.value = 'synced';
+                            select.appendChild(syncedOpt);
+                        }
+                        syncedOpt.innerText = `Synced: ${fetchedMode.toUpperCase()}`;
+                        select.value = 'synced';
+                    } else {
+                        // Fallback
+                        let safeMode = predefinedSchedules[fetchedMode] ? fetchedMode : 'regular';
+                        document.getElementById('scheduleMode').value = safeMode;
+                    }
 
-                document.getElementById('scheduleMode').value = fetchedMode;
-                document.getElementById('autoIndicator').style.display = 'inline-block';
-                document.getElementById('autoIndicator').innerText = `Auto-Synced: ${fetchedMode.toUpperCase()}`;
-                
-                changeMode(); 
+                    document.getElementById('autoIndicator').style.display = 'block';
+                    document.getElementById('autoIndicator').innerText = `✓ Auto-Synced: ${fetchedMode.toUpperCase()}`;
+                    
+                    changeMode(); 
+                }
             } catch (err) { 
                 console.error("Could not sync with Google Calendar", err);
-                // Safe fallback if offline or script fails
                 document.getElementById('scheduleMode').value = 'regular';
                 changeMode();
             }
@@ -526,8 +543,6 @@
             
             activeSchedule = predefinedSchedules[currentMode];
             document.getElementById('custom-builder').style.display = (currentMode === 'custom') ? 'block' : 'none';
-            const titles = { 'regular': 'Regular Schedule', 'web': 'WEB Schedule', 'custom': 'Custom Schedule' };
-            document.getElementById('schedule-title').childNodes[0].nodeValue = titles[currentMode] + ' '; 
             
             renderSchedule();
             saveLocalSettings();
@@ -549,7 +564,10 @@
                 filteredSchedule = activeSchedule.filter(p => !p.name.includes("0 pd"));
             }
 
-            if (filteredSchedule.length === 0) { list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>No periods added yet.</em></li>'; return; }
+            if (!filteredSchedule || filteredSchedule.length === 0) { 
+                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>No periods added yet.</em></li>'; 
+                return; 
+            }
 
             filteredSchedule.forEach(period => {
                 const key = `${currentMode}-${period.name}`;
