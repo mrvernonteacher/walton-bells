@@ -16,23 +16,36 @@
             min-height: 100vh;
             transition: background-color 0.3s ease, color 0.3s ease;
             overflow-x: hidden;
+            position: relative; /* For video positioning */
+        }
+
+        /* --- Fullscreen YouTube Background --- */
+        #vibe-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none; /* Let clicks pass through to main UI */
+            overflow: hidden;
+            opacity: 0; /* Hidden by default */
+            transition: opacity 1.5s ease; /* Smooth fade in */
+        }
+        #vibe-bg iframe {
+            width: 100vw;
+            height: 56.25vw; /* 16:9 aspect ratio */
+            min-height: 100vh;
+            min-width: 177.77vh; 
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            border: none;
         }
 
         /* --- Toast Notification --- */
         #toast {
-            position: fixed;
-            top: -60px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #5cb85c;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            font-weight: bold;
-            font-size: 1.1rem;
-            z-index: 9999;
-            opacity: 0;
+            position: fixed; top: -60px; left: 50%; transform: translateX(-50%);
+            background-color: #5cb85c; color: white; padding: 12px 24px;
+            border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-weight: bold; font-size: 1.1rem; z-index: 9999; opacity: 0;
             transition: top 0.5s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.5s ease;
             pointer-events: none;
         }
@@ -41,21 +54,36 @@
 
         /* --- Dark Mode Variables --- */
         body.dark-mode { background-color: #121212; color: #e0e0e0; }
-        body.dark-mode .schedule-container, body.dark-mode .sidebar, body.dark-mode #clock { background: #1e1e1e; color: #e0e0e0; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
+        
+        /* Transparent Glass Backgrounds for UI */
+        .schedule-container, .sidebar { 
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        }
+        body.dark-mode .schedule-container, body.dark-mode .sidebar { 
+            background: rgba(30, 30, 30, 0.85); box-shadow: 0 4px 15px rgba(0,0,0,0.7); 
+        }
+        
+        #clock { 
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        }
+        body.dark-mode #clock { background: rgba(30, 30, 30, 0.85); color: #e0e0e0; box-shadow: 0 4px 10px rgba(0,0,0,0.7); }
+
         body.dark-mode h1, body.dark-mode h3, body.dark-mode .schedule-header, body.dark-mode .period-name, body.dark-mode .title { color: #90caf9; border-color: #444; }
         body.dark-mode .control-group label.title { color: #90caf9; }
         body.dark-mode .sub-label, body.dark-mode #darkModeLabel { color: #ccc !important; }
         body.dark-mode #disclaimer-text { color: #aaa !important; }
-        body.dark-mode #schedule-list li { border-color: #333; }
-        body.dark-mode #schedule-list li:nth-child(even) { background-color: #2a2a2a; }
+        body.dark-mode #schedule-list li { border-color: #444; }
+        body.dark-mode #schedule-list li:nth-child(even) { background-color: rgba(255,255,255,0.03); }
         body.dark-mode select, body.dark-mode input[type="text"], body.dark-mode input[type="time"] { background: #333; color: #fff; border-color: #555; }
         body.dark-mode .icon-btn, body.dark-mode .waffle-btn-global { color: #90caf9; }
         body.dark-mode .icon-btn:hover, body.dark-mode .waffle-btn-global:hover { background-color: #333; }
-        body.dark-mode .period-time { color: #aaa; }
+        body.dark-mode .period-time { color: #ddd; }
         body.dark-mode .dropdown-content { background-color: #333; border-color: #555; }
         body.dark-mode .dropdown-content button { color: #e0e0e0; border-color: #444; }
         body.dark-mode .dropdown-content button:hover { background-color: #444; color: #90caf9; }
-        body.dark-mode .footer { color: #888; }
+        body.dark-mode .footer { color: #aaa; }
         body.dark-mode #autoIndicator { background-color: #1b5e20; color: #a5d6a7; border-color: #2e7d32; }
         body.dark-mode .duty-item { border-bottom-color: #444 !important; }
         
@@ -68,6 +96,7 @@
         .top-bar {
             width: 100%; max-width: 1300px; margin: 0 auto 10px auto; 
             display: flex; justify-content: space-between; align-items: center; position: relative;
+            z-index: 2;
         }
 
         .header-logo { max-width: 140px; height: auto; display: block; margin: 0 auto; } 
@@ -76,7 +105,7 @@
         .center-title-clock h1 { font-size: 1.4rem; margin-bottom: 0; color: #003366; transition: color 0.3s ease; }
         
         #clock {
-            font-size: 4rem; font-weight: bold; padding: 5px 20px; background: #fff;
+            font-size: 4rem; font-weight: bold; padding: 5px 20px; 
             border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: #003366;
             display: inline-block; margin-top: 0; transition: all 0.3s ease;
         }
@@ -88,18 +117,20 @@
         .action-buttons-right { right: 0; }
 
         .icon-btn {
-            background: none; border: none; font-size: 2rem; color: #003366; cursor: pointer;
+            background: rgba(255,255,255,0.5); border: none; font-size: 2rem; color: #003366; cursor: pointer;
             padding: 8px; border-radius: 8px; transition: background-color 0.2s; display: flex; align-items: center; justify-content: center;
         }
-        .icon-btn:hover { background-color: #e2e2ec; }
+        .icon-btn:hover { background-color: rgba(255,255,255,0.8); }
+        body.dark-mode .icon-btn { background: rgba(0,0,0,0.5); }
+        body.dark-mode .icon-btn:hover { background: rgba(0,0,0,0.8); }
 
         .dashboard-wrapper {
-            display: flex; flex-wrap: wrap; gap: 15px; max-width: 1300px; margin: 0 auto; width: 100%; align-items: flex-start;
+            display: flex; flex-wrap: wrap; gap: 15px; max-width: 1300px; margin: 0 auto; width: 100%; align-items: flex-start; z-index: 2;
         }
 
         /* --- Sidebar --- */
         .sidebar {
-            flex: 1; min-width: 320px; max-width: 350px; background: #fff; padding: 15px 20px;
+            flex: 1; min-width: 320px; max-width: 350px; padding: 15px 20px;
             border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             opacity: 1; overflow: hidden; transform-origin: left center;
         }
@@ -108,24 +139,24 @@
         .main-content { flex: 2; min-width: 500px; display: flex; flex-direction: column; transition: all 0.4s ease; }
 
         .schedule-container {
-            background: #fff; padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; box-sizing: border-box;
+            padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; box-sizing: border-box;
         }
-        .schedule-header-wrap { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 2px solid #eee; padding-bottom: 8px; }
+        .schedule-header-wrap { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 8px; }
         .schedule-header-wrap h3 { margin: 0; font-size: 1.3rem; color: #003366; transition: color 0.3s ease; }
 
         .waffle-btn-global {
             background: none; border: none; color: #003366; cursor: pointer; padding: 5px; border-radius: 8px;
             display: flex; align-items: center; justify-content: center; transition: background-color 0.2s, color 0.2s;
         }
-        .waffle-btn-global:hover { background-color: #e2e2ec; }
+        .waffle-btn-global:hover { background-color: rgba(150,150,150,0.2); }
 
         /* UI Controls */
-        .control-group { margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 12px;}
+        .control-group { margin-bottom: 12px; border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 12px;}
         .control-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
         .control-group label.title { font-weight: bold; display: block; margin-bottom: 5px; color: #003366; transition: color 0.3s ease; }
         .sub-label { font-size: 0.9rem; color: #555; transition: color 0.3s ease; }
         
-        select, input[type="time"], input[type="text"] { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 0.95rem; }
+        select, input[type="text"], input[type="time"] { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 0.95rem; background: rgba(255,255,255,0.9); }
         .volume-container { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
         input[type="range"] { flex-grow: 1; cursor: pointer; }
 
@@ -170,14 +201,14 @@
             gap: 6px; align-items: center; text-align: center; transition: all 0.3s ease;
         }
         
-        .schedule-header { font-size: 0.8rem; font-weight: bold; color: #003366; border-bottom: 2px solid #ccc; padding-bottom: 6px; margin-bottom: 6px; transition: color 0.3s ease; }
+        .schedule-header { font-size: 0.8rem; font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 6px; margin-bottom: 6px; transition: color 0.3s ease; }
         
         .options-col[title] { cursor: help; border-bottom: 1px dotted rgba(0,0,0,0.3); padding-bottom: 2px; } 
         body.dark-mode .options-col[title] { border-bottom: 1px dotted rgba(255,255,255,0.4); }
         
         #schedule-list { list-style-type: none; padding: 0; margin: 0; }
-        #schedule-list li { padding: 6px 4px; border-bottom: 1px solid #eee; transition: all 0.2s ease; }
-        #schedule-list li:nth-child(even) { background-color: #f9f9fc; }
+        #schedule-list li { padding: 6px 4px; border-bottom: 1px solid rgba(150,150,150,0.2); transition: all 0.2s ease; }
+        #schedule-list li:nth-child(even) { background-color: rgba(0,0,0,0.03); }
         #schedule-list input[type="checkbox"] { cursor: pointer; transform: scale(1.2); margin: 0; }
 
         .period-name { font-weight: bold; text-align: left; font-size: 1.05rem; transition: all 0.3s ease;}
@@ -192,13 +223,14 @@
         body.dark-mode .student-view .period-time { color: #e0e0e0; }
         .student-view .schedule-header { display: none; } 
 
-        /* Tightly Packed Footer */
         .footer { margin-top: 25px; font-size: 0.85rem; color: #555; text-align: center; width: 100%; transition: color 0.3s ease; }
         .footer p { margin: 0 0 5px 0; font-weight: bold;}
         .footer-logo { max-width: 180px; height: auto; display: inline-block; }
     </style>
 </head>
 <body>
+
+    <div id="vibe-bg"></div>
 
     <div id="toast">Loaded Successfully</div>
 
@@ -285,15 +317,10 @@
                 <label class="title">3. Weekly Lunch Duties:</label>
                 <div style="display:flex; gap:6px; margin-bottom:6px;">
                     <select id="lunchDay">
-                        <option value="1">Monday</option>
-                        <option value="2">Tuesday</option>
-                        <option value="3">Wednesday</option>
-                        <option value="4">Thursday</option>
-                        <option value="5">Friday</option>
+                        <option value="1">Mon</option><option value="2">Tue</option><option value="3">Wed</option><option value="4">Thu</option><option value="5">Fri</option>
                     </select>
                     <select id="lunchHalf">
-                        <option value="1">1st Half</option>
-                        <option value="2">2nd Half</option>
+                        <option value="1">1st Half</option><option value="2">2nd Half</option>
                     </select>
                 </div>
                 <div style="display:flex; gap:6px; margin-bottom:6px;">
@@ -301,6 +328,16 @@
                     <button class="btn inline" onclick="addLunchDuty()">Add</button>
                 </div>
                 <ul id="lunch-duty-list" style="list-style:none; padding:0; margin-top:10px; font-size:0.85rem; color:#555;"></ul>
+            </div>
+
+            <div class="control-group">
+                <label class="title">4. Classroom Vibe</label>
+                <label class="sub-label" style="margin-bottom: 5px; display: block;">YouTube URL (Live Stream or Video):</label>
+                <input type="text" id="vibeUrl" placeholder="Paste YouTube link here..." style="margin-bottom: 8px;">
+                <div style="display:flex; gap:6px;">
+                    <button class="btn inline" style="flex-grow: 1;" onclick="startVibe()">▶ Start Vibe</button>
+                    <button class="btn btn-danger inline" onclick="stopVibe()">Stop</button>
+                </div>
             </div>
 
             <div class="control-group" id="custom-builder">
@@ -389,7 +426,7 @@
         };
 
         let currentMode = 'daily', activeSchedule = predefinedSchedules.daily, lastPlayedAction = null;
-        let globalVolume = 1.0, globalVoicePref = '', classSettings = {}, lunchDuties = [];
+        let globalVolume = 1.0, globalVoicePref = '', classSettings = {}, lunchDuties = [], savedVibeUrl = '';
         let currentTestSound = 'positive', sidebarVisible = true, isStudentView = false, isDarkMode = false, showZero = false, playGoodbyes = false;
         let currentScheduleName = "Daily"; 
 
@@ -423,6 +460,38 @@
             globalVoicePref = voiceSelect.value;
         }
         window.speechSynthesis.onvoiceschanged = populateVoiceList;
+
+        // --- Video Background Logic ---
+        function extractVideoID(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|live\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function startVibe() {
+            const url = document.getElementById('vibeUrl').value.trim();
+            const bgContainer = document.getElementById('vibe-bg');
+            if(!url) return;
+
+            const vid = extractVideoID(url);
+            if(vid) {
+                // Generates the iframe. autoplay=1 and mute=0. 
+                // Playlist & loop ensures it repeats if it isn't a live stream
+                bgContainer.innerHTML = `<iframe src="https://www.youtube.com/embed/${vid}?autoplay=1&controls=0&showinfo=0&autohide=1&loop=1&playlist=${vid}&mute=0" allow="autoplay; encrypted-media" frameborder="0" allowfullscreen></iframe>`;
+                bgContainer.style.opacity = "0.45"; // Reveal the background smoothly
+                
+                // Save the URL so it's there tomorrow
+                savedVibeUrl = url;
+                saveLocalSettings();
+            } else {
+                alert("Invalid YouTube URL. Please try again.");
+            }
+        }
+
+        function stopVibe() {
+            document.getElementById('vibe-bg').style.opacity = "0";
+            setTimeout(() => { document.getElementById('vibe-bg').innerHTML = ''; }, 1000); // Clear after fade out
+        }
 
         async function fetchDailySchedule() {
             if (!GOOGLE_CALENDAR_SCRIPT_URL) return;
@@ -475,7 +544,8 @@
                 const data = {
                     mode: currentMode, vol: globalVolume, voice: globalVoicePref, testSound: currentTestSound,
                     side: sidebarVisible, student: isStudentView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
-                    customSchedule: predefinedSchedules.custom, settings: classSettings, lunchDuties: lunchDuties
+                    customSchedule: predefinedSchedules.custom, settings: classSettings, lunchDuties: lunchDuties,
+                    vibe: savedVibeUrl
                 };
                 localStorage.setItem('waltonBellState', JSON.stringify(data));
             } catch (e) {}
@@ -526,6 +596,10 @@
                     }
                     if (p.zero === true) { document.getElementById('showZeroPeriod').checked = true; showZero = true; }
                     if (p.playGoodbyes === true) { document.getElementById('playGoodbyes').checked = true; playGoodbyes = true; }
+                    if (p.vibe) { 
+                        savedVibeUrl = p.vibe;
+                        document.getElementById('vibeUrl').value = savedVibeUrl;
+                    }
                 }
             } catch (e) {}
             renderLunchDuties();
@@ -646,7 +720,7 @@
         function renderLunchDuties() {
             const list = document.getElementById('lunch-duty-list');
             list.innerHTML = '';
-            const days = ["Sun", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Sat"];
+            const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
             lunchDuties.forEach((duty, index) => {
                 const li = document.createElement('li');
                 li.className = "duty-item";
@@ -745,8 +819,14 @@
         }
 
         function triggerVisualAlert() {
-            document.body.style.backgroundColor = isDarkMode ? '#332b00' : '#fff3cd'; 
-            setTimeout(() => { document.body.style.backgroundColor = isDarkMode ? '#121212' : '#f4f4f9'; }, 6000); 
+            // Apply slight tint during alert so video is still somewhat visible
+            const overlay = document.createElement('div');
+            overlay.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; pointer-events:none; transition: background-color 0.5s;";
+            overlay.style.backgroundColor = isDarkMode ? "rgba(51, 43, 0, 0.8)" : "rgba(255, 243, 205, 0.8)";
+            document.body.appendChild(overlay);
+            
+            setTimeout(() => { overlay.style.backgroundColor = "transparent"; }, 5500); 
+            setTimeout(() => { overlay.remove(); }, 6000); 
         }
 
         function updateClock() {
