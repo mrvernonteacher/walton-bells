@@ -18,6 +18,27 @@
             overflow-x: hidden;
         }
 
+        /* --- Toast Notification --- */
+        #toast {
+            position: fixed;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #5cb85c;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-weight: bold;
+            font-size: 1.1rem;
+            z-index: 9999;
+            opacity: 0;
+            transition: top 0.5s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.5s ease;
+            pointer-events: none;
+        }
+        #toast.show { top: 20px; opacity: 1; }
+        body.dark-mode #toast { background-color: #2e7d32; color: #e8f5e9; }
+
         /* --- Dark Mode Variables --- */
         body.dark-mode { background-color: #121212; color: #e0e0e0; }
         body.dark-mode .schedule-container, body.dark-mode .sidebar, body.dark-mode #clock { background: #1e1e1e; color: #e0e0e0; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
@@ -38,7 +59,6 @@
         body.dark-mode #autoIndicator { background-color: #1b5e20; color: #a5d6a7; border-color: #2e7d32; }
         body.dark-mode .duty-item { border-bottom-color: #444 !important; }
         
-        /* Brighten buttons in dark mode */
         body.dark-mode .btn { background-color: #1976d2; color: #fff; }
         body.dark-mode .btn:hover { background-color: #1565c0; }
         body.dark-mode .split-button-main { background-color: #0288d1; }
@@ -46,13 +66,8 @@
 
         /* --- Compact Header Layout --- */
         .top-bar {
-            width: 100%;
-            max-width: 1300px;
-            margin: 0 auto 10px auto; 
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
+            width: 100%; max-width: 1300px; margin: 0 auto 10px auto; 
+            display: flex; justify-content: space-between; align-items: center; position: relative;
         }
 
         .header-logo { max-width: 140px; height: auto; display: block; margin: 0 auto; } 
@@ -61,24 +76,13 @@
         .center-title-clock h1 { font-size: 1.4rem; margin-bottom: 0; color: #003366; transition: color 0.3s ease; }
         
         #clock {
-            font-size: 4rem; 
-            font-weight: bold;
-            padding: 5px 20px;
-            background: #fff;
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            color: #003366;
-            display: inline-block;
-            margin-top: 0;
-            transition: all 0.3s ease;
+            font-size: 4rem; font-weight: bold; padding: 5px 20px; background: #fff;
+            border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: #003366;
+            display: inline-block; margin-top: 0; transition: all 0.3s ease;
         }
 
         .action-buttons-left, .action-buttons-right {
-            display: flex;
-            gap: 10px;
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
+            display: flex; gap: 10px; position: absolute; top: 50%; transform: translateY(-50%);
         }
         .action-buttons-left { left: 0; }
         .action-buttons-right { right: 0; }
@@ -90,13 +94,7 @@
         .icon-btn:hover { background-color: #e2e2ec; }
 
         .dashboard-wrapper {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px; 
-            max-width: 1300px;
-            margin: 0 auto;
-            width: 100%;
-            align-items: flex-start;
+            display: flex; flex-wrap: wrap; gap: 15px; max-width: 1300px; margin: 0 auto; width: 100%; align-items: flex-start;
         }
 
         /* --- Sidebar --- */
@@ -105,7 +103,6 @@
             border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             opacity: 1; overflow: hidden; transform-origin: left center;
         }
-        /* Added max-height:0 so the invisible sidebar stops holding the page open */
         .sidebar.collapsed { min-width: 0; max-width: 0; padding: 0; margin-left: -15px; opacity: 0; transform: scaleX(0); border: none; max-height: 0; }
 
         .main-content { flex: 2; min-width: 500px; display: flex; flex-direction: column; transition: all 0.4s ease; }
@@ -195,7 +192,7 @@
         body.dark-mode .student-view .period-time { color: #e0e0e0; }
         .student-view .schedule-header { display: none; } 
 
-        /* Tightly Packed Footer - Now dynamically positioned! */
+        /* Tightly Packed Footer */
         .footer { margin-top: 25px; font-size: 0.85rem; color: #555; text-align: center; width: 100%; transition: color 0.3s ease; }
         .footer p { margin: 0 0 5px 0; font-weight: bold;}
         .footer-logo { max-width: 180px; height: auto; display: inline-block; }
@@ -203,9 +200,11 @@
 </head>
 <body>
 
+    <div id="toast">Loaded Successfully</div>
+
     <div class="top-bar">
         <div class="action-buttons-left">
-            <button id="hamburgerBtn" class="icon-btn" onclick="toggleSidebar()" title="Toggle Settings">☰</button>
+            <button id="hamburgerBtn" class="icon-btn" onclick="toggleSidebar(true)" title="Toggle Settings">☰</button>
         </div>
         
         <div class="center-title-clock">
@@ -225,7 +224,7 @@
                 <div class="switch-container">
                     <span class="sub-label" style="font-weight: bold;" id="darkModeLabel">Dark Mode</span>
                     <label class="switch">
-                        <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()">
+                        <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode(true)">
                         <span class="slider"></span>
                     </label>
                 </div>
@@ -270,9 +269,9 @@
             <div class="control-group">
                 <label class="title" for="scheduleMode">2. Mode & Auto-Sync:</label>
                 <select id="scheduleMode" onchange="changeMode()" style="margin-bottom: 8px;">
-                    <option value="regular">Regular Bell Schedule</option>
-                    <option value="web">WEB Bell Schedule</option>
-                    <option value="custom">Custom Bell Schedule</option>
+                    <option value="daily">Daily Schedule</option>
+                    <option value="web">WEB Schedule</option>
+                    <option value="custom">Custom Schedule</option>
                 </select>
                 
                 <div id="autoIndicator">✓ Auto-Synced</div>
@@ -321,7 +320,7 @@
                 
                 <div class="schedule-header-wrap">
                     <h3 id="schedule-title">Active Schedule</h3>
-                    <button id="studentViewBtn" class="waffle-btn-global" onclick="toggleStudentView()" title="Toggle Options">
+                    <button id="studentViewBtn" class="waffle-btn-global" onclick="toggleStudentView(true)" title="Toggle Options">
                         <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
                             <rect x="4" y="4" width="4" height="4" rx="1"/><rect x="10" y="4" width="4" height="4" rx="1"/><rect x="16" y="4" width="4" height="4" rx="1"/><rect x="4" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="16" y="10" width="4" height="4" rx="1"/><rect x="4" y="16" width="4" height="4" rx="1"/><rect x="10" y="16" width="4" height="4" rx="1"/><rect x="16" y="16" width="4" height="4" rx="1"/>
                         </svg>
@@ -369,7 +368,7 @@
         ];
 
         let predefinedSchedules = {
-            regular: [
+            daily: [
                 { name: "0 pd", start: "07:10", end: "08:13" }, { name: "1st", start: "08:20", end: "09:13" },
                 { name: "HR", start: "09:20", end: "09:30" }, { name: "2nd", start: "09:37", end: "10:30" },
                 { name: "3rd", start: "10:37", end: "11:30" }, { name: "4th", start: "11:37", end: "12:30" },
@@ -389,10 +388,17 @@
             custom: []
         };
 
-        let currentMode = 'regular', activeSchedule = predefinedSchedules.regular, lastPlayedAction = null;
+        let currentMode = 'daily', activeSchedule = predefinedSchedules.daily, lastPlayedAction = null;
         let globalVolume = 1.0, globalVoicePref = '', classSettings = {}, lunchDuties = [];
         let currentTestSound = 'positive', sidebarVisible = true, isStudentView = false, isDarkMode = false, showZero = false, playGoodbyes = false;
-        let currentScheduleName = "Regular"; 
+        let currentScheduleName = "Daily"; 
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 4000);
+        }
 
         function populateVoiceList() {
             const voiceSelect = document.getElementById("voicePreference");
@@ -401,7 +407,6 @@
             
             const selectedURI = globalVoicePref;
             voiceSelect.innerHTML = '';
-            
             const enVoices = voices.filter(v => v.lang.startsWith('en'));
             
             enVoices.forEach(voice => {
@@ -428,7 +433,7 @@
                     const data = await response.json();
                     
                     if (data && data.mode) {
-                        let fetchedMode = data.mode;
+                        let fetchedMode = data.mode.toLowerCase() === 'regular' ? 'daily' : data.mode;
                         
                         if (data.schedule && data.schedule.length > 0) {
                             predefinedSchedules['synced'] = data.schedule;
@@ -444,9 +449,11 @@
                             select.value = 'synced';
                             
                             currentScheduleName = fetchedMode;
+                            showToast(`Loaded: ${fetchedMode.toUpperCase()} Schedule`);
                         } else {
-                            let safeMode = predefinedSchedules[fetchedMode] ? fetchedMode : 'regular';
+                            let safeMode = predefinedSchedules[fetchedMode] ? fetchedMode : 'daily';
                             document.getElementById('scheduleMode').value = safeMode;
+                            showToast(`Loaded: ${safeMode.toUpperCase()} Schedule`);
                         }
 
                         document.getElementById('autoIndicator').style.display = 'block';
@@ -455,8 +462,9 @@
                         changeMode(); 
                     }
                 } catch (err) { 
-                    console.error("Could not sync with Google Calendar. Using local defaults.", err);
-                    document.getElementById('scheduleMode').value = 'regular';
+                    console.error("Could not sync with Google Calendar.", err);
+                    document.getElementById('scheduleMode').value = 'daily';
+                    showToast("Loaded: Default Daily Schedule");
                     changeMode();
                 }
             }, 1000);
@@ -482,17 +490,15 @@
                     if (p.settings) classSettings = p.settings;
                     if (p.lunchDuties) lunchDuties = p.lunchDuties;
                     
-                    currentMode = p.mode || 'regular';
+                    currentMode = p.mode === 'regular' ? 'daily' : (p.mode || 'daily');
                     document.getElementById('scheduleMode').value = currentMode;
                     
                     globalVoicePref = p.voice || '';
-                    
                     if (p.vol !== undefined) {
                         globalVolume = p.vol;
                         document.getElementById('volumeControl').value = globalVolume;
                         document.getElementById('regularBellAudio').volume = globalVolume;
                     }
-                    
                     if (p.testSound) {
                         currentTestSound = p.testSound;
                         const labels = {
@@ -502,14 +508,31 @@
                         if (labels[currentTestSound]) document.getElementById("playBtn").innerHTML = "▶ Play " + labels[currentTestSound];
                     }
 
-                    if (p.side === false) toggleSidebar(false); 
-                    if (p.student === true) toggleStudentView(false);
-                    if (p.dark === true) { document.getElementById('darkModeToggle').checked = true; toggleDarkMode(false); }
+                    // Directly apply UI states without toggling them to avoid snapping
+                    if (p.side === false) {
+                        sidebarVisible = false;
+                        document.getElementById('sidebar').classList.add('collapsed');
+                    }
+                    if (p.student === true) {
+                        isStudentView = true;
+                        document.getElementById('schedule-container').classList.add('student-view');
+                        document.getElementById('disclaimer-text').style.display = 'none';
+                        document.getElementById('studentViewBtn').style.color = '#888';
+                    }
+                    if (p.dark === true) { 
+                        isDarkMode = true;
+                        document.getElementById('darkModeToggle').checked = true; 
+                        document.body.classList.add('dark-mode');
+                    }
                     if (p.zero === true) { document.getElementById('showZeroPeriod').checked = true; showZero = true; }
                     if (p.playGoodbyes === true) { document.getElementById('playGoodbyes').checked = true; playGoodbyes = true; }
                 }
             } catch (e) {}
             renderLunchDuties();
+            
+            // Sync toggle colors with dark mode status on load
+            if(isStudentView && !isDarkMode) { document.getElementById('studentViewBtn').style.color = '#888'; }
+            if(!isStudentView && isDarkMode) { document.getElementById('studentViewBtn').style.color = '#90caf9'; }
         }
 
         function toggleFullScreen() {
@@ -519,25 +542,30 @@
 
         function toggleDarkMode(shouldSave = true) {
             isDarkMode = document.getElementById('darkModeToggle').checked;
-            if (isDarkMode) { document.body.classList.add('dark-mode'); } 
-            else { document.body.classList.remove('dark-mode'); }
+            if (isDarkMode) { 
+                document.body.classList.add('dark-mode'); 
+                if(!isStudentView) document.getElementById('studentViewBtn').style.color = '#90caf9';
+            } else { 
+                document.body.classList.remove('dark-mode'); 
+                if(!isStudentView) document.getElementById('studentViewBtn').style.color = '#003366';
+            }
             if (shouldSave) saveLocalSettings();
             renderLunchDuties(); 
         }
 
         function toggleSidebar(shouldSave = true) {
+            sidebarVisible = !sidebarVisible;
             const sidebar = document.getElementById('sidebar');
-            if (shouldSave) sidebarVisible = !sidebarVisible;
             if (sidebarVisible) sidebar.classList.remove('collapsed');
             else sidebar.classList.add('collapsed');
             if (shouldSave) saveLocalSettings();
         }
 
         function toggleStudentView(shouldSave = true) {
+            isStudentView = !isStudentView;
             const container = document.getElementById('schedule-container');
             const disclaimer = document.getElementById('disclaimer-text');
             const btn = document.getElementById('studentViewBtn');
-            if (shouldSave) isStudentView = !isStudentView;
             
             if (isStudentView) {
                 container.classList.add('student-view'); disclaimer.style.display = 'none'; btn.style.color = '#888';
@@ -579,10 +607,8 @@
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.rate = 0.9; utterance.volume = globalVolume;
             const voices = window.speechSynthesis.getVoices();
-            
             const selectedVoice = voices.find(v => v.voiceURI === globalVoicePref);
             if (selectedVoice) utterance.voice = selectedVoice;
-            
             window.speechSynthesis.speak(utterance);
         }
 
