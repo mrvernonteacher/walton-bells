@@ -21,7 +21,10 @@
         /* --- Dark Mode Variables --- */
         body.dark-mode { background-color: #121212; color: #e0e0e0; }
         body.dark-mode .schedule-container, body.dark-mode .sidebar, body.dark-mode #clock { background: #1e1e1e; color: #e0e0e0; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
-        body.dark-mode h1, body.dark-mode h3, body.dark-mode .schedule-header, body.dark-mode .period-name, body.dark-mode .title { color: #90caf9; border-color: #444; }
+        body.dark-mode h1, body.dark-mode h3, body.dark-mode .schedule-header, body.dark-mode .period-name { color: #90caf9; border-color: #444; }
+        body.dark-mode .control-group label.title { color: #90caf9; }
+        body.dark-mode .sub-label, body.dark-mode #darkModeLabel { color: #ccc !important; }
+        body.dark-mode #disclaimer-text { color: #aaa !important; }
         body.dark-mode #schedule-list li { border-color: #333; }
         body.dark-mode #schedule-list li:nth-child(even) { background-color: #2a2a2a; }
         body.dark-mode select, body.dark-mode input[type="text"], body.dark-mode input[type="time"] { background: #333; color: #fff; border-color: #555; }
@@ -31,8 +34,8 @@
         body.dark-mode .dropdown-content { background-color: #333; border-color: #555; }
         body.dark-mode .dropdown-content button { color: #e0e0e0; border-color: #444; }
         body.dark-mode .dropdown-content button:hover { background-color: #444; color: #90caf9; }
-        body.dark-mode .sub-label { color: #ccc; }
         body.dark-mode .footer { color: #888; }
+        body.dark-mode #autoIndicator { background-color: #1b5e20; color: #a5d6a7; border-color: #2e7d32; }
         
         /* Brighten buttons in dark mode for visibility */
         body.dark-mode .btn { background-color: #1976d2; color: #fff; }
@@ -44,21 +47,20 @@
         .top-bar {
             width: 100%;
             max-width: 1300px;
-            margin: 0 auto 10px auto; /* Reduced margin */
+            margin: 0 auto 10px auto; 
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: relative;
         }
 
-        .header-logo { max-width: 140px; height: auto; display: block; margin: 0 auto; } /* Scaled down slightly */
+        .header-logo { max-width: 140px; height: auto; display: block; margin: 0 auto; } 
         
         .center-title-clock { text-align: center; flex-grow: 1; }
         .center-title-clock h1 { font-size: 1.4rem; margin-bottom: 0; color: #003366; transition: color 0.3s ease; }
-        body.dark-mode .center-title-clock h1 { color: #90caf9; }
-
+        
         #clock {
-            font-size: 4rem; /* Scaled down slightly */
+            font-size: 4rem; 
             font-weight: bold;
             padding: 5px 20px;
             background: #fff;
@@ -89,7 +91,7 @@
         .dashboard-wrapper {
             display: flex;
             flex-wrap: wrap;
-            gap: 15px; /* Tighter gap */
+            gap: 15px; 
             max-width: 1300px;
             margin: 0 auto;
             width: 100%;
@@ -156,6 +158,11 @@
         input:checked + .slider:before { transform: translateX(20px); }
         body.dark-mode input:checked + .slider { background-color: #90caf9; }
 
+        #autoIndicator {
+            display: none; margin-bottom: 8px; font-size: 0.8rem; background: #dff0d8; color: #3c763d; 
+            padding: 4px 8px; border-radius: 5px; font-weight: bold; border: 1px solid #d6e9c6;
+        }
+
         /* Schedule Grid */
         .schedule-grid {
             display: grid;
@@ -165,7 +172,6 @@
         
         .schedule-header { font-size: 0.8rem; font-weight: bold; color: #003366; border-bottom: 2px solid #ccc; padding-bottom: 6px; margin-bottom: 6px; transition: color 0.3s ease; }
         
-        /* Tooltip styling for headers */
         .options-col[title] { cursor: help; border-bottom: 1px dotted rgba(0,0,0,0.3); padding-bottom: 2px; } 
         body.dark-mode .options-col[title] { border-bottom: 1px dotted rgba(255,255,255,0.4); }
         
@@ -261,9 +267,7 @@
                     <option value="custom">Custom Bell Schedule</option>
                 </select>
                 
-                <div id="autoIndicator" style="display: none; margin-bottom: 8px; font-size: 0.8rem; background: #dff0d8; color: #3c763d; padding: 4px 8px; border-radius: 5px; font-weight: bold; border: 1px solid #d6e9c6;">
-                    ✓ Auto-Synced
-                </div>
+                <div id="autoIndicator">✓ Auto-Synced</div>
                 
                 <label class="sub-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                     <input type="checkbox" id="showZeroPeriod" onchange="changeMode()"> Show 0 Period
@@ -327,7 +331,6 @@
     <audio id="regularBellAudio" src="https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3" preload="auto"></audio>
 
     <script>
-        // --- GOOGLE APPS SCRIPT WEB APP URL ---
         const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec"; 
 
         const DEFAULT_PREFS = { putaway: false, attendance: false, cleanup: false, retrieve: false, lunch1: false, lunch2: false };
@@ -357,7 +360,6 @@
         let globalVolume = 1.0, globalVoicePref = '', classSettings = {};
         let currentTestSound = 'start', sidebarVisible = true, isStudentView = false, isDarkMode = false, showZero = false;
 
-        // --- Dynamic Voice Population ---
         function populateVoiceList() {
             const voiceSelect = document.getElementById("voicePreference");
             const voices = window.speechSynthesis.getVoices();
@@ -383,7 +385,6 @@
         }
         window.speechSynthesis.onvoiceschanged = populateVoiceList;
 
-        // --- Google Calendar Auto-Fetch ---
         async function fetchDailySchedule() {
             if (!GOOGLE_CALENDAR_SCRIPT_URL) return;
             
@@ -425,7 +426,6 @@
             }, 1000);
         }
 
-        // --- Core App Logic ---
         function saveLocalSettings() {
             try {
                 const data = {
@@ -570,7 +570,8 @@
         }
 
         function toggleSetting(periodName, settingType, isChecked) {
-            const key = `${currentMode}-${periodName}`;
+            // UPDATED: Now saves using only the period name (e.g., "1st") globally across all modes
+            const key = periodName; 
             if (!classSettings[key]) classSettings[key] = { ...DEFAULT_PREFS };
             classSettings[key][settingType] = isChecked;
             saveLocalSettings();
@@ -591,7 +592,8 @@
             }
 
             filteredSchedule.forEach(period => {
-                const key = `${currentMode}-${period.name}`;
+                // UPDATED: Looks up settings globally based solely on the period name
+                const key = period.name;
                 const s = classSettings[key] || { ...DEFAULT_PREFS };
                 const li = document.createElement('li');
                 li.className = 'schedule-grid';
@@ -673,7 +675,8 @@
             activeSchedule.forEach(period => {
                 if (!showZero && period.name.includes("0 pd")) return;
 
-                const s = classSettings[`${currentMode}-${period.name}`] || { ...DEFAULT_PREFS };
+                // UPDATED: Lookup class settings globally via period.name
+                const s = classSettings[period.name] || { ...DEFAULT_PREFS };
 
                 const startMinus1 = subtractMinutes(period.start, 1);
                 const startPlus5 = addMinutes(period.start, 5);
