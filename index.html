@@ -105,7 +105,8 @@
             border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             opacity: 1; overflow: hidden; transform-origin: left center;
         }
-        .sidebar.collapsed { min-width: 0; max-width: 0; padding: 0; margin-left: -15px; opacity: 0; transform: scaleX(0); border: none; }
+        /* Added max-height:0 so the invisible sidebar stops holding the page open */
+        .sidebar.collapsed { min-width: 0; max-width: 0; padding: 0; margin-left: -15px; opacity: 0; transform: scaleX(0); border: none; max-height: 0; }
 
         .main-content { flex: 2; min-width: 500px; display: flex; flex-direction: column; transition: all 0.4s ease; }
 
@@ -165,7 +166,7 @@
             padding: 4px 8px; border-radius: 5px; font-weight: bold; border: 1px solid #d6e9c6;
         }
 
-        /* Schedule Grid (Cleaned up Lunch Columns) */
+        /* Schedule Grid */
         .schedule-grid {
             display: grid;
             grid-template-columns: 80px repeat(4, 1fr) 110px;
@@ -194,8 +195,8 @@
         body.dark-mode .student-view .period-time { color: #e0e0e0; }
         .student-view .schedule-header { display: none; } 
 
-        /* Tightly Packed Footer */
-        .footer { margin-top: 15px; padding-top: 10px; font-size: 0.85rem; color: #555; text-align: center; width: 100%; transition: color 0.3s ease; }
+        /* Tightly Packed Footer - Now dynamically positioned! */
+        .footer { margin-top: 25px; font-size: 0.85rem; color: #555; text-align: center; width: 100%; transition: color 0.3s ease; }
         .footer p { margin: 0 0 5px 0; font-weight: bold;}
         .footer-logo { max-width: 180px; height: auto; display: inline-block; }
     </style>
@@ -313,14 +314,6 @@
                 <button class="btn" onclick="addCustomPeriod()">Add to Schedule</button>
                 <button class="btn btn-danger" onclick="clearCustomSchedule()">Clear Schedule</button>
             </div>
-
-            <div class="control-group">
-                <label class="title">Backup & Share</label>
-                <button class="btn btn-success" onclick="exportAllSettings()">Export Config</button>
-                <div class="file-input-wrapper" style="margin-top: 6px;">
-                    <input type="file" id="importFile" accept=".json" onchange="importAllSettings(event)">
-                </div>
-            </div>
         </div>
 
         <div class="main-content">
@@ -347,12 +340,12 @@
                 <ul id="schedule-list"></ul>
                 <p id="disclaimer-text" style="font-size: 0.75rem; color: #888; text-align: right; margin-top: 8px;">*The 1-Minute Warning bell is always active by default. Lunch duties run automatically from your sidebar settings.</p>
             </div>
+            
+            <div class="footer">
+                <p>Brought to you by Walton Engineering.</p>
+                <img src="https://drive.google.com/thumbnail?id=1C_7ujbANbJaMShbWDxuXx0m4ZTJLtkSE&sz=w800" alt="Walton Engineering Logo" class="footer-logo">
+            </div>
         </div>
-    </div>
-
-    <div class="footer">
-        <p>Brought to you by Walton Engineering.</p>
-        <img src="https://drive.google.com/thumbnail?id=1C_7ujbANbJaMShbWDxuXx0m4ZTJLtkSE&sz=w800" alt="Walton Engineering Logo" class="footer-logo">
     </div>
 
     <audio id="regularBellAudio" src="https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3" preload="auto"></audio>
@@ -450,7 +443,6 @@
                             syncedOpt.innerText = `Synced: ${fetchedMode.toUpperCase()}`;
                             select.value = 'synced';
                             
-                            // Save the actual Tab name to display on the main screen
                             currentScheduleName = fetchedMode;
                         } else {
                             let safeMode = predefinedSchedules[fetchedMode] ? fetchedMode : 'regular';
@@ -530,7 +522,7 @@
             if (isDarkMode) { document.body.classList.add('dark-mode'); } 
             else { document.body.classList.remove('dark-mode'); }
             if (shouldSave) saveLocalSettings();
-            renderLunchDuties(); // re-render to catch border colors
+            renderLunchDuties(); 
         }
 
         function toggleSidebar(shouldSave = true) {
@@ -609,7 +601,6 @@
             else if (currentTestSound === 'lunch') speak("Reminder. You have lunch duty.");
         }
 
-        // --- Lunch Duty Functions ---
         function addLunchDuty() {
             const day = parseInt(document.getElementById('lunchDay').value);
             const half = parseInt(document.getElementById('lunchHalf').value);
@@ -711,30 +702,6 @@
                 changeMode();
             }
         }
-        function exportAllSettings() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ customSchedule: predefinedSchedules.custom, settings: classSettings, lunchDuties: lunchDuties }));
-            const a = document.createElement('a'); a.setAttribute("href", dataStr); a.setAttribute("download", "Walton_Bell_Settings.json");
-            document.body.appendChild(a); a.click(); a.remove();
-        }
-        function importAllSettings(event) {
-            const file = event.target.files[0]; if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const d = JSON.parse(e.target.result);
-                    if (d.customSchedule !== undefined && d.settings !== undefined) {
-                        predefinedSchedules.custom = d.customSchedule; 
-                        classSettings = d.settings;
-                        if (d.lunchDuties) lunchDuties = d.lunchDuties;
-                        document.getElementById('scheduleMode').value = currentMode; 
-                        changeMode(); 
-                        renderLunchDuties();
-                        alert("Settings imported successfully!");
-                    } else alert("Invalid format.");
-                } catch (err) { alert("Error reading file."); }
-                event.target.value = ''; 
-            }; reader.readAsText(file);
-        }
 
         function formatTime12(time24) { let [h, m] = time24.split(':'); let ampm = h >= 12 ? 'PM' : 'AM'; return `${h % 12 || 12}:${m} ${ampm}`; }
         function subtractMinutes(time24, minsToSubtract) {
@@ -761,7 +728,7 @@
             document.getElementById('clock').innerText = now.toLocaleTimeString('en-US');
             let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
             
-            const todayDayOfWeek = now.getDay(); // 0=Sun, 1=Mon...
+            const todayDayOfWeek = now.getDay(); 
             const isWebDay = currentScheduleName.toLowerCase().includes('web');
 
             activeSchedule.forEach(period => {
@@ -769,11 +736,9 @@
 
                 const s = classSettings[period.name] || { ...DEFAULT_PREFS };
 
-                // Determine if Teacher has Lunch Duty for this specific period today
                 const hasLunch1 = lunchDuties.some(d => d.day === todayDayOfWeek && d.period.toLowerCase() === period.name.toLowerCase() && d.half === 1);
                 let hasLunch2 = lunchDuties.some(d => d.day === todayDayOfWeek && d.period.toLowerCase() === period.name.toLowerCase() && d.half === 2);
                 
-                // WEB Day exception for 2nd half duties
                 if (isWebDay) {
                     hasLunch2 = false; 
                 }
