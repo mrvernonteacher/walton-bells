@@ -25,8 +25,8 @@
         body.dark-mode #schedule-list li { border-color: #333; }
         body.dark-mode #schedule-list li:nth-child(even) { background-color: #2a2a2a; }
         body.dark-mode select, body.dark-mode input[type="text"], body.dark-mode input[type="time"] { background: #333; color: #fff; border-color: #555; }
-        body.dark-mode .hamburger-btn, body.dark-mode .waffle-btn-global, body.dark-mode .icon-btn { color: #90caf9; }
-        body.dark-mode .hamburger-btn:hover, body.dark-mode .waffle-btn-global:hover, body.dark-mode .icon-btn:hover { background-color: #333; }
+        body.dark-mode .icon-btn, body.dark-mode .waffle-btn-global { color: #90caf9; }
+        body.dark-mode .icon-btn:hover, body.dark-mode .waffle-btn-global:hover { background-color: #333; }
         body.dark-mode .period-time { color: #aaa; }
         body.dark-mode .dropdown-content { background-color: #333; border-color: #555; }
         body.dark-mode .dropdown-content button { color: #e0e0e0; border-color: #444; }
@@ -43,13 +43,14 @@
             position: relative;
         }
 
-        .header-logo { max-width: 150px; height: auto; }
-        .center-title-clock { text-align: center; }
+        .header-logo { max-width: 180px; height: auto; display: block; margin: 0 auto; }
+        
+        .center-title-clock { text-align: center; flex-grow: 1; }
         .center-title-clock h1 { font-size: 1.5rem; margin-bottom: 0; color: #003366; transition: color 0.3s ease; }
         body.dark-mode .center-title-clock h1 { color: #90caf9; }
 
         #clock {
-            font-size: 4.5rem; /* Slightly smaller to fit */
+            font-size: 4.5rem;
             font-weight: bold;
             padding: 10px 30px;
             background: #fff;
@@ -65,13 +66,14 @@
             display: flex;
             gap: 10px;
             position: absolute;
-            top: 0;
+            top: 50%;
+            transform: translateY(-50%);
         }
         .action-buttons-left { left: 0; }
         .action-buttons-right { right: 0; }
 
         .icon-btn {
-            background: none; border: none; font-size: 1.8rem; color: #003366; cursor: pointer;
+            background: none; border: none; font-size: 2rem; color: #003366; cursor: pointer;
             padding: 8px; border-radius: 8px; transition: background-color 0.2s; display: flex; align-items: center; justify-content: center;
         }
         .icon-btn:hover { background-color: #e2e2ec; }
@@ -102,7 +104,6 @@
         .schedule-header-wrap { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         .schedule-header-wrap h3 { margin: 0; font-size: 1.3rem; color: #003366; transition: color 0.3s ease; }
 
-        /* Waffle Button */
         .waffle-btn-global {
             background: none; border: none; color: #003366; cursor: pointer; padding: 5px; border-radius: 8px;
             display: flex; align-items: center; justify-content: center; transition: background-color 0.2s, color 0.2s;
@@ -113,11 +114,10 @@
         .control-group { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 15px;}
         .control-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
         .control-group label.title { font-weight: bold; display: block; margin-bottom: 8px; color: #003366; transition: color 0.3s ease; }
-        select, input[type="time"], input[type="text"] { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 1rem; }
+        select, input[type="time"], input[type="text"] { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 0.95rem; }
         .volume-container { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
         input[type="range"] { flex-grow: 1; cursor: pointer; }
 
-        /* Split-Button Dropdown */
         .split-button-container { display: flex; align-items: stretch; width: 100%; margin-top: 10px; }
         .split-button-main { flex-grow: 1; background-color: #5bc0de; color: white; border: none; padding: 10px 15px; border-radius: 5px 0 0 5px; cursor: pointer; font-size: 1rem; font-weight: bold; transition: background-color 0.2s; text-align: left; }
         .split-button-main:hover { background-color: #31b0d5; }
@@ -136,7 +136,7 @@
         .btn-success { background-color: #5cb85c; }
         .btn-success:hover { background-color: #4cae4c; }
 
-        /* Custom Toggle Switch for Dark Mode */
+        /* Custom Toggles */
         .switch-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -146,7 +146,7 @@
         input:checked + .slider:before { transform: translateX(20px); }
         body.dark-mode input:checked + .slider { background-color: #90caf9; }
 
-        /* Schedule Grid (Now 8 columns) */
+        /* Schedule Grid */
         .schedule-grid {
             display: grid;
             grid-template-columns: 80px repeat(6, 1fr) 110px;
@@ -162,7 +162,7 @@
         .period-name { font-weight: bold; text-align: left; font-size: 1.1rem; transition: all 0.3s ease;}
         .period-time { text-align: right; font-size: 1rem; color: #555; transition: all 0.3s ease;}
 
-        /* STUDENT VIEW (Hidden Options via Waffle Menu) */
+        /* Student View */
         .student-view .options-col { display: none; }
         .student-view .schedule-grid { grid-template-columns: 1fr 1fr; padding: 5px 20px; }
         .student-view .period-name { font-size: 2.2rem; color: #003366; }
@@ -170,6 +170,9 @@
         .student-view .period-time { font-size: 2rem; font-weight: bold; color: #333; }
         body.dark-mode .student-view .period-time { color: #e0e0e0; }
         .student-view .schedule-header { display: none; } 
+
+        .footer { margin-top: 40px; padding-top: 20px; font-size: 1rem; color: #555; text-align: center; width: 100%; }
+        .footer-logo { max-width: 250px; height: auto; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -177,20 +180,15 @@
     <div class="top-bar">
         <div class="action-buttons-left">
             <button id="hamburgerBtn" class="icon-btn" onclick="toggleSidebar()" title="Toggle Settings">☰</button>
-            <button class="icon-btn" onclick="toggleFullScreen()" title="Full Screen">⛶</button>
         </div>
         
-        <img src="https://drive.google.com/thumbnail?id=1XJEeGiblu9O3iGevy_j8RLR06LcyimqQ&sz=w400" alt="Walton Logo" class="header-logo">
-        
         <div class="center-title-clock">
-            <h1>Walton Bell Schedule</h1>
+            <img src="https://drive.google.com/thumbnail?id=1XJEeGiblu9O3iGevy_j8RLR06LcyimqQ&sz=w400" alt="Walton Logo" class="header-logo">
             <div id="clock">00:00:00 AM</div>
         </div>
 
-        <img src="https://drive.google.com/thumbnail?id=1C_7ujbANbJaMShbWDxuXx0m4ZTJLtkSE&sz=w400" alt="Walton Engineering Logo" class="header-logo">
-        
         <div class="action-buttons-right">
-            <div style="width: 80px;"></div> 
+            <button class="icon-btn" onclick="toggleFullScreen()" title="Full Screen">⛶</button>
         </div>
     </div>
 
@@ -208,15 +206,11 @@
             </div>
 
             <div class="control-group">
-                <label class="title">1. Audio Settings & Testing</label>
+                <label class="title">1. Audio Settings</label>
                 
+                <label style="font-size: 0.85rem; color: #777; margin-bottom: 5px; display: block;">Dynamic Voice Selection:</label>
                 <select id="voicePreference" onchange="changeVoicePref()" style="margin-bottom: 10px;">
-                    <option value="us-female">US Female (Default)</option>
-                    <option value="us-male">US Male</option>
-                    <option value="au-female">Australian Female</option>
-                    <option value="au-male">Australian Male</option>
-                    <option value="uk-female">British Female</option>
-                    <option value="uk-male">British Male</option>
+                    <option value="">Loading voices...</option>
                 </select>
 
                 <div class="volume-container">
@@ -244,11 +238,15 @@
 
             <div class="control-group">
                 <label class="title" for="scheduleMode">2. Select Schedule Mode:</label>
-                <select id="scheduleMode" onchange="changeMode()">
+                <select id="scheduleMode" onchange="changeMode()" style="margin-bottom: 10px;">
                     <option value="regular">Regular Bell Schedule</option>
                     <option value="web">WEB Bell Schedule</option>
                     <option value="custom">Custom Bell Schedule</option>
                 </select>
+                
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; color: #555;">
+                    <input type="checkbox" id="showZeroPeriod" onchange="changeMode()"> Show 0 Period
+                </label>
             </div>
 
             <div class="control-group" id="custom-builder">
@@ -275,7 +273,9 @@
             <div class="schedule-container" id="schedule-container">
                 
                 <div class="schedule-header-wrap">
-                    <h3 id="schedule-title">Active Schedule</h3>
+                    <h3 id="schedule-title" style="display: flex; align-items: center; gap: 10px;">
+                        Active Schedule <span id="autoIndicator" style="display: none; font-size: 0.8rem; background: #5cb85c; color: white; padding: 2px 8px; border-radius: 12px; font-weight: normal;">Auto-Synced</span>
+                    </h3>
                     <button id="studentViewBtn" class="waffle-btn-global" onclick="toggleStudentView()" title="Toggle Options">
                         <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
                             <rect x="4" y="4" width="4" height="4" rx="1"/><rect x="10" y="4" width="4" height="4" rx="1"/><rect x="16" y="4" width="4" height="4" rx="1"/><rect x="4" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="16" y="10" width="4" height="4" rx="1"/><rect x="4" y="16" width="4" height="4" rx="1"/><rect x="10" y="16" width="4" height="4" rx="1"/><rect x="16" y="16" width="4" height="4" rx="1"/>
@@ -300,9 +300,18 @@
         </div>
     </div>
 
+    <div class="footer">
+        <p>Brought to you by Walton Engineering.</p>
+        <img src="https://drive.google.com/thumbnail?id=1C_7ujbANbJaMShbWDxuXx0m4ZTJLtkSE&sz=w800" alt="Walton Engineering Logo" class="footer-logo">
+    </div>
+
     <audio id="regularBellAudio" src="https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3" preload="auto"></audio>
 
     <script>
+        // --- GOOGLE APPS SCRIPT WEB APP URL ---
+        // We will paste your generated URL here in Step 2!
+        const GOOGLE_CALENDAR_SCRIPT_URL = ""; 
+
         const DEFAULT_PREFS = { putaway: false, attendance: false, cleanup: false, retrieve: false, lunch1: false, lunch2: false };
 
         let predefinedSchedules = {
@@ -327,16 +336,56 @@
         };
 
         let currentMode = 'regular', activeSchedule = predefinedSchedules.regular, lastPlayedAction = null;
-        let globalVolume = 1.0, globalVoicePref = 'us-female', classSettings = {};
-        let currentTestSound = 'start', sidebarVisible = true, isStudentView = false, isDarkMode = false;
+        let globalVolume = 1.0, globalVoicePref = '', classSettings = {};
+        let currentTestSound = 'start', sidebarVisible = true, isStudentView = false, isDarkMode = false, showZero = false;
 
-        window.speechSynthesis.getVoices();
+        // --- Dynamic Voice Population ---
+        function populateVoiceList() {
+            const voiceSelect = document.getElementById("voicePreference");
+            const voices = window.speechSynthesis.getVoices();
+            if(voices.length === 0) return;
+            
+            const selectedURI = globalVoicePref;
+            voiceSelect.innerHTML = '';
+            
+            // Only grab English voices to keep the list clean
+            const enVoices = voices.filter(v => v.lang.startsWith('en'));
+            
+            enVoices.forEach(voice => {
+                const option = document.createElement('option');
+                option.textContent = `${voice.name} (${voice.lang})`;
+                option.value = voice.voiceURI;
+                if(voice.voiceURI === selectedURI) option.selected = true;
+                voiceSelect.appendChild(option);
+            });
+            
+            if(!voiceSelect.value && enVoices.length > 0) {
+                voiceSelect.value = enVoices[0].voiceURI;
+            }
+            globalVoicePref = voiceSelect.value;
+        }
+        window.speechSynthesis.onvoiceschanged = populateVoiceList;
 
+        // --- Google Calendar Auto-Fetch ---
+        async function fetchDailySchedule() {
+            if (!GOOGLE_CALENDAR_SCRIPT_URL) return;
+            try {
+                const response = await fetch(GOOGLE_CALENDAR_SCRIPT_URL);
+                const data = await response.json();
+                if (data && data.mode) {
+                    document.getElementById('scheduleMode').value = data.mode;
+                    document.getElementById('autoIndicator').style.display = 'inline-block';
+                    changeMode(); // Apply the change
+                }
+            } catch (err) { console.error("Could not sync with Google Calendar", err); }
+        }
+
+        // --- Core App Logic ---
         function saveLocalSettings() {
             try {
                 const data = {
                     mode: currentMode, vol: globalVolume, voice: globalVoicePref, testSound: currentTestSound,
-                    side: sidebarVisible, student: isStudentView, dark: isDarkMode,
+                    side: sidebarVisible, student: isStudentView, dark: isDarkMode, zero: showZero,
                     customSchedule: predefinedSchedules.custom, settings: classSettings
                 };
                 localStorage.setItem('waltonBellState', JSON.stringify(data));
@@ -354,8 +403,7 @@
                     currentMode = p.mode || 'regular';
                     document.getElementById('scheduleMode').value = currentMode;
                     
-                    globalVoicePref = p.voice || 'us-female';
-                    document.getElementById('voicePreference').value = globalVoicePref;
+                    globalVoicePref = p.voice || '';
                     
                     if (p.vol !== undefined) {
                         globalVolume = p.vol;
@@ -374,34 +422,21 @@
 
                     if (p.side === false) toggleSidebar(false); 
                     if (p.student === true) toggleStudentView(false);
-                    if (p.dark === true) {
-                        document.getElementById('darkModeToggle').checked = true;
-                        toggleDarkMode(false);
-                    }
+                    if (p.dark === true) { document.getElementById('darkModeToggle').checked = true; toggleDarkMode(false); }
+                    if (p.zero === true) { document.getElementById('showZeroPeriod').checked = true; showZero = true; }
                 }
             } catch (e) {}
         }
 
         function toggleFullScreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log(`Error attempting to enable fullscreen: ${err.message}`);
-                });
-            } else {
-                if (document.exitFullscreen) document.exitFullscreen();
-            }
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(err => {});
+            else if (document.exitFullscreen) document.exitFullscreen();
         }
 
         function toggleDarkMode(shouldSave = true) {
-            const isChecked = document.getElementById('darkModeToggle').checked;
-            isDarkMode = isChecked;
-            if (isChecked) {
-                document.body.classList.add('dark-mode');
-                document.getElementById('darkModeLabel').style.color = '#90caf9';
-            } else {
-                document.body.classList.remove('dark-mode');
-                document.getElementById('darkModeLabel').style.color = '#555';
-            }
+            isDarkMode = document.getElementById('darkModeToggle').checked;
+            if (isDarkMode) { document.body.classList.add('dark-mode'); document.getElementById('darkModeLabel').style.color = '#90caf9'; } 
+            else { document.body.classList.remove('dark-mode'); document.getElementById('darkModeLabel').style.color = '#555'; }
             if (shouldSave) saveLocalSettings();
         }
 
@@ -420,51 +455,33 @@
             if (shouldSave) isStudentView = !isStudentView;
             
             if (isStudentView) {
-                container.classList.add('student-view');
-                disclaimer.style.display = 'none';
-                btn.style.color = '#888';
+                container.classList.add('student-view'); disclaimer.style.display = 'none'; btn.style.color = '#888';
             } else {
-                container.classList.remove('student-view');
-                disclaimer.style.display = 'block';
-                btn.style.color = isDarkMode ? '#90caf9' : '#003366'; 
+                container.classList.remove('student-view'); disclaimer.style.display = 'block'; btn.style.color = isDarkMode ? '#90caf9' : '#003366'; 
             }
             if (shouldSave) saveLocalSettings();
         }
 
-        function toggleDropdown(event) {
-            event.stopPropagation();
-            document.getElementById("soundDropdown").classList.toggle("show");
-        }
+        function toggleDropdown(event) { event.stopPropagation(); document.getElementById("soundDropdown").classList.toggle("show"); }
 
         window.onclick = function(event) {
             if (!event.target.matches('.split-button-caret')) {
                 let dropdowns = document.getElementsByClassName("dropdown-content");
-                for (let i = 0; i < dropdowns.length; i++) {
-                    if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
-                }
+                for (let i = 0; i < dropdowns.length; i++) if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
             }
         }
 
         function selectTestSound(value, label) {
-            currentTestSound = value;
-            document.getElementById("playBtn").innerHTML = "▶ Play " + label;
-            document.getElementById("soundDropdown").classList.remove("show");
-            saveLocalSettings();
+            currentTestSound = value; document.getElementById("playBtn").innerHTML = "▶ Play " + label;
+            document.getElementById("soundDropdown").classList.remove("show"); saveLocalSettings();
         }
 
         function changeVolume() { globalVolume = document.getElementById('volumeControl').value; document.getElementById('regularBellAudio').volume = globalVolume; saveLocalSettings(); }
         function changeVoicePref() { globalVoicePref = document.getElementById('voicePreference').value; saveLocalSettings(); }
 
         function playBellWithQueue(timesLeft = 1, onCompleteCallback = null) {
-            const audio = document.getElementById('regularBellAudio');
-            audio.currentTime = 0;
-            audio.onended = () => {
-                if (timesLeft > 1) playBellWithQueue(timesLeft - 1, onCompleteCallback);
-                else {
-                    audio.onended = null; 
-                    if (onCompleteCallback) onCompleteCallback();
-                }
-            };
+            const audio = document.getElementById('regularBellAudio'); audio.currentTime = 0;
+            audio.onended = () => { if (timesLeft > 1) playBellWithQueue(timesLeft - 1, onCompleteCallback); else { audio.onended = null; if (onCompleteCallback) onCompleteCallback(); } };
             audio.play().catch(e => console.log("Audio play failed.", e));
         }
 
@@ -472,16 +489,11 @@
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.rate = 0.9; utterance.volume = globalVolume;
             const voices = window.speechSynthesis.getVoices();
-            let v = null;
             
-            if (globalVoicePref === 'au-female') v = voices.find(v => (/en-AU/i.test(v.lang) || /Australian/i.test(v.name)) && /female|karen|catherine|lee/i.test(v.name)) || voices.find(v => /en-AU/i.test(v.lang));
-            else if (globalVoicePref === 'au-male') v = voices.find(v => (/en-AU/i.test(v.lang) || /Australian/i.test(v.name)) && /male|gordon|james/i.test(v.name));
-            else if (globalVoicePref === 'uk-female') v = voices.find(v => (/en-GB/i.test(v.lang) || /British|UK/i.test(v.name)) && /female|hazel|serena|alice/i.test(v.name)) || voices.find(v => /en-GB/i.test(v.lang));
-            else if (globalVoicePref === 'uk-male') v = voices.find(v => (/en-GB/i.test(v.lang) || /British|UK/i.test(v.name)) && /male|george|daniel|oliver/i.test(v.name));
-            else if (globalVoicePref === 'us-male') v = voices.find(v => (/en-US/i.test(v.lang) || /American/i.test(v.name)) && /male|david|mark|guy/i.test(v.name));
-            else v = voices.find(v => (/en-US/i.test(v.lang) || /American/i.test(v.name)) && /female|zira|samantha|victoria/i.test(v.name));
+            // Find the exact voice URI the user selected
+            const selectedVoice = voices.find(v => v.voiceURI === globalVoicePref);
+            if (selectedVoice) utterance.voice = selectedVoice;
             
-            if (v) utterance.voice = v;
             window.speechSynthesis.speak(utterance);
         }
 
@@ -498,10 +510,13 @@
 
         function changeMode() {
             currentMode = document.getElementById('scheduleMode').value;
+            showZero = document.getElementById('showZeroPeriod').checked;
+            
             activeSchedule = predefinedSchedules[currentMode];
             document.getElementById('custom-builder').style.display = (currentMode === 'custom') ? 'block' : 'none';
             const titles = { 'regular': 'Regular Schedule', 'web': 'WEB Schedule', 'custom': 'Custom Schedule' };
-            document.getElementById('schedule-title').innerText = titles[currentMode];
+            document.getElementById('schedule-title').childNodes[0].nodeValue = titles[currentMode] + ' '; // Update text without destroying auto indicator
+            
             renderSchedule();
             saveLocalSettings();
         }
@@ -516,9 +531,16 @@
         function renderSchedule() {
             const list = document.getElementById('schedule-list');
             list.innerHTML = '';
-            if (activeSchedule.length === 0) { list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>No periods added yet. Use the custom builder on the left.</em></li>'; return; }
+            
+            let filteredSchedule = activeSchedule;
+            // Filter out 0 pd if toggle is off
+            if (!showZero) {
+                filteredSchedule = activeSchedule.filter(p => !p.name.includes("0 pd"));
+            }
 
-            activeSchedule.forEach(period => {
+            if (filteredSchedule.length === 0) { list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>No periods added yet.</em></li>'; return; }
+
+            filteredSchedule.forEach(period => {
                 const key = `${currentMode}-${period.name}`;
                 const s = classSettings[key] || { ...DEFAULT_PREFS };
                 const li = document.createElement('li');
@@ -539,31 +561,24 @@
         }
 
         function addCustomPeriod() {
-            const name = document.getElementById('customName').value;
-            const start = document.getElementById('customStart').value;
-            const end = document.getElementById('customEnd').value;
+            const name = document.getElementById('customName').value, start = document.getElementById('customStart').value, end = document.getElementById('customEnd').value;
             if (name && start && end) {
-                predefinedSchedules.custom.push({ name, start, end });
-                predefinedSchedules.custom.sort((a, b) => a.start.localeCompare(b.start));
-                renderSchedule(); saveLocalSettings();
-                document.getElementById('customName').value = ''; document.getElementById('customStart').value = ''; document.getElementById('customEnd').value = '';
+                predefinedSchedules.custom.push({ name, start, end }); predefinedSchedules.custom.sort((a, b) => a.start.localeCompare(b.start));
+                changeMode(); document.getElementById('customName').value = ''; document.getElementById('customStart').value = ''; document.getElementById('customEnd').value = '';
             }
         }
-
         function clearCustomSchedule() {
             if(confirm("Are you sure you want to clear your custom schedule?")) {
                 predefinedSchedules.custom = [];
                 Object.keys(classSettings).forEach(key => { if (key.startsWith('custom-')) delete classSettings[key]; });
-                renderSchedule(); saveLocalSettings();
+                changeMode();
             }
         }
-
         function exportAllSettings() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ customSchedule: predefinedSchedules.custom, settings: classSettings }));
             const a = document.createElement('a'); a.setAttribute("href", dataStr); a.setAttribute("download", "Walton_Bell_Settings.json");
             document.body.appendChild(a); a.click(); a.remove();
         }
-
         function importAllSettings(event) {
             const file = event.target.files[0]; if (!file) return;
             const reader = new FileReader();
@@ -572,20 +587,15 @@
                     const d = JSON.parse(e.target.result);
                     if (d.customSchedule !== undefined && d.settings !== undefined) {
                         predefinedSchedules.custom = d.customSchedule; classSettings = d.settings;
-                        document.getElementById('scheduleMode').value = currentMode; 
-                        changeMode(); alert("Settings imported successfully!");
+                        document.getElementById('scheduleMode').value = currentMode; changeMode(); alert("Settings imported successfully!");
                     } else alert("Invalid format.");
                 } catch (err) { alert("Error reading file."); }
                 event.target.value = ''; 
-            };
-            reader.readAsText(file);
+            }; reader.readAsText(file);
         }
 
         // Time Math Utilities
-        function formatTime12(time24) {
-            let [h, m] = time24.split(':'); let ampm = h >= 12 ? 'PM' : 'AM';
-            return `${h % 12 || 12}:${m} ${ampm}`;
-        }
+        function formatTime12(time24) { let [h, m] = time24.split(':'); let ampm = h >= 12 ? 'PM' : 'AM'; return `${h % 12 || 12}:${m} ${ampm}`; }
         function subtractMinutes(time24, minsToSubtract) {
             let [h, m] = time24.split(':').map(Number); let d = new Date(); d.setHours(h, m, 0, 0); d.setMinutes(d.getMinutes() - minsToSubtract);
             return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
@@ -611,6 +621,9 @@
             let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
 
             activeSchedule.forEach(period => {
+                // If 0 period is hidden, don't trigger its alarms!
+                if (!showZero && period.name.includes("0 pd")) return;
+
                 const s = classSettings[`${currentMode}-${period.name}`] || { ...DEFAULT_PREFS };
 
                 const startMinus1 = subtractMinutes(period.start, 1);
@@ -619,7 +632,6 @@
                 const endMinus1 = subtractMinutes(period.end, 1);
                 const midPoint = getMidpoint(period.start, period.end);
 
-                // Start of class
                 if (current24 === period.start) {
                     triggerEvent(current24, `start-${period.name}`, () => {
                         triggerVisualAlert();
@@ -632,14 +644,10 @@
                     });
                 }
                 
-                // End of class
                 if (current24 === period.end) {
-                    triggerEvent(current24, `end-${period.name}`, () => {
-                        triggerVisualAlert(); playBellWithQueue(3);
-                    });
+                    triggerEvent(current24, `end-${period.name}`, () => { triggerVisualAlert(); playBellWithQueue(3); });
                 }
 
-                // 1-min warning
                 if (current24 === startMinus1) {
                     triggerEvent(current24, `warning1m-${period.name}`, () => {
                         triggerVisualAlert();
@@ -649,48 +657,36 @@
                     });
                 }
 
-                // Attendance (+5 mins)
                 if (s.attendance && current24 === startPlus5) {
-                    triggerEvent(current24, `attendance5m-${period.name}`, () => {
-                        triggerVisualAlert(); speak("Reminder. Please take attendance.");
-                    });
+                    triggerEvent(current24, `attendance5m-${period.name}`, () => { triggerVisualAlert(); speak("Reminder. Please take attendance."); });
                 }
                 
-                // 2nd Half Lunch Duty (Midpoint)
                 if (s.lunch2 && current24 === midPoint) {
-                    triggerEvent(current24, `lunch2-${period.name}`, () => {
-                        triggerVisualAlert(); speak("Reminder. You have second half lunch duty.");
-                    });
+                    triggerEvent(current24, `lunch2-${period.name}`, () => { triggerVisualAlert(); speak("Reminder. You have second half lunch duty."); });
                 }
 
-                // 5-min clean up
                 if (s.cleanup && current24 === endMinus5) {
-                    triggerEvent(current24, `cleanup5m-${period.name}`, () => {
-                        triggerVisualAlert(); speak("Five minutes remaining. Please begin cleaning up your area.");
-                    });
+                    triggerEvent(current24, `cleanup5m-${period.name}`, () => { triggerVisualAlert(); speak("Five minutes remaining. Please begin cleaning up your area."); });
                 }
 
-                // Phone retrieve
                 if (s.retrieve && current24 === endMinus1) {
-                    triggerEvent(current24, `phone1m-${period.name}`, () => {
-                        triggerVisualAlert(); speak("One minute remaining. You may retrieve your cell phones.");
-                    });
+                    triggerEvent(current24, `phone1m-${period.name}`, () => { triggerVisualAlert(); speak("One minute remaining. You may retrieve your cell phones."); });
                 }
             });
         }
 
         function triggerEvent(time, action, callback) {
             const eventKey = `${time}-${action}`;
-            if (lastPlayedAction !== eventKey) {
-                callback(); lastPlayedAction = eventKey;
-            }
+            if (lastPlayedAction !== eventKey) { callback(); lastPlayedAction = eventKey; }
         }
 
         const worker = new Worker(URL.createObjectURL(new Blob([`setInterval(() => { postMessage('tick'); }, 1000);`], { type: 'application/javascript' })));
         worker.onmessage = function() { updateClock(); };
 
+        // INITIALIZATION
+        populateVoiceList(); 
         loadLocalSettings(); 
-        changeMode(); 
+        fetchDailySchedule(); // Ping Google Calendar
         updateClock();
     </script>
 </body>
