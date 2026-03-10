@@ -32,10 +32,9 @@
             margin-bottom: 5px;
         }
 
-        /* Top Bar & Hamburger Menu */
         .top-bar {
             width: 100%;
-            max-width: 1300px;
+            max-width: 1100px;
             margin: 0 auto 30px auto;
             display: flex;
             justify-content: center;
@@ -55,15 +54,13 @@
             transform: translateY(-50%);
             padding: 10px;
             border-radius: 8px;
-            transition: background-color 0.2s, transform 0.2s;
+            transition: background-color 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .hamburger-btn:hover {
-            background-color: #e2e2ec;
-        }
+        .hamburger-btn:hover { background-color: #e2e2ec; }
 
         #clock {
             font-size: 6rem;
@@ -81,17 +78,17 @@
             display: flex;
             flex-wrap: wrap;
             gap: 30px;
-            max-width: 1300px;
+            max-width: 1100px;
             margin: 0 auto;
             width: 100%;
             align-items: flex-start;
         }
 
-        /* Sidebar with Smooth Collapse Animation */
+        /* Sidebar Styling */
         .sidebar {
             flex: 1;
             min-width: 320px;
-            max-width: 400px;
+            max-width: 350px;
             background: #fff;
             padding: 25px;
             border-radius: 10px;
@@ -107,7 +104,7 @@
             max-width: 0;
             padding-left: 0;
             padding-right: 0;
-            margin-left: -30px; /* Pulls the main content left smoothly */
+            margin-left: -30px; 
             opacity: 0;
             transform: scaleX(0);
             border: none;
@@ -115,7 +112,7 @@
 
         .main-content {
             flex: 2;
-            min-width: 650px; 
+            min-width: 500px; 
             display: flex;
             flex-direction: column;
             transition: all 0.4s ease;
@@ -130,16 +127,14 @@
             box-sizing: border-box;
         }
 
-        .schedule-header-wrap {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+        .schedule-container h3 { 
+            margin-top: 0; 
+            margin-bottom: 20px; 
             border-bottom: 2px solid #eee;
             padding-bottom: 10px;
+            font-size: 1.5rem;
+            color: #003366;
         }
-
-        .schedule-header-wrap h3 { margin: 0; }
 
         .control-group { margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 15px;}
         .control-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
@@ -152,139 +147,124 @@
         input[type="range"] { flex-grow: 1; cursor: pointer; }
 
         /* Split-Button Dropdown Styles */
-        .split-button-container {
-            display: flex;
-            align-items: stretch;
-            width: 100%;
-            margin-top: 10px;
-        }
-        
+        .split-button-container { display: flex; align-items: stretch; width: 100%; margin-top: 10px; }
         .split-button-main {
-            flex-grow: 1;
-            background-color: #5bc0de;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 5px 0 0 5px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: bold;
-            transition: background-color 0.2s;
-            text-align: left;
-            margin: 0;
+            flex-grow: 1; background-color: #5bc0de; color: white; border: none; padding: 12px 20px;
+            border-radius: 5px 0 0 5px; cursor: pointer; font-size: 1rem; font-weight: bold;
+            transition: background-color 0.2s; text-align: left; margin: 0;
         }
         .split-button-main:hover { background-color: #31b0d5; }
-
         .dropdown { position: relative; display: flex; }
-        
         .split-button-caret {
-            background-color: #46b8da;
-            color: white;
-            border: none;
-            border-left: 1px solid #31b0d5;
-            padding: 0 15px;
-            border-radius: 0 5px 5px 0;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.2s;
-            margin: 0;
+            background-color: #46b8da; color: white; border: none; border-left: 1px solid #31b0d5;
+            padding: 0 15px; border-radius: 0 5px 5px 0; cursor: pointer; font-size: 1rem; transition: background-color 0.2s; margin: 0;
         }
         .split-button-caret:hover { background-color: #31b0d5; }
-
         .dropdown-content {
-            display: none;
-            position: absolute;
-            right: 0;
-            top: 100%;
-            background-color: #fff;
-            min-width: 240px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 10;
-            border-radius: 5px;
-            overflow: hidden;
-            border: 1px solid #ddd;
+            display: none; position: absolute; right: 0; top: 100%; background-color: #fff; min-width: 240px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 10; border-radius: 5px; overflow: hidden; border: 1px solid #ddd;
         }
-        
         .dropdown-content.show { display: block; }
-        
         .dropdown-content button {
-            color: #333;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            width: 100%;
-            background: none;
-            border: none;
-            border-bottom: 1px solid #eee;
-            text-align: left;
-            margin: 0;
-            border-radius: 0;
-            font-weight: normal;
+            color: #333; padding: 12px 16px; text-decoration: none; display: block; width: 100%; background: none;
+            border: none; border-bottom: 1px solid #eee; text-align: left; margin: 0; border-radius: 0; font-weight: normal;
         }
-        .dropdown-content button:last-child { border-bottom: none; }
         .dropdown-content button:hover { background-color: #f1f1f1; color: #003366; }
 
-        /* General Button Styles */
         .btn {
             background-color: #003366; color: white; border: none; padding: 12px 20px;
-            border-radius: 5px; cursor: pointer; font-size: 1rem; width: 100%; margin-top: 10px;
-            font-weight: bold;
-            transition: background-color 0.2s;
+            border-radius: 5px; cursor: pointer; font-size: 1rem; width: 100%; margin-top: 10px; font-weight: bold; transition: background-color 0.2s;
         }
-        .btn.inline { width: auto; margin-top: 0; }
         .btn:hover { background-color: #002244; }
         .btn-danger { background-color: #d9534f; }
         .btn-danger:hover { background-color: #c9302c; }
         .btn-success { background-color: #5cb85c; }
         .btn-success:hover { background-color: #4cae4c; }
-        .btn-outline { background-color: transparent; border: 2px solid #003366; color: #003366; }
-        .btn-outline:hover { background-color: #003366; color: white; }
 
         .file-input-wrapper { margin-top: 10px; }
         .file-input-wrapper input[type="file"] { font-size: 0.9rem; padding: 5px; width: 100%; }
-
         #custom-builder { display: none; margin-top: 10px; }
         
-        /* Grid Layout for Schedule */
-        .schedule-grid {
-            display: grid;
-            grid-template-columns: 80px repeat(4, 1fr) 130px;
-            gap: 10px;
-            align-items: center;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-        
-        .schedule-header {
-            font-size: 0.85rem;
-            font-weight: bold;
-            color: #003366;
-            border-bottom: 2px solid #ccc;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
-        }
-        
+        /* New Collapsible Row Styles */
         #schedule-list { list-style-type: none; padding: 0; margin: 0; }
-        #schedule-list li { 
-            padding: 12px 5px; 
-            border-bottom: 1px solid #eee; 
-            transition: all 0.2s ease;
+        
+        .period-row {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background-color: #fff;
+            overflow: hidden;
+            transition: box-shadow 0.2s;
         }
-        #schedule-list li:nth-child(even) { background-color: #f9f9fc; }
-        #schedule-list input[type="checkbox"] { cursor: pointer; transform: scale(1.4); margin: 0; }
+        .period-row:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .period-row:nth-child(even) .period-header { background-color: #f9f9fc; }
 
-        .period-name { font-weight: bold; text-align: left; font-size: 1.1rem; transition: all 0.3s ease;}
-        .period-time { text-align: right; font-size: 1rem; color: #555; transition: all 0.3s ease;}
-
-        /* STUDENT VIEW */
-        .student-view .options-col { display: none; }
-        .student-view .schedule-grid { 
-            grid-template-columns: 1fr 1fr; 
-            padding: 10px 20px;
+        .period-header {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
         }
-        .student-view .period-name { font-size: 2rem; color: #003366; }
-        .student-view .period-time { font-size: 1.8rem; font-weight: bold; color: #333; }
-        .student-view .schedule-header { display: none; } 
+
+        .period-name { font-weight: bold; font-size: 1.3rem; color: #003366; flex: 1; }
+        .period-time { font-size: 1.2rem; color: #444; font-weight: 500; margin-right: 20px;}
+
+        /* Waffle Menu Button */
+        .waffle-btn {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .waffle-btn:hover {
+            background-color: #e9ecef;
+            color: #003366;
+        }
+        .waffle-btn.active {
+            background-color: #003366;
+            color: #fff;
+        }
+
+        /* Accordion Content */
+        .period-settings-collapse {
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out;
+            background-color: #f1f4f8;
+            border-top: 1px solid transparent;
+            padding: 0 20px;
+        }
+        
+        .period-settings-collapse.open {
+            max-height: 100px;
+            opacity: 1;
+            padding: 15px 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .options-grid {
+            display: flex;
+            gap: 20px;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .options-grid label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .options-grid input[type="checkbox"] { transform: scale(1.3); cursor: pointer; margin: 0; }
 
         .footer { margin-top: 40px; padding-top: 20px; font-size: 1rem; color: #555; width: 100%; text-align: center;}
     </style>
@@ -304,10 +284,14 @@
             <div class="control-group">
                 <label class="title">1. Audio Settings & Testing</label>
                 
-                <label style="font-size: 0.9rem; color: #555;">Announcement Voice:</label>
+                <label style="font-size: 0.9rem; color: #555; display:block; margin-bottom:5px;">Announcement Voice:</label>
                 <select id="voicePreference" onchange="changeVoicePref()" style="margin-bottom: 15px;">
-                    <option value="female">Female Voice (Default)</option>
-                    <option value="male">Male Voice</option>
+                    <option value="us-female">US Female (Default)</option>
+                    <option value="us-male">US Male</option>
+                    <option value="au-female">Australian Female</option>
+                    <option value="au-male">Australian Male</option>
+                    <option value="uk-female">British Female</option>
+                    <option value="uk-male">British Male</option>
                 </select>
 
                 <div class="volume-container">
@@ -330,7 +314,6 @@
                         </div>
                     </div>
                 </div>
-                <p style="font-size: 0.8rem; color: #666; margin-top: 8px; text-align: center;">Testing a sound enables your browser to play alerts automatically.</p>
             </div>
 
             <div class="control-group">
@@ -364,23 +347,10 @@
         </div>
 
         <div class="main-content">
-            <div class="schedule-container" id="schedule-container">
-                <div class="schedule-header-wrap">
-                    <h3 id="schedule-title">Active Schedule</h3>
-                    <button id="studentViewBtn" class="btn btn-outline inline" onclick="toggleStudentView()">👁️ Student View</button>
-                </div>
-                
-                <div class="schedule-grid schedule-header">
-                    <div class="period-name">Class</div>
-                    <div class="options-col">Phone Caddy</div>
-                    <div class="options-col">Take Attend.</div>
-                    <div class="options-col">5-Min Clean</div>
-                    <div class="options-col">Phone Ret.</div>
-                    <div class="period-time">Time</div>
-                </div>
-                
+            <div class="schedule-container">
+                <h3 id="schedule-title">Active Schedule</h3>
                 <ul id="schedule-list"></ul>
-                <p id="disclaimer-text" style="font-size: 0.8rem; color: #888; text-align: right; margin-top: 10px;">*The 1-Minute Warning bell is always active by default.</p>
+                <p id="disclaimer-text" style="font-size: 0.8rem; color: #888; text-align: right; margin-top: 15px;">*The 1-Minute Warning bell is always active by default.</p>
             </div>
         </div>
     </div>
@@ -393,33 +363,29 @@
     <audio id="regularBellAudio" src="https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3" preload="auto"></audio>
 
     <script>
+        const DEFAULT_PREFS = {
+            putaway: true,      
+            attendance: true,   
+            cleanup: true,      
+            retrieve: true      
+        };
+
         let predefinedSchedules = {
             regular: [
-                { name: "0 pd", start: "07:10", end: "08:13" },
-                { name: "1st", start: "08:20", end: "09:13" },
-                { name: "HR", start: "09:20", end: "09:30" },
-                { name: "2nd", start: "09:37", end: "10:30" },
-                { name: "3rd", start: "10:37", end: "11:30" },
-                { name: "4th", start: "11:37", end: "12:30" },
-                { name: "5th", start: "12:37", end: "13:30" },
-                { name: "6th", start: "13:37", end: "14:30" },
+                { name: "0 pd", start: "07:10", end: "08:13" }, { name: "1st", start: "08:20", end: "09:13" },
+                { name: "HR", start: "09:20", end: "09:30" }, { name: "2nd", start: "09:37", end: "10:30" },
+                { name: "3rd", start: "10:37", end: "11:30" }, { name: "4th", start: "11:37", end: "12:30" },
+                { name: "5th", start: "12:37", end: "13:30" }, { name: "6th", start: "13:37", end: "14:30" },
                 { name: "7th", start: "14:37", end: "15:30" }
             ],
             web: [
-                { name: "0 pd", start: "07:10", end: "08:13" },
-                { name: "1st", start: "08:20", end: "08:50" },
-                { name: "HR", start: "08:56", end: "09:05" },
-                { name: "2nd", start: "09:11", end: "09:40" },
-                { name: "3rd", start: "09:46", end: "10:15" },
-                { name: "4th", start: "10:21", end: "10:50" },
-                { name: "5th", start: "10:56", end: "11:25" },
-                { name: "6th", start: "11:31", end: "12:00" },
-                { name: "7th", start: "12:06", end: "12:35" },
-                { name: "Q Block", start: "12:35", end: "12:55" },
-                { name: "A Block", start: "13:00", end: "13:25" },
-                { name: "B Block", start: "13:30", end: "13:55" },
-                { name: "C Block", start: "14:00", end: "14:25" },
-                { name: "D Block", start: "14:30", end: "14:55" },
+                { name: "0 pd", start: "07:10", end: "08:13" }, { name: "1st", start: "08:20", end: "08:50" },
+                { name: "HR", start: "08:56", end: "09:05" }, { name: "2nd", start: "09:11", end: "09:40" },
+                { name: "3rd", start: "09:46", end: "10:15" }, { name: "4th", start: "10:21", end: "10:50" },
+                { name: "5th", start: "10:56", end: "11:25" }, { name: "6th", start: "11:31", end: "12:00" },
+                { name: "7th", start: "12:06", end: "12:35" }, { name: "Q Block", start: "12:35", end: "12:55" },
+                { name: "A Block", start: "13:00", end: "13:25" }, { name: "B Block", start: "13:30", end: "13:55" },
+                { name: "C Block", start: "14:00", end: "14:25" }, { name: "D Block", start: "14:30", end: "14:55" },
                 { name: "Dept Meetings", start: "15:00", end: "15:30" }
             ],
             custom: []
@@ -429,61 +395,23 @@
         let activeSchedule = predefinedSchedules.regular;
         let lastPlayedAction = null; 
         let globalVolume = 1.0;
-        let globalVoicePref = 'female';
+        let globalVoicePref = 'us-female';
         let classSettings = {};
         let currentTestSound = 'start'; 
-        
         let sidebarVisible = true;
-        let isStudentView = false;
 
         window.speechSynthesis.getVoices();
 
-        function toggleSidebar() {
-            sidebarVisible = !sidebarVisible;
-            const sidebar = document.getElementById('sidebar');
-            
-            if (sidebarVisible) {
-                sidebar.classList.remove('collapsed');
-            } else {
-                sidebar.classList.add('collapsed');
-            }
-            saveLocalSettings();
-        }
-
-        function toggleStudentView() {
-            isStudentView = !isStudentView;
-            const container = document.getElementById('schedule-container');
-            const btn = document.getElementById('studentViewBtn');
-            const disclaimer = document.getElementById('disclaimer-text');
-            
-            if (isStudentView) {
-                container.classList.add('student-view');
-                btn.innerText = '⚙️ Edit Class Options';
-                disclaimer.style.display = 'none';
-            } else {
-                container.classList.remove('student-view');
-                btn.innerText = '👁️ Student View';
-                disclaimer.style.display = 'block';
-            }
-            saveLocalSettings();
-        }
-
+        // Local Storage for GitHub Pages!
         function saveLocalSettings() {
             try {
                 const dataToSave = {
-                    mode: currentMode,
-                    volume: globalVolume,
-                    voicePref: globalVoicePref,
-                    testSound: currentTestSound,
-                    sidebarVisible: sidebarVisible,
-                    isStudentView: isStudentView,
-                    customSchedule: predefinedSchedules.custom,
-                    settings: classSettings
+                    mode: currentMode, volume: globalVolume, voicePref: globalVoicePref,
+                    testSound: currentTestSound, sidebarVisible: sidebarVisible,
+                    customSchedule: predefinedSchedules.custom, settings: classSettings
                 };
                 localStorage.setItem('waltonBellState', JSON.stringify(dataToSave));
-            } catch (e) {
-                console.log("Browser blocked local storage save.");
-            }
+            } catch (e) { console.log("Local storage restricted."); }
         }
 
         function loadLocalSettings() {
@@ -491,51 +419,58 @@
                 const savedData = localStorage.getItem('waltonBellState');
                 if (savedData) {
                     const parsedData = JSON.parse(savedData);
-                    
                     if (parsedData.customSchedule) predefinedSchedules.custom = parsedData.customSchedule;
                     if (parsedData.settings) classSettings = parsedData.settings;
-                    
                     if (parsedData.mode) {
                         currentMode = parsedData.mode;
                         document.getElementById('scheduleMode').value = currentMode;
                     }
-
                     if (parsedData.voicePref) {
                         globalVoicePref = parsedData.voicePref;
                         document.getElementById('voicePreference').value = globalVoicePref;
                     }
-                    
                     if (parsedData.volume !== undefined) {
                         globalVolume = parsedData.volume;
                         document.getElementById('volumeControl').value = globalVolume;
                         document.getElementById('regularBellAudio').volume = globalVolume;
                     }
-                    
                     if (parsedData.testSound) {
                         currentTestSound = parsedData.testSound;
                         const labels = {
-                            'start': 'Class Start (3x)',
-                            'end': 'Class End (3x)',
-                            'warning1m': '1-Min Warning (1x)',
-                            'attendance': 'Take Attendance',
-                            'cleanup': '5-Min Clean-Up',
-                            'retrieve': 'Phone Retrieve'
+                            'start': 'Class Start (3x)', 'end': 'Class End (3x)', 'warning1m': '1-Min Warning (1x)',
+                            'attendance': 'Take Attendance', 'cleanup': '5-Min Clean-Up', 'retrieve': 'Phone Retrieve'
                         };
-                        if (labels[currentTestSound]) {
-                            document.getElementById("playBtn").innerHTML = "▶ Play " + labels[currentTestSound];
-                        }
+                        if (labels[currentTestSound]) document.getElementById("playBtn").innerHTML = "▶ Play " + labels[currentTestSound];
                     }
-
                     if (parsedData.sidebarVisible !== undefined && !parsedData.sidebarVisible) {
                         toggleSidebar(); 
                     }
-
-                    if (parsedData.isStudentView) {
-                        toggleStudentView(); 
-                    }
                 }
-            } catch (e) {
-                console.log("Browser blocked local storage read.");
+            } catch (e) { console.log("Local storage restricted."); }
+        }
+
+        // --- UI Interactions ---
+        function toggleSidebar() {
+            sidebarVisible = !sidebarVisible;
+            const sidebar = document.getElementById('sidebar');
+            if (sidebarVisible) sidebar.classList.remove('collapsed');
+            else sidebar.classList.add('collapsed');
+            saveLocalSettings();
+        }
+
+        function toggleRowSettings(periodName, btnElement) {
+            const collapseDiv = document.getElementById(`settings-${periodName}`);
+            
+            if (collapseDiv.classList.contains('open')) {
+                collapseDiv.classList.remove('open');
+                btnElement.classList.remove('active');
+            } else {
+                // Close any currently open ones to keep it clean
+                document.querySelectorAll('.period-settings-collapse.open').forEach(el => el.classList.remove('open'));
+                document.querySelectorAll('.waffle-btn.active').forEach(el => el.classList.remove('active'));
+                
+                collapseDiv.classList.add('open');
+                btnElement.classList.add('active');
             }
         }
 
@@ -545,13 +480,14 @@
         }
 
         window.onclick = function(event) {
+            if (!event.target.closest('.waffle-btn') && !event.target.closest('.period-settings-collapse')) {
+                document.querySelectorAll('.period-settings-collapse.open').forEach(el => el.classList.remove('open'));
+                document.querySelectorAll('.waffle-btn.active').forEach(el => el.classList.remove('active'));
+            }
             if (!event.target.matches('.split-button-caret')) {
                 let dropdowns = document.getElementsByClassName("dropdown-content");
                 for (let i = 0; i < dropdowns.length; i++) {
-                    let openDropdown = dropdowns[i];
-                    if (openDropdown.classList.contains('show')) {
-                        openDropdown.classList.remove('show');
-                    }
+                    if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
                 }
             }
         }
@@ -574,21 +510,18 @@
             saveLocalSettings();
         }
 
+        // --- Audio Logic ---
         function playBellWithQueue(timesLeft = 1, onCompleteCallback = null) {
             const audio = document.getElementById('regularBellAudio');
             audio.currentTime = 0;
-            
             audio.onended = () => {
                 if (timesLeft > 1) {
                     playBellWithQueue(timesLeft - 1, onCompleteCallback);
                 } else {
                     audio.onended = null; 
-                    if (onCompleteCallback) {
-                        onCompleteCallback();
-                    }
+                    if (onCompleteCallback) onCompleteCallback();
                 }
             };
-            
             audio.play().catch(e => console.log("Audio play failed.", e));
         }
 
@@ -600,22 +533,28 @@
             const voices = window.speechSynthesis.getVoices();
             let selectedVoice = null;
             
-            if (globalVoicePref === 'male') {
-                selectedVoice = voices.find(v => /david|alex|mark|daniel|brian|male/i.test(v.name));
+            // Advanced Regional Voice Filter
+            if (globalVoicePref === 'au-female') {
+                selectedVoice = voices.find(v => (/en-AU/i.test(v.lang) || /Australian/i.test(v.name)) && /female|karen|catherine|lee/i.test(v.name)) || voices.find(v => /en-AU/i.test(v.lang));
+            } else if (globalVoicePref === 'au-male') {
+                selectedVoice = voices.find(v => (/en-AU/i.test(v.lang) || /Australian/i.test(v.name)) && /male|gordon|james/i.test(v.name));
+            } else if (globalVoicePref === 'uk-female') {
+                selectedVoice = voices.find(v => (/en-GB/i.test(v.lang) || /British|UK/i.test(v.name)) && /female|hazel|serena|alice/i.test(v.name)) || voices.find(v => /en-GB/i.test(v.lang));
+            } else if (globalVoicePref === 'uk-male') {
+                selectedVoice = voices.find(v => (/en-GB/i.test(v.lang) || /British|UK/i.test(v.name)) && /male|george|daniel|oliver/i.test(v.name));
+            } else if (globalVoicePref === 'us-male') {
+                selectedVoice = voices.find(v => (/en-US/i.test(v.lang) || /American/i.test(v.name)) && /male|david|mark|guy/i.test(v.name));
             } else {
-                selectedVoice = voices.find(v => /zira|samantha|victoria|google us english|female/i.test(v.name));
+                // Default US Female fallback
+                selectedVoice = voices.find(v => (/en-US/i.test(v.lang) || /American/i.test(v.name)) && /female|zira|samantha|victoria/i.test(v.name));
             }
             
-            if (selectedVoice) {
-                utterance.voice = selectedVoice;
-            }
-            
+            if (selectedVoice) utterance.voice = selectedVoice;
             window.speechSynthesis.speak(utterance);
         }
 
         function testSelectedSound() {
             triggerVisualAlert();
-
             if (currentTestSound === 'start') {
                 playBellWithQueue(3, () => speak("Class is beginning. Please place your phones in the cell phone caddy."));
             } else if (currentTestSound === 'end') {
@@ -631,24 +570,20 @@
             }
         }
 
+        // --- Schedule Rendering ---
         function changeMode() {
             currentMode = document.getElementById('scheduleMode').value;
             activeSchedule = predefinedSchedules[currentMode];
-            
             document.getElementById('custom-builder').style.display = (currentMode === 'custom') ? 'block' : 'none';
-            
             const titles = { 'regular': 'Regular Schedule', 'web': 'WEB Schedule', 'custom': 'Custom Schedule' };
             document.getElementById('schedule-title').innerText = titles[currentMode];
-            
             renderSchedule();
             saveLocalSettings();
         }
 
         function toggleSetting(periodName, settingType, isChecked) {
             const key = `${currentMode}-${periodName}`;
-            if (!classSettings[key]) {
-                classSettings[key] = { putaway: false, attendance: false, cleanup: false, retrieve: false };
-            }
+            if (!classSettings[key]) classSettings[key] = { ...DEFAULT_PREFS };
             classSettings[key][settingType] = isChecked;
             saveLocalSettings();
         }
@@ -662,20 +597,33 @@
                 return;
             }
 
-            activeSchedule.forEach(period => {
+            // SVG Waffle Icon (3x3 grid)
+            const waffleIcon = `<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><rect x="4" y="4" width="4" height="4" rx="1"/><rect x="10" y="4" width="4" height="4" rx="1"/><rect x="16" y="4" width="4" height="4" rx="1"/><rect x="4" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="16" y="10" width="4" height="4" rx="1"/><rect x="4" y="16" width="4" height="4" rx="1"/><rect x="10" y="16" width="4" height="4" rx="1"/><rect x="16" y="16" width="4" height="4" rx="1"/></svg>`;
+
+            activeSchedule.forEach((period, index) => {
                 const key = `${currentMode}-${period.name}`;
-                const settings = classSettings[key] || { putaway: false, attendance: false, cleanup: false, retrieve: false };
+                const settings = classSettings[key] || { ...DEFAULT_PREFS };
+                const safeId = period.name.replace(/\s+/g, '-');
 
                 const li = document.createElement('li');
-                li.className = 'schedule-grid';
+                li.className = 'period-row';
                 
                 li.innerHTML = `
-                    <div class="period-name">${period.name}</div>
-                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'putaway', this.checked)" ${settings.putaway ? 'checked' : ''} title="Phone Caddy"></div>
-                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'attendance', this.checked)" ${settings.attendance ? 'checked' : ''} title="Take Attendance"></div>
-                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'cleanup', this.checked)" ${settings.cleanup ? 'checked' : ''} title="5-Min Clean Up"></div>
-                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'retrieve', this.checked)" ${settings.retrieve ? 'checked' : ''} title="Phone Retrieve"></div>
-                    <div class="period-time">${formatTime12(period.start)} - ${formatTime12(period.end)}</div>
+                    <div class="period-header">
+                        <div class="period-name">${period.name}</div>
+                        <div class="period-time">${formatTime12(period.start)} - ${formatTime12(period.end)}</div>
+                        <button class="waffle-btn" onclick="toggleRowSettings('${safeId}', this)" title="Class Settings">
+                            ${waffleIcon}
+                        </button>
+                    </div>
+                    <div class="period-settings-collapse" id="settings-${safeId}">
+                        <div class="options-grid">
+                            <label><input type="checkbox" onchange="toggleSetting('${period.name}', 'putaway', this.checked)" ${settings.putaway ? 'checked' : ''}> Phone Caddy</label>
+                            <label><input type="checkbox" onchange="toggleSetting('${period.name}', 'attendance', this.checked)" ${settings.attendance ? 'checked' : ''}> Take Attendance</label>
+                            <label><input type="checkbox" onchange="toggleSetting('${period.name}', 'cleanup', this.checked)" ${settings.cleanup ? 'checked' : ''}> 5-Min Clean Up</label>
+                            <label><input type="checkbox" onchange="toggleSetting('${period.name}', 'retrieve', this.checked)" ${settings.retrieve ? 'checked' : ''}> Phone Retrieve</label>
+                        </div>
+                    </div>
                 `;
                 list.appendChild(li);
             });
@@ -691,7 +639,6 @@
                 predefinedSchedules.custom.sort((a, b) => a.start.localeCompare(b.start));
                 renderSchedule();
                 saveLocalSettings();
-                
                 document.getElementById('customName').value = '';
                 document.getElementById('customStart').value = '';
                 document.getElementById('customEnd').value = '';
@@ -701,20 +648,14 @@
         function clearCustomSchedule() {
             if(confirm("Are you sure you want to clear your custom schedule?")) {
                 predefinedSchedules.custom = [];
-                Object.keys(classSettings).forEach(key => {
-                    if (key.startsWith('custom-')) delete classSettings[key];
-                });
+                Object.keys(classSettings).forEach(key => { if (key.startsWith('custom-')) delete classSettings[key]; });
                 renderSchedule();
                 saveLocalSettings();
             }
         }
 
         function exportAllSettings() {
-            const exportData = {
-                customSchedule: predefinedSchedules.custom,
-                settings: classSettings
-            };
-            
+            const exportData = { customSchedule: predefinedSchedules.custom, settings: classSettings };
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData));
             const downloadAnchorNode = document.createElement('a');
             downloadAnchorNode.setAttribute("href", dataStr);
@@ -727,30 +668,24 @@
         function importAllSettings(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const importedData = JSON.parse(e.target.result);
-                    
                     if (importedData.customSchedule !== undefined && importedData.settings !== undefined) {
                         predefinedSchedules.custom = importedData.customSchedule;
                         classSettings = importedData.settings;
-                        
                         document.getElementById('scheduleMode').value = currentMode; 
                         changeMode(); 
                         alert("Settings and Custom Schedule imported successfully!");
-                    } else {
-                        alert("Invalid file format. Make sure you are using a file exported from this app.");
-                    }
-                } catch (error) {
-                    alert("Error reading file. Make sure it is a valid JSON export.");
-                }
+                    } else alert("Invalid file format.");
+                } catch (error) { alert("Error reading file. Make sure it is a valid JSON export."); }
                 event.target.value = ''; 
             };
             reader.readAsText(file);
         }
 
+        // --- Formatting & Clock Logic ---
         function formatTime12(time24) {
             let [hours, minutes] = time24.split(':');
             let ampm = hours >= 12 ? 'PM' : 'AM';
@@ -763,8 +698,7 @@
             let date = new Date();
             date.setHours(hours, minutes, 0, 0);
             date.setMinutes(date.getMinutes() - minsToSubtract);
-            return date.getHours().toString().padStart(2, '0') + ':' + 
-                   date.getMinutes().toString().padStart(2, '0');
+            return date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0');
         }
 
         function addMinutes(time24, minsToAdd) {
@@ -772,31 +706,26 @@
             let date = new Date();
             date.setHours(hours, minutes, 0, 0);
             date.setMinutes(date.getMinutes() + minsToAdd);
-            return date.getHours().toString().padStart(2, '0') + ':' + 
-                   date.getMinutes().toString().padStart(2, '0');
+            return date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0');
         }
 
         function triggerVisualAlert() {
             document.body.style.backgroundColor = '#fff3cd'; 
-            setTimeout(() => {
-                document.body.style.backgroundColor = '#f4f4f9'; 
-            }, 6000); 
+            setTimeout(() => { document.body.style.backgroundColor = '#f4f4f9'; }, 6000); 
         }
 
         function updateClock() {
             const now = new Date();
-            const timeString = now.toLocaleTimeString('en-US');
-            document.getElementById('clock').innerText = timeString;
+            document.getElementById('clock').innerText = now.toLocaleTimeString('en-US');
             checkScheduleEvents(now);
         }
 
         function checkScheduleEvents(now) {
-            let current24 = now.getHours().toString().padStart(2, '0') + ':' + 
-                            now.getMinutes().toString().padStart(2, '0');
+            let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
 
             activeSchedule.forEach(period => {
                 const key = `${currentMode}-${period.name}`;
-                const settings = classSettings[key] || { putaway: false, attendance: false, cleanup: false, retrieve: false };
+                const settings = classSettings[key] || { ...DEFAULT_PREFS };
 
                 const startMinus1 = subtractMinutes(period.start, 1);
                 const startPlus5 = addMinutes(period.start, 5);
@@ -806,11 +735,8 @@
                 if (current24 === period.start) {
                     triggerEvent(current24, `start-${period.name}`, () => {
                         triggerVisualAlert();
-                        if (settings.putaway) {
-                            playBellWithQueue(3, () => speak("Class is beginning. Please place your phones in the cell phone caddy."));
-                        } else {
-                            playBellWithQueue(3);
-                        }
+                        if (settings.putaway) playBellWithQueue(3, () => speak("Class is beginning. Please place your phones in the cell phone caddy."));
+                        else playBellWithQueue(3);
                     });
                 }
                 
@@ -825,31 +751,26 @@
                     triggerEvent(current24, `warning1m-${period.name}`, () => {
                         triggerVisualAlert();
                         let speechText = "One minute until class begins.";
-                        if (settings.putaway) {
-                            speechText += " Please place your phones in the cell phone caddy.";
-                        }
+                        if (settings.putaway) speechText += " Please place your phones in the cell phone caddy.";
                         playBellWithQueue(1, () => speak(speechText));
                     });
                 }
 
                 if (settings.attendance && current24 === startPlus5) {
                     triggerEvent(current24, `attendance5m-${period.name}`, () => {
-                        triggerVisualAlert();
-                        speak("Reminder. Please take attendance.");
+                        triggerVisualAlert(); speak("Reminder. Please take attendance.");
                     });
                 }
 
                 if (settings.cleanup && current24 === endMinus5) {
                     triggerEvent(current24, `cleanup5m-${period.name}`, () => {
-                        triggerVisualAlert();
-                        speak("Five minutes remaining. Please begin cleaning up your area.");
+                        triggerVisualAlert(); speak("Five minutes remaining. Please begin cleaning up your area.");
                     });
                 }
 
                 if (settings.retrieve && current24 === endMinus1) {
                     triggerEvent(current24, `phone1m-${period.name}`, () => {
-                        triggerVisualAlert();
-                        speak("One minute remaining. You may retrieve your cell phones.");
+                        triggerVisualAlert(); speak("One minute remaining. You may retrieve your cell phones.");
                     });
                 }
             });
@@ -863,17 +784,10 @@
             }
         }
 
-        const workerCode = `
-            setInterval(() => {
-                postMessage('tick');
-            }, 1000);
-        `;
+        const workerCode = `setInterval(() => { postMessage('tick'); }, 1000);`;
         const blob = new Blob([workerCode], { type: 'application/javascript' });
         const worker = new Worker(URL.createObjectURL(blob));
-        
-        worker.onmessage = function() {
-            updateClock();
-        };
+        worker.onmessage = function() { updateClock(); };
 
         loadLocalSettings(); 
         changeMode(); 
