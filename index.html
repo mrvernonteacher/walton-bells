@@ -274,7 +274,8 @@
                 
                 <div class="schedule-header-wrap">
                     <h3 id="schedule-title" style="display: flex; align-items: center; gap: 10px;">
-                        Active Schedule <span id="autoIndicator" style="display: none; font-size: 0.8rem; background: #5cb85c; color: white; padding: 2px 8px; border-radius: 12px; font-weight: normal;">Auto-Synced</span>
+                        Active Schedule 
+                        <span id="autoIndicator" style="display: none; font-size: 0.8rem; background: #5cb85c; color: white; padding: 3px 10px; border-radius: 12px; font-weight: bold; letter-spacing: 0.5px;">Auto-Synced</span>
                     </h3>
                     <button id="studentViewBtn" class="waffle-btn-global" onclick="toggleStudentView()" title="Toggle Options">
                         <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
@@ -309,8 +310,7 @@
 
     <script>
         // --- GOOGLE APPS SCRIPT WEB APP URL ---
-        // We will paste your generated URL here in Step 2!
-        const GOOGLE_CALENDAR_SCRIPT_URL = ""; 
+        const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec"; 
 
         const DEFAULT_PREFS = { putaway: false, attendance: false, cleanup: false, retrieve: false, lunch1: false, lunch2: false };
 
@@ -372,12 +372,25 @@
             try {
                 const response = await fetch(GOOGLE_CALENDAR_SCRIPT_URL);
                 const data = await response.json();
-                if (data && data.mode) {
-                    document.getElementById('scheduleMode').value = data.mode;
-                    document.getElementById('autoIndicator').style.display = 'inline-block';
-                    changeMode(); // Apply the change
+                
+                let fetchedMode = data && data.mode ? data.mode : 'regular';
+                
+                // Fallback protection: if event says "pep rally" but we only coded "regular" and "web" so far
+                if (!predefinedSchedules[fetchedMode]) {
+                    fetchedMode = 'regular'; 
                 }
-            } catch (err) { console.error("Could not sync with Google Calendar", err); }
+
+                document.getElementById('scheduleMode').value = fetchedMode;
+                document.getElementById('autoIndicator').style.display = 'inline-block';
+                document.getElementById('autoIndicator').innerText = `Auto-Synced: ${fetchedMode.toUpperCase()}`;
+                
+                changeMode(); 
+            } catch (err) { 
+                console.error("Could not sync with Google Calendar", err);
+                // Safe fallback if offline or script fails
+                document.getElementById('scheduleMode').value = 'regular';
+                changeMode();
+            }
         }
 
         // --- Core App Logic ---
@@ -490,7 +503,6 @@
             utterance.rate = 0.9; utterance.volume = globalVolume;
             const voices = window.speechSynthesis.getVoices();
             
-            // Find the exact voice URI the user selected
             const selectedVoice = voices.find(v => v.voiceURI === globalVoicePref);
             if (selectedVoice) utterance.voice = selectedVoice;
             
@@ -515,7 +527,7 @@
             activeSchedule = predefinedSchedules[currentMode];
             document.getElementById('custom-builder').style.display = (currentMode === 'custom') ? 'block' : 'none';
             const titles = { 'regular': 'Regular Schedule', 'web': 'WEB Schedule', 'custom': 'Custom Schedule' };
-            document.getElementById('schedule-title').childNodes[0].nodeValue = titles[currentMode] + ' '; // Update text without destroying auto indicator
+            document.getElementById('schedule-title').childNodes[0].nodeValue = titles[currentMode] + ' '; 
             
             renderSchedule();
             saveLocalSettings();
@@ -533,7 +545,6 @@
             list.innerHTML = '';
             
             let filteredSchedule = activeSchedule;
-            // Filter out 0 pd if toggle is off
             if (!showZero) {
                 filteredSchedule = activeSchedule.filter(p => !p.name.includes("0 pd"));
             }
@@ -621,7 +632,6 @@
             let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
 
             activeSchedule.forEach(period => {
-                // If 0 period is hidden, don't trigger its alarms!
                 if (!showZero && period.name.includes("0 pd")) return;
 
                 const s = classSettings[`${currentMode}-${period.name}`] || { ...DEFAULT_PREFS };
@@ -686,7 +696,7 @@
         // INITIALIZATION
         populateVoiceList(); 
         loadLocalSettings(); 
-        fetchDailySchedule(); // Ping Google Calendar
+        fetchDailySchedule(); 
         updateClock();
     </script>
 </body>
