@@ -21,7 +21,7 @@
         /* --- Dark Mode Variables --- */
         body.dark-mode { background-color: #121212; color: #e0e0e0; }
         body.dark-mode .schedule-container, body.dark-mode .sidebar, body.dark-mode #clock { background: #1e1e1e; color: #e0e0e0; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
-        body.dark-mode h1, body.dark-mode h3, body.dark-mode .schedule-header, body.dark-mode .period-name { color: #90caf9; border-color: #444; }
+        body.dark-mode h1, body.dark-mode h3, body.dark-mode .schedule-header, body.dark-mode .period-name, body.dark-mode .title { color: #90caf9; border-color: #444; }
         body.dark-mode .control-group label.title { color: #90caf9; }
         body.dark-mode .sub-label, body.dark-mode #darkModeLabel { color: #ccc !important; }
         body.dark-mode #disclaimer-text { color: #aaa !important; }
@@ -36,8 +36,9 @@
         body.dark-mode .dropdown-content button:hover { background-color: #444; color: #90caf9; }
         body.dark-mode .footer { color: #888; }
         body.dark-mode #autoIndicator { background-color: #1b5e20; color: #a5d6a7; border-color: #2e7d32; }
+        body.dark-mode .duty-item { border-bottom-color: #444 !important; }
         
-        /* Brighten buttons in dark mode for visibility */
+        /* Brighten buttons in dark mode */
         body.dark-mode .btn { background-color: #1976d2; color: #fff; }
         body.dark-mode .btn:hover { background-color: #1565c0; }
         body.dark-mode .split-button-main { background-color: #0288d1; }
@@ -142,6 +143,7 @@
         .dropdown-content button:hover { background-color: #f1f1f1; color: #003366; }
 
         .btn { background-color: #003366; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 0.95rem; width: 100%; margin-top: 8px; font-weight: bold; transition: background-color 0.2s; }
+        .btn.inline { width: auto; margin-top: 0; padding: 6px 12px;}
         .btn:hover { background-color: #002244; }
         .btn-danger { background-color: #d9534f; }
         .btn-danger:hover { background-color: #c9302c; }
@@ -163,10 +165,10 @@
             padding: 4px 8px; border-radius: 5px; font-weight: bold; border: 1px solid #d6e9c6;
         }
 
-        /* Schedule Grid */
+        /* Schedule Grid (Cleaned up Lunch Columns) */
         .schedule-grid {
             display: grid;
-            grid-template-columns: 80px repeat(6, 1fr) 110px;
+            grid-template-columns: 80px repeat(4, 1fr) 110px;
             gap: 6px; align-items: center; text-align: center; transition: all 0.3s ease;
         }
         
@@ -241,18 +243,23 @@
                     <input type="range" id="volumeControl" min="0" max="1" step="0.05" value="1" onchange="changeVolume()">
                     <span>🔊</span>
                 </div>
+                
+                <label class="sub-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 10px;">
+                    <input type="checkbox" id="playGoodbyes" onchange="toggleGoodbyes()"> Play Positive Goodbyes
+                </label>
 
                 <div class="split-button-container">
-                    <button id="playBtn" class="split-button-main" onclick="testSelectedSound()">▶ Play Class Start</button>
+                    <button id="playBtn" class="split-button-main" onclick="testSelectedSound()">▶ Play Voice Test</button>
                     <div class="dropdown">
                         <button class="split-button-caret" onclick="toggleDropdown(event)">▼</button>
                         <div id="soundDropdown" class="dropdown-content">
+                            <button onclick="selectTestSound('positive', 'Voice Test')">Voice Test (Positive Msg)</button>
                             <button onclick="selectTestSound('start', 'Class Start')">Class Start (3 Rings & Caddy)</button>
                             <button onclick="selectTestSound('end', 'Class End')">Class End (3 Rings)</button>
                             <button onclick="selectTestSound('warning1m', '1-Min Warning')">1-Min Warning (1 Ring)</button>
-                            <button onclick="selectTestSound('attendance', 'Take Attendance')">Take Attendance Voice</button>
-                            <button onclick="selectTestSound('cleanup', '5-Min Clean-Up')">5-Min Clean-Up Voice</button>
-                            <button onclick="selectTestSound('retrieve', 'Phone Retrieve')">Phone Retrieve Voice</button>
+                            <button onclick="selectTestSound('attendance', 'Take Attend.')">Take Attendance Voice</button>
+                            <button onclick="selectTestSound('cleanup', '5-Min Clean')">5-Min Clean-Up Voice</button>
+                            <button onclick="selectTestSound('retrieve', 'Phone Retr.')">Phone Retrieve Voice</button>
                             <button onclick="selectTestSound('lunch', 'Lunch Duty')">Lunch Duty Voice</button>
                         </div>
                     </div>
@@ -260,7 +267,7 @@
             </div>
 
             <div class="control-group">
-                <label class="title" for="scheduleMode">2. Select Schedule Mode:</label>
+                <label class="title" for="scheduleMode">2. Mode & Auto-Sync:</label>
                 <select id="scheduleMode" onchange="changeMode()" style="margin-bottom: 8px;">
                     <option value="regular">Regular Bell Schedule</option>
                     <option value="web">WEB Bell Schedule</option>
@@ -272,6 +279,28 @@
                 <label class="sub-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                     <input type="checkbox" id="showZeroPeriod" onchange="changeMode()"> Show 0 Period
                 </label>
+            </div>
+
+            <div class="control-group" id="lunch-builder">
+                <label class="title">3. Weekly Lunch Duties:</label>
+                <div style="display:flex; gap:6px; margin-bottom:6px;">
+                    <select id="lunchDay">
+                        <option value="1">Monday</option>
+                        <option value="2">Tuesday</option>
+                        <option value="3">Wednesday</option>
+                        <option value="4">Thursday</option>
+                        <option value="5">Friday</option>
+                    </select>
+                    <select id="lunchHalf">
+                        <option value="1">1st Half</option>
+                        <option value="2">2nd Half</option>
+                    </select>
+                </div>
+                <div style="display:flex; gap:6px; margin-bottom:6px;">
+                    <input type="text" id="lunchPeriod" placeholder="Period (e.g., 4th)">
+                    <button class="btn inline" onclick="addLunchDuty()">Add</button>
+                </div>
+                <ul id="lunch-duty-list" style="list-style:none; padding:0; margin-top:10px; font-size:0.85rem; color:#555;"></ul>
             </div>
 
             <div class="control-group" id="custom-builder">
@@ -286,7 +315,7 @@
             </div>
 
             <div class="control-group">
-                <label class="title">3. Backup & Share</label>
+                <label class="title">Backup & Share</label>
                 <button class="btn btn-success" onclick="exportAllSettings()">Export Config</button>
                 <div class="file-input-wrapper" style="margin-top: 6px;">
                     <input type="file" id="importFile" accept=".json" onchange="importAllSettings(event)">
@@ -312,13 +341,11 @@
                     <div class="options-col" title="Take Attendance: Sends an automated reminder 5 minutes into the period.">Attend.</div>
                     <div class="options-col" title="5-Min Clean Up: Reminds students to clean their area 5 minutes before class ends.">Clean</div>
                     <div class="options-col" title="Phone Retrieve: Reminds students to grab their phones 1 minute before the bell.">Retrie.</div>
-                    <div class="options-col" title="Lunch 1: Reminder for 1st Half Lunch Duty right after the starting bell.">Lunch 1</div>
-                    <div class="options-col" title="Lunch 2: Reminder for 2nd Half Lunch Duty exactly halfway through the period.">Lunch 2</div>
                     <div class="period-time">Time</div>
                 </div>
                 
                 <ul id="schedule-list"></ul>
-                <p id="disclaimer-text" style="font-size: 0.75rem; color: #888; text-align: right; margin-top: 8px;">*The 1-Minute Warning bell is always active by default.</p>
+                <p id="disclaimer-text" style="font-size: 0.75rem; color: #888; text-align: right; margin-top: 8px;">*The 1-Minute Warning bell is always active by default. Lunch duties run automatically from your sidebar settings.</p>
             </div>
         </div>
     </div>
@@ -333,7 +360,20 @@
     <script>
         const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec"; 
 
-        const DEFAULT_PREFS = { putaway: false, attendance: false, cleanup: false, retrieve: false, lunch1: false, lunch2: false };
+        const DEFAULT_PREFS = { putaway: false, attendance: false, cleanup: false, retrieve: false };
+
+        const GOODBYE_MESSAGES = [
+            "Great work today. Have a wonderful rest of your day.",
+            "Class is dismissed. Keep up the fantastic effort!",
+            "Thank you for your hard work today. See you next time.",
+            "Have a great day, and make good choices!",
+            "Class is over. I hope you have a fantastic afternoon.",
+            "Thanks for a great class. Stay curious and keep learning.",
+            "You all did great today. Have a safe and happy afternoon.",
+            "Class dismissed. Remember to be kind to one another.",
+            "Excellent effort today. Have a beautiful rest of your day.",
+            "That's all for today. Go out there and do great things!"
+        ];
 
         let predefinedSchedules = {
             regular: [
@@ -357,8 +397,9 @@
         };
 
         let currentMode = 'regular', activeSchedule = predefinedSchedules.regular, lastPlayedAction = null;
-        let globalVolume = 1.0, globalVoicePref = '', classSettings = {};
-        let currentTestSound = 'start', sidebarVisible = true, isStudentView = false, isDarkMode = false, showZero = false;
+        let globalVolume = 1.0, globalVoicePref = '', classSettings = {}, lunchDuties = [];
+        let currentTestSound = 'positive', sidebarVisible = true, isStudentView = false, isDarkMode = false, showZero = false, playGoodbyes = false;
+        let currentScheduleName = "Regular"; 
 
         function populateVoiceList() {
             const voiceSelect = document.getElementById("voicePreference");
@@ -408,6 +449,9 @@
                             }
                             syncedOpt.innerText = `Synced: ${fetchedMode.toUpperCase()}`;
                             select.value = 'synced';
+                            
+                            // Save the actual Tab name to display on the main screen
+                            currentScheduleName = fetchedMode;
                         } else {
                             let safeMode = predefinedSchedules[fetchedMode] ? fetchedMode : 'regular';
                             document.getElementById('scheduleMode').value = safeMode;
@@ -430,8 +474,8 @@
             try {
                 const data = {
                     mode: currentMode, vol: globalVolume, voice: globalVoicePref, testSound: currentTestSound,
-                    side: sidebarVisible, student: isStudentView, dark: isDarkMode, zero: showZero,
-                    customSchedule: predefinedSchedules.custom, settings: classSettings
+                    side: sidebarVisible, student: isStudentView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
+                    customSchedule: predefinedSchedules.custom, settings: classSettings, lunchDuties: lunchDuties
                 };
                 localStorage.setItem('waltonBellState', JSON.stringify(data));
             } catch (e) {}
@@ -444,6 +488,7 @@
                     const p = JSON.parse(saved);
                     if (p.customSchedule) predefinedSchedules.custom = p.customSchedule;
                     if (p.settings) classSettings = p.settings;
+                    if (p.lunchDuties) lunchDuties = p.lunchDuties;
                     
                     currentMode = p.mode || 'regular';
                     document.getElementById('scheduleMode').value = currentMode;
@@ -459,8 +504,8 @@
                     if (p.testSound) {
                         currentTestSound = p.testSound;
                         const labels = {
-                            'start': 'Class Start', 'end': 'Class End', 'warning1m': '1-Min Warning',
-                            'attendance': 'Take Attendance', 'cleanup': '5-Min Clean-Up', 'retrieve': 'Phone Retrieve', 'lunch': 'Lunch Duty'
+                            'positive': 'Voice Test', 'start': 'Class Start', 'end': 'Class End', 'warning1m': '1-Min Warning',
+                            'attendance': 'Take Attend.', 'cleanup': '5-Min Clean', 'retrieve': 'Phone Retr.', 'lunch': 'Lunch Duty'
                         };
                         if (labels[currentTestSound]) document.getElementById("playBtn").innerHTML = "▶ Play " + labels[currentTestSound];
                     }
@@ -469,8 +514,10 @@
                     if (p.student === true) toggleStudentView(false);
                     if (p.dark === true) { document.getElementById('darkModeToggle').checked = true; toggleDarkMode(false); }
                     if (p.zero === true) { document.getElementById('showZeroPeriod').checked = true; showZero = true; }
+                    if (p.playGoodbyes === true) { document.getElementById('playGoodbyes').checked = true; playGoodbyes = true; }
                 }
             } catch (e) {}
+            renderLunchDuties();
         }
 
         function toggleFullScreen() {
@@ -483,6 +530,7 @@
             if (isDarkMode) { document.body.classList.add('dark-mode'); } 
             else { document.body.classList.remove('dark-mode'); }
             if (shouldSave) saveLocalSettings();
+            renderLunchDuties(); // re-render to catch border colors
         }
 
         function toggleSidebar(shouldSave = true) {
@@ -505,6 +553,11 @@
                 container.classList.remove('student-view'); disclaimer.style.display = 'block'; btn.style.color = isDarkMode ? '#90caf9' : '#003366'; 
             }
             if (shouldSave) saveLocalSettings();
+        }
+
+        function toggleGoodbyes() {
+            playGoodbyes = document.getElementById('playGoodbyes').checked;
+            saveLocalSettings();
         }
 
         function toggleDropdown(event) { event.stopPropagation(); document.getElementById("soundDropdown").classList.toggle("show"); }
@@ -543,13 +596,48 @@
 
         function testSelectedSound() {
             triggerVisualAlert();
-            if (currentTestSound === 'start') playBellWithQueue(3, () => speak("Class is beginning. Please place your phones in the cell phone caddy."));
+            if (currentTestSound === 'positive') {
+                const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
+                speak(randomMsg);
+            }
+            else if (currentTestSound === 'start') playBellWithQueue(3, () => speak("Class is beginning. Please place your phones in the cell phone caddy."));
             else if (currentTestSound === 'end') playBellWithQueue(3);
             else if (currentTestSound === 'warning1m') playBellWithQueue(1, () => speak("One minute until class begins. Please place your phones in the cell phone caddy."));
             else if (currentTestSound === 'attendance') speak("Reminder. Please take attendance.");
             else if (currentTestSound === 'cleanup') speak("Five minutes remaining. Please begin cleaning up your area.");
             else if (currentTestSound === 'retrieve') speak("One minute remaining. You may retrieve your cell phones.");
             else if (currentTestSound === 'lunch') speak("Reminder. You have lunch duty.");
+        }
+
+        // --- Lunch Duty Functions ---
+        function addLunchDuty() {
+            const day = parseInt(document.getElementById('lunchDay').value);
+            const half = parseInt(document.getElementById('lunchHalf').value);
+            const period = document.getElementById('lunchPeriod').value.trim();
+            if (period) {
+                lunchDuties.push({ day, half, period });
+                renderLunchDuties();
+                saveLocalSettings();
+                document.getElementById('lunchPeriod').value = '';
+            }
+        }
+        function removeLunchDuty(index) {
+            lunchDuties.splice(index, 1);
+            renderLunchDuties();
+            saveLocalSettings();
+        }
+        function renderLunchDuties() {
+            const list = document.getElementById('lunch-duty-list');
+            list.innerHTML = '';
+            const days = ["Sun", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Sat"];
+            lunchDuties.forEach((duty, index) => {
+                const li = document.createElement('li');
+                li.className = "duty-item";
+                li.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid #eee;";
+                li.innerHTML = `<span><b>${days[duty.day]}</b> - ${duty.period} (${duty.half === 1 ? '1st' : '2nd'} Half)</span>
+                                <button onclick="removeLunchDuty(${index})" style="background:none; border:none; color:#d9534f; cursor:pointer; font-size:1.1rem;" title="Remove Duty">✖</button>`;
+                list.appendChild(li);
+            });
         }
 
         function changeMode() {
@@ -559,18 +647,18 @@
             activeSchedule = predefinedSchedules[currentMode];
             document.getElementById('custom-builder').style.display = (currentMode === 'custom') ? 'block' : 'none';
             
-            let displayTitle = currentMode === 'regular' ? 'Regular Schedule' : 
-                               currentMode === 'web' ? 'WEB Schedule' : 
-                               currentMode === 'custom' ? 'Custom Schedule' : 'Auto-Fetched Schedule';
+            if (currentMode !== 'synced') {
+                currentScheduleName = currentMode.charAt(0).toUpperCase() + currentMode.slice(1);
+                if (currentMode === 'web') currentScheduleName = "WEB";
+            }
                                
-            document.getElementById('schedule-title').childNodes[0].nodeValue = displayTitle + ' '; 
+            document.getElementById('schedule-title').childNodes[0].nodeValue = currentScheduleName.toUpperCase() + ' Schedule '; 
             
             renderSchedule();
             saveLocalSettings();
         }
 
         function toggleSetting(periodName, settingType, isChecked) {
-            // UPDATED: Now saves using only the period name (e.g., "1st") globally across all modes
             const key = periodName; 
             if (!classSettings[key]) classSettings[key] = { ...DEFAULT_PREFS };
             classSettings[key][settingType] = isChecked;
@@ -592,7 +680,6 @@
             }
 
             filteredSchedule.forEach(period => {
-                // UPDATED: Looks up settings globally based solely on the period name
                 const key = period.name;
                 const s = classSettings[key] || { ...DEFAULT_PREFS };
                 const li = document.createElement('li');
@@ -604,8 +691,6 @@
                     <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'attendance', this.checked)" ${s.attendance ? 'checked' : ''} title="Take Attendance"></div>
                     <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'cleanup', this.checked)" ${s.cleanup ? 'checked' : ''} title="5-Min Clean Up"></div>
                     <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'retrieve', this.checked)" ${s.retrieve ? 'checked' : ''} title="Phone Retrieve"></div>
-                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'lunch1', this.checked)" ${s.lunch1 ? 'checked' : ''} title="1st Half Lunch Duty"></div>
-                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'lunch2', this.checked)" ${s.lunch2 ? 'checked' : ''} title="2nd Half Lunch Duty"></div>
                     <div class="period-time">${formatTime12(period.start)} - ${formatTime12(period.end)}</div>
                 `;
                 list.appendChild(li);
@@ -627,7 +712,7 @@
             }
         }
         function exportAllSettings() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ customSchedule: predefinedSchedules.custom, settings: classSettings }));
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ customSchedule: predefinedSchedules.custom, settings: classSettings, lunchDuties: lunchDuties }));
             const a = document.createElement('a'); a.setAttribute("href", dataStr); a.setAttribute("download", "Walton_Bell_Settings.json");
             document.body.appendChild(a); a.click(); a.remove();
         }
@@ -638,15 +723,19 @@
                 try {
                     const d = JSON.parse(e.target.result);
                     if (d.customSchedule !== undefined && d.settings !== undefined) {
-                        predefinedSchedules.custom = d.customSchedule; classSettings = d.settings;
-                        document.getElementById('scheduleMode').value = currentMode; changeMode(); alert("Settings imported successfully!");
+                        predefinedSchedules.custom = d.customSchedule; 
+                        classSettings = d.settings;
+                        if (d.lunchDuties) lunchDuties = d.lunchDuties;
+                        document.getElementById('scheduleMode').value = currentMode; 
+                        changeMode(); 
+                        renderLunchDuties();
+                        alert("Settings imported successfully!");
                     } else alert("Invalid format.");
                 } catch (err) { alert("Error reading file."); }
                 event.target.value = ''; 
             }; reader.readAsText(file);
         }
 
-        // Time Math Utilities
         function formatTime12(time24) { let [h, m] = time24.split(':'); let ampm = h >= 12 ? 'PM' : 'AM'; return `${h % 12 || 12}:${m} ${ampm}`; }
         function subtractMinutes(time24, minsToSubtract) {
             let [h, m] = time24.split(':').map(Number); let d = new Date(); d.setHours(h, m, 0, 0); d.setMinutes(d.getMinutes() - minsToSubtract);
@@ -671,12 +760,23 @@
             const now = new Date();
             document.getElementById('clock').innerText = now.toLocaleTimeString('en-US');
             let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            
+            const todayDayOfWeek = now.getDay(); // 0=Sun, 1=Mon...
+            const isWebDay = currentScheduleName.toLowerCase().includes('web');
 
             activeSchedule.forEach(period => {
                 if (!showZero && period.name.includes("0 pd")) return;
 
-                // UPDATED: Lookup class settings globally via period.name
                 const s = classSettings[period.name] || { ...DEFAULT_PREFS };
+
+                // Determine if Teacher has Lunch Duty for this specific period today
+                const hasLunch1 = lunchDuties.some(d => d.day === todayDayOfWeek && d.period.toLowerCase() === period.name.toLowerCase() && d.half === 1);
+                let hasLunch2 = lunchDuties.some(d => d.day === todayDayOfWeek && d.period.toLowerCase() === period.name.toLowerCase() && d.half === 2);
+                
+                // WEB Day exception for 2nd half duties
+                if (isWebDay) {
+                    hasLunch2 = false; 
+                }
 
                 const startMinus1 = subtractMinutes(period.start, 1);
                 const startPlus5 = addMinutes(period.start, 5);
@@ -689,7 +789,7 @@
                         triggerVisualAlert();
                         let speechText = "";
                         if (s.putaway) speechText += "Class is beginning. Please place your phones in the cell phone caddy. ";
-                        if (s.lunch1) speechText += "Reminder: You have first half lunch duty.";
+                        if (hasLunch1) speechText += "Reminder: You have lunch duty today.";
                         
                         if (speechText) playBellWithQueue(3, () => speak(speechText));
                         else playBellWithQueue(3);
@@ -697,7 +797,15 @@
                 }
                 
                 if (current24 === period.end) {
-                    triggerEvent(current24, `end-${period.name}`, () => { triggerVisualAlert(); playBellWithQueue(3); });
+                    triggerEvent(current24, `end-${period.name}`, () => { 
+                        triggerVisualAlert(); 
+                        if (playGoodbyes) {
+                            const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
+                            playBellWithQueue(3, () => speak(randomMsg));
+                        } else {
+                            playBellWithQueue(3); 
+                        }
+                    });
                 }
 
                 if (current24 === startMinus1) {
@@ -713,7 +821,7 @@
                     triggerEvent(current24, `attendance5m-${period.name}`, () => { triggerVisualAlert(); speak("Reminder. Please take attendance."); });
                 }
                 
-                if (s.lunch2 && current24 === midPoint) {
+                if (hasLunch2 && current24 === midPoint) {
                     triggerEvent(current24, `lunch2-${period.name}`, () => { triggerVisualAlert(); speak("Reminder. You have second half lunch duty."); });
                 }
 
