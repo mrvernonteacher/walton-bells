@@ -19,7 +19,7 @@
             background-color: #f4f4f9;
             color: #333;
             margin: 0;
-            padding: 280px 20px 20px 20px; /* Massive top padding so floating clock cleanly clears schedule */
+            padding: 280px 20px 20px 20px; 
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -48,10 +48,10 @@
             z-index: 100;
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             transform-origin: top center;
-            pointer-events: none; /* Prevents the invisible box from blocking clicks */
+            pointer-events: none; 
         }
         .floating-header > * {
-            pointer-events: auto; /* Restores clicks only on the actual logo/clock */
+            pointer-events: auto; 
         }
         .floating-header.scrolled {
             transform: translateX(-50%) scale(0.65);
@@ -98,7 +98,7 @@
 
         /* --- Draggable Floating Media Player --- */
         .floating-player {
-            position: fixed; top: 20px; right: 20px; /* Default Top-Right Position */
+            position: fixed; top: 20px; right: 20px; 
             background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             border-radius: 20px; padding: 8px 15px 8px 10px;
             display: flex; align-items: center; gap: 10px;
@@ -496,11 +496,15 @@
             custom: []
         };
 
-        let currentMode = 'daily', activeSchedule = predefinedSchedules.daily, lastPlayedAction = null;
+        let currentMode = 'daily', activeSchedule = predefinedSchedules.daily;
         let globalVolume = 1.0, globalVoicePref = '', classSettings = {}, lunchDuties = [];
         let savedVibeUrl = '', vibeVolume = 50;
         let currentTestSound = 'positive', sidebarVisible = true, isStudentView = false, isDarkMode = false, showZero = false, playGoodbyes = false;
         let currentScheduleName = "Daily"; 
+        
+        // REPLACED lastPlayedAction string with a robust Dictionary
+        let playedActions = {};
+        let currentMinuteTracker = "";
 
         // --- Scroll Listener for Dynamic Header ---
         window.addEventListener('scroll', () => {
@@ -537,7 +541,6 @@
             isDragging = true;
             floatPlayer.classList.add('dragging');
             
-            // Instantly release the "right" anchor so we can move it freely by the "left" coordinate
             floatPlayer.style.right = 'auto';
             
             const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
@@ -875,14 +878,12 @@
                     if(hamBtn) hamBtn.classList.remove('active-btn');
                 }
             }
-            // Do not hide media player anymore
             if (shouldSave) saveLocalSettings();
         }
 
         function updateFloatingPlayerVisibility() {
             const player = document.getElementById('floating-player');
             if (player) {
-                // Modified: Now stays visible permanently as long as there is a URL loaded!
                 if (savedVibeUrl) player.classList.add('visible');
                 else player.classList.remove('visible');
             }
@@ -1066,7 +1067,6 @@
                     const li = document.createElement('li'); 
                     li.className = 'schedule-grid';
                     
-                    // Attach data attributes for the highlight engine to read
                     li.dataset.start = String(period.start);
                     li.dataset.end = String(period.end);
                     
@@ -1090,7 +1090,6 @@
             });
         }
 
-        // --- Time Utilities ---
         function timeToMins(t) {
             if (!t || !t.includes(':')) return 0;
             let [h, m] = t.split(':').map(Number);
@@ -1129,7 +1128,6 @@
             setTimeout(() => { overlay.remove(); }, 6000); 
         }
 
-        // --- Core Highlighting Logic ---
         function highlightCurrentPeriod(current24) {
             const listItems = document.querySelectorAll('#schedule-list li');
             if (listItems.length === 0) return;
@@ -1171,6 +1169,19 @@
             }
         }
 
+        // REPLACED: Robust dictionary memory for tracking events
+        function triggerEvent(time, action, callback) {
+            if (currentMinuteTracker !== time) {
+                playedActions = {};
+                currentMinuteTracker = time;
+            }
+            const eventKey = `${time}-${action}`;
+            if (!playedActions[eventKey]) {
+                callback();
+                playedActions[eventKey] = true;
+            }
+        }
+
         function updateClock() {
             const now = new Date();
             const clk = document.getElementById('clock');
@@ -1208,11 +1219,9 @@
                     triggerEvent(current24, `start-${pNameStr}`, () => {
                         triggerVisualAlert();
                         let speechText = "";
-                        
                         if (s.open) speechText += "Please remember to sign in to WEB. ";
                         if (s.putaway) speechText += "Class is beginning. Please place your phones in the cell phone caddy. ";
                         if (hasLunch1) speechText += "Reminder: You have lunch duty today.";
-                        
                         if (speechText) playBellWithQueue(3, () => speak(speechText));
                         else playBellWithQueue(3);
                     });
@@ -1230,7 +1239,7 @@
                     });
                 }
 
-                if (current24 === startMinus1) {
+                if (!s.open && current24 === startMinus1) {
                     triggerEvent(current24, `warning1m-${pNameStr}`, () => {
                         triggerVisualAlert();
                         let speechText = "One minute until class begins.";
@@ -1251,7 +1260,7 @@
                     triggerEvent(current24, `cleanup5m-${pNameStr}`, () => { triggerVisualAlert(); speak("Five minutes remaining. Please begin cleaning up your area."); });
                 }
 
-                if (s.retrieve && current24 === endMinus1) {
+                if (!s.open && s.retrieve && current24 === endMinus1) {
                     triggerEvent(current24, `phone1m-${pNameStr}`, () => { 
                         triggerVisualAlert(); 
                         let speechText = "One minute remaining.";
@@ -1260,11 +1269,6 @@
                     });
                 }
             });
-        }
-
-        function triggerEvent(time, action, callback) {
-            const eventKey = `${time}-${action}`;
-            if (lastPlayedAction !== eventKey) { callback(); lastPlayedAction = eventKey; }
         }
 
         const worker = new Worker(URL.createObjectURL(new Blob([`setInterval(() => { postMessage('tick'); }, 1000);`], { type: 'application/javascript' })));
