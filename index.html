@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Walton Bell Schedule</title>
     <style>
+        /* --- Sleek Auto-Hiding Scrollbars --- */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: transparent; border-radius: 10px; }
+        body:hover ::-webkit-scrollbar-thumb, .sidebar:hover ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.25); }
+        body.dark-mode:hover ::-webkit-scrollbar-thumb, body.dark-mode .sidebar:hover ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.25); }
+        * { scrollbar-width: thin; scrollbar-color: transparent transparent; } /* Firefox fallback */
+        *:hover { scrollbar-color: rgba(150,150,150,0.5) transparent; }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f4f9;
@@ -42,12 +51,12 @@
         #toast.show { top: 20px; opacity: 1; }
         body.dark-mode #toast { background-color: #2e7d32; color: #e8f5e9; }
 
-        /* --- Draggable Floating Media Player --- */
+        /* --- Draggable Floating Media Player (Compact & Vertical) --- */
         .floating-player {
-            position: fixed; top: 80px; left: 20px; /* Default Top-Left Position */
+            position: fixed; top: 80px; left: 20px;
             background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            border-radius: 50px; padding: 10px 20px 10px 15px;
-            display: flex; align-items: center; gap: 15px;
+            border-radius: 20px; padding: 8px 15px 8px 10px;
+            display: flex; align-items: center; gap: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             z-index: 1000; opacity: 0; pointer-events: none; 
             transition: opacity 0.4s ease;
@@ -57,21 +66,27 @@
         .floating-player.dragging { cursor: grabbing; transition: none !important; opacity: 0.95; }
         body.dark-mode .floating-player { background: rgba(30,30,30,0.85); color: #e0e0e0; border: 1px solid #444; }
         
-        .drag-handle { color: #888; font-size: 1.2rem; cursor: inherit; display: flex; align-items: center; }
+        .drag-handle { color: #888; font-size: 1.2rem; cursor: inherit; display: flex; align-items: center; padding-right: 2px;}
         body.dark-mode .drag-handle { color: #aaa; }
 
         .float-btn {
             background: #003366; color: white; border: none; border-radius: 50%;
-            width: 40px; height: 40px; font-size: 1.1rem; cursor: pointer;
+            width: 36px; height: 36px; font-size: 1.1rem; cursor: pointer;
             display: flex; align-items: center; justify-content: center; transition: background 0.2s;
+            flex-shrink: 0;
         }
         .float-btn:hover { background: #002244; }
         body.dark-mode .float-btn { background: #1976d2; }
         body.dark-mode .float-btn:hover { background: #1565c0; }
-        .float-info { font-weight: bold; font-size: 0.9rem; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #003366; cursor: text;}
+        
+        /* Stacked content container */
+        .float-content { display: flex; flex-direction: column; gap: 2px; }
+        
+        .float-info { font-weight: bold; font-size: 0.8rem; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #003366; cursor: text;}
         body.dark-mode .float-info { color: #90caf9; }
-        .float-volume { display: flex; align-items: center; gap: 5px; }
-        .float-volume input { width: 80px; cursor: pointer; }
+        
+        .float-volume { display: flex; align-items: center; gap: 5px; font-size: 0.8rem; }
+        .float-volume input { width: 100px; cursor: pointer; height: 4px; margin: 0;}
 
         /* --- Dark Mode & Glassmorphism --- */
         body.dark-mode { background-color: #121212; color: #e0e0e0; }
@@ -262,12 +277,14 @@
     <div id="floating-player" class="floating-player">
         <div class="drag-handle" title="Drag to move">⋮⋮</div>
         <button id="float-play-btn" class="float-btn" onclick="toggleVibePlay()">▶</button>
-        <div class="float-info">
-            <span id="float-vibe-title">Classroom Vibe</span>
-        </div>
-        <div class="float-volume">
-            <span>🔈</span>
-            <input type="range" id="floatVibeVolume" min="0" max="100" step="1" value="50" onchange="syncVibeVolume(this.value)">
+        <div class="float-content">
+            <div class="float-info">
+                <span id="float-vibe-title">Classroom Vibe</span>
+            </div>
+            <div class="float-volume">
+                <span>🔈</span>
+                <input type="range" id="floatVibeVolume" min="0" max="100" step="1" value="50" onchange="syncVibeVolume(this.value)">
+            </div>
         </div>
     </div>
 
@@ -483,7 +500,6 @@
         document.addEventListener('mousemove', drag);
         document.addEventListener('mouseup', dragEnd);
 
-        // Touch support for SmartBoards
         floatPlayer.addEventListener('touchstart', dragStart, {passive: false});
         document.addEventListener('touchmove', drag, {passive: false});
         document.addEventListener('touchend', dragEnd);
@@ -616,7 +632,6 @@
             saveLocalSettings();
             updateFloatingPlayerVisibility();
         }
-        // --------------------------
 
         function showToast(message) {
             const toast = document.getElementById('toast');
