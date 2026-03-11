@@ -19,7 +19,7 @@
             background-color: #f4f4f9;
             color: #333;
             margin: 0;
-            padding: 190px 20px 20px 20px; 
+            padding: 230px 20px 20px 20px; /* Increased top padding so clock clears the schedule */
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -48,6 +48,10 @@
             z-index: 100;
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             transform-origin: top center;
+            pointer-events: none; /* Prevents the invisible box from blocking clicks */
+        }
+        .floating-header > * {
+            pointer-events: auto; /* Restores clicks only on the actual logo/clock if needed */
         }
         .floating-header.scrolled {
             transform: translateX(-50%) scale(0.65);
@@ -1109,7 +1113,6 @@
                 if (!showZero && pNameStr.includes("0 pd")) return;
 
                 const s = classSettings[pNameStr] || { ...DEFAULT_PREFS };
-                if (s.open) return; 
 
                 const hasLunch1 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 1);
                 let hasLunch2 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 2);
@@ -1127,6 +1130,9 @@
                     triggerEvent(current24, `start-${pNameStr}`, () => {
                         triggerVisualAlert();
                         let speechText = "";
+                        
+                        if (s.open) speechText += "Please remember to sign in to WEB. ";
+                        
                         if (s.putaway) speechText += "Class is beginning. Please place your phones in the cell phone caddy. ";
                         if (hasLunch1) speechText += "Reminder: You have lunch duty today.";
                         if (speechText) playBellWithQueue(3, () => speak(speechText));
@@ -1146,7 +1152,7 @@
                     });
                 }
 
-                if (current24 === startMinus1) {
+                if (!s.open && current24 === startMinus1) {
                     triggerEvent(current24, `warning1m-${pNameStr}`, () => {
                         triggerVisualAlert();
                         let speechText = "One minute until class begins.";
@@ -1155,19 +1161,19 @@
                     });
                 }
 
-                if (s.attendance && current24 === startPlus5) {
+                if (!s.open && s.attendance && current24 === startPlus5) {
                     triggerEvent(current24, `attendance5m-${pNameStr}`, () => { triggerVisualAlert(); speak("Reminder. Please take attendance."); });
                 }
                 
-                if (hasLunch2 && current24 === midPoint) {
+                if (!s.open && hasLunch2 && current24 === midPoint) {
                     triggerEvent(current24, `lunch2-${pNameStr}`, () => { triggerVisualAlert(); speak("Reminder. You have second half lunch duty."); });
                 }
 
-                if (s.cleanup && current24 === endMinus5) {
+                if (!s.open && s.cleanup && current24 === endMinus5) {
                     triggerEvent(current24, `cleanup5m-${pNameStr}`, () => { triggerVisualAlert(); speak("Five minutes remaining. Please begin cleaning up your area."); });
                 }
 
-                if (s.retrieve && current24 === endMinus1) {
+                if (!s.open && s.retrieve && current24 === endMinus1) {
                     triggerEvent(current24, `phone1m-${pNameStr}`, () => { 
                         triggerVisualAlert(); 
                         let speechText = "One minute remaining.";
