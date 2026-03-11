@@ -93,6 +93,14 @@
         body.dark-mode .goodbye-box label { color: #90caf9; }
         body.dark-mode .goodbye-desc { color: #aaa; }
 
+        /* --- Open Block Badge --- */
+        .open-badge {
+            background-color: #5cb85c; color: white; padding: 2px 8px; border-radius: 12px; 
+            font-size: 0.8rem; margin-left: 10px; vertical-align: middle; font-weight: bold; letter-spacing: 0.5px;
+        }
+        body.dark-mode .open-badge { background-color: #2e7d32; color: #e8f5e9; }
+        .student-view .open-badge { font-size: 1.2rem; padding: 4px 12px; margin-left: 15px; transform: translateY(-3px); display: inline-block; }
+
         /* --- Compact Header Layout --- */
         .top-bar {
             width: 100%; max-width: 1300px; margin: 0 auto 10px auto; 
@@ -184,9 +192,9 @@
             padding: 4px 8px; border-radius: 5px; font-weight: bold; border: 1px solid #d6e9c6;
         }
 
-        /* Schedule Grid */
+        /* Schedule Grid (Added Open Column) */
         .schedule-grid {
-            display: grid; grid-template-columns: 80px repeat(4, 1fr) 110px; gap: 6px; align-items: center; text-align: center; transition: all 0.3s ease;
+            display: grid; grid-template-columns: 80px repeat(5, 1fr) 110px; gap: 6px; align-items: center; text-align: center; transition: all 0.3s ease;
         }
         .schedule-header { font-size: 0.8rem; font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 6px; margin-bottom: 6px; transition: color 0.3s ease; }
         .options-col[title] { cursor: help; border-bottom: 1px dotted rgba(0,0,0,0.3); padding-bottom: 2px; } 
@@ -316,7 +324,12 @@
                     </select>
                 </div>
                 <div style="display:flex; gap:6px; margin-bottom:6px;">
-                    <input type="text" id="lunchPeriod" placeholder="Period (e.g., 4th)">
+                    <select id="lunchPeriod" style="flex-grow: 1;">
+                        <option value="3rd">3rd Period</option>
+                        <option value="4th">4th Period</option>
+                        <option value="5th">5th Period</option>
+                        <option value="6th">6th Period</option>
+                    </select>
                     <button class="btn inline" onclick="addLunchDuty()">Add</button>
                 </div>
                 <ul id="lunch-duty-list" style="list-style:none; padding:0; margin-top:10px; font-size:0.85rem; color:#555;"></ul>
@@ -365,6 +378,7 @@
                 
                 <div class="schedule-grid schedule-header">
                     <div class="period-name">Class</div>
+                    <div class="options-col" title="Mark this block as your planning/open period.">Open</div>
                     <div class="options-col" title="Cell Phone Caddy: Reminds students to put phones away at the start of class.">Caddy</div>
                     <div class="options-col" title="Take Attendance: Sends an automated reminder 5 minutes into the period.">Attend.</div>
                     <div class="options-col" title="5-Min Clean Up: Reminds students to clean their area 5 minutes before class ends.">Clean</div>
@@ -377,7 +391,7 @@
             </div>
             
             <div class="footer">
-                <p>Brought to you by Walton Engineering.</p>
+                <p>Walton Engineering, solving your problems.</p>
                 <img src="https://drive.google.com/thumbnail?id=1C_7ujbANbJaMShbWDxuXx0m4ZTJLtkSE&sz=w800" alt="Walton Engineering Logo" class="footer-logo">
             </div>
         </div>
@@ -388,7 +402,7 @@
     <script>
         const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec"; 
 
-        const DEFAULT_PREFS = { putaway: false, attendance: false, cleanup: false, retrieve: false };
+        const DEFAULT_PREFS = { open: false, putaway: false, attendance: false, cleanup: false, retrieve: false };
 
         const GOODBYE_MESSAGES = [
             "Great work today. Have a wonderful rest of your day.",
@@ -515,53 +529,50 @@
         async function fetchDailySchedule() {
             if (!GOOGLE_CALENDAR_SCRIPT_URL) return;
             
-            setTimeout(async () => {
-                try {
-                    const response = await fetch(GOOGLE_CALENDAR_SCRIPT_URL, { cache: "no-store" });
-                    const data = await response.json();
+            try {
+                const response = await fetch(GOOGLE_CALENDAR_SCRIPT_URL, { cache: "no-store" });
+                const data = await response.json();
+                
+                if (data && data.mode) {
+                    let fetchedMode = data.mode.toLowerCase() === 'regular' ? 'daily' : data.mode;
                     
-                    if (data && data.mode) {
-                        let fetchedMode = data.mode.toLowerCase() === 'regular' ? 'daily' : data.mode;
+                    if (data.schedule && data.schedule.length > 0) {
                         
-                        if (data.schedule && data.schedule.length > 0) {
-                            
-                            // BUG FIX: Strict padding for all incoming Google Sheet times (e.g. changes "9:40" to "09:40" so the math matches)
-                            data.schedule.forEach(p => {
-                                if(p.start && p.start.includes(':')) p.start = p.start.split(':').map(v => v.padStart(2, '0')).join(':');
-                                if(p.end && p.end.includes(':')) p.end = p.end.split(':').map(v => v.padStart(2, '0')).join(':');
-                            });
+                        data.schedule.forEach(p => {
+                            if(p.start && p.start.includes(':')) p.start = p.start.split(':').map(v => v.padStart(2, '0')).join(':');
+                            if(p.end && p.end.includes(':')) p.end = p.end.split(':').map(v => v.padStart(2, '0')).join(':');
+                        });
 
-                            predefinedSchedules['synced'] = data.schedule;
-                            
-                            let select = document.getElementById('scheduleMode');
-                            let syncedOpt = select.querySelector('option[value="synced"]');
-                            if (!syncedOpt) {
-                                syncedOpt = document.createElement('option');
-                                syncedOpt.value = 'synced';
-                                select.appendChild(syncedOpt);
-                            }
-                            syncedOpt.innerText = `Synced: ${fetchedMode.toUpperCase()}`;
-                            select.value = 'synced';
-                            
-                            currentScheduleName = fetchedMode;
-                            showToast(`Loaded: ${fetchedMode.toUpperCase()} Schedule`);
-                        } else {
-                            let safeMode = predefinedSchedules[fetchedMode] ? fetchedMode : 'daily';
-                            document.getElementById('scheduleMode').value = safeMode;
-                            showToast(`Loaded: ${safeMode.toUpperCase()} Schedule`);
+                        predefinedSchedules['synced'] = data.schedule;
+                        
+                        let select = document.getElementById('scheduleMode');
+                        let syncedOpt = select.querySelector('option[value="synced"]');
+                        if (!syncedOpt) {
+                            syncedOpt = document.createElement('option');
+                            syncedOpt.value = 'synced';
+                            select.appendChild(syncedOpt);
                         }
-
-                        document.getElementById('autoIndicator').style.display = 'block';
-                        document.getElementById('autoIndicator').innerText = `✓ Auto-Synced: ${fetchedMode.toUpperCase()}`;
-                        changeMode(); 
+                        syncedOpt.innerText = `Synced: ${fetchedMode.toUpperCase()}`;
+                        select.value = 'synced';
+                        
+                        currentScheduleName = fetchedMode;
+                        showToast(`Loaded: ${fetchedMode.toUpperCase()} Schedule`);
+                    } else {
+                        let safeMode = predefinedSchedules[fetchedMode] ? fetchedMode : 'daily';
+                        document.getElementById('scheduleMode').value = safeMode;
+                        showToast(`Loaded: ${safeMode.toUpperCase()} Schedule`);
                     }
-                } catch (err) { 
-                    console.error("Could not sync with Google Calendar.", err);
-                    document.getElementById('scheduleMode').value = 'daily';
-                    showToast("Loaded: Default Daily Schedule");
-                    changeMode();
+
+                    document.getElementById('autoIndicator').style.display = 'block';
+                    document.getElementById('autoIndicator').innerText = `✓ Auto-Synced: ${fetchedMode.toUpperCase()}`;
+                    changeMode(); 
                 }
-            }, 1000);
+            } catch (err) { 
+                console.error("Could not sync with Google Calendar.", err);
+                document.getElementById('scheduleMode').value = 'daily';
+                showToast("Loaded: Default Daily Schedule");
+                changeMode();
+            }
         }
 
         function saveLocalSettings() {
@@ -734,7 +745,7 @@
             const period = document.getElementById('lunchPeriod').value.trim();
             if (period) {
                 lunchDuties.push({ day, half, period });
-                renderLunchDuties(); saveLocalSettings(); document.getElementById('lunchPeriod').value = '';
+                renderLunchDuties(); saveLocalSettings(); 
             }
         }
         function removeLunchDuty(index) { lunchDuties.splice(index, 1); renderLunchDuties(); saveLocalSettings(); }
@@ -772,6 +783,11 @@
             if (!classSettings[key]) classSettings[key] = { ...DEFAULT_PREFS };
             classSettings[key][settingType] = isChecked;
             saveLocalSettings();
+            
+            // Re-render schedule dynamically if an "open" period was toggled, to instantly show/hide the badge
+            if (settingType === 'open') {
+                renderSchedule();
+            }
         }
 
         function renderSchedule() {
@@ -788,8 +804,11 @@
                 const s = classSettings[key] || { ...DEFAULT_PREFS };
                 const li = document.createElement('li'); li.className = 'schedule-grid';
                 
+                let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
+
                 li.innerHTML = `
-                    <div class="period-name">${period.name}</div>
+                    <div class="period-name">${period.name} ${openBadgeHtml}</div>
+                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'open', this.checked)" ${s.open ? 'checked' : ''} title="Open Block"></div>
                     <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'putaway', this.checked)" ${s.putaway ? 'checked' : ''} title="Phone Caddy"></div>
                     <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'attendance', this.checked)" ${s.attendance ? 'checked' : ''} title="Take Attendance"></div>
                     <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'cleanup', this.checked)" ${s.cleanup ? 'checked' : ''} title="5-Min Clean Up"></div>
@@ -845,6 +864,11 @@
             document.getElementById('clock').innerText = now.toLocaleTimeString('en-US');
             let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
             
+            // Check for the daily auto-sync at exactly 6:00:00 AM
+            if (current24 === '06:00' && now.getSeconds() === 0) {
+                fetchDailySchedule();
+            }
+            
             const todayDayOfWeek = now.getDay(); 
             const isWebDay = currentScheduleName.toLowerCase().includes('web');
 
@@ -852,6 +876,9 @@
                 if (!showZero && period.name.includes("0 pd")) return;
 
                 const s = classSettings[period.name] || { ...DEFAULT_PREFS };
+                
+                // Mute alarms if the teacher marked this block as Open
+                if (s.open) return; 
 
                 const hasLunch1 = lunchDuties.some(d => d.day === todayDayOfWeek && d.period.toLowerCase() === period.name.toLowerCase() && d.half === 1);
                 let hasLunch2 = lunchDuties.some(d => d.day === todayDayOfWeek && d.period.toLowerCase() === period.name.toLowerCase() && d.half === 2);
@@ -922,9 +949,10 @@
         const worker = new Worker(URL.createObjectURL(new Blob([`setInterval(() => { postMessage('tick'); }, 1000);`], { type: 'application/javascript' })));
         worker.onmessage = function() { updateClock(); };
 
+        // Delay initial fetch slightly so loadLocalSettings finishes applying the UI completely
         populateVoiceList(); 
         loadLocalSettings(); 
-        fetchDailySchedule(); 
+        setTimeout(() => { fetchDailySchedule(); }, 500);
         updateClock();
     </script>
 </body>
