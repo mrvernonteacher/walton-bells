@@ -399,19 +399,21 @@
             </div>
 
             <div class="control-group">
-                <label class="title">4. Classroom Vibe</label>
-                <label class="sub-label" style="margin-bottom: 5px; display: block;">YouTube URL (Live Stream or Video):</label>
-                <input type="text" id="vibeUrl" placeholder="Paste YouTube link here..." style="margin-bottom: 8px;">
+                <label class="title">4. Classroom Vibe Playlist</label>
+                <label class="sub-label" style="margin-bottom: 5px; display: block;">Select or add a YouTube URL:</label>
+                
+                <div style="display:flex; gap:6px; margin-bottom: 8px;">
+                    <select id="vibeSelect" style="flex-grow: 1; min-width: 0;" onchange="changeVibeSelection()">
+                        <option value="">-- Add a Vibe --</option>
+                    </select>
+                    <button class="btn inline" style="width: auto; padding: 6px 10px;" onclick="addNewVibe()" title="Add New URL">➕</button>
+                    <button class="btn btn-danger inline" style="width: auto; padding: 6px 10px;" onclick="removeVibe()" title="Remove URL">✖</button>
+                </div>
                 
                 <div class="volume-container">
                     <span>🎵 🔈</span>
                     <input type="range" id="vibeVolumeControl" min="0" max="100" step="1" value="50" onchange="changeVibeVolume()">
                     <span>🔊</span>
-                </div>
-
-                <div style="display:flex; gap:6px;">
-                    <button class="btn inline" style="flex-grow: 1;" onclick="toggleVibePlay()">▶ Start Vibe</button>
-                    <button class="btn btn-danger inline" onclick="stopVibe()">Stop</button>
                 </div>
             </div>
         </div>
@@ -498,11 +500,10 @@
 
         let currentMode = 'daily', activeSchedule = predefinedSchedules.daily;
         let globalVolume = 1.0, globalVoicePref = '', classSettings = {}, lunchDuties = [];
-        let savedVibeUrl = '', vibeVolume = 50;
+        let savedVibes = [], currentVibeUrl = '', vibeVolume = 50;
         let currentTestSound = 'positive', sidebarVisible = true, isStudentView = false, isDarkMode = false, showZero = false, playGoodbyes = false;
         let currentScheduleName = "Daily"; 
         
-        // REPLACED lastPlayedAction string with a robust Dictionary
         let playedActions = {};
         let currentMinuteTracker = "";
 
@@ -567,7 +568,7 @@
             floatPlayer.classList.remove('dragging');
         }
 
-        // --- YouTube API Engine ---
+        // --- YouTube Playlist & API Engine ---
         let ytPlayer = null;
         let isYtApiReady = false;
 
@@ -584,6 +585,68 @@
             const match = url.match(regExp);
             return (match && match[2].length === 11) ? match[2] : null;
         }
+        
+        function renderVibeDropdown() {
+            const select = document.getElementById('vibeSelect');
+            if(!select) return;
+            select.innerHTML = '';
+            
+            if(savedVibes.length === 0) {
+                select.innerHTML = '<option value="">-- Playlist Empty --</option>';
+            } else {
+                savedVibes.forEach(v => {
+                    const opt = document.createElement('option');
+                    opt.value = v.url;
+                    opt.textContent = v.title || "Loading Title...";
+                    if (v.url === currentVibeUrl) opt.selected = true;
+                    select.appendChild(opt);
+                });
+            }
+        }
+        
+        function addNewVibe() {
+            const url = prompt("Paste a YouTube URL (Video or Live Stream):");
+            if(url) {
+                const vid = extractVideoID(url);
+                if(vid) {
+                    let exists = savedVibes.find(v => extractVideoID(v.url) === vid);
+                    if(!exists) {
+                        savedVibes.push({ url: url, title: 'Loading Vibe...' });
+                    }
+                    currentVibeUrl = url;
+                    saveLocalSettings();
+                    renderVibeDropdown();
+                    startVibe(); 
+                } else {
+                    alert("Invalid YouTube URL. Please make sure it is a standard link.");
+                }
+            }
+        }
+        
+        function removeVibe() {
+            if(!currentVibeUrl || savedVibes.length === 0) return;
+            savedVibes = savedVibes.filter(v => v.url !== currentVibeUrl);
+            if(savedVibes.length > 0) {
+                currentVibeUrl = savedVibes[0].url;
+                saveLocalSettings();
+                renderVibeDropdown();
+                startVibe();
+            } else {
+                currentVibeUrl = '';
+                saveLocalSettings();
+                renderVibeDropdown();
+                stopVibe();
+            }
+        }
+        
+        function changeVibeSelection() {
+            const select = document.getElementById('vibeSelect');
+            if(select && select.value) {
+                currentVibeUrl = select.value;
+                saveLocalSettings();
+                startVibe();
+            }
+        }
 
         function toggleVibePlay() {
             if (ytPlayer && typeof ytPlayer.getPlayerState === 'function') {
@@ -591,35 +654,35 @@
                     let state = ytPlayer.getPlayerState();
                     if (state === YT.PlayerState.PLAYING) ytPlayer.pauseVideo();
                     else ytPlayer.playVideo();
-                } catch(e) { console.error("Player state error", e); }
+                } catch(e) { console.error(e); }
             } else { startVibe(); }
         }
 
         function startVibe() {
-            const urlInput = document.getElementById('vibeUrl');
-            if(!urlInput) return;
-            const url = urlInput.value.trim();
+            if(!currentVibeUrl) return;
+            const vid = extractVideoID(currentVibeUrl);
             const bgContainer = document.getElementById('vibe-bg');
-            if(!url) return;
+            if(!vid) return;
 
-            const vid = extractVideoID(url);
-            if(vid) {
-                savedVibeUrl = url; saveLocalSettings(); updateFloatingPlayerVisibility();
-                if(bgContainer) bgContainer.style.opacity = "0.45";
+            updateFloatingPlayerVisibility();
+            if(bgContainer) bgContainer.style.opacity = "0.45";
 
-                if (ytPlayer) {
-                    try { ytPlayer.loadVideoById({videoId: vid}); ytPlayer.setVolume(vibeVolume); } catch(e) {}
-                } else {
-                    if (!isYtApiReady) { showToast("YouTube API loading. Try again in 2 seconds."); return; }
-                    try {
-                        ytPlayer = new YT.Player('yt-player-container', {
-                            videoId: vid,
-                            playerVars: { 'autoplay': 1, 'controls': 0, 'autohide': 1, 'wmode': 'opaque', 'showinfo': 0, 'loop': 1, 'playlist': vid, 'mute': 0 },
-                            events: { 'onReady': onPlayerReady, 'onStateChange': onPlayerStateChange }
-                        });
-                    } catch(e) {}
-                }
-            } else { alert("Invalid YouTube URL. Please try again."); }
+            // Completely wipe the old player to prevent playlist looping bugs
+            if (ytPlayer) {
+                try { ytPlayer.destroy(); ytPlayer = null; } catch(e) {}
+            } 
+            
+            if (!isYtApiReady) { showToast("YouTube API loading. Try again in 2 seconds."); return; }
+            
+            if(bgContainer) bgContainer.innerHTML = '<div id="yt-player-container"></div>';
+            
+            try {
+                ytPlayer = new YT.Player('yt-player-container', {
+                    videoId: vid,
+                    playerVars: { 'autoplay': 1, 'controls': 0, 'autohide': 1, 'wmode': 'opaque', 'showinfo': 0, 'loop': 1, 'playlist': vid, 'mute': 0 },
+                    events: { 'onReady': onPlayerReady, 'onStateChange': onPlayerStateChange }
+                });
+            } catch(e) {}
         }
 
         function onPlayerReady(event) { 
@@ -629,12 +692,22 @@
         function onPlayerStateChange(event) {
             const floatBtn = document.getElementById('float-play-btn');
             if(!floatBtn) return;
+            
             if (event.data == YT.PlayerState.PLAYING) {
                 floatBtn.innerText = "⏸";
                 try {
                     let title = ytPlayer.getVideoData().title;
                     const titleEl = document.getElementById('float-vibe-title');
                     if(title && titleEl) titleEl.innerText = title;
+                    
+                    // Save title to playlist array silently
+                    if(title && currentVibeUrl) {
+                        let updated = false;
+                        savedVibes.forEach(v => {
+                            if(v.url === currentVibeUrl && v.title !== title) { v.title = title; updated = true; }
+                        });
+                        if(updated) { saveLocalSettings(); renderVibeDropdown(); }
+                    }
                 } catch(e) {}
             } else {
                 floatBtn.innerText = "▶";
@@ -660,11 +733,6 @@
             const bg = document.getElementById('vibe-bg');
             if(bg) bg.style.opacity = "0";
             if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') { try { ytPlayer.pauseVideo(); } catch(e) {} }
-            savedVibeUrl = '';
-            const urlInput = document.getElementById('vibeUrl');
-            if(urlInput) urlInput.value = '';
-            saveLocalSettings();
-            updateFloatingPlayerVisibility();
         }
 
         function showToast(message) {
@@ -760,7 +828,7 @@
                     mode: currentMode, vol: globalVolume, voice: globalVoicePref, testSound: currentTestSound,
                     side: sidebarVisible, student: isStudentView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
                     customSchedule: predefinedSchedules.custom, settings: classSettings, lunchDuties: lunchDuties,
-                    vibe: savedVibeUrl, vibeVol: vibeVolume
+                    savedVibes: savedVibes, vibe: currentVibeUrl, vibeVol: vibeVolume
                 };
                 localStorage.setItem('waltonBellState', JSON.stringify(data));
             } catch (e) {}
@@ -793,7 +861,7 @@
                         currentTestSound = p.testSound;
                         const labels = {
                             'positive': 'Voice Test', 'start': 'Class Start', 'end': 'Class End', 'warning1m': '1-Min Warning',
-                            'attendance': 'Take Attend.', 'cleanup': '5-Min Clean', 'retrieve': 'Phone Retr.', 'lunch': 'Lunch Duty'
+                            'attendance': 'Take Attend.', 'cleanup': '5-Min Clean', 'lunch': 'Lunch Duty'
                         };
                         const pBtn = document.getElementById("playBtn");
                         if (labels[currentTestSound] && pBtn) pBtn.innerHTML = "▶ Play " + labels[currentTestSound];
@@ -833,14 +901,20 @@
                         if(pgToggle) pgToggle.checked = true; 
                         playGoodbyes = true; 
                     }
-                    if (p.vibe) { 
-                        savedVibeUrl = p.vibe;
-                        const urlInput = document.getElementById('vibeUrl');
-                        if(urlInput) urlInput.value = savedVibeUrl;
+                    
+                    if (p.savedVibes) savedVibes = p.savedVibes;
+                    
+                    // Fallback to legacy string for old users
+                    if (p.vibe && savedVibes.length === 0) {
+                        savedVibes.push({ url: p.vibe, title: 'Saved Vibe' });
+                        currentVibeUrl = p.vibe;
+                    } else if (p.vibe) {
+                        currentVibeUrl = p.vibe;
                     }
                 }
             } catch (e) {}
             renderLunchDuties();
+            renderVibeDropdown();
             updateFloatingPlayerVisibility();
         }
 
@@ -884,7 +958,7 @@
         function updateFloatingPlayerVisibility() {
             const player = document.getElementById('floating-player');
             if (player) {
-                if (savedVibeUrl) player.classList.add('visible');
+                if (currentVibeUrl) player.classList.add('visible');
                 else player.classList.remove('visible');
             }
         }
@@ -1169,7 +1243,6 @@
             }
         }
 
-        // REPLACED: Robust dictionary memory for tracking events
         function triggerEvent(time, action, callback) {
             if (currentMinuteTracker !== time) {
                 playedActions = {};
