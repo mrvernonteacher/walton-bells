@@ -177,6 +177,7 @@
         }
         body.dark-mode .open-badge { background-color: #2e7d32; color: #e8f5e9; }
         .student-view .open-badge { font-size: 1.2rem; padding: 4px 12px; margin-left: 15px; transform: translateY(-3px); display: inline-block; }
+        .minimal-view .open-badge { font-size: 1.5rem; }
 
         /* --- Layout & Structure --- */
         .dashboard-wrapper { display: flex; flex-wrap: wrap; gap: 15px; max-width: 1300px; margin: 0 auto; width: 100%; align-items: flex-start; z-index: 2; }
@@ -190,11 +191,11 @@
 
         .main-content { flex: 2; min-width: 500px; display: flex; flex-direction: column; transition: all 0.4s ease; }
 
-        .schedule-container { padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; box-sizing: border-box; }
+        .schedule-container { padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; box-sizing: border-box; transition: all 0.4s ease; }
         
         .schedule-header-wrap { 
             display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; 
-            border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 8px; 
+            border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 8px; transition: all 0.4s ease;
         }
         .schedule-header-wrap h3 { margin: 0; font-size: 1.5rem; color: #003366; transition: color 0.3s ease; }
 
@@ -268,7 +269,7 @@
             box-shadow: inset 0 0 10px rgba(144, 202, 249, 0.1);
         }
 
-        /* Student View */
+        /* --- Student View CSS --- */
         .student-view .options-col { display: none; }
         .student-view .schedule-grid { grid-template-columns: 1fr 1fr; padding: 2px 20px; }
         .student-view .period-name { font-size: 2rem; color: #003366; }
@@ -276,6 +277,25 @@
         .student-view .period-time { font-size: 1.8rem; font-weight: bold; color: #333; }
         body.dark-mode .student-view .period-time { color: #e0e0e0; }
         .student-view .schedule-header { display: none; } 
+
+        /* --- FOCUS MODE (Minimal View) CSS --- */
+        .minimal-view .options-col { display: none; }
+        .minimal-view .schedule-header { display: none; }
+        .minimal-view .schedule-grid { grid-template-columns: 1fr 1fr; padding: 15px 30px; }
+        .minimal-view #schedule-list li:not(.current-period) { display: none !important; }
+        
+        .minimal-view #schedule-list li.current-period { 
+            background: transparent !important; border-left: none !important; box-shadow: none !important; padding: 10px 0;
+        }
+        .minimal-view .period-name { font-size: 3rem; color: #003366; text-align: left; }
+        body.dark-mode .minimal-view .period-name { color: #90caf9; }
+        .minimal-view .period-time { font-size: 2.8rem; font-weight: bold; color: #333; text-align: right; }
+        body.dark-mode .minimal-view .period-time { color: #e0e0e0; }
+        
+        .minimal-view #schedule-list.no-active-period::after {
+            content: "Outside School Hours";
+            display: block; padding: 20px; text-align: center; font-size: 1.5rem; font-weight: bold; color: #888;
+        }
 
         .footer { margin-top: 25px; font-size: 0.85rem; color: #555; text-align: center; width: 100%; transition: color 0.3s ease; }
         .footer p { margin: 0 0 5px 0; font-weight: bold;}
@@ -432,6 +452,13 @@
                         <h3 id="schedule-title">Active Schedule</h3>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
+                        
+                        <button id="minimalViewBtn" class="header-icon-btn" onclick="toggleMinimalView(true)" title="Focus Mode (Show Current Class Only)">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                <path d="M4 11h16v2H4z"/>
+                            </svg>
+                        </button>
+                        
                         <button id="studentViewBtn" class="header-icon-btn active-btn" onclick="toggleStudentView(true)" title="Toggle Options">
                             <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
                                 <rect x="4" y="4" width="4" height="4" rx="1"/><rect x="10" y="4" width="4" height="4" rx="1"/><rect x="16" y="4" width="4" height="4" rx="1"/><rect x="4" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="16" y="10" width="4" height="4" rx="1"/><rect x="4" y="16" width="4" height="4" rx="1"/><rect x="10" y="16" width="4" height="4" rx="1"/><rect x="16" y="16" width="4" height="4" rx="1"/>
@@ -482,7 +509,6 @@
             "That's all for today. Go out there and do great things!"
         ];
 
-        // The default fallback arrays (note: 0 pd removed here so the injector can handle it cleanly without duplicates)
         let predefinedSchedules = {
             daily: [
                 { name: "1st", start: "08:20", end: "09:13" }, { name: "HR", start: "09:20", end: "09:30" }, 
@@ -505,7 +531,7 @@
         let currentMode = 'daily', activeSchedule = [];
         let globalVolume = 1.0, globalVoicePref = '', classSettings = {}, lunchDuties = [];
         let savedVibes = [], currentVibeUrl = '', vibeVolume = 50;
-        let currentTestSound = 'positive', sidebarVisible = true, isStudentView = false, isDarkMode = false, showZero = false, playGoodbyes = false;
+        let currentTestSound = 'positive', sidebarVisible = true, isStudentView = false, isMinimalView = false, isDarkMode = false, showZero = false, playGoodbyes = false;
         let currentScheduleName = "Daily"; 
         
         let playedActions = {};
@@ -735,9 +761,6 @@
             const bg = document.getElementById('vibe-bg');
             if(bg) bg.style.opacity = "0";
             if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') { try { ytPlayer.pauseVideo(); } catch(e) {} }
-            
-            const player = document.getElementById('floating-player');
-            if (player) player.classList.remove('visible');
         }
 
         function showToast(message) {
@@ -831,7 +854,7 @@
             try {
                 const data = {
                     mode: currentMode, vol: globalVolume, voice: globalVoicePref, testSound: currentTestSound,
-                    side: sidebarVisible, student: isStudentView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
+                    side: sidebarVisible, student: isStudentView, minimal: isMinimalView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
                     customSchedule: predefinedSchedules.custom, settings: classSettings, lunchDuties: lunchDuties,
                     savedVibes: savedVibes, vibe: currentVibeUrl, vibeVol: vibeVolume
                 };
@@ -889,6 +912,14 @@
                         if(dText) dText.style.display = 'none';
                         if(svBtn) svBtn.classList.remove('active-btn');
                     }
+
+                    if (p.minimal === true) {
+                        isMinimalView = true;
+                        const sCont = document.getElementById('schedule-container');
+                        const mBtn = document.getElementById('minimalViewBtn');
+                        if(sCont) sCont.classList.add('minimal-view');
+                        if(mBtn) mBtn.classList.add('active-btn');
+                    }
                     
                     if (p.dark === true) { 
                         isDarkMode = true;
@@ -932,12 +963,16 @@
             if(!toggle) return;
             isDarkMode = toggle.checked;
             const svBtn = document.getElementById('studentViewBtn');
+            const mvBtn = document.getElementById('minimalViewBtn');
+            
             if (isDarkMode) { 
                 document.body.classList.add('dark-mode'); 
                 if(!isStudentView && svBtn) svBtn.style.color = '#90caf9';
+                if(!isMinimalView && mvBtn) mvBtn.style.color = '#90caf9';
             } else { 
                 document.body.classList.remove('dark-mode'); 
                 if(!isStudentView && svBtn) svBtn.style.color = '#003366';
+                if(!isMinimalView && mvBtn) mvBtn.style.color = '#003366';
             }
             if (shouldSave) saveLocalSettings();
             renderLunchDuties(); 
@@ -982,6 +1017,23 @@
                     container.classList.remove('student-view'); 
                     disclaimer.style.display = 'block'; 
                     btn.classList.add('active-btn');
+                }
+            }
+            if (shouldSave) saveLocalSettings();
+        }
+
+        function toggleMinimalView(shouldSave = true) {
+            isMinimalView = !isMinimalView;
+            const container = document.getElementById('schedule-container');
+            const btn = document.getElementById('minimalViewBtn');
+            
+            if(container && btn) {
+                if (isMinimalView) {
+                    container.classList.add('minimal-view'); 
+                    btn.classList.add('active-btn');
+                } else {
+                    container.classList.remove('minimal-view'); 
+                    btn.classList.remove('active-btn');
                 }
             }
             if (shouldSave) saveLocalSettings();
@@ -1100,8 +1152,7 @@
             
             let baseSchedule = predefinedSchedules[currentMode] || [];
             
-            // SMART INJECTOR: Re-add 0 Period dynamically if the user checks the box, 
-            // even if Google Sheets overwrote it!
+            // SMART INJECTOR: Re-adds 0 period cleanly on top without duplicates
             activeSchedule = [...baseSchedule]; 
             let hasZero = activeSchedule.some(p => /^0/i.test(String(p.name).trim()));
             
@@ -1137,12 +1188,8 @@
             if(!list) return;
             list.innerHTML = '';
             
-            if (!Array.isArray(activeSchedule)) {
-                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Schedule data is missing or corrupted.</em></li>'; return; 
-            }
-
-            if (activeSchedule.length === 0) { 
-                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>No periods added yet.</em></li>'; return; 
+            if (!Array.isArray(activeSchedule) || activeSchedule.length === 0) {
+                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>No periods available.</em></li>'; return; 
             }
 
             activeSchedule.forEach(period => {
@@ -1175,6 +1222,11 @@
                     list.appendChild(li);
                 } catch(e) { console.error("Error rendering a row:", e); }
             });
+            
+            // Re-trigger highlight after rendering to ensure correct classes in minimal view
+            const now = new Date();
+            let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            highlightCurrentPeriod(current24);
         }
 
         function timeToMins(t) {
@@ -1216,8 +1268,9 @@
         }
 
         function highlightCurrentPeriod(current24) {
+            const list = document.getElementById('schedule-list');
             const listItems = document.querySelectorAll('#schedule-list li');
-            if (listItems.length === 0) return;
+            if (listItems.length === 0 || !list) return;
             
             const currentMins = timeToMins(current24);
             let highlightIndex = -1;
@@ -1234,25 +1287,29 @@
             });
 
             if (periods.length === 0) return;
-            if (currentMins < periods[0].startMins) return; 
-            if (currentMins >= periods[periods.length - 1].endMins) return; 
-
-            for (let i = 0; i < periods.length; i++) {
-                let p = periods[i];
-                if (currentMins >= p.startMins && currentMins < p.endMins) {
-                    highlightIndex = p.index;
-                    break;
-                }
-                if (currentMins < p.startMins) {
-                    if (i > 0 && currentMins >= periods[i-1].endMins) {
-                        highlightIndex = p.index; 
+            
+            // Check logic
+            if (currentMins >= periods[0].startMins && currentMins < periods[periods.length - 1].endMins) {
+                for (let i = 0; i < periods.length; i++) {
+                    let p = periods[i];
+                    if (currentMins >= p.startMins && currentMins < p.endMins) {
+                        highlightIndex = p.index;
+                        break;
                     }
-                    break;
+                    if (currentMins < p.startMins) {
+                        if (i > 0 && currentMins >= periods[i-1].endMins) {
+                            highlightIndex = p.index; 
+                        }
+                        break;
+                    }
                 }
             }
 
             if (highlightIndex !== -1) {
                 periods[highlightIndex].li.classList.add('current-period');
+                list.classList.remove('no-active-period');
+            } else {
+                list.classList.add('no-active-period');
             }
         }
 
@@ -1306,7 +1363,6 @@
                         let speechText = "";
                         
                         if (s.open) speechText += "Please remember to sign in to WEB. ";
-                        
                         if (s.putaway) speechText += "Class is beginning. Please place your phones in the cell phone caddy. ";
                         if (hasLunch1) speechText += "Reminder: You have lunch duty today.";
                         
