@@ -410,10 +410,15 @@
                     <button class="btn btn-danger inline" style="width: auto; padding: 6px 10px;" onclick="removeVibe()" title="Remove URL">✖</button>
                 </div>
                 
-                <div class="volume-container">
+                <div class="volume-container" style="margin-bottom: 8px;">
                     <span>🎵 🔈</span>
                     <input type="range" id="vibeVolumeControl" min="0" max="100" step="1" value="50" onchange="changeVibeVolume()">
                     <span>🔊</span>
+                </div>
+
+                <div style="display:flex; gap:6px;">
+                    <button class="btn inline" style="flex-grow: 1;" onclick="startVibe()">▶ Start Vibe</button>
+                    <button class="btn btn-danger inline" onclick="stopVibe()">Stop</button>
                 </div>
             </div>
         </div>
@@ -477,28 +482,27 @@
             "That's all for today. Go out there and do great things!"
         ];
 
+        // The default fallback arrays (note: 0 pd removed here so the injector can handle it cleanly without duplicates)
         let predefinedSchedules = {
             daily: [
-                { name: "0 pd", start: "07:10", end: "08:13" }, { name: "1st", start: "08:20", end: "09:13" },
-                { name: "HR", start: "09:20", end: "09:30" }, { name: "2nd", start: "09:37", end: "10:30" },
-                { name: "3rd", start: "10:37", end: "11:30" }, { name: "4th", start: "11:37", end: "12:30" },
-                { name: "5th", start: "12:37", end: "13:30" }, { name: "6th", start: "13:37", end: "14:30" },
-                { name: "7th", start: "14:37", end: "15:30" }
+                { name: "1st", start: "08:20", end: "09:13" }, { name: "HR", start: "09:20", end: "09:30" }, 
+                { name: "2nd", start: "09:37", end: "10:30" }, { name: "3rd", start: "10:37", end: "11:30" }, 
+                { name: "4th", start: "11:37", end: "12:30" }, { name: "5th", start: "12:37", end: "13:30" }, 
+                { name: "6th", start: "13:37", end: "14:30" }, { name: "7th", start: "14:37", end: "15:30" }
             ],
             web: [
-                { name: "0 pd", start: "07:10", end: "08:13" }, { name: "1st", start: "08:20", end: "08:50" },
-                { name: "HR", start: "08:56", end: "09:05" }, { name: "2nd", start: "09:11", end: "09:40" },
-                { name: "3rd", start: "09:46", end: "10:15" }, { name: "4th", start: "10:21", end: "10:50" },
-                { name: "5th", start: "10:56", end: "11:25" }, { name: "6th", start: "11:31", end: "12:00" },
-                { name: "7th", start: "12:06", end: "12:35" }, { name: "Q Block", start: "12:35", end: "12:55" },
-                { name: "A Block", start: "13:00", end: "13:25" }, { name: "B Block", start: "13:30", end: "13:55" },
-                { name: "C Block", start: "14:00", end: "14:25" }, { name: "D Block", start: "14:30", end: "14:55" },
-                { name: "Dept Meetings", start: "15:00", end: "15:30" }
+                { name: "1st", start: "08:20", end: "08:50" }, { name: "HR", start: "08:56", end: "09:05" }, 
+                { name: "2nd", start: "09:11", end: "09:40" }, { name: "3rd", start: "09:46", end: "10:15" }, 
+                { name: "4th", start: "10:21", end: "10:50" }, { name: "5th", start: "10:56", end: "11:25" }, 
+                { name: "6th", start: "11:31", end: "12:00" }, { name: "7th", start: "12:06", end: "12:35" }, 
+                { name: "Q Block", start: "12:35", end: "12:55" }, { name: "A Block", start: "13:00", end: "13:25" }, 
+                { name: "B Block", start: "13:30", end: "13:55" }, { name: "C Block", start: "14:00", end: "14:25" }, 
+                { name: "D Block", start: "14:30", end: "14:55" }, { name: "Dept Meetings", start: "15:00", end: "15:30" }
             ],
             custom: []
         };
 
-        let currentMode = 'daily', activeSchedule = predefinedSchedules.daily;
+        let currentMode = 'daily', activeSchedule = [];
         let globalVolume = 1.0, globalVoicePref = '', classSettings = {}, lunchDuties = [];
         let savedVibes = [], currentVibeUrl = '', vibeVolume = 50;
         let currentTestSound = 'positive', sidebarVisible = true, isStudentView = false, isDarkMode = false, showZero = false, playGoodbyes = false;
@@ -667,7 +671,6 @@
             updateFloatingPlayerVisibility();
             if(bgContainer) bgContainer.style.opacity = "0.45";
 
-            // Completely wipe the old player to prevent playlist looping bugs
             if (ytPlayer) {
                 try { ytPlayer.destroy(); ytPlayer = null; } catch(e) {}
             } 
@@ -700,7 +703,6 @@
                     const titleEl = document.getElementById('float-vibe-title');
                     if(title && titleEl) titleEl.innerText = title;
                     
-                    // Save title to playlist array silently
                     if(title && currentVibeUrl) {
                         let updated = false;
                         savedVibes.forEach(v => {
@@ -733,6 +735,9 @@
             const bg = document.getElementById('vibe-bg');
             if(bg) bg.style.opacity = "0";
             if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') { try { ytPlayer.pauseVideo(); } catch(e) {} }
+            
+            const player = document.getElementById('floating-player');
+            if (player) player.classList.remove('visible');
         }
 
         function showToast(message) {
@@ -904,7 +909,6 @@
                     
                     if (p.savedVibes) savedVibes = p.savedVibes;
                     
-                    // Fallback to legacy string for old users
                     if (p.vibe && savedVibes.length === 0) {
                         savedVibes.push({ url: p.vibe, title: 'Saved Vibe' });
                         currentVibeUrl = p.vibe;
@@ -1094,7 +1098,19 @@
             currentMode = sm.value;
             if(sz) showZero = sz.checked;
             
-            activeSchedule = predefinedSchedules[currentMode];
+            let baseSchedule = predefinedSchedules[currentMode] || [];
+            
+            // SMART INJECTOR: Re-add 0 Period dynamically if the user checks the box, 
+            // even if Google Sheets overwrote it!
+            activeSchedule = [...baseSchedule]; 
+            let hasZero = activeSchedule.some(p => /^0/i.test(String(p.name).trim()));
+            
+            if (showZero && !hasZero) {
+                activeSchedule.unshift({ name: "0 pd", start: "07:10", end: "08:13" });
+            } else if (!showZero && hasZero) {
+                activeSchedule = activeSchedule.filter(p => !/^0/i.test(String(p.name).trim()));
+            }
+            
             const cb = document.getElementById('custom-builder');
             if(cb) cb.style.display = (currentMode === 'custom') ? 'block' : 'none';
             
@@ -1125,14 +1141,11 @@
                 list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Schedule data is missing or corrupted.</em></li>'; return; 
             }
 
-            let filteredSchedule = activeSchedule;
-            if (!showZero) filteredSchedule = activeSchedule.filter(p => p && p.name && !String(p.name).includes("0 pd"));
-
-            if (!filteredSchedule || filteredSchedule.length === 0) { 
+            if (activeSchedule.length === 0) { 
                 list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>No periods added yet.</em></li>'; return; 
             }
 
-            filteredSchedule.forEach(period => {
+            activeSchedule.forEach(period => {
                 try {
                     const key = String(period.name);
                     const safeKey = key.replace(/'/g, "\\'"); 
@@ -1272,7 +1285,6 @@
             activeSchedule.forEach(period => {
                 if (!period || !period.name) return;
                 const pNameStr = String(period.name);
-                if (!showZero && pNameStr.includes("0 pd")) return;
 
                 const s = classSettings[pNameStr] || { ...DEFAULT_PREFS };
 
@@ -1292,9 +1304,12 @@
                     triggerEvent(current24, `start-${pNameStr}`, () => {
                         triggerVisualAlert();
                         let speechText = "";
+                        
                         if (s.open) speechText += "Please remember to sign in to WEB. ";
+                        
                         if (s.putaway) speechText += "Class is beginning. Please place your phones in the cell phone caddy. ";
                         if (hasLunch1) speechText += "Reminder: You have lunch duty today.";
+                        
                         if (speechText) playBellWithQueue(3, () => speak(speechText));
                         else playBellWithQueue(3);
                     });
