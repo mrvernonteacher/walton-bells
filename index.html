@@ -11,7 +11,7 @@
         ::-webkit-scrollbar-thumb { background: transparent; border-radius: 10px; }
         body:hover ::-webkit-scrollbar-thumb, .sidebar:hover ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.25); }
         body.dark-mode:hover ::-webkit-scrollbar-thumb, body.dark-mode .sidebar:hover ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.25); }
-        * { scrollbar-width: thin; scrollbar-color: transparent transparent; } /* Firefox fallback */
+        * { scrollbar-width: thin; scrollbar-color: transparent transparent; } 
         *:hover { scrollbar-color: rgba(150,150,150,0.5) transparent; }
 
         body {
@@ -19,10 +19,11 @@
             background-color: #f4f4f9;
             color: #333;
             margin: 0;
-            padding: 10px 20px;
+            padding: 190px 20px 20px 20px; /* Added massive top padding for the floating clock */
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            box-sizing: border-box;
             transition: background-color 0.3s ease, color 0.3s ease;
             overflow-x: hidden;
             position: relative; 
@@ -39,6 +40,42 @@
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: none;
         }
 
+        /* --- Dynamic Floating Header (Logo & Clock) --- */
+        .floating-header {
+            position: fixed;
+            top: 15px; left: 50%; transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center;
+            z-index: 100;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transform-origin: top center;
+        }
+        .floating-header.scrolled {
+            transform: translateX(-50%) scale(0.65);
+            opacity: 0.75;
+        }
+        .floating-header.scrolled:hover {
+            opacity: 1; /* Restores full opacity if user hovers over it while scrolled */
+        }
+        
+        .header-logo { max-width: 140px; height: auto; display: block; margin: 0 auto; transition: all 0.3s ease;} 
+        
+        #clock {
+            font-size: 4rem; font-weight: bold; padding: 5px 20px; 
+            border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: #003366;
+            display: inline-block; margin-top: 0; transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        }
+        body.dark-mode #clock { background: rgba(30, 30, 30, 0.85); color: #e0e0e0; box-shadow: 0 4px 10px rgba(0,0,0,0.7); }
+
+        /* --- Inline Action Buttons --- */
+        .header-icon-btn {
+            background: none; border: none; color: #003366; cursor: pointer; padding: 6px 8px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; transition: background-color 0.2s, color 0.2s;
+            font-size: 1.6rem; line-height: 1;
+        }
+        .header-icon-btn:hover { background-color: rgba(150,150,150,0.2); }
+        body.dark-mode .header-icon-btn { color: #90caf9; }
+
         /* --- Toast Notification --- */
         #toast {
             position: fixed; top: -60px; left: 50%; transform: translateX(-50%);
@@ -51,9 +88,9 @@
         #toast.show { top: 20px; opacity: 1; }
         body.dark-mode #toast { background-color: #2e7d32; color: #e8f5e9; }
 
-        /* --- Draggable Floating Media Player (Compact & Vertical) --- */
+        /* --- Draggable Floating Media Player --- */
         .floating-player {
-            position: fixed; top: 80px; left: 20px;
+            position: fixed; top: 20px; left: 20px;
             background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             border-radius: 20px; padding: 8px 15px 8px 10px;
             display: flex; align-items: center; gap: 10px;
@@ -72,38 +109,27 @@
         .float-btn {
             background: #003366; color: white; border: none; border-radius: 50%;
             width: 36px; height: 36px; font-size: 1.1rem; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; transition: background 0.2s;
-            flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; transition: background 0.2s; flex-shrink: 0;
         }
         .float-btn:hover { background: #002244; }
         body.dark-mode .float-btn { background: #1976d2; }
         body.dark-mode .float-btn:hover { background: #1565c0; }
         
-        /* Stacked content container */
         .float-content { display: flex; flex-direction: column; gap: 2px; }
-        
         .float-info { font-weight: bold; font-size: 0.8rem; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #003366; cursor: text;}
         body.dark-mode .float-info { color: #90caf9; }
-        
         .float-volume { display: flex; align-items: center; gap: 5px; font-size: 0.8rem; }
         .float-volume input { width: 100px; cursor: pointer; height: 4px; margin: 0;}
 
-        /* --- Dark Mode & Glassmorphism --- */
+        /* --- Dark Mode & Glassmorphism UI --- */
         body.dark-mode { background-color: #121212; color: #e0e0e0; }
         
         .schedule-container, .sidebar { 
-            background: rgba(255, 255, 255, 0.85); 
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
         }
         body.dark-mode .schedule-container, body.dark-mode .sidebar { 
             background: rgba(30, 30, 30, 0.85); box-shadow: 0 4px 15px rgba(0,0,0,0.7); 
         }
-        
-        #clock { 
-            background: rgba(255, 255, 255, 0.85); 
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-        }
-        body.dark-mode #clock { background: rgba(30, 30, 30, 0.85); color: #e0e0e0; box-shadow: 0 4px 10px rgba(0,0,0,0.7); }
 
         body.dark-mode h1, body.dark-mode h3, body.dark-mode .schedule-header, body.dark-mode .period-name, body.dark-mode .title { color: #90caf9; border-color: #444; }
         body.dark-mode .control-group label.title { color: #90caf9; }
@@ -112,8 +138,6 @@
         body.dark-mode #schedule-list li { border-color: #444; }
         body.dark-mode #schedule-list li:nth-child(even) { background-color: rgba(255,255,255,0.03); }
         body.dark-mode select, body.dark-mode input[type="text"], body.dark-mode input[type="time"] { background: #333; color: #fff; border-color: #555; }
-        body.dark-mode .icon-btn, body.dark-mode .waffle-btn-global { color: #90caf9; }
-        body.dark-mode .icon-btn:hover, body.dark-mode .waffle-btn-global:hover { background-color: #333; }
         body.dark-mode .period-time { color: #ddd; }
         body.dark-mode .dropdown-content { background-color: #333; border-color: #555; }
         body.dark-mode .dropdown-content button { color: #e0e0e0; border-color: #444; }
@@ -134,7 +158,6 @@
         }
         .goodbye-box label { color: #003366; transition: color 0.3s ease; }
         .goodbye-desc { font-size: 0.8rem; color: #555; margin-top: 4px; margin-left: 26px; transition: color 0.3s ease;}
-        
         body.dark-mode .goodbye-box { background: rgba(144, 202, 249, 0.1); border-color: rgba(144, 202, 249, 0.3); }
         body.dark-mode .goodbye-box label { color: #90caf9; }
         body.dark-mode .goodbye-desc { color: #aaa; }
@@ -146,33 +169,6 @@
         }
         body.dark-mode .open-badge { background-color: #2e7d32; color: #e8f5e9; }
         .student-view .open-badge { font-size: 1.2rem; padding: 4px 12px; margin-left: 15px; transform: translateY(-3px); display: inline-block; }
-
-        /* --- Compact Header Layout --- */
-        .top-bar {
-            width: 100%; max-width: 1300px; margin: 0 auto 10px auto; 
-            display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2;
-        }
-        .header-logo { max-width: 140px; height: auto; display: block; margin: 0 auto; } 
-        .center-title-clock { text-align: center; flex-grow: 1; }
-        .center-title-clock h1 { font-size: 1.4rem; margin-bottom: 0; color: #003366; transition: color 0.3s ease; }
-        
-        #clock {
-            font-size: 4rem; font-weight: bold; padding: 5px 20px; 
-            border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: #003366;
-            display: inline-block; margin-top: 0; transition: all 0.3s ease;
-        }
-
-        .action-buttons-left, .action-buttons-right { display: flex; gap: 10px; position: absolute; top: 50%; transform: translateY(-50%); }
-        .action-buttons-left { left: 0; }
-        .action-buttons-right { right: 0; }
-
-        .icon-btn {
-            background: rgba(255,255,255,0.5); border: none; font-size: 2rem; color: #003366; cursor: pointer;
-            padding: 8px; border-radius: 8px; transition: background-color 0.2s; display: flex; align-items: center; justify-content: center;
-        }
-        .icon-btn:hover { background-color: rgba(255,255,255,0.8); }
-        body.dark-mode .icon-btn { background: rgba(0,0,0,0.5); }
-        body.dark-mode .icon-btn:hover { background: rgba(0,0,0,0.8); }
 
         .dashboard-wrapper { display: flex; flex-wrap: wrap; gap: 15px; max-width: 1300px; margin: 0 auto; width: 100%; align-items: flex-start; z-index: 2; }
 
@@ -187,14 +183,12 @@
         .main-content { flex: 2; min-width: 500px; display: flex; flex-direction: column; transition: all 0.4s ease; }
 
         .schedule-container { padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; box-sizing: border-box; }
-        .schedule-header-wrap { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 8px; }
-        .schedule-header-wrap h3 { margin: 0; font-size: 1.3rem; color: #003366; transition: color 0.3s ease; }
-
-        .waffle-btn-global {
-            background: none; border: none; color: #003366; cursor: pointer; padding: 5px; border-radius: 8px;
-            display: flex; align-items: center; justify-content: center; transition: background-color 0.2s, color 0.2s;
+        
+        .schedule-header-wrap { 
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; 
+            border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 8px; 
         }
-        .waffle-btn-global:hover { background-color: rgba(150,150,150,0.2); }
+        .schedule-header-wrap h3 { margin: 0; font-size: 1.5rem; color: #003366; transition: color 0.3s ease; }
 
         /* UI Controls */
         .control-group { margin-bottom: 12px; border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 12px;}
@@ -274,6 +268,11 @@
         <div id="yt-player-container"></div>
     </div>
 
+    <div id="floating-header" class="floating-header">
+        <img src="https://drive.google.com/thumbnail?id=1XJEeGiblu9O3iGevy_j8RLR06LcyimqQ&sz=w400" alt="Walton Logo" class="header-logo">
+        <div id="clock">00:00:00 AM</div>
+    </div>
+
     <div id="floating-player" class="floating-player">
         <div class="drag-handle" title="Drag to move">⋮⋮</div>
         <button id="float-play-btn" class="float-btn" onclick="toggleVibePlay()">▶</button>
@@ -289,21 +288,6 @@
     </div>
 
     <div id="toast">Loaded Successfully</div>
-
-    <div class="top-bar">
-        <div class="action-buttons-left">
-            <button id="hamburgerBtn" class="icon-btn" onclick="toggleSidebar(true)" title="Toggle Settings">☰</button>
-        </div>
-        
-        <div class="center-title-clock">
-            <img src="https://drive.google.com/thumbnail?id=1XJEeGiblu9O3iGevy_j8RLR06LcyimqQ&sz=w400" alt="Walton Logo" class="header-logo">
-            <div id="clock">00:00:00 AM</div>
-        </div>
-
-        <div class="action-buttons-right">
-            <button class="icon-btn" onclick="toggleFullScreen()" title="Full Screen">⛶</button>
-        </div>
-    </div>
 
     <div class="dashboard-wrapper">
         <div class="sidebar" id="sidebar">
@@ -416,12 +400,18 @@
             <div class="schedule-container" id="schedule-container">
                 
                 <div class="schedule-header-wrap">
-                    <h3 id="schedule-title">Active Schedule</h3>
-                    <button id="studentViewBtn" class="waffle-btn-global" onclick="toggleStudentView(true)" title="Toggle Options">
-                        <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
-                            <rect x="4" y="4" width="4" height="4" rx="1"/><rect x="10" y="4" width="4" height="4" rx="1"/><rect x="16" y="4" width="4" height="4" rx="1"/><rect x="4" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="16" y="10" width="4" height="4" rx="1"/><rect x="4" y="16" width="4" height="4" rx="1"/><rect x="10" y="16" width="4" height="4" rx="1"/><rect x="16" y="16" width="4" height="4" rx="1"/>
-                        </svg>
-                    </button>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <button id="hamburgerBtn" class="header-icon-btn" onclick="toggleSidebar(true)" title="Toggle Settings">☰</button>
+                        <h3 id="schedule-title">Active Schedule</h3>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <button id="studentViewBtn" class="header-icon-btn" onclick="toggleStudentView(true)" title="Toggle Options">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                <rect x="4" y="4" width="4" height="4" rx="1"/><rect x="10" y="4" width="4" height="4" rx="1"/><rect x="16" y="4" width="4" height="4" rx="1"/><rect x="4" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="16" y="10" width="4" height="4" rx="1"/><rect x="4" y="16" width="4" height="4" rx="1"/><rect x="10" y="16" width="4" height="4" rx="1"/><rect x="16" y="16" width="4" height="4" rx="1"/>
+                            </svg>
+                        </button>
+                        <button class="header-icon-btn" onclick="toggleFullScreen()" title="Full Screen">⛶</button>
+                    </div>
                 </div>
                 
                 <div class="schedule-grid schedule-header">
@@ -491,6 +481,15 @@
         let savedVibeUrl = '', vibeVolume = 50;
         let currentTestSound = 'positive', sidebarVisible = true, isStudentView = false, isDarkMode = false, showZero = false, playGoodbyes = false;
         let currentScheduleName = "Daily"; 
+
+        // --- Scroll Listener for Dynamic Header ---
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('floating-header');
+            if(header) {
+                if(window.scrollY > 30) header.classList.add('scrolled');
+                else header.classList.remove('scrolled');
+            }
+        });
 
         // --- Drag Logic for Floating Player ---
         const floatPlayer = document.getElementById('floating-player');
