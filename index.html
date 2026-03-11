@@ -42,6 +42,32 @@
         #toast.show { top: 20px; opacity: 1; }
         body.dark-mode #toast { background-color: #2e7d32; color: #e8f5e9; }
 
+        /* --- Floating Media Player --- */
+        .floating-player {
+            position: fixed; bottom: 30px; right: 30px;
+            background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border-radius: 50px; padding: 10px 20px;
+            display: flex; align-items: center; gap: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 1000; opacity: 0; pointer-events: none; transform: translateY(20px);
+        }
+        .floating-player.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+        body.dark-mode .floating-player { background: rgba(30,30,30,0.85); color: #e0e0e0; border: 1px solid #444; }
+        
+        .float-btn {
+            background: #003366; color: white; border: none; border-radius: 50%;
+            width: 40px; height: 40px; font-size: 1.1rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: background 0.2s;
+        }
+        .float-btn:hover { background: #002244; }
+        body.dark-mode .float-btn { background: #1976d2; }
+        body.dark-mode .float-btn:hover { background: #1565c0; }
+        .float-info { font-weight: bold; font-size: 0.9rem; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #003366; }
+        body.dark-mode .float-info { color: #90caf9; }
+        .float-volume { display: flex; align-items: center; gap: 5px; }
+        .float-volume input { width: 80px; cursor: pointer; }
+
         /* --- Dark Mode & Glassmorphism --- */
         body.dark-mode { background-color: #121212; color: #e0e0e0; }
         
@@ -192,9 +218,9 @@
             padding: 4px 8px; border-radius: 5px; font-weight: bold; border: 1px solid #d6e9c6;
         }
 
-        /* Schedule Grid (Added Open Column) */
+        /* Schedule Grid (Re-ordered with WEB Open at the end) */
         .schedule-grid {
-            display: grid; grid-template-columns: 80px repeat(5, 1fr) 110px; gap: 6px; align-items: center; text-align: center; transition: all 0.3s ease;
+            display: grid; grid-template-columns: 90px repeat(5, 1fr) 110px; gap: 6px; align-items: center; text-align: center; transition: all 0.3s ease;
         }
         .schedule-header { font-size: 0.8rem; font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 6px; margin-bottom: 6px; transition: color 0.3s ease; }
         .options-col[title] { cursor: help; border-bottom: 1px dotted rgba(0,0,0,0.3); padding-bottom: 2px; } 
@@ -226,6 +252,17 @@
 
     <div id="vibe-bg">
         <div id="yt-player-container"></div>
+    </div>
+
+    <div id="floating-player" class="floating-player">
+        <button id="float-play-btn" class="float-btn" onclick="toggleVibePlay()">▶</button>
+        <div class="float-info">
+            <span id="float-vibe-title">Classroom Vibe</span>
+        </div>
+        <div class="float-volume">
+            <span>🔈</span>
+            <input type="range" id="floatVibeVolume" min="0" max="100" step="1" value="50" onchange="syncVibeVolume(this.value)">
+        </div>
     </div>
 
     <div id="toast">Loaded Successfully</div>
@@ -283,7 +320,6 @@
                             <button onclick="selectTestSound('warning1m', '1-Min Warning')">1-Min Warning (1 Ring)</button>
                             <button onclick="selectTestSound('attendance', 'Take Attend.')">Take Attendance Voice</button>
                             <button onclick="selectTestSound('cleanup', '5-Min Clean')">5-Min Clean-Up Voice</button>
-                            <button onclick="selectTestSound('retrieve', 'Phone Retr.')">Phone Retrieve Voice</button>
                             <button onclick="selectTestSound('lunch', 'Lunch Duty')">Lunch Duty Voice</button>
                         </div>
                     </div>
@@ -342,25 +378,14 @@
                 
                 <div class="volume-container">
                     <span>🎵 🔈</span>
-                    <input type="range" id="vibeVolumeControl" min="0" max="100" step="1" value="50" onchange="changeVibeVolume()">
+                    <input type="range" id="vibeVolumeControl" min="0" max="100" step="1" value="50" onchange="syncVibeVolume(this.value)">
                     <span>🔊</span>
                 </div>
 
                 <div style="display:flex; gap:6px;">
-                    <button class="btn inline" style="flex-grow: 1;" onclick="startVibe()">▶ Start Vibe</button>
+                    <button class="btn inline" style="flex-grow: 1;" onclick="toggleVibePlay()">▶ Start Vibe</button>
                     <button class="btn btn-danger inline" onclick="stopVibe()">Stop</button>
                 </div>
-            </div>
-
-            <div class="control-group" id="custom-builder">
-                <label class="title">Custom Builder:</label>
-                <input type="text" id="customName" placeholder="Period Name (e.g., 1st Period)" style="margin-bottom:6px;">
-                <div style="display:flex; gap:6px; margin-bottom:6px;">
-                    <input type="time" id="customStart" required>
-                    <input type="time" id="customEnd" required>
-                </div>
-                <button class="btn" onclick="addCustomPeriod()">Add to Schedule</button>
-                <button class="btn btn-danger" onclick="clearCustomSchedule()">Clear Schedule</button>
             </div>
         </div>
 
@@ -378,11 +403,11 @@
                 
                 <div class="schedule-grid schedule-header">
                     <div class="period-name">Class</div>
-                    <div class="options-col" title="Mark this block as your planning/open period.">Open</div>
-                    <div class="options-col" title="Cell Phone Caddy: Reminds students to put phones away at the start of class.">Caddy</div>
+                    <div class="options-col" title="Cell Phone Caddy: Reminds students to put phones away at the start of class.">Cell Caddy</div>
                     <div class="options-col" title="Take Attendance: Sends an automated reminder 5 minutes into the period.">Attend.</div>
                     <div class="options-col" title="5-Min Clean Up: Reminds students to clean their area 5 minutes before class ends.">Clean</div>
-                    <div class="options-col" title="Phone Retrieve: Reminds students to grab their phones 1 minute before the bell.">Retrie.</div>
+                    <div class="options-col" title="1 Min Warning: Rings 1 bell and gives a 1-minute warning.">1 min left</div>
+                    <div class="options-col" title="Mark this WEB block as your planning/open period.">WEB Open</div>
                     <div class="period-time">Time</div>
                 </div>
                 
@@ -461,6 +486,19 @@
             return (match && match[2].length === 11) ? match[2] : null;
         }
 
+        function toggleVibePlay() {
+            if (ytPlayer && typeof ytPlayer.getPlayerState === 'function') {
+                let state = ytPlayer.getPlayerState();
+                if (state === YT.PlayerState.PLAYING) {
+                    ytPlayer.pauseVideo();
+                } else {
+                    ytPlayer.playVideo();
+                }
+            } else {
+                startVibe();
+            }
+        }
+
         function startVibe() {
             const url = document.getElementById('vibeUrl').value.trim();
             const bgContainer = document.getElementById('vibe-bg');
@@ -468,7 +506,7 @@
 
             const vid = extractVideoID(url);
             if(vid) {
-                savedVibeUrl = url; saveLocalSettings();
+                savedVibeUrl = url; saveLocalSettings(); updateFloatingPlayerVisibility();
                 bgContainer.style.opacity = "0.45";
 
                 if (ytPlayer) {
@@ -479,24 +517,47 @@
                     ytPlayer = new YT.Player('yt-player-container', {
                         videoId: vid,
                         playerVars: { 'autoplay': 1, 'controls': 0, 'autohide': 1, 'wmode': 'opaque', 'showinfo': 0, 'loop': 1, 'playlist': vid, 'mute': 0 },
-                        events: { 'onReady': onPlayerReady }
+                        events: { 'onReady': onPlayerReady, 'onStateChange': onPlayerStateChange }
                     });
                 }
             } else { alert("Invalid YouTube URL. Please try again."); }
         }
 
-        function onPlayerReady(event) { event.target.setVolume(vibeVolume); event.target.playVideo(); }
+        function onPlayerReady(event) { 
+            event.target.setVolume(vibeVolume); 
+            event.target.playVideo(); 
+        }
 
-        function changeVibeVolume() {
-            vibeVolume = document.getElementById('vibeVolumeControl').value;
-            if (ytPlayer && typeof ytPlayer.setVolume === 'function') ytPlayer.setVolume(vibeVolume);
+        function onPlayerStateChange(event) {
+            const floatBtn = document.getElementById('float-play-btn');
+            if (event.data == YT.PlayerState.PLAYING) {
+                floatBtn.innerText = "⏸";
+                let title = ytPlayer.getVideoData().title;
+                if(title) document.getElementById('float-vibe-title').innerText = title;
+            } else {
+                floatBtn.innerText = "▶";
+            }
+        }
+
+        function syncVibeVolume(val) {
+            vibeVolume = val;
+            document.getElementById('vibeVolumeControl').value = val;
+            document.getElementById('floatVibeVolume').value = val;
+            if (ytPlayer && typeof ytPlayer.setVolume === 'function') ytPlayer.setVolume(val);
             saveLocalSettings();
         }
 
+        function changeVibeVolume() { syncVibeVolume(document.getElementById('vibeVolumeControl').value); }
+
         function stopVibe() {
             document.getElementById('vibe-bg').style.opacity = "0";
-            if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') setTimeout(() => { ytPlayer.pauseVideo(); }, 1000); 
+            if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') ytPlayer.pauseVideo();
+            savedVibeUrl = '';
+            document.getElementById('vibeUrl').value = '';
+            saveLocalSettings();
+            updateFloatingPlayerVisibility();
         }
+        // --------------------------
 
         function showToast(message) {
             const toast = document.getElementById('toast');
@@ -537,7 +598,6 @@
                     let fetchedMode = data.mode.toLowerCase() === 'regular' ? 'daily' : data.mode;
                     
                     if (data.schedule && data.schedule.length > 0) {
-                        
                         data.schedule.forEach(p => {
                             if(p.start && p.start.includes(':')) p.start = p.start.split(':').map(v => v.padStart(2, '0')).join(':');
                             if(p.end && p.end.includes(':')) p.end = p.end.split(':').map(v => v.padStart(2, '0')).join(':');
@@ -606,8 +666,7 @@
                         document.getElementById('regularBellAudio').volume = globalVolume;
                     }
                     if (p.vibeVol !== undefined) {
-                        vibeVolume = p.vibeVol;
-                        document.getElementById('vibeVolumeControl').value = vibeVolume;
+                        syncVibeVolume(p.vibeVol);
                     }
 
                     if (p.testSound) {
@@ -643,6 +702,7 @@
                 }
             } catch (e) {}
             renderLunchDuties();
+            updateFloatingPlayerVisibility();
             if(isStudentView && !isDarkMode) { document.getElementById('studentViewBtn').style.color = '#888'; }
             if(!isStudentView && isDarkMode) { document.getElementById('studentViewBtn').style.color = '#90caf9'; }
         }
@@ -670,7 +730,17 @@
             const sidebar = document.getElementById('sidebar');
             if (sidebarVisible) sidebar.classList.remove('collapsed');
             else sidebar.classList.add('collapsed');
+            updateFloatingPlayerVisibility();
             if (shouldSave) saveLocalSettings();
+        }
+
+        function updateFloatingPlayerVisibility() {
+            const player = document.getElementById('floating-player');
+            if (!sidebarVisible && savedVibeUrl) {
+                player.classList.add('visible');
+            } else {
+                player.classList.remove('visible');
+            }
         }
 
         function toggleStudentView(shouldSave = true) {
@@ -687,10 +757,7 @@
             if (shouldSave) saveLocalSettings();
         }
 
-        function toggleGoodbyes() {
-            playGoodbyes = document.getElementById('playGoodbyes').checked;
-            saveLocalSettings();
-        }
+        function toggleGoodbyes() { playGoodbyes = document.getElementById('playGoodbyes').checked; saveLocalSettings(); }
 
         function toggleDropdown(event) { event.stopPropagation(); document.getElementById("soundDropdown").classList.toggle("show"); }
 
@@ -743,10 +810,7 @@
             const day = parseInt(document.getElementById('lunchDay').value);
             const half = parseInt(document.getElementById('lunchHalf').value);
             const period = document.getElementById('lunchPeriod').value.trim();
-            if (period) {
-                lunchDuties.push({ day, half, period });
-                renderLunchDuties(); saveLocalSettings(); 
-            }
+            if (period) { lunchDuties.push({ day, half, period }); renderLunchDuties(); saveLocalSettings(); }
         }
         function removeLunchDuty(index) { lunchDuties.splice(index, 1); renderLunchDuties(); saveLocalSettings(); }
         
@@ -783,11 +847,7 @@
             if (!classSettings[key]) classSettings[key] = { ...DEFAULT_PREFS };
             classSettings[key][settingType] = isChecked;
             saveLocalSettings();
-            
-            // Re-render schedule dynamically if an "open" period was toggled, to instantly show/hide the badge
-            if (settingType === 'open') {
-                renderSchedule();
-            }
+            if (settingType === 'open') renderSchedule(); 
         }
 
         function renderSchedule() {
@@ -805,33 +865,22 @@
                 const li = document.createElement('li'); li.className = 'schedule-grid';
                 
                 let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
+                
+                // Only generate the WEB Open checkbox if it's a specific WEB block letter
+                let isWebBlock = /^[A-D]\s*Block/i.test(period.name);
+                let webOpenCheckbox = isWebBlock ? `<input type="checkbox" onchange="toggleSetting('${period.name}', 'open', this.checked)" ${s.open ? 'checked' : ''} title="Mark as WEB Open Block">` : `<div></div>`;
 
                 li.innerHTML = `
                     <div class="period-name">${period.name} ${openBadgeHtml}</div>
-                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'open', this.checked)" ${s.open ? 'checked' : ''} title="Open Block"></div>
                     <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'putaway', this.checked)" ${s.putaway ? 'checked' : ''} title="Phone Caddy"></div>
                     <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'attendance', this.checked)" ${s.attendance ? 'checked' : ''} title="Take Attendance"></div>
                     <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'cleanup', this.checked)" ${s.cleanup ? 'checked' : ''} title="5-Min Clean Up"></div>
-                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'retrieve', this.checked)" ${s.retrieve ? 'checked' : ''} title="Phone Retrieve"></div>
+                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'retrieve', this.checked)" ${s.retrieve ? 'checked' : ''} title="1 Min Warning & Retrieve"></div>
+                    <div class="options-col">${webOpenCheckbox}</div>
                     <div class="period-time">${formatTime12(period.start)} - ${formatTime12(period.end)}</div>
                 `;
                 list.appendChild(li);
             });
-        }
-
-        function addCustomPeriod() {
-            const name = document.getElementById('customName').value, start = document.getElementById('customStart').value, end = document.getElementById('customEnd').value;
-            if (name && start && end) {
-                predefinedSchedules.custom.push({ name, start, end }); predefinedSchedules.custom.sort((a, b) => a.start.localeCompare(b.start));
-                changeMode(); document.getElementById('customName').value = ''; document.getElementById('customStart').value = ''; document.getElementById('customEnd').value = '';
-            }
-        }
-        function clearCustomSchedule() {
-            if(confirm("Are you sure you want to clear your custom schedule?")) {
-                predefinedSchedules.custom = [];
-                Object.keys(classSettings).forEach(key => { if (key.startsWith('custom-')) delete classSettings[key]; });
-                changeMode();
-            }
         }
 
         function formatTime12(time24) { let [h, m] = time24.split(':'); let ampm = h >= 12 ? 'PM' : 'AM'; return `${h % 12 || 12}:${m} ${ampm}`; }
@@ -854,7 +903,6 @@
             overlay.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; pointer-events:none; transition: background-color 0.5s;";
             overlay.style.backgroundColor = isDarkMode ? "rgba(51, 43, 0, 0.8)" : "rgba(255, 243, 205, 0.8)";
             document.body.appendChild(overlay);
-            
             setTimeout(() => { overlay.style.backgroundColor = "transparent"; }, 5500); 
             setTimeout(() => { overlay.remove(); }, 6000); 
         }
@@ -864,10 +912,7 @@
             document.getElementById('clock').innerText = now.toLocaleTimeString('en-US');
             let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
             
-            // Check for the daily auto-sync at exactly 6:00:00 AM
-            if (current24 === '06:00' && now.getSeconds() === 0) {
-                fetchDailySchedule();
-            }
+            if (current24 === '06:00' && now.getSeconds() === 0) { fetchDailySchedule(); }
             
             const todayDayOfWeek = now.getDay(); 
             const isWebDay = currentScheduleName.toLowerCase().includes('web');
@@ -876,13 +921,10 @@
                 if (!showZero && period.name.includes("0 pd")) return;
 
                 const s = classSettings[period.name] || { ...DEFAULT_PREFS };
-                
-                // Mute alarms if the teacher marked this block as Open
                 if (s.open) return; 
 
                 const hasLunch1 = lunchDuties.some(d => d.day === todayDayOfWeek && d.period.toLowerCase() === period.name.toLowerCase() && d.half === 1);
                 let hasLunch2 = lunchDuties.some(d => d.day === todayDayOfWeek && d.period.toLowerCase() === period.name.toLowerCase() && d.half === 2);
-                
                 if (isWebDay) hasLunch2 = false; 
 
                 const startMinus1 = subtractMinutes(period.start, 1);
@@ -935,8 +977,14 @@
                     triggerEvent(current24, `cleanup5m-${period.name}`, () => { triggerVisualAlert(); speak("Five minutes remaining. Please begin cleaning up your area."); });
                 }
 
+                // SMART 1-MIN LOGIC: Replaces generic "retrieve" with 1-bell + combo message
                 if (s.retrieve && current24 === endMinus1) {
-                    triggerEvent(current24, `phone1m-${period.name}`, () => { triggerVisualAlert(); speak("One minute remaining. You may retrieve your cell phones."); });
+                    triggerEvent(current24, `phone1m-${period.name}`, () => { 
+                        triggerVisualAlert(); 
+                        let speechText = "One minute remaining.";
+                        if (s.putaway) speechText += " You may retrieve your cell phones.";
+                        playBellWithQueue(1, () => speak(speechText)); 
+                    });
                 }
             });
         }
@@ -949,7 +997,6 @@
         const worker = new Worker(URL.createObjectURL(new Blob([`setInterval(() => { postMessage('tick'); }, 1000);`], { type: 'application/javascript' })));
         worker.onmessage = function() { updateClock(); };
 
-        // Delay initial fetch slightly so loadLocalSettings finishes applying the UI completely
         populateVoiceList(); 
         loadLocalSettings(); 
         setTimeout(() => { fetchDailySchedule(); }, 500);
