@@ -21,23 +21,13 @@
 
         /* --- Fullscreen YouTube Background --- */
         #vibe-bg {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
-            pointer-events: none; /* Let clicks pass through to main UI */
-            overflow: hidden;
-            opacity: 0; /* Hidden by default */
-            transition: opacity 1.5s ease; /* Smooth fade in */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; pointer-events: none; overflow: hidden;
+            opacity: 0; transition: opacity 1.5s ease; 
         }
         #vibe-bg iframe {
-            width: 100vw;
-            height: 56.25vw; /* 16:9 aspect ratio */
-            min-height: 100vh;
-            min-width: 177.77vh; 
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            border: none;
+            width: 100vw; height: 56.25vw; min-height: 100vh; min-width: 177.77vh; 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: none;
         }
 
         /* --- Toast Notification --- */
@@ -91,15 +81,24 @@
         body.dark-mode .split-button-main { background-color: #0288d1; }
         body.dark-mode .split-button-caret { background-color: #0277bd; border-left: 1px solid #01579b; }
 
+        /* --- Positive Goodbyes UI --- */
+        .goodbye-box {
+            background: rgba(92, 184, 92, 0.15); border: 1px solid rgba(92, 184, 92, 0.4);
+            padding: 12px; border-radius: 8px; margin-top: 15px; transition: all 0.3s ease;
+        }
+        .goodbye-box label { color: #003366; transition: color 0.3s ease; }
+        .goodbye-desc { font-size: 0.8rem; color: #555; margin-top: 4px; margin-left: 26px; transition: color 0.3s ease;}
+        
+        body.dark-mode .goodbye-box { background: rgba(144, 202, 249, 0.1); border-color: rgba(144, 202, 249, 0.3); }
+        body.dark-mode .goodbye-box label { color: #90caf9; }
+        body.dark-mode .goodbye-desc { color: #aaa; }
+
         /* --- Compact Header Layout --- */
         .top-bar {
             width: 100%; max-width: 1300px; margin: 0 auto 10px auto; 
-            display: flex; justify-content: space-between; align-items: center; position: relative;
-            z-index: 2;
+            display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2;
         }
-
         .header-logo { max-width: 140px; height: auto; display: block; margin: 0 auto; } 
-        
         .center-title-clock { text-align: center; flex-grow: 1; }
         .center-title-clock h1 { font-size: 1.4rem; margin-bottom: 0; color: #003366; transition: color 0.3s ease; }
         
@@ -109,9 +108,7 @@
             display: inline-block; margin-top: 0; transition: all 0.3s ease;
         }
 
-        .action-buttons-left, .action-buttons-right {
-            display: flex; gap: 10px; position: absolute; top: 50%; transform: translateY(-50%);
-        }
+        .action-buttons-left, .action-buttons-right { display: flex; gap: 10px; position: absolute; top: 50%; transform: translateY(-50%); }
         .action-buttons-left { left: 0; }
         .action-buttons-right { right: 0; }
 
@@ -123,9 +120,7 @@
         body.dark-mode .icon-btn { background: rgba(0,0,0,0.5); }
         body.dark-mode .icon-btn:hover { background: rgba(0,0,0,0.8); }
 
-        .dashboard-wrapper {
-            display: flex; flex-wrap: wrap; gap: 15px; max-width: 1300px; margin: 0 auto; width: 100%; align-items: flex-start; z-index: 2;
-        }
+        .dashboard-wrapper { display: flex; flex-wrap: wrap; gap: 15px; max-width: 1300px; margin: 0 auto; width: 100%; align-items: flex-start; z-index: 2; }
 
         /* --- Sidebar --- */
         .sidebar {
@@ -137,9 +132,7 @@
 
         .main-content { flex: 2; min-width: 500px; display: flex; flex-direction: column; transition: all 0.4s ease; }
 
-        .schedule-container {
-            padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; box-sizing: border-box;
-        }
+        .schedule-container { padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; box-sizing: border-box; }
         .schedule-header-wrap { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 8px; }
         .schedule-header-wrap h3 { margin: 0; font-size: 1.3rem; color: #003366; transition: color 0.3s ease; }
 
@@ -271,10 +264,6 @@
                     <span>🔊</span>
                 </div>
                 
-                <label class="sub-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 10px;">
-                    <input type="checkbox" id="playGoodbyes" onchange="toggleGoodbyes()"> Play Positive Goodbyes
-                </label>
-
                 <div class="split-button-container">
                     <button id="playBtn" class="split-button-main" onclick="testSelectedSound()">▶ Play Voice Test</button>
                     <div class="dropdown">
@@ -290,6 +279,14 @@
                             <button onclick="selectTestSound('lunch', 'Lunch Duty')">Lunch Duty Voice</button>
                         </div>
                     </div>
+                </div>
+
+                <div class="goodbye-box">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: bold; font-size: 0.95rem;">
+                        <input type="checkbox" id="playGoodbyes" onchange="toggleGoodbyes()" style="width: 16px; height: 16px;"> 
+                        Play Positive Goodbyes
+                    </label>
+                    <div class="goodbye-desc">Reads an encouraging, randomized message out loud after the final class bell rings.</div>
                 </div>
             </div>
 
@@ -437,15 +434,12 @@
         let ytPlayer = null;
         let isYtApiReady = false;
 
-        // Asynchronously load the YouTube IFrame Player API code
         var tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         var firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-        function onYouTubeIframeAPIReady() {
-            isYtApiReady = true;
-        }
+        function onYouTubeIframeAPIReady() { isYtApiReady = true; }
 
         function extractVideoID(url) {
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|live\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -460,62 +454,39 @@
 
             const vid = extractVideoID(url);
             if(vid) {
-                savedVibeUrl = url;
-                saveLocalSettings();
+                savedVibeUrl = url; saveLocalSettings();
                 bgContainer.style.opacity = "0.45";
 
                 if (ytPlayer) {
-                    // If player already exists, just load the new video and set volume
                     ytPlayer.loadVideoById({videoId: vid});
                     ytPlayer.setVolume(vibeVolume);
                 } else {
-                    if (!isYtApiReady) {
-                        showToast("YouTube API loading. Try again in 2 seconds.");
-                        return;
-                    }
-                    // Create the invisible player
+                    if (!isYtApiReady) { showToast("YouTube API loading. Try again in 2 seconds."); return; }
                     ytPlayer = new YT.Player('yt-player-container', {
                         videoId: vid,
-                        playerVars: {
-                            'autoplay': 1, 'controls': 0, 'autohide': 1,
-                            'wmode': 'opaque', 'showinfo': 0, 'loop': 1,
-                            'playlist': vid, 'mute': 0
-                        },
-                        events: {
-                            'onReady': onPlayerReady
-                        }
+                        playerVars: { 'autoplay': 1, 'controls': 0, 'autohide': 1, 'wmode': 'opaque', 'showinfo': 0, 'loop': 1, 'playlist': vid, 'mute': 0 },
+                        events: { 'onReady': onPlayerReady }
                     });
                 }
-            } else {
-                alert("Invalid YouTube URL. Please try again.");
-            }
+            } else { alert("Invalid YouTube URL. Please try again."); }
         }
 
-        function onPlayerReady(event) {
-            event.target.setVolume(vibeVolume);
-            event.target.playVideo();
-        }
+        function onPlayerReady(event) { event.target.setVolume(vibeVolume); event.target.playVideo(); }
 
         function changeVibeVolume() {
             vibeVolume = document.getElementById('vibeVolumeControl').value;
-            if (ytPlayer && typeof ytPlayer.setVolume === 'function') {
-                ytPlayer.setVolume(vibeVolume);
-            }
+            if (ytPlayer && typeof ytPlayer.setVolume === 'function') ytPlayer.setVolume(vibeVolume);
             saveLocalSettings();
         }
 
         function stopVibe() {
             document.getElementById('vibe-bg').style.opacity = "0";
-            if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
-                setTimeout(() => { ytPlayer.pauseVideo(); }, 1000); 
-            }
+            if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') setTimeout(() => { ytPlayer.pauseVideo(); }, 1000); 
         }
-        // --------------------------
 
         function showToast(message) {
             const toast = document.getElementById('toast');
-            toast.innerText = message;
-            toast.classList.add('show');
+            toast.innerText = message; toast.classList.add('show');
             setTimeout(() => { toast.classList.remove('show'); }, 4000);
         }
 
@@ -536,9 +507,7 @@
                 voiceSelect.appendChild(option);
             });
             
-            if(!voiceSelect.value && enVoices.length > 0) {
-                voiceSelect.value = enVoices[0].voiceURI;
-            }
+            if(!voiceSelect.value && enVoices.length > 0) voiceSelect.value = enVoices[0].voiceURI;
             globalVoicePref = voiceSelect.value;
         }
         window.speechSynthesis.onvoiceschanged = populateVoiceList;
@@ -555,6 +524,13 @@
                         let fetchedMode = data.mode.toLowerCase() === 'regular' ? 'daily' : data.mode;
                         
                         if (data.schedule && data.schedule.length > 0) {
+                            
+                            // BUG FIX: Strict padding for all incoming Google Sheet times (e.g. changes "9:40" to "09:40" so the math matches)
+                            data.schedule.forEach(p => {
+                                if(p.start && p.start.includes(':')) p.start = p.start.split(':').map(v => v.padStart(2, '0')).join(':');
+                                if(p.end && p.end.includes(':')) p.end = p.end.split(':').map(v => v.padStart(2, '0')).join(':');
+                            });
+
                             predefinedSchedules['synced'] = data.schedule;
                             
                             let select = document.getElementById('scheduleMode');
@@ -577,7 +553,6 @@
 
                         document.getElementById('autoIndicator').style.display = 'block';
                         document.getElementById('autoIndicator').innerText = `✓ Auto-Synced: ${fetchedMode.toUpperCase()}`;
-                        
                         changeMode(); 
                     }
                 } catch (err) { 
@@ -657,7 +632,6 @@
                 }
             } catch (e) {}
             renderLunchDuties();
-            
             if(isStudentView && !isDarkMode) { document.getElementById('studentViewBtn').style.color = '#888'; }
             if(!isStudentView && isDarkMode) { document.getElementById('studentViewBtn').style.color = '#90caf9'; }
         }
@@ -760,23 +734,16 @@
             const period = document.getElementById('lunchPeriod').value.trim();
             if (period) {
                 lunchDuties.push({ day, half, period });
-                renderLunchDuties();
-                saveLocalSettings();
-                document.getElementById('lunchPeriod').value = '';
+                renderLunchDuties(); saveLocalSettings(); document.getElementById('lunchPeriod').value = '';
             }
         }
-        function removeLunchDuty(index) {
-            lunchDuties.splice(index, 1);
-            renderLunchDuties();
-            saveLocalSettings();
-        }
+        function removeLunchDuty(index) { lunchDuties.splice(index, 1); renderLunchDuties(); saveLocalSettings(); }
+        
         function renderLunchDuties() {
-            const list = document.getElementById('lunch-duty-list');
-            list.innerHTML = '';
+            const list = document.getElementById('lunch-duty-list'); list.innerHTML = '';
             const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
             lunchDuties.forEach((duty, index) => {
-                const li = document.createElement('li');
-                li.className = "duty-item";
+                const li = document.createElement('li'); li.className = "duty-item";
                 li.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid #eee;";
                 li.innerHTML = `<span><b>${days[duty.day]}</b> - ${duty.period} (${duty.half === 1 ? '1st' : '2nd'} Half)</span>
                                 <button onclick="removeLunchDuty(${index})" style="background:none; border:none; color:#d9534f; cursor:pointer; font-size:1.1rem;" title="Remove Duty">✖</button>`;
@@ -797,9 +764,7 @@
             }
                                
             document.getElementById('schedule-title').childNodes[0].nodeValue = currentScheduleName.toUpperCase() + ' Schedule '; 
-            
-            renderSchedule();
-            saveLocalSettings();
+            renderSchedule(); saveLocalSettings();
         }
 
         function toggleSetting(periodName, settingType, isChecked) {
@@ -810,24 +775,18 @@
         }
 
         function renderSchedule() {
-            const list = document.getElementById('schedule-list');
-            list.innerHTML = '';
-            
+            const list = document.getElementById('schedule-list'); list.innerHTML = '';
             let filteredSchedule = activeSchedule;
-            if (!showZero) {
-                filteredSchedule = activeSchedule.filter(p => !p.name.includes("0 pd"));
-            }
+            if (!showZero) filteredSchedule = activeSchedule.filter(p => !p.name.includes("0 pd"));
 
             if (!filteredSchedule || filteredSchedule.length === 0) { 
-                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>No periods added yet.</em></li>'; 
-                return; 
+                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>No periods added yet.</em></li>'; return; 
             }
 
             filteredSchedule.forEach(period => {
                 const key = period.name;
                 const s = classSettings[key] || { ...DEFAULT_PREFS };
-                const li = document.createElement('li');
-                li.className = 'schedule-grid';
+                const li = document.createElement('li'); li.className = 'schedule-grid';
                 
                 li.innerHTML = `
                     <div class="period-name">${period.name}</div>
@@ -839,6 +798,21 @@
                 `;
                 list.appendChild(li);
             });
+        }
+
+        function addCustomPeriod() {
+            const name = document.getElementById('customName').value, start = document.getElementById('customStart').value, end = document.getElementById('customEnd').value;
+            if (name && start && end) {
+                predefinedSchedules.custom.push({ name, start, end }); predefinedSchedules.custom.sort((a, b) => a.start.localeCompare(b.start));
+                changeMode(); document.getElementById('customName').value = ''; document.getElementById('customStart').value = ''; document.getElementById('customEnd').value = '';
+            }
+        }
+        function clearCustomSchedule() {
+            if(confirm("Are you sure you want to clear your custom schedule?")) {
+                predefinedSchedules.custom = [];
+                Object.keys(classSettings).forEach(key => { if (key.startsWith('custom-')) delete classSettings[key]; });
+                changeMode();
+            }
         }
 
         function formatTime12(time24) { let [h, m] = time24.split(':'); let ampm = h >= 12 ? 'PM' : 'AM'; return `${h % 12 || 12}:${m} ${ampm}`; }
@@ -882,9 +856,7 @@
                 const hasLunch1 = lunchDuties.some(d => d.day === todayDayOfWeek && d.period.toLowerCase() === period.name.toLowerCase() && d.half === 1);
                 let hasLunch2 = lunchDuties.some(d => d.day === todayDayOfWeek && d.period.toLowerCase() === period.name.toLowerCase() && d.half === 2);
                 
-                if (isWebDay) {
-                    hasLunch2 = false; 
-                }
+                if (isWebDay) hasLunch2 = false; 
 
                 const startMinus1 = subtractMinutes(period.start, 1);
                 const startPlus5 = addMinutes(period.start, 5);
@@ -898,7 +870,6 @@
                         let speechText = "";
                         if (s.putaway) speechText += "Class is beginning. Please place your phones in the cell phone caddy. ";
                         if (hasLunch1) speechText += "Reminder: You have lunch duty today.";
-                        
                         if (speechText) playBellWithQueue(3, () => speak(speechText));
                         else playBellWithQueue(3);
                     });
@@ -951,7 +922,6 @@
         const worker = new Worker(URL.createObjectURL(new Blob([`setInterval(() => { postMessage('tick'); }, 1000);`], { type: 'application/javascript' })));
         worker.onmessage = function() { updateClock(); };
 
-        // INITIALIZATION
         populateVoiceList(); 
         loadLocalSettings(); 
         fetchDailySchedule(); 
