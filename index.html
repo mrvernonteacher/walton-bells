@@ -378,7 +378,7 @@
                 
                 <div class="volume-container">
                     <span>🎵 🔈</span>
-                    <input type="range" id="vibeVolumeControl" min="0" max="100" step="1" value="50" onchange="syncVibeVolume(this.value)">
+                    <input type="range" id="vibeVolumeControl" min="0" max="100" step="1" value="50" onchange="changeVibeVolume()">
                     <span>🔊</span>
                 </div>
 
@@ -598,9 +598,15 @@
                     let fetchedMode = data.mode.toLowerCase() === 'regular' ? 'daily' : data.mode;
                     
                     if (data.schedule && data.schedule.length > 0) {
+                        
+                        // DEFENSIVE FIX: Forces everything to a string before running .includes() to prevent silent crashes
                         data.schedule.forEach(p => {
-                            if(p.start && p.start.includes(':')) p.start = p.start.split(':').map(v => v.padStart(2, '0')).join(':');
-                            if(p.end && p.end.includes(':')) p.end = p.end.split(':').map(v => v.padStart(2, '0')).join(':');
+                            p.name = String(p.name || '');
+                            p.start = String(p.start || '');
+                            p.end = String(p.end || '');
+                            
+                            if(p.start.includes(':')) p.start = p.start.split(':').map(v => v.padStart(2, '0')).join(':');
+                            if(p.end.includes(':')) p.end = p.end.split(':').map(v => v.padStart(2, '0')).join(':');
                         });
 
                         predefinedSchedules['synced'] = data.schedule;
@@ -810,7 +816,11 @@
             const day = parseInt(document.getElementById('lunchDay').value);
             const half = parseInt(document.getElementById('lunchHalf').value);
             const period = document.getElementById('lunchPeriod').value.trim();
-            if (period) { lunchDuties.push({ day, half, period }); renderLunchDuties(); saveLocalSettings(); }
+            if (period) {
+                lunchDuties.push({ day, half, period });
+                renderLunchDuties(); saveLocalSettings(); 
+                document.getElementById('lunchPeriod').value = '3rd';
+            }
         }
         function removeLunchDuty(index) { lunchDuties.splice(index, 1); renderLunchDuties(); saveLocalSettings(); }
         
@@ -853,46 +863,57 @@
         function renderSchedule() {
             const list = document.getElementById('schedule-list'); list.innerHTML = '';
             let filteredSchedule = activeSchedule;
-            if (!showZero) filteredSchedule = activeSchedule.filter(p => !p.name.includes("0 pd"));
+            
+            // DEFENSIVE FIX: Casts p.name to a String before running .includes to prevent crashes
+            if (!showZero) filteredSchedule = activeSchedule.filter(p => p && p.name && !String(p.name).includes("0 pd"));
 
             if (!filteredSchedule || filteredSchedule.length === 0) { 
                 list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>No periods added yet.</em></li>'; return; 
             }
 
             filteredSchedule.forEach(period => {
-                const key = period.name;
+                const key = String(period.name);
                 const s = classSettings[key] || { ...DEFAULT_PREFS };
                 const li = document.createElement('li'); li.className = 'schedule-grid';
                 
                 let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
                 
-                // Only generate the WEB Open checkbox if it's a specific WEB block letter
-                let isWebBlock = /^[A-D]\s*Block/i.test(period.name);
-                let webOpenCheckbox = isWebBlock ? `<input type="checkbox" onchange="toggleSetting('${period.name}', 'open', this.checked)" ${s.open ? 'checked' : ''} title="Mark as WEB Open Block">` : `<div></div>`;
+                // Exclusively show WEB Open checkbox for literal block letters
+                let isWebBlock = /^[A-D]\s*Block/i.test(key);
+                let webOpenCheckbox = isWebBlock ? `<input type="checkbox" onchange="toggleSetting('${key}', 'open', this.checked)" ${s.open ? 'checked' : ''} title="Mark as WEB Open Block">` : `<div></div>`;
 
                 li.innerHTML = `
-                    <div class="period-name">${period.name} ${openBadgeHtml}</div>
-                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'putaway', this.checked)" ${s.putaway ? 'checked' : ''} title="Phone Caddy"></div>
-                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'attendance', this.checked)" ${s.attendance ? 'checked' : ''} title="Take Attendance"></div>
-                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'cleanup', this.checked)" ${s.cleanup ? 'checked' : ''} title="5-Min Clean Up"></div>
-                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'retrieve', this.checked)" ${s.retrieve ? 'checked' : ''} title="1 Min Warning & Retrieve"></div>
+                    <div class="period-name">${key} ${openBadgeHtml}</div>
+                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${key}', 'putaway', this.checked)" ${s.putaway ? 'checked' : ''} title="Phone Caddy"></div>
+                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${key}', 'attendance', this.checked)" ${s.attendance ? 'checked' : ''} title="Take Attendance"></div>
+                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${key}', 'cleanup', this.checked)" ${s.cleanup ? 'checked' : ''} title="5-Min Clean Up"></div>
+                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${key}', 'retrieve', this.checked)" ${s.retrieve ? 'checked' : ''} title="1 Min Warning & Retrieve"></div>
                     <div class="options-col">${webOpenCheckbox}</div>
-                    <div class="period-time">${formatTime12(period.start)} - ${formatTime12(period.end)}</div>
+                    <div class="period-time">${formatTime12(String(period.start))} - ${formatTime12(String(period.end))}</div>
                 `;
                 list.appendChild(li);
             });
         }
 
-        function formatTime12(time24) { let [h, m] = time24.split(':'); let ampm = h >= 12 ? 'PM' : 'AM'; return `${h % 12 || 12}:${m} ${ampm}`; }
+        // DEFENSIVE FIX: Ensure inputs are safely mapped strings before splitting
+        function formatTime12(time24) { 
+            if (!time24 || !time24.includes(':')) return time24 || '';
+            let [h, m] = time24.split(':'); 
+            let ampm = h >= 12 ? 'PM' : 'AM'; 
+            return `${h % 12 || 12}:${m} ${ampm}`; 
+        }
         function subtractMinutes(time24, minsToSubtract) {
+            if (!time24 || !time24.includes(':')) return '';
             let [h, m] = time24.split(':').map(Number); let d = new Date(); d.setHours(h, m, 0, 0); d.setMinutes(d.getMinutes() - minsToSubtract);
             return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
         }
         function addMinutes(time24, minsToAdd) {
+            if (!time24 || !time24.includes(':')) return '';
             let [h, m] = time24.split(':').map(Number); let d = new Date(); d.setHours(h, m, 0, 0); d.setMinutes(d.getMinutes() + minsToAdd);
             return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
         }
         function getMidpoint(start, end) {
+            if (!start || !start.includes(':') || !end || !end.includes(':')) return '';
             let [sh, sm] = start.split(':').map(Number); let [eh, em] = end.split(':').map(Number);
             let midMins = Math.floor(((sh * 60 + sm) + (eh * 60 + em)) / 2);
             return Math.floor(midMins / 60).toString().padStart(2, '0') + ':' + (midMins % 60).toString().padStart(2, '0');
@@ -912,28 +933,31 @@
             document.getElementById('clock').innerText = now.toLocaleTimeString('en-US');
             let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
             
+            // 6:00 AM Silent Auto-Sync Check
             if (current24 === '06:00' && now.getSeconds() === 0) { fetchDailySchedule(); }
             
             const todayDayOfWeek = now.getDay(); 
             const isWebDay = currentScheduleName.toLowerCase().includes('web');
 
             activeSchedule.forEach(period => {
-                if (!showZero && period.name.includes("0 pd")) return;
+                if (!showZero && String(period.name).includes("0 pd")) return;
 
-                const s = classSettings[period.name] || { ...DEFAULT_PREFS };
+                const s = classSettings[String(period.name)] || { ...DEFAULT_PREFS };
+                
+                // Mute alarms if the teacher marked this block as Open
                 if (s.open) return; 
 
-                const hasLunch1 = lunchDuties.some(d => d.day === todayDayOfWeek && d.period.toLowerCase() === period.name.toLowerCase() && d.half === 1);
-                let hasLunch2 = lunchDuties.some(d => d.day === todayDayOfWeek && d.period.toLowerCase() === period.name.toLowerCase() && d.half === 2);
+                const hasLunch1 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === String(period.name).toLowerCase() && d.half === 1);
+                let hasLunch2 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === String(period.name).toLowerCase() && d.half === 2);
                 if (isWebDay) hasLunch2 = false; 
 
-                const startMinus1 = subtractMinutes(period.start, 1);
-                const startPlus5 = addMinutes(period.start, 5);
-                const endMinus5 = subtractMinutes(period.end, 5);
-                const endMinus1 = subtractMinutes(period.end, 1);
-                const midPoint = getMidpoint(period.start, period.end);
+                const startMinus1 = subtractMinutes(String(period.start), 1);
+                const startPlus5 = addMinutes(String(period.start), 5);
+                const endMinus5 = subtractMinutes(String(period.end), 5);
+                const endMinus1 = subtractMinutes(String(period.end), 1);
+                const midPoint = getMidpoint(String(period.start), String(period.end));
 
-                if (current24 === period.start) {
+                if (current24 === String(period.start)) {
                     triggerEvent(current24, `start-${period.name}`, () => {
                         triggerVisualAlert();
                         let speechText = "";
@@ -944,7 +968,7 @@
                     });
                 }
                 
-                if (current24 === period.end) {
+                if (current24 === String(period.end)) {
                     triggerEvent(current24, `end-${period.name}`, () => { 
                         triggerVisualAlert(); 
                         if (playGoodbyes) {
@@ -977,7 +1001,7 @@
                     triggerEvent(current24, `cleanup5m-${period.name}`, () => { triggerVisualAlert(); speak("Five minutes remaining. Please begin cleaning up your area."); });
                 }
 
-                // SMART 1-MIN LOGIC: Replaces generic "retrieve" with 1-bell + combo message
+                // SMART 1-MIN LOGIC: 1 Bell + Warning + Conditional Phone Retrieve
                 if (s.retrieve && current24 === endMinus1) {
                     triggerEvent(current24, `phone1m-${period.name}`, () => { 
                         triggerVisualAlert(); 
