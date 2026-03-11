@@ -19,7 +19,7 @@
             background-color: #f4f4f9;
             color: #333;
             margin: 0;
-            padding: 230px 20px 20px 20px; /* Increased top padding so clock clears the schedule */
+            padding: 280px 20px 20px 20px; /* Massive top padding so floating clock cleanly clears schedule */
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -51,7 +51,7 @@
             pointer-events: none; /* Prevents the invisible box from blocking clicks */
         }
         .floating-header > * {
-            pointer-events: auto; /* Restores clicks only on the actual logo/clock if needed */
+            pointer-events: auto; /* Restores clicks only on the actual logo/clock */
         }
         .floating-header.scrolled {
             transform: translateX(-50%) scale(0.65);
@@ -98,7 +98,7 @@
 
         /* --- Draggable Floating Media Player --- */
         .floating-player {
-            position: fixed; top: 20px; left: 20px;
+            position: fixed; top: 20px; right: 20px; /* Default Top-Right Position */
             background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             border-radius: 20px; padding: 8px 15px 8px 10px;
             display: flex; align-items: center; gap: 10px;
@@ -178,9 +178,9 @@
         body.dark-mode .open-badge { background-color: #2e7d32; color: #e8f5e9; }
         .student-view .open-badge { font-size: 1.2rem; padding: 4px 12px; margin-left: 15px; transform: translateY(-3px); display: inline-block; }
 
+        /* --- Layout & Structure --- */
         .dashboard-wrapper { display: flex; flex-wrap: wrap; gap: 15px; max-width: 1300px; margin: 0 auto; width: 100%; align-items: flex-start; z-index: 2; }
 
-        /* --- Sidebar --- */
         .sidebar {
             flex: 1; min-width: 320px; max-width: 350px; padding: 15px 20px;
             border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -249,12 +249,24 @@
         body.dark-mode .options-col[title] { border-bottom: 1px dotted rgba(255,255,255,0.4); }
         
         #schedule-list { list-style-type: none; padding: 0; margin: 0; }
-        #schedule-list li { padding: 6px 4px; border-bottom: 1px solid rgba(150,150,150,0.2); transition: all 0.2s ease; }
+        #schedule-list li { padding: 6px 4px; border-bottom: 1px solid rgba(150,150,150,0.2); transition: all 0.3s ease; border-left: 5px solid transparent; }
         #schedule-list li:nth-child(even) { background-color: rgba(0,0,0,0.03); }
         #schedule-list input[type="checkbox"] { cursor: pointer; transform: scale(1.2); margin: 0; }
 
         .period-name { font-weight: bold; text-align: left; font-size: 1.05rem; transition: all 0.3s ease;}
         .period-time { text-align: right; font-size: 0.95rem; color: #555; transition: all 0.3s ease;}
+
+        /* --- Current Period Highlight --- */
+        #schedule-list li.current-period {
+            background-color: rgba(92, 184, 92, 0.15) !important;
+            border-left: 5px solid #5cb85c;
+            box-shadow: inset 0 0 10px rgba(92, 184, 92, 0.1);
+        }
+        body.dark-mode #schedule-list li.current-period {
+            background-color: rgba(144, 202, 249, 0.15) !important;
+            border-left: 5px solid #90caf9;
+            box-shadow: inset 0 0 10px rgba(144, 202, 249, 0.1);
+        }
 
         /* Student View */
         .student-view .options-col { display: none; }
@@ -524,6 +536,10 @@
             if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
             isDragging = true;
             floatPlayer.classList.add('dragging');
+            
+            // Instantly release the "right" anchor so we can move it freely by the "left" coordinate
+            floatPlayer.style.right = 'auto';
+            
             const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
             const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
             
@@ -834,8 +850,14 @@
             const toggle = document.getElementById('darkModeToggle');
             if(!toggle) return;
             isDarkMode = toggle.checked;
-            if (isDarkMode) { document.body.classList.add('dark-mode'); } 
-            else { document.body.classList.remove('dark-mode'); }
+            const svBtn = document.getElementById('studentViewBtn');
+            if (isDarkMode) { 
+                document.body.classList.add('dark-mode'); 
+                if(!isStudentView && svBtn) svBtn.style.color = '#90caf9';
+            } else { 
+                document.body.classList.remove('dark-mode'); 
+                if(!isStudentView && svBtn) svBtn.style.color = '#003366';
+            }
             if (shouldSave) saveLocalSettings();
             renderLunchDuties(); 
         }
@@ -853,14 +875,15 @@
                     if(hamBtn) hamBtn.classList.remove('active-btn');
                 }
             }
-            updateFloatingPlayerVisibility();
+            // Do not hide media player anymore
             if (shouldSave) saveLocalSettings();
         }
 
         function updateFloatingPlayerVisibility() {
             const player = document.getElementById('floating-player');
             if (player) {
-                if (!sidebarVisible && savedVibeUrl) player.classList.add('visible');
+                // Modified: Now stays visible permanently as long as there is a URL loaded!
+                if (savedVibeUrl) player.classList.add('visible');
                 else player.classList.remove('visible');
             }
         }
@@ -1043,6 +1066,10 @@
                     const li = document.createElement('li'); 
                     li.className = 'schedule-grid';
                     
+                    // Attach data attributes for the highlight engine to read
+                    li.dataset.start = String(period.start);
+                    li.dataset.end = String(period.end);
+                    
                     let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
                     let isWebBlock = /^[A-D](\s|-)?Block/i.test(key);
                     let webOpenCheckbox = isWebBlock ? 
@@ -1061,6 +1088,13 @@
                     list.appendChild(li);
                 } catch(e) { console.error("Error rendering a row:", e); }
             });
+        }
+
+        // --- Time Utilities ---
+        function timeToMins(t) {
+            if (!t || !t.includes(':')) return 0;
+            let [h, m] = t.split(':').map(Number);
+            return h * 60 + m;
         }
 
         function formatTime12(time24) { 
@@ -1095,12 +1129,56 @@
             setTimeout(() => { overlay.remove(); }, 6000); 
         }
 
+        // --- Core Highlighting Logic ---
+        function highlightCurrentPeriod(current24) {
+            const listItems = document.querySelectorAll('#schedule-list li');
+            if (listItems.length === 0) return;
+            
+            const currentMins = timeToMins(current24);
+            let highlightIndex = -1;
+            let periods = [];
+            
+            listItems.forEach((li, index) => {
+                periods.push({
+                    index: index,
+                    startMins: timeToMins(li.dataset.start),
+                    endMins: timeToMins(li.dataset.end),
+                    li: li
+                });
+                li.classList.remove('current-period'); 
+            });
+
+            if (periods.length === 0) return;
+            if (currentMins < periods[0].startMins) return; 
+            if (currentMins >= periods[periods.length - 1].endMins) return; 
+
+            for (let i = 0; i < periods.length; i++) {
+                let p = periods[i];
+                if (currentMins >= p.startMins && currentMins < p.endMins) {
+                    highlightIndex = p.index;
+                    break;
+                }
+                if (currentMins < p.startMins) {
+                    if (i > 0 && currentMins >= periods[i-1].endMins) {
+                        highlightIndex = p.index; 
+                    }
+                    break;
+                }
+            }
+
+            if (highlightIndex !== -1) {
+                periods[highlightIndex].li.classList.add('current-period');
+            }
+        }
+
         function updateClock() {
             const now = new Date();
             const clk = document.getElementById('clock');
             if(clk) clk.innerText = now.toLocaleTimeString('en-US');
             let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
             
+            highlightCurrentPeriod(current24);
+
             if (current24 === '06:00' && now.getSeconds() === 0) { fetchDailySchedule(); }
             if(!Array.isArray(activeSchedule)) return;
 
@@ -1132,9 +1210,9 @@
                         let speechText = "";
                         
                         if (s.open) speechText += "Please remember to sign in to WEB. ";
-                        
                         if (s.putaway) speechText += "Class is beginning. Please place your phones in the cell phone caddy. ";
                         if (hasLunch1) speechText += "Reminder: You have lunch duty today.";
+                        
                         if (speechText) playBellWithQueue(3, () => speak(speechText));
                         else playBellWithQueue(3);
                     });
@@ -1152,7 +1230,7 @@
                     });
                 }
 
-                if (!s.open && current24 === startMinus1) {
+                if (current24 === startMinus1) {
                     triggerEvent(current24, `warning1m-${pNameStr}`, () => {
                         triggerVisualAlert();
                         let speechText = "One minute until class begins.";
@@ -1173,7 +1251,7 @@
                     triggerEvent(current24, `cleanup5m-${pNameStr}`, () => { triggerVisualAlert(); speak("Five minutes remaining. Please begin cleaning up your area."); });
                 }
 
-                if (!s.open && s.retrieve && current24 === endMinus1) {
+                if (s.retrieve && current24 === endMinus1) {
                     triggerEvent(current24, `phone1m-${pNameStr}`, () => { 
                         triggerVisualAlert(); 
                         let speechText = "One minute remaining.";
