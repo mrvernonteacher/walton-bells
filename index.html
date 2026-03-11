@@ -19,7 +19,7 @@
             background-color: #f4f4f9;
             color: #333;
             margin: 0;
-            padding: 190px 20px 20px 20px; /* Added massive top padding for the floating clock */
+            padding: 190px 20px 20px 20px; 
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -54,7 +54,7 @@
             opacity: 0.75;
         }
         .floating-header.scrolled:hover {
-            opacity: 1; /* Restores full opacity if user hovers over it while scrolled */
+            opacity: 1; 
         }
         
         .header-logo { max-width: 140px; height: auto; display: block; margin: 0 auto; transition: all 0.3s ease;} 
@@ -67,14 +67,18 @@
         }
         body.dark-mode #clock { background: rgba(30, 30, 30, 0.85); color: #e0e0e0; box-shadow: 0 4px 10px rgba(0,0,0,0.7); }
 
-        /* --- Inline Action Buttons --- */
+        /* --- Smart State Icon Buttons --- */
         .header-icon-btn {
-            background: none; border: none; color: #003366; cursor: pointer; padding: 6px 8px; border-radius: 8px;
+            background: none; border: none; color: #aaa; cursor: pointer; padding: 6px 8px; border-radius: 8px;
             display: flex; align-items: center; justify-content: center; transition: background-color 0.2s, color 0.2s;
             font-size: 1.6rem; line-height: 1;
         }
-        .header-icon-btn:hover { background-color: rgba(150,150,150,0.2); }
-        body.dark-mode .header-icon-btn { color: #90caf9; }
+        .header-icon-btn:hover { background-color: rgba(150,150,150,0.2); color: #888; }
+        .header-icon-btn.active-btn { color: #003366; } 
+        
+        body.dark-mode .header-icon-btn { color: #666; }
+        body.dark-mode .header-icon-btn:hover { background-color: rgba(150,150,150,0.2); color: #aaa; }
+        body.dark-mode .header-icon-btn.active-btn { color: #90caf9; } 
 
         /* --- Toast Notification --- */
         #toast {
@@ -401,16 +405,16 @@
                 
                 <div class="schedule-header-wrap">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <button id="hamburgerBtn" class="header-icon-btn" onclick="toggleSidebar(true)" title="Toggle Settings">☰</button>
+                        <button id="hamburgerBtn" class="header-icon-btn active-btn" onclick="toggleSidebar(true)" title="Toggle Settings">☰</button>
                         <h3 id="schedule-title">Active Schedule</h3>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <button id="studentViewBtn" class="header-icon-btn" onclick="toggleStudentView(true)" title="Toggle Options">
+                        <button id="studentViewBtn" class="header-icon-btn active-btn" onclick="toggleStudentView(true)" title="Toggle Options">
                             <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
                                 <rect x="4" y="4" width="4" height="4" rx="1"/><rect x="10" y="4" width="4" height="4" rx="1"/><rect x="16" y="4" width="4" height="4" rx="1"/><rect x="4" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="16" y="10" width="4" height="4" rx="1"/><rect x="4" y="16" width="4" height="4" rx="1"/><rect x="10" y="16" width="4" height="4" rx="1"/><rect x="16" y="16" width="4" height="4" rx="1"/>
                             </svg>
                         </button>
-                        <button class="header-icon-btn" onclick="toggleFullScreen()" title="Full Screen">⛶</button>
+                        <button id="fullScreenBtn" class="header-icon-btn" onclick="toggleFullScreen()" title="Full Screen">⛶</button>
                     </div>
                 </div>
                 
@@ -491,6 +495,15 @@
             }
         });
 
+        // --- Fullscreen State Listener ---
+        document.addEventListener('fullscreenchange', () => {
+            const fsBtn = document.getElementById('fullScreenBtn');
+            if(fsBtn) {
+                if (document.fullscreenElement) fsBtn.classList.add('active-btn');
+                else fsBtn.classList.remove('active-btn');
+            }
+        });
+
         // --- Drag Logic for Floating Player ---
         const floatPlayer = document.getElementById('floating-player');
         let isDragging = false, dragStartX, dragStartY, initialLeft, initialTop;
@@ -530,7 +543,6 @@
             isDragging = false;
             floatPlayer.classList.remove('dragging');
         }
-        // --------------------------------------
 
         // --- YouTube API Engine ---
         let ytPlayer = null;
@@ -767,8 +779,11 @@
                     if (p.side === false) {
                         sidebarVisible = false;
                         const sb = document.getElementById('sidebar');
+                        const hamBtn = document.getElementById('hamburgerBtn');
                         if(sb) sb.classList.add('collapsed');
+                        if(hamBtn) hamBtn.classList.remove('active-btn');
                     }
+                    
                     if (p.student === true) {
                         isStudentView = true;
                         const sCont = document.getElementById('schedule-container');
@@ -776,8 +791,9 @@
                         const svBtn = document.getElementById('studentViewBtn');
                         if(sCont) sCont.classList.add('student-view');
                         if(dText) dText.style.display = 'none';
-                        if(svBtn) svBtn.style.color = '#888';
+                        if(svBtn) svBtn.classList.remove('active-btn');
                     }
+                    
                     if (p.dark === true) { 
                         isDarkMode = true;
                         const dmToggle = document.getElementById('darkModeToggle');
@@ -803,11 +819,6 @@
             } catch (e) {}
             renderLunchDuties();
             updateFloatingPlayerVisibility();
-            const svBtn = document.getElementById('studentViewBtn');
-            if(svBtn) {
-                if(isStudentView && !isDarkMode) svBtn.style.color = '#888'; 
-                if(!isStudentView && isDarkMode) svBtn.style.color = '#90caf9';
-            }
         }
 
         function toggleFullScreen() {
@@ -819,14 +830,8 @@
             const toggle = document.getElementById('darkModeToggle');
             if(!toggle) return;
             isDarkMode = toggle.checked;
-            const svBtn = document.getElementById('studentViewBtn');
-            if (isDarkMode) { 
-                document.body.classList.add('dark-mode'); 
-                if(!isStudentView && svBtn) svBtn.style.color = '#90caf9';
-            } else { 
-                document.body.classList.remove('dark-mode'); 
-                if(!isStudentView && svBtn) svBtn.style.color = '#003366';
-            }
+            if (isDarkMode) { document.body.classList.add('dark-mode'); } 
+            else { document.body.classList.remove('dark-mode'); }
             if (shouldSave) saveLocalSettings();
             renderLunchDuties(); 
         }
@@ -834,9 +839,15 @@
         function toggleSidebar(shouldSave = true) {
             sidebarVisible = !sidebarVisible;
             const sidebar = document.getElementById('sidebar');
+            const hamBtn = document.getElementById('hamburgerBtn');
             if(sidebar) {
-                if (sidebarVisible) sidebar.classList.remove('collapsed');
-                else sidebar.classList.add('collapsed');
+                if (sidebarVisible) {
+                    sidebar.classList.remove('collapsed');
+                    if(hamBtn) hamBtn.classList.add('active-btn');
+                } else {
+                    sidebar.classList.add('collapsed');
+                    if(hamBtn) hamBtn.classList.remove('active-btn');
+                }
             }
             updateFloatingPlayerVisibility();
             if (shouldSave) saveLocalSettings();
@@ -858,9 +869,13 @@
             
             if(container && disclaimer && btn) {
                 if (isStudentView) {
-                    container.classList.add('student-view'); disclaimer.style.display = 'none'; btn.style.color = '#888';
+                    container.classList.add('student-view'); 
+                    disclaimer.style.display = 'none'; 
+                    btn.classList.remove('active-btn');
                 } else {
-                    container.classList.remove('student-view'); disclaimer.style.display = 'block'; btn.style.color = isDarkMode ? '#90caf9' : '#003366'; 
+                    container.classList.remove('student-view'); 
+                    disclaimer.style.display = 'block'; 
+                    btn.classList.add('active-btn');
                 }
             }
             if (shouldSave) saveLocalSettings();
