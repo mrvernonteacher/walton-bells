@@ -42,19 +42,24 @@
         #toast.show { top: 20px; opacity: 1; }
         body.dark-mode #toast { background-color: #2e7d32; color: #e8f5e9; }
 
-        /* --- Floating Media Player --- */
+        /* --- Draggable Floating Media Player --- */
         .floating-player {
-            position: fixed; bottom: 30px; right: 30px;
+            position: fixed; top: 80px; left: 20px; /* Default Top-Left Position */
             background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            border-radius: 50px; padding: 10px 20px;
+            border-radius: 50px; padding: 10px 20px 10px 15px;
             display: flex; align-items: center; gap: 15px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-            z-index: 1000; opacity: 0; pointer-events: none; transform: translateY(20px);
+            z-index: 1000; opacity: 0; pointer-events: none; 
+            transition: opacity 0.4s ease;
+            cursor: grab; user-select: none;
         }
-        .floating-player.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+        .floating-player.visible { opacity: 1; pointer-events: auto; }
+        .floating-player.dragging { cursor: grabbing; transition: none !important; opacity: 0.95; }
         body.dark-mode .floating-player { background: rgba(30,30,30,0.85); color: #e0e0e0; border: 1px solid #444; }
         
+        .drag-handle { color: #888; font-size: 1.2rem; cursor: inherit; display: flex; align-items: center; }
+        body.dark-mode .drag-handle { color: #aaa; }
+
         .float-btn {
             background: #003366; color: white; border: none; border-radius: 50%;
             width: 40px; height: 40px; font-size: 1.1rem; cursor: pointer;
@@ -63,7 +68,7 @@
         .float-btn:hover { background: #002244; }
         body.dark-mode .float-btn { background: #1976d2; }
         body.dark-mode .float-btn:hover { background: #1565c0; }
-        .float-info { font-weight: bold; font-size: 0.9rem; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #003366; }
+        .float-info { font-weight: bold; font-size: 0.9rem; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #003366; cursor: text;}
         body.dark-mode .float-info { color: #90caf9; }
         .float-volume { display: flex; align-items: center; gap: 5px; }
         .float-volume input { width: 80px; cursor: pointer; }
@@ -218,7 +223,7 @@
             padding: 4px 8px; border-radius: 5px; font-weight: bold; border: 1px solid #d6e9c6;
         }
 
-        /* Schedule Grid (Strict 7 column layout) */
+        /* Schedule Grid */
         .schedule-grid {
             display: grid; grid-template-columns: 90px repeat(5, 1fr) 110px; gap: 6px; align-items: center; text-align: center; transition: all 0.3s ease;
         }
@@ -255,6 +260,7 @@
     </div>
 
     <div id="floating-player" class="floating-player">
+        <div class="drag-handle" title="Drag to move">⋮⋮</div>
         <button id="float-play-btn" class="float-btn" onclick="toggleVibePlay()">▶</button>
         <div class="float-info">
             <span id="float-vibe-title">Classroom Vibe</span>
@@ -469,6 +475,48 @@
         let currentTestSound = 'positive', sidebarVisible = true, isStudentView = false, isDarkMode = false, showZero = false, playGoodbyes = false;
         let currentScheduleName = "Daily"; 
 
+        // --- Drag Logic for Floating Player ---
+        const floatPlayer = document.getElementById('floating-player');
+        let isDragging = false, dragStartX, dragStartY, initialLeft, initialTop;
+
+        floatPlayer.addEventListener('mousedown', dragStart);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', dragEnd);
+
+        // Touch support for SmartBoards
+        floatPlayer.addEventListener('touchstart', dragStart, {passive: false});
+        document.addEventListener('touchmove', drag, {passive: false});
+        document.addEventListener('touchend', dragEnd);
+
+        function dragStart(e) {
+            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+            isDragging = true;
+            floatPlayer.classList.add('dragging');
+            const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+            
+            const rect = floatPlayer.getBoundingClientRect();
+            dragStartX = clientX; dragStartY = clientY;
+            initialLeft = rect.left; initialTop = rect.top;
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+            e.preventDefault(); 
+            const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+            
+            floatPlayer.style.left = `${initialLeft + (clientX - dragStartX)}px`;
+            floatPlayer.style.top = `${initialTop + (clientY - dragStartY)}px`;
+        }
+
+        function dragEnd() {
+            if (!isDragging) return;
+            isDragging = false;
+            floatPlayer.classList.remove('dragging');
+        }
+        // --------------------------------------
+
         // --- YouTube API Engine ---
         let ytPlayer = null;
         let isYtApiReady = false;
@@ -491,15 +539,10 @@
             if (ytPlayer && typeof ytPlayer.getPlayerState === 'function') {
                 try {
                     let state = ytPlayer.getPlayerState();
-                    if (state === YT.PlayerState.PLAYING) {
-                        ytPlayer.pauseVideo();
-                    } else {
-                        ytPlayer.playVideo();
-                    }
+                    if (state === YT.PlayerState.PLAYING) ytPlayer.pauseVideo();
+                    else ytPlayer.playVideo();
                 } catch(e) { console.error("Player state error", e); }
-            } else {
-                startVibe();
-            }
+            } else { startVibe(); }
         }
 
         function startVibe() {
@@ -515,10 +558,7 @@
                 if(bgContainer) bgContainer.style.opacity = "0.45";
 
                 if (ytPlayer) {
-                    try {
-                        ytPlayer.loadVideoById({videoId: vid});
-                        ytPlayer.setVolume(vibeVolume);
-                    } catch(e) {}
+                    try { ytPlayer.loadVideoById({videoId: vid}); ytPlayer.setVolume(vibeVolume); } catch(e) {}
                 } else {
                     if (!isYtApiReady) { showToast("YouTube API loading. Try again in 2 seconds."); return; }
                     try {
@@ -557,9 +597,7 @@
             const floatVol = document.getElementById('floatVibeVolume');
             if(mainVol) mainVol.value = val;
             if(floatVol) floatVol.value = val;
-            if (ytPlayer && typeof ytPlayer.setVolume === 'function') {
-                try { ytPlayer.setVolume(val); } catch(e) {}
-            }
+            if (ytPlayer && typeof ytPlayer.setVolume === 'function') { try { ytPlayer.setVolume(val); } catch(e) {} }
             saveLocalSettings();
         }
 
@@ -571,9 +609,7 @@
         function stopVibe() {
             const bg = document.getElementById('vibe-bg');
             if(bg) bg.style.opacity = "0";
-            if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
-                try { ytPlayer.pauseVideo(); } catch(e) {}
-            }
+            if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') { try { ytPlayer.pauseVideo(); } catch(e) {} }
             savedVibeUrl = '';
             const urlInput = document.getElementById('vibeUrl');
             if(urlInput) urlInput.value = '';
@@ -620,21 +656,14 @@
                 const data = await response.json();
                 
                 if (data && data.mode) {
-                    // DEFENSIVE FIX: Force clean lowercase string mapping to prevent missing "WEB" dictionary keys
                     let modeStr = String(data.mode || '').toLowerCase().trim();
                     let fetchedMode = modeStr === 'regular' ? 'daily' : modeStr;
                     
                     if (Array.isArray(data.schedule) && data.schedule.length > 0) {
-                        
-                        // DEFENSIVE FIX: Ensure no nulls or broken fields cause runtime errors
                         let cleanSchedule = [];
                         data.schedule.forEach(p => {
                             if(!p || !p.name) return;
-                            let cleanP = {
-                                name: String(p.name).trim(),
-                                start: String(p.start || '').trim(),
-                                end: String(p.end || '').trim()
-                            };
+                            let cleanP = { name: String(p.name).trim(), start: String(p.start || '').trim(), end: String(p.end || '').trim() };
                             if(cleanP.start.includes(':')) cleanP.start = cleanP.start.split(':').map(v => v.padStart(2, '0')).join(':');
                             if(cleanP.end.includes(':')) cleanP.end = cleanP.end.split(':').map(v => v.padStart(2, '0')).join(':');
                             cleanSchedule.push(cleanP);
@@ -657,7 +686,6 @@
                         currentScheduleName = fetchedMode;
                         showToast(`Loaded: ${fetchedMode.toUpperCase()} Schedule`);
                     } else {
-                        // Fallback logic
                         let safeMode = predefinedSchedules[fetchedMode] ? fetchedMode : 'daily';
                         const modeDropdown = document.getElementById('scheduleMode');
                         if(modeDropdown) modeDropdown.value = safeMode;
@@ -665,10 +693,7 @@
                     }
 
                     const ind = document.getElementById('autoIndicator');
-                    if(ind) {
-                        ind.style.display = 'block';
-                        ind.innerText = `✓ Auto-Synced: ${fetchedMode.toUpperCase()}`;
-                    }
+                    if(ind) { ind.style.display = 'block'; ind.innerText = `✓ Auto-Synced: ${fetchedMode.toUpperCase()}`; }
                     changeMode(); 
                 }
             } catch (err) { 
@@ -713,9 +738,7 @@
                         if(vControl) vControl.value = globalVolume;
                         if(aControl) aControl.volume = globalVolume;
                     }
-                    if (p.vibeVol !== undefined) {
-                        syncVibeVolume(p.vibeVol);
-                    }
+                    if (p.vibeVol !== undefined) { syncVibeVolume(p.vibeVol); }
 
                     if (p.testSound) {
                         currentTestSound = p.testSound;
@@ -808,11 +831,8 @@
         function updateFloatingPlayerVisibility() {
             const player = document.getElementById('floating-player');
             if (player) {
-                if (!sidebarVisible && savedVibeUrl) {
-                    player.classList.add('visible');
-                } else {
-                    player.classList.remove('visible');
-                }
+                if (!sidebarVisible && savedVibeUrl) player.classList.add('visible');
+                else player.classList.remove('visible');
             }
         }
 
@@ -902,7 +922,6 @@
             else if (currentTestSound === 'warning1m') playBellWithQueue(1, () => speak("One minute until class begins. Please place your phones in the cell phone caddy."));
             else if (currentTestSound === 'attendance') speak("Reminder. Please take attendance.");
             else if (currentTestSound === 'cleanup') speak("Five minutes remaining. Please begin cleaning up your area.");
-            else if (currentTestSound === 'retrieve') speak("One minute remaining. You may retrieve your cell phones.");
             else if (currentTestSound === 'lunch') speak("Reminder. You have lunch duty.");
         }
 
@@ -972,13 +991,10 @@
             list.innerHTML = '';
             
             if (!Array.isArray(activeSchedule)) {
-                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Schedule data is missing or corrupted.</em></li>'; 
-                return; 
+                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Schedule data is missing or corrupted.</em></li>'; return; 
             }
 
             let filteredSchedule = activeSchedule;
-            
-            // Defensively cast to String before includes
             if (!showZero) filteredSchedule = activeSchedule.filter(p => p && p.name && !String(p.name).includes("0 pd"));
 
             if (!filteredSchedule || filteredSchedule.length === 0) { 
@@ -988,7 +1004,6 @@
             filteredSchedule.forEach(period => {
                 try {
                     const key = String(period.name);
-                    // Escape quotes to prevent HTML injection breaks
                     const safeKey = key.replace(/'/g, "\\'"); 
                     const s = classSettings[key] || { ...DEFAULT_PREFS };
                     
@@ -996,11 +1011,7 @@
                     li.className = 'schedule-grid';
                     
                     let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
-                    
-                    // Match any class containing A,B,C,D Block (e.g. "A Block", "B-Block")
                     let isWebBlock = /^[A-D](\s|-)?Block/i.test(key);
-                    
-                    // CRITICAL FIX: Ensure the empty fallback is wrapped in the .options-col class so it correctly hides in Student View CSS Grid
                     let webOpenCheckbox = isWebBlock ? 
                         `<div class="options-col"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''} title="Mark as WEB Open Block"></div>` : 
                         `<div class="options-col"></div>`;
@@ -1015,13 +1026,10 @@
                         <div class="period-time">${formatTime12(String(period.start))} - ${formatTime12(String(period.end))}</div>
                     `;
                     list.appendChild(li);
-                } catch(e) {
-                    console.error("Error rendering a row:", e);
-                }
+                } catch(e) { console.error("Error rendering a row:", e); }
             });
         }
 
-        // Defensive checks added to time formatters
         function formatTime12(time24) { 
             if (!time24 || !time24.includes(':')) return time24 || '';
             let [h, m] = time24.split(':'); 
@@ -1060,9 +1068,7 @@
             if(clk) clk.innerText = now.toLocaleTimeString('en-US');
             let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
             
-            // 6:00 AM Silent Auto-Sync Check
             if (current24 === '06:00' && now.getSeconds() === 0) { fetchDailySchedule(); }
-            
             if(!Array.isArray(activeSchedule)) return;
 
             const todayDayOfWeek = now.getDay(); 
@@ -1082,7 +1088,6 @@
 
                 const pStartStr = String(period.start);
                 const pEndStr = String(period.end);
-
                 const startMinus1 = subtractMinutes(pStartStr, 1);
                 const startPlus5 = addMinutes(pStartStr, 5);
                 const endMinus5 = subtractMinutes(pEndStr, 5);
