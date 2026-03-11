@@ -42,6 +42,32 @@
         #toast.show { top: 20px; opacity: 1; }
         body.dark-mode #toast { background-color: #2e7d32; color: #e8f5e9; }
 
+        /* --- Floating Media Player --- */
+        .floating-player {
+            position: fixed; bottom: 30px; right: 30px;
+            background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border-radius: 50px; padding: 10px 20px;
+            display: flex; align-items: center; gap: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 1000; opacity: 0; pointer-events: none; transform: translateY(20px);
+        }
+        .floating-player.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+        body.dark-mode .floating-player { background: rgba(30,30,30,0.85); color: #e0e0e0; border: 1px solid #444; }
+        
+        .float-btn {
+            background: #003366; color: white; border: none; border-radius: 50%;
+            width: 40px; height: 40px; font-size: 1.1rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: background 0.2s;
+        }
+        .float-btn:hover { background: #002244; }
+        body.dark-mode .float-btn { background: #1976d2; }
+        body.dark-mode .float-btn:hover { background: #1565c0; }
+        .float-info { font-weight: bold; font-size: 0.9rem; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #003366; }
+        body.dark-mode .float-info { color: #90caf9; }
+        .float-volume { display: flex; align-items: center; gap: 5px; }
+        .float-volume input { width: 80px; cursor: pointer; }
+
         /* --- Dark Mode & Glassmorphism --- */
         body.dark-mode { background-color: #121212; color: #e0e0e0; }
         
@@ -192,9 +218,9 @@
             padding: 4px 8px; border-radius: 5px; font-weight: bold; border: 1px solid #d6e9c6;
         }
 
-        /* Schedule Grid (Added Open Column) */
+        /* Schedule Grid (Strict 7 column layout) */
         .schedule-grid {
-            display: grid; grid-template-columns: 80px repeat(5, 1fr) 110px; gap: 6px; align-items: center; text-align: center; transition: all 0.3s ease;
+            display: grid; grid-template-columns: 90px repeat(5, 1fr) 110px; gap: 6px; align-items: center; text-align: center; transition: all 0.3s ease;
         }
         .schedule-header { font-size: 0.8rem; font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 6px; margin-bottom: 6px; transition: color 0.3s ease; }
         .options-col[title] { cursor: help; border-bottom: 1px dotted rgba(0,0,0,0.3); padding-bottom: 2px; } 
@@ -226,6 +252,17 @@
 
     <div id="vibe-bg">
         <div id="yt-player-container"></div>
+    </div>
+
+    <div id="floating-player" class="floating-player">
+        <button id="float-play-btn" class="float-btn" onclick="toggleVibePlay()">▶</button>
+        <div class="float-info">
+            <span id="float-vibe-title">Classroom Vibe</span>
+        </div>
+        <div class="float-volume">
+            <span>🔈</span>
+            <input type="range" id="floatVibeVolume" min="0" max="100" step="1" value="50" onchange="syncVibeVolume(this.value)">
+        </div>
     </div>
 
     <div id="toast">Loaded Successfully</div>
@@ -283,7 +320,6 @@
                             <button onclick="selectTestSound('warning1m', '1-Min Warning')">1-Min Warning (1 Ring)</button>
                             <button onclick="selectTestSound('attendance', 'Take Attend.')">Take Attendance Voice</button>
                             <button onclick="selectTestSound('cleanup', '5-Min Clean')">5-Min Clean-Up Voice</button>
-                            <button onclick="selectTestSound('retrieve', 'Phone Retr.')">Phone Retrieve Voice</button>
                             <button onclick="selectTestSound('lunch', 'Lunch Duty')">Lunch Duty Voice</button>
                         </div>
                     </div>
@@ -347,20 +383,9 @@
                 </div>
 
                 <div style="display:flex; gap:6px;">
-                    <button class="btn inline" style="flex-grow: 1;" onclick="startVibe()">▶ Start Vibe</button>
+                    <button class="btn inline" style="flex-grow: 1;" onclick="toggleVibePlay()">▶ Start Vibe</button>
                     <button class="btn btn-danger inline" onclick="stopVibe()">Stop</button>
                 </div>
-            </div>
-
-            <div class="control-group" id="custom-builder">
-                <label class="title">Custom Builder:</label>
-                <input type="text" id="customName" placeholder="Period Name (e.g., 1st Period)" style="margin-bottom:6px;">
-                <div style="display:flex; gap:6px; margin-bottom:6px;">
-                    <input type="time" id="customStart" required>
-                    <input type="time" id="customEnd" required>
-                </div>
-                <button class="btn" onclick="addCustomPeriod()">Add to Schedule</button>
-                <button class="btn btn-danger" onclick="clearCustomSchedule()">Clear Schedule</button>
             </div>
         </div>
 
@@ -378,11 +403,11 @@
                 
                 <div class="schedule-grid schedule-header">
                     <div class="period-name">Class</div>
-                    <div class="options-col" title="Mark this block as your planning/open period.">Open</div>
-                    <div class="options-col" title="Cell Phone Caddy: Reminds students to put phones away at the start of class.">Caddy</div>
+                    <div class="options-col" title="Cell Phone Caddy: Reminds students to put phones away at the start of class.">Cell Caddy</div>
                     <div class="options-col" title="Take Attendance: Sends an automated reminder 5 minutes into the period.">Attend.</div>
                     <div class="options-col" title="5-Min Clean Up: Reminds students to clean their area 5 minutes before class ends.">Clean</div>
-                    <div class="options-col" title="Phone Retrieve: Reminds students to grab their phones 1 minute before the bell.">Retrie.</div>
+                    <div class="options-col" title="1 Min Warning: Rings 1 bell and gives a 1-minute warning.">1 min left</div>
+                    <div class="options-col" title="Mark this WEB block as your planning/open period.">WEB Open</div>
                     <div class="period-time">Time</div>
                 </div>
                 
@@ -456,56 +481,117 @@
         function onYouTubeIframeAPIReady() { isYtApiReady = true; }
 
         function extractVideoID(url) {
+            if(!url) return null;
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|live\/|watch\?v=|\&v=)([^#\&\?]*).*/;
             const match = url.match(regExp);
             return (match && match[2].length === 11) ? match[2] : null;
         }
 
+        function toggleVibePlay() {
+            if (ytPlayer && typeof ytPlayer.getPlayerState === 'function') {
+                try {
+                    let state = ytPlayer.getPlayerState();
+                    if (state === YT.PlayerState.PLAYING) {
+                        ytPlayer.pauseVideo();
+                    } else {
+                        ytPlayer.playVideo();
+                    }
+                } catch(e) { console.error("Player state error", e); }
+            } else {
+                startVibe();
+            }
+        }
+
         function startVibe() {
-            const url = document.getElementById('vibeUrl').value.trim();
+            const urlInput = document.getElementById('vibeUrl');
+            if(!urlInput) return;
+            const url = urlInput.value.trim();
             const bgContainer = document.getElementById('vibe-bg');
             if(!url) return;
 
             const vid = extractVideoID(url);
             if(vid) {
-                savedVibeUrl = url; saveLocalSettings();
-                bgContainer.style.opacity = "0.45";
+                savedVibeUrl = url; saveLocalSettings(); updateFloatingPlayerVisibility();
+                if(bgContainer) bgContainer.style.opacity = "0.45";
 
                 if (ytPlayer) {
-                    ytPlayer.loadVideoById({videoId: vid});
-                    ytPlayer.setVolume(vibeVolume);
+                    try {
+                        ytPlayer.loadVideoById({videoId: vid});
+                        ytPlayer.setVolume(vibeVolume);
+                    } catch(e) {}
                 } else {
                     if (!isYtApiReady) { showToast("YouTube API loading. Try again in 2 seconds."); return; }
-                    ytPlayer = new YT.Player('yt-player-container', {
-                        videoId: vid,
-                        playerVars: { 'autoplay': 1, 'controls': 0, 'autohide': 1, 'wmode': 'opaque', 'showinfo': 0, 'loop': 1, 'playlist': vid, 'mute': 0 },
-                        events: { 'onReady': onPlayerReady }
-                    });
+                    try {
+                        ytPlayer = new YT.Player('yt-player-container', {
+                            videoId: vid,
+                            playerVars: { 'autoplay': 1, 'controls': 0, 'autohide': 1, 'wmode': 'opaque', 'showinfo': 0, 'loop': 1, 'playlist': vid, 'mute': 0 },
+                            events: { 'onReady': onPlayerReady, 'onStateChange': onPlayerStateChange }
+                        });
+                    } catch(e) {}
                 }
             } else { alert("Invalid YouTube URL. Please try again."); }
         }
 
-        function onPlayerReady(event) { event.target.setVolume(vibeVolume); event.target.playVideo(); }
+        function onPlayerReady(event) { 
+            try { event.target.setVolume(vibeVolume); event.target.playVideo(); } catch(e) {}
+        }
 
-        function changeVibeVolume() {
-            vibeVolume = document.getElementById('vibeVolumeControl').value;
-            if (ytPlayer && typeof ytPlayer.setVolume === 'function') ytPlayer.setVolume(vibeVolume);
+        function onPlayerStateChange(event) {
+            const floatBtn = document.getElementById('float-play-btn');
+            if(!floatBtn) return;
+            if (event.data == YT.PlayerState.PLAYING) {
+                floatBtn.innerText = "⏸";
+                try {
+                    let title = ytPlayer.getVideoData().title;
+                    const titleEl = document.getElementById('float-vibe-title');
+                    if(title && titleEl) titleEl.innerText = title;
+                } catch(e) {}
+            } else {
+                floatBtn.innerText = "▶";
+            }
+        }
+
+        function syncVibeVolume(val) {
+            vibeVolume = val;
+            const mainVol = document.getElementById('vibeVolumeControl');
+            const floatVol = document.getElementById('floatVibeVolume');
+            if(mainVol) mainVol.value = val;
+            if(floatVol) floatVol.value = val;
+            if (ytPlayer && typeof ytPlayer.setVolume === 'function') {
+                try { ytPlayer.setVolume(val); } catch(e) {}
+            }
             saveLocalSettings();
         }
 
-        function stopVibe() {
-            document.getElementById('vibe-bg').style.opacity = "0";
-            if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') setTimeout(() => { ytPlayer.pauseVideo(); }, 1000); 
+        function changeVibeVolume() { 
+            const ctrl = document.getElementById('vibeVolumeControl');
+            if(ctrl) syncVibeVolume(ctrl.value); 
         }
+
+        function stopVibe() {
+            const bg = document.getElementById('vibe-bg');
+            if(bg) bg.style.opacity = "0";
+            if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
+                try { ytPlayer.pauseVideo(); } catch(e) {}
+            }
+            savedVibeUrl = '';
+            const urlInput = document.getElementById('vibeUrl');
+            if(urlInput) urlInput.value = '';
+            saveLocalSettings();
+            updateFloatingPlayerVisibility();
+        }
+        // --------------------------
 
         function showToast(message) {
             const toast = document.getElementById('toast');
+            if(!toast) return;
             toast.innerText = message; toast.classList.add('show');
             setTimeout(() => { toast.classList.remove('show'); }, 4000);
         }
 
         function populateVoiceList() {
             const voiceSelect = document.getElementById("voicePreference");
+            if(!voiceSelect) return;
             const voices = window.speechSynthesis.getVoices();
             if(voices.length === 0) return;
             
@@ -534,42 +620,61 @@
                 const data = await response.json();
                 
                 if (data && data.mode) {
-                    let fetchedMode = data.mode.toLowerCase() === 'regular' ? 'daily' : data.mode;
+                    // DEFENSIVE FIX: Force clean lowercase string mapping to prevent missing "WEB" dictionary keys
+                    let modeStr = String(data.mode || '').toLowerCase().trim();
+                    let fetchedMode = modeStr === 'regular' ? 'daily' : modeStr;
                     
-                    if (data.schedule && data.schedule.length > 0) {
+                    if (Array.isArray(data.schedule) && data.schedule.length > 0) {
                         
+                        // DEFENSIVE FIX: Ensure no nulls or broken fields cause runtime errors
+                        let cleanSchedule = [];
                         data.schedule.forEach(p => {
-                            if(p.start && p.start.includes(':')) p.start = p.start.split(':').map(v => v.padStart(2, '0')).join(':');
-                            if(p.end && p.end.includes(':')) p.end = p.end.split(':').map(v => v.padStart(2, '0')).join(':');
+                            if(!p || !p.name) return;
+                            let cleanP = {
+                                name: String(p.name).trim(),
+                                start: String(p.start || '').trim(),
+                                end: String(p.end || '').trim()
+                            };
+                            if(cleanP.start.includes(':')) cleanP.start = cleanP.start.split(':').map(v => v.padStart(2, '0')).join(':');
+                            if(cleanP.end.includes(':')) cleanP.end = cleanP.end.split(':').map(v => v.padStart(2, '0')).join(':');
+                            cleanSchedule.push(cleanP);
                         });
 
-                        predefinedSchedules['synced'] = data.schedule;
+                        predefinedSchedules['synced'] = cleanSchedule;
                         
                         let select = document.getElementById('scheduleMode');
-                        let syncedOpt = select.querySelector('option[value="synced"]');
-                        if (!syncedOpt) {
-                            syncedOpt = document.createElement('option');
-                            syncedOpt.value = 'synced';
-                            select.appendChild(syncedOpt);
+                        if(select) {
+                            let syncedOpt = select.querySelector('option[value="synced"]');
+                            if (!syncedOpt) {
+                                syncedOpt = document.createElement('option');
+                                syncedOpt.value = 'synced';
+                                select.appendChild(syncedOpt);
+                            }
+                            syncedOpt.innerText = `Synced: ${fetchedMode.toUpperCase()}`;
+                            select.value = 'synced';
                         }
-                        syncedOpt.innerText = `Synced: ${fetchedMode.toUpperCase()}`;
-                        select.value = 'synced';
                         
                         currentScheduleName = fetchedMode;
                         showToast(`Loaded: ${fetchedMode.toUpperCase()} Schedule`);
                     } else {
+                        // Fallback logic
                         let safeMode = predefinedSchedules[fetchedMode] ? fetchedMode : 'daily';
-                        document.getElementById('scheduleMode').value = safeMode;
+                        const modeDropdown = document.getElementById('scheduleMode');
+                        if(modeDropdown) modeDropdown.value = safeMode;
                         showToast(`Loaded: ${safeMode.toUpperCase()} Schedule`);
                     }
 
-                    document.getElementById('autoIndicator').style.display = 'block';
-                    document.getElementById('autoIndicator').innerText = `✓ Auto-Synced: ${fetchedMode.toUpperCase()}`;
+                    const ind = document.getElementById('autoIndicator');
+                    if(ind) {
+                        ind.style.display = 'block';
+                        ind.innerText = `✓ Auto-Synced: ${fetchedMode.toUpperCase()}`;
+                    }
                     changeMode(); 
                 }
             } catch (err) { 
                 console.error("Could not sync with Google Calendar.", err);
-                document.getElementById('scheduleMode').value = 'daily';
+                const modeDropdown = document.getElementById('scheduleMode');
+                if(modeDropdown) modeDropdown.value = 'daily';
                 showToast("Loaded: Default Daily Schedule");
                 changeMode();
             }
@@ -597,17 +702,19 @@
                     if (p.lunchDuties) lunchDuties = p.lunchDuties;
                     
                     currentMode = p.mode === 'regular' ? 'daily' : (p.mode || 'daily');
-                    document.getElementById('scheduleMode').value = currentMode;
+                    const modeDropdown = document.getElementById('scheduleMode');
+                    if(modeDropdown) modeDropdown.value = currentMode;
                     
                     globalVoicePref = p.voice || '';
                     if (p.vol !== undefined) {
                         globalVolume = p.vol;
-                        document.getElementById('volumeControl').value = globalVolume;
-                        document.getElementById('regularBellAudio').volume = globalVolume;
+                        const vControl = document.getElementById('volumeControl');
+                        const aControl = document.getElementById('regularBellAudio');
+                        if(vControl) vControl.value = globalVolume;
+                        if(aControl) aControl.volume = globalVolume;
                     }
                     if (p.vibeVol !== undefined) {
-                        vibeVolume = p.vibeVol;
-                        document.getElementById('vibeVolumeControl').value = vibeVolume;
+                        syncVibeVolume(p.vibeVol);
                     }
 
                     if (p.testSound) {
@@ -616,35 +723,54 @@
                             'positive': 'Voice Test', 'start': 'Class Start', 'end': 'Class End', 'warning1m': '1-Min Warning',
                             'attendance': 'Take Attend.', 'cleanup': '5-Min Clean', 'retrieve': 'Phone Retr.', 'lunch': 'Lunch Duty'
                         };
-                        if (labels[currentTestSound]) document.getElementById("playBtn").innerHTML = "▶ Play " + labels[currentTestSound];
+                        const pBtn = document.getElementById("playBtn");
+                        if (labels[currentTestSound] && pBtn) pBtn.innerHTML = "▶ Play " + labels[currentTestSound];
                     }
 
                     if (p.side === false) {
                         sidebarVisible = false;
-                        document.getElementById('sidebar').classList.add('collapsed');
+                        const sb = document.getElementById('sidebar');
+                        if(sb) sb.classList.add('collapsed');
                     }
                     if (p.student === true) {
                         isStudentView = true;
-                        document.getElementById('schedule-container').classList.add('student-view');
-                        document.getElementById('disclaimer-text').style.display = 'none';
-                        document.getElementById('studentViewBtn').style.color = '#888';
+                        const sCont = document.getElementById('schedule-container');
+                        const dText = document.getElementById('disclaimer-text');
+                        const svBtn = document.getElementById('studentViewBtn');
+                        if(sCont) sCont.classList.add('student-view');
+                        if(dText) dText.style.display = 'none';
+                        if(svBtn) svBtn.style.color = '#888';
                     }
                     if (p.dark === true) { 
                         isDarkMode = true;
-                        document.getElementById('darkModeToggle').checked = true; 
+                        const dmToggle = document.getElementById('darkModeToggle');
+                        if(dmToggle) dmToggle.checked = true; 
                         document.body.classList.add('dark-mode');
                     }
-                    if (p.zero === true) { document.getElementById('showZeroPeriod').checked = true; showZero = true; }
-                    if (p.playGoodbyes === true) { document.getElementById('playGoodbyes').checked = true; playGoodbyes = true; }
+                    if (p.zero === true) { 
+                        const zeroToggle = document.getElementById('showZeroPeriod');
+                        if(zeroToggle) zeroToggle.checked = true; 
+                        showZero = true; 
+                    }
+                    if (p.playGoodbyes === true) { 
+                        const pgToggle = document.getElementById('playGoodbyes');
+                        if(pgToggle) pgToggle.checked = true; 
+                        playGoodbyes = true; 
+                    }
                     if (p.vibe) { 
                         savedVibeUrl = p.vibe;
-                        document.getElementById('vibeUrl').value = savedVibeUrl;
+                        const urlInput = document.getElementById('vibeUrl');
+                        if(urlInput) urlInput.value = savedVibeUrl;
                     }
                 }
             } catch (e) {}
             renderLunchDuties();
-            if(isStudentView && !isDarkMode) { document.getElementById('studentViewBtn').style.color = '#888'; }
-            if(!isStudentView && isDarkMode) { document.getElementById('studentViewBtn').style.color = '#90caf9'; }
+            updateFloatingPlayerVisibility();
+            const svBtn = document.getElementById('studentViewBtn');
+            if(svBtn) {
+                if(isStudentView && !isDarkMode) svBtn.style.color = '#888'; 
+                if(!isStudentView && isDarkMode) svBtn.style.color = '#90caf9';
+            }
         }
 
         function toggleFullScreen() {
@@ -653,13 +779,16 @@
         }
 
         function toggleDarkMode(shouldSave = true) {
-            isDarkMode = document.getElementById('darkModeToggle').checked;
+            const toggle = document.getElementById('darkModeToggle');
+            if(!toggle) return;
+            isDarkMode = toggle.checked;
+            const svBtn = document.getElementById('studentViewBtn');
             if (isDarkMode) { 
                 document.body.classList.add('dark-mode'); 
-                if(!isStudentView) document.getElementById('studentViewBtn').style.color = '#90caf9';
+                if(!isStudentView && svBtn) svBtn.style.color = '#90caf9';
             } else { 
                 document.body.classList.remove('dark-mode'); 
-                if(!isStudentView) document.getElementById('studentViewBtn').style.color = '#003366';
+                if(!isStudentView && svBtn) svBtn.style.color = '#003366';
             }
             if (shouldSave) saveLocalSettings();
             renderLunchDuties(); 
@@ -668,9 +797,23 @@
         function toggleSidebar(shouldSave = true) {
             sidebarVisible = !sidebarVisible;
             const sidebar = document.getElementById('sidebar');
-            if (sidebarVisible) sidebar.classList.remove('collapsed');
-            else sidebar.classList.add('collapsed');
+            if(sidebar) {
+                if (sidebarVisible) sidebar.classList.remove('collapsed');
+                else sidebar.classList.add('collapsed');
+            }
+            updateFloatingPlayerVisibility();
             if (shouldSave) saveLocalSettings();
+        }
+
+        function updateFloatingPlayerVisibility() {
+            const player = document.getElementById('floating-player');
+            if (player) {
+                if (!sidebarVisible && savedVibeUrl) {
+                    player.classList.add('visible');
+                } else {
+                    player.classList.remove('visible');
+                }
+            }
         }
 
         function toggleStudentView(shouldSave = true) {
@@ -679,20 +822,27 @@
             const disclaimer = document.getElementById('disclaimer-text');
             const btn = document.getElementById('studentViewBtn');
             
-            if (isStudentView) {
-                container.classList.add('student-view'); disclaimer.style.display = 'none'; btn.style.color = '#888';
-            } else {
-                container.classList.remove('student-view'); disclaimer.style.display = 'block'; btn.style.color = isDarkMode ? '#90caf9' : '#003366'; 
+            if(container && disclaimer && btn) {
+                if (isStudentView) {
+                    container.classList.add('student-view'); disclaimer.style.display = 'none'; btn.style.color = '#888';
+                } else {
+                    container.classList.remove('student-view'); disclaimer.style.display = 'block'; btn.style.color = isDarkMode ? '#90caf9' : '#003366'; 
+                }
             }
             if (shouldSave) saveLocalSettings();
         }
 
-        function toggleGoodbyes() {
-            playGoodbyes = document.getElementById('playGoodbyes').checked;
-            saveLocalSettings();
+        function toggleGoodbyes() { 
+            const tog = document.getElementById('playGoodbyes');
+            if(tog) playGoodbyes = tog.checked; 
+            saveLocalSettings(); 
         }
 
-        function toggleDropdown(event) { event.stopPropagation(); document.getElementById("soundDropdown").classList.toggle("show"); }
+        function toggleDropdown(event) { 
+            event.stopPropagation(); 
+            const dd = document.getElementById("soundDropdown");
+            if(dd) dd.classList.toggle("show"); 
+        }
 
         window.onclick = function(event) {
             if (!event.target.matches('.split-button-caret')) {
@@ -702,15 +852,32 @@
         }
 
         function selectTestSound(value, label) {
-            currentTestSound = value; document.getElementById("playBtn").innerHTML = "▶ Play " + label;
-            document.getElementById("soundDropdown").classList.remove("show"); saveLocalSettings();
+            currentTestSound = value; 
+            const btn = document.getElementById("playBtn");
+            const dd = document.getElementById("soundDropdown");
+            if(btn) btn.innerHTML = "▶ Play " + label;
+            if(dd) dd.classList.remove("show"); 
+            saveLocalSettings();
         }
 
-        function changeVolume() { globalVolume = document.getElementById('volumeControl').value; document.getElementById('regularBellAudio').volume = globalVolume; saveLocalSettings(); }
-        function changeVoicePref() { globalVoicePref = document.getElementById('voicePreference').value; saveLocalSettings(); }
+        function changeVolume() { 
+            const vc = document.getElementById('volumeControl');
+            const au = document.getElementById('regularBellAudio');
+            if(vc) globalVolume = vc.value; 
+            if(au) au.volume = globalVolume; 
+            saveLocalSettings(); 
+        }
+        
+        function changeVoicePref() { 
+            const vp = document.getElementById('voicePreference');
+            if(vp) globalVoicePref = vp.value; 
+            saveLocalSettings(); 
+        }
 
         function playBellWithQueue(timesLeft = 1, onCompleteCallback = null) {
-            const audio = document.getElementById('regularBellAudio'); audio.currentTime = 0;
+            const audio = document.getElementById('regularBellAudio'); 
+            if(!audio) return;
+            audio.currentTime = 0;
             audio.onended = () => { if (timesLeft > 1) playBellWithQueue(timesLeft - 1, onCompleteCallback); else { audio.onended = null; if (onCompleteCallback) onCompleteCallback(); } };
             audio.play().catch(e => console.log("Audio play failed.", e));
         }
@@ -740,18 +907,26 @@
         }
 
         function addLunchDuty() {
-            const day = parseInt(document.getElementById('lunchDay').value);
-            const half = parseInt(document.getElementById('lunchHalf').value);
-            const period = document.getElementById('lunchPeriod').value.trim();
+            const dayVal = document.getElementById('lunchDay');
+            const halfVal = document.getElementById('lunchHalf');
+            const periodVal = document.getElementById('lunchPeriod');
+            if(!dayVal || !halfVal || !periodVal) return;
+
+            const day = parseInt(dayVal.value);
+            const half = parseInt(halfVal.value);
+            const period = periodVal.value.trim();
             if (period) {
                 lunchDuties.push({ day, half, period });
                 renderLunchDuties(); saveLocalSettings(); 
+                periodVal.value = '3rd';
             }
         }
         function removeLunchDuty(index) { lunchDuties.splice(index, 1); renderLunchDuties(); saveLocalSettings(); }
         
         function renderLunchDuties() {
-            const list = document.getElementById('lunch-duty-list'); list.innerHTML = '';
+            const list = document.getElementById('lunch-duty-list'); 
+            if(!list) return;
+            list.innerHTML = '';
             const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
             lunchDuties.forEach((duty, index) => {
                 const li = document.createElement('li'); li.className = "duty-item";
@@ -763,18 +938,23 @@
         }
 
         function changeMode() {
-            currentMode = document.getElementById('scheduleMode').value;
-            showZero = document.getElementById('showZeroPeriod').checked;
+            const sm = document.getElementById('scheduleMode');
+            const sz = document.getElementById('showZeroPeriod');
+            if(!sm) return;
+            currentMode = sm.value;
+            if(sz) showZero = sz.checked;
             
             activeSchedule = predefinedSchedules[currentMode];
-            document.getElementById('custom-builder').style.display = (currentMode === 'custom') ? 'block' : 'none';
+            const cb = document.getElementById('custom-builder');
+            if(cb) cb.style.display = (currentMode === 'custom') ? 'block' : 'none';
             
             if (currentMode !== 'synced') {
                 currentScheduleName = currentMode.charAt(0).toUpperCase() + currentMode.slice(1);
                 if (currentMode === 'web') currentScheduleName = "WEB";
             }
-                               
-            document.getElementById('schedule-title').childNodes[0].nodeValue = currentScheduleName.toUpperCase() + ' Schedule '; 
+            
+            const st = document.getElementById('schedule-title');
+            if(st && st.childNodes[0]) st.childNodes[0].nodeValue = currentScheduleName.toUpperCase() + ' Schedule '; 
             renderSchedule(); saveLocalSettings();
         }
 
@@ -783,67 +963,83 @@
             if (!classSettings[key]) classSettings[key] = { ...DEFAULT_PREFS };
             classSettings[key][settingType] = isChecked;
             saveLocalSettings();
-            
-            // Re-render schedule dynamically if an "open" period was toggled, to instantly show/hide the badge
-            if (settingType === 'open') {
-                renderSchedule();
-            }
+            if (settingType === 'open') renderSchedule(); 
         }
 
         function renderSchedule() {
-            const list = document.getElementById('schedule-list'); list.innerHTML = '';
+            const list = document.getElementById('schedule-list'); 
+            if(!list) return;
+            list.innerHTML = '';
+            
+            if (!Array.isArray(activeSchedule)) {
+                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Schedule data is missing or corrupted.</em></li>'; 
+                return; 
+            }
+
             let filteredSchedule = activeSchedule;
-            if (!showZero) filteredSchedule = activeSchedule.filter(p => !p.name.includes("0 pd"));
+            
+            // Defensively cast to String before includes
+            if (!showZero) filteredSchedule = activeSchedule.filter(p => p && p.name && !String(p.name).includes("0 pd"));
 
             if (!filteredSchedule || filteredSchedule.length === 0) { 
                 list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>No periods added yet.</em></li>'; return; 
             }
 
             filteredSchedule.forEach(period => {
-                const key = period.name;
-                const s = classSettings[key] || { ...DEFAULT_PREFS };
-                const li = document.createElement('li'); li.className = 'schedule-grid';
-                
-                let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
+                try {
+                    const key = String(period.name);
+                    // Escape quotes to prevent HTML injection breaks
+                    const safeKey = key.replace(/'/g, "\\'"); 
+                    const s = classSettings[key] || { ...DEFAULT_PREFS };
+                    
+                    const li = document.createElement('li'); 
+                    li.className = 'schedule-grid';
+                    
+                    let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
+                    
+                    // Match any class containing A,B,C,D Block (e.g. "A Block", "B-Block")
+                    let isWebBlock = /^[A-D](\s|-)?Block/i.test(key);
+                    
+                    // CRITICAL FIX: Ensure the empty fallback is wrapped in the .options-col class so it correctly hides in Student View CSS Grid
+                    let webOpenCheckbox = isWebBlock ? 
+                        `<div class="options-col"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''} title="Mark as WEB Open Block"></div>` : 
+                        `<div class="options-col"></div>`;
 
-                li.innerHTML = `
-                    <div class="period-name">${period.name} ${openBadgeHtml}</div>
-                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'open', this.checked)" ${s.open ? 'checked' : ''} title="Open Block"></div>
-                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'putaway', this.checked)" ${s.putaway ? 'checked' : ''} title="Phone Caddy"></div>
-                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'attendance', this.checked)" ${s.attendance ? 'checked' : ''} title="Take Attendance"></div>
-                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'cleanup', this.checked)" ${s.cleanup ? 'checked' : ''} title="5-Min Clean Up"></div>
-                    <div class="options-col"><input type="checkbox" onchange="toggleSetting('${period.name}', 'retrieve', this.checked)" ${s.retrieve ? 'checked' : ''} title="Phone Retrieve"></div>
-                    <div class="period-time">${formatTime12(period.start)} - ${formatTime12(period.end)}</div>
-                `;
-                list.appendChild(li);
+                    li.innerHTML = `
+                        <div class="period-name">${key} ${openBadgeHtml}</div>
+                        <div class="options-col"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'putaway', this.checked)" ${s.putaway ? 'checked' : ''} title="Phone Caddy"></div>
+                        <div class="options-col"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'attendance', this.checked)" ${s.attendance ? 'checked' : ''} title="Take Attendance"></div>
+                        <div class="options-col"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'cleanup', this.checked)" ${s.cleanup ? 'checked' : ''} title="5-Min Clean Up"></div>
+                        <div class="options-col"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'retrieve', this.checked)" ${s.retrieve ? 'checked' : ''} title="1 Min Warning & Retrieve"></div>
+                        ${webOpenCheckbox}
+                        <div class="period-time">${formatTime12(String(period.start))} - ${formatTime12(String(period.end))}</div>
+                    `;
+                    list.appendChild(li);
+                } catch(e) {
+                    console.error("Error rendering a row:", e);
+                }
             });
         }
 
-        function addCustomPeriod() {
-            const name = document.getElementById('customName').value, start = document.getElementById('customStart').value, end = document.getElementById('customEnd').value;
-            if (name && start && end) {
-                predefinedSchedules.custom.push({ name, start, end }); predefinedSchedules.custom.sort((a, b) => a.start.localeCompare(b.start));
-                changeMode(); document.getElementById('customName').value = ''; document.getElementById('customStart').value = ''; document.getElementById('customEnd').value = '';
-            }
+        // Defensive checks added to time formatters
+        function formatTime12(time24) { 
+            if (!time24 || !time24.includes(':')) return time24 || '';
+            let [h, m] = time24.split(':'); 
+            let ampm = h >= 12 ? 'PM' : 'AM'; 
+            return `${h % 12 || 12}:${m} ${ampm}`; 
         }
-        function clearCustomSchedule() {
-            if(confirm("Are you sure you want to clear your custom schedule?")) {
-                predefinedSchedules.custom = [];
-                Object.keys(classSettings).forEach(key => { if (key.startsWith('custom-')) delete classSettings[key]; });
-                changeMode();
-            }
-        }
-
-        function formatTime12(time24) { let [h, m] = time24.split(':'); let ampm = h >= 12 ? 'PM' : 'AM'; return `${h % 12 || 12}:${m} ${ampm}`; }
         function subtractMinutes(time24, minsToSubtract) {
+            if (!time24 || !time24.includes(':')) return '';
             let [h, m] = time24.split(':').map(Number); let d = new Date(); d.setHours(h, m, 0, 0); d.setMinutes(d.getMinutes() - minsToSubtract);
             return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
         }
         function addMinutes(time24, minsToAdd) {
+            if (!time24 || !time24.includes(':')) return '';
             let [h, m] = time24.split(':').map(Number); let d = new Date(); d.setHours(h, m, 0, 0); d.setMinutes(d.getMinutes() + minsToAdd);
             return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
         }
         function getMidpoint(start, end) {
+            if (!start || !end || !start.includes(':') || !end.includes(':')) return '';
             let [sh, sm] = start.split(':').map(Number); let [eh, em] = end.split(':').map(Number);
             let midMins = Math.floor(((sh * 60 + sm) + (eh * 60 + em)) / 2);
             return Math.floor(midMins / 60).toString().padStart(2, '0') + ':' + (midMins % 60).toString().padStart(2, '0');
@@ -854,45 +1050,47 @@
             overlay.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; pointer-events:none; transition: background-color 0.5s;";
             overlay.style.backgroundColor = isDarkMode ? "rgba(51, 43, 0, 0.8)" : "rgba(255, 243, 205, 0.8)";
             document.body.appendChild(overlay);
-            
             setTimeout(() => { overlay.style.backgroundColor = "transparent"; }, 5500); 
             setTimeout(() => { overlay.remove(); }, 6000); 
         }
 
         function updateClock() {
             const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString('en-US');
+            const clk = document.getElementById('clock');
+            if(clk) clk.innerText = now.toLocaleTimeString('en-US');
             let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
             
-            // Check for the daily auto-sync at exactly 6:00:00 AM
-            if (current24 === '06:00' && now.getSeconds() === 0) {
-                fetchDailySchedule();
-            }
+            // 6:00 AM Silent Auto-Sync Check
+            if (current24 === '06:00' && now.getSeconds() === 0) { fetchDailySchedule(); }
             
+            if(!Array.isArray(activeSchedule)) return;
+
             const todayDayOfWeek = now.getDay(); 
             const isWebDay = currentScheduleName.toLowerCase().includes('web');
 
             activeSchedule.forEach(period => {
-                if (!showZero && period.name.includes("0 pd")) return;
+                if (!period || !period.name) return;
+                const pNameStr = String(period.name);
+                if (!showZero && pNameStr.includes("0 pd")) return;
 
-                const s = classSettings[period.name] || { ...DEFAULT_PREFS };
-                
-                // Mute alarms if the teacher marked this block as Open
+                const s = classSettings[pNameStr] || { ...DEFAULT_PREFS };
                 if (s.open) return; 
 
-                const hasLunch1 = lunchDuties.some(d => d.day === todayDayOfWeek && d.period.toLowerCase() === period.name.toLowerCase() && d.half === 1);
-                let hasLunch2 = lunchDuties.some(d => d.day === todayDayOfWeek && d.period.toLowerCase() === period.name.toLowerCase() && d.half === 2);
-                
+                const hasLunch1 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 1);
+                let hasLunch2 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 2);
                 if (isWebDay) hasLunch2 = false; 
 
-                const startMinus1 = subtractMinutes(period.start, 1);
-                const startPlus5 = addMinutes(period.start, 5);
-                const endMinus5 = subtractMinutes(period.end, 5);
-                const endMinus1 = subtractMinutes(period.end, 1);
-                const midPoint = getMidpoint(period.start, period.end);
+                const pStartStr = String(period.start);
+                const pEndStr = String(period.end);
 
-                if (current24 === period.start) {
-                    triggerEvent(current24, `start-${period.name}`, () => {
+                const startMinus1 = subtractMinutes(pStartStr, 1);
+                const startPlus5 = addMinutes(pStartStr, 5);
+                const endMinus5 = subtractMinutes(pEndStr, 5);
+                const endMinus1 = subtractMinutes(pEndStr, 1);
+                const midPoint = getMidpoint(pStartStr, pEndStr);
+
+                if (current24 === pStartStr) {
+                    triggerEvent(current24, `start-${pNameStr}`, () => {
                         triggerVisualAlert();
                         let speechText = "";
                         if (s.putaway) speechText += "Class is beginning. Please place your phones in the cell phone caddy. ";
@@ -902,8 +1100,8 @@
                     });
                 }
                 
-                if (current24 === period.end) {
-                    triggerEvent(current24, `end-${period.name}`, () => { 
+                if (current24 === pEndStr) {
+                    triggerEvent(current24, `end-${pNameStr}`, () => { 
                         triggerVisualAlert(); 
                         if (playGoodbyes) {
                             const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
@@ -915,7 +1113,7 @@
                 }
 
                 if (current24 === startMinus1) {
-                    triggerEvent(current24, `warning1m-${period.name}`, () => {
+                    triggerEvent(current24, `warning1m-${pNameStr}`, () => {
                         triggerVisualAlert();
                         let speechText = "One minute until class begins.";
                         if (s.putaway) speechText += " Please place your phones in the cell phone caddy.";
@@ -924,19 +1122,24 @@
                 }
 
                 if (s.attendance && current24 === startPlus5) {
-                    triggerEvent(current24, `attendance5m-${period.name}`, () => { triggerVisualAlert(); speak("Reminder. Please take attendance."); });
+                    triggerEvent(current24, `attendance5m-${pNameStr}`, () => { triggerVisualAlert(); speak("Reminder. Please take attendance."); });
                 }
                 
                 if (hasLunch2 && current24 === midPoint) {
-                    triggerEvent(current24, `lunch2-${period.name}`, () => { triggerVisualAlert(); speak("Reminder. You have second half lunch duty."); });
+                    triggerEvent(current24, `lunch2-${pNameStr}`, () => { triggerVisualAlert(); speak("Reminder. You have second half lunch duty."); });
                 }
 
                 if (s.cleanup && current24 === endMinus5) {
-                    triggerEvent(current24, `cleanup5m-${period.name}`, () => { triggerVisualAlert(); speak("Five minutes remaining. Please begin cleaning up your area."); });
+                    triggerEvent(current24, `cleanup5m-${pNameStr}`, () => { triggerVisualAlert(); speak("Five minutes remaining. Please begin cleaning up your area."); });
                 }
 
                 if (s.retrieve && current24 === endMinus1) {
-                    triggerEvent(current24, `phone1m-${period.name}`, () => { triggerVisualAlert(); speak("One minute remaining. You may retrieve your cell phones."); });
+                    triggerEvent(current24, `phone1m-${pNameStr}`, () => { 
+                        triggerVisualAlert(); 
+                        let speechText = "One minute remaining.";
+                        if (s.putaway) speechText += " You may retrieve your cell phones.";
+                        playBellWithQueue(1, () => speak(speechText)); 
+                    });
                 }
             });
         }
@@ -949,7 +1152,6 @@
         const worker = new Worker(URL.createObjectURL(new Blob([`setInterval(() => { postMessage('tick'); }, 1000);`], { type: 'application/javascript' })));
         worker.onmessage = function() { updateClock(); };
 
-        // Delay initial fetch slightly so loadLocalSettings finishes applying the UI completely
         populateVoiceList(); 
         loadLocalSettings(); 
         setTimeout(() => { fetchDailySchedule(); }, 500);
