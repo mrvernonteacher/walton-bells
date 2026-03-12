@@ -488,6 +488,8 @@
         </div>
     </div>
 
+    <audio id="regularBellAudio" src="https://actions.google.com/sounds/v1/alarms/school_bell.ogg" preload="auto"></audio>
+
     <script>
         const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec"; 
 
@@ -506,7 +508,6 @@
             "That's all for today. Go out there and do great things!"
         ];
 
-        // The hardcoded Daily schedule was stripped! It now lives exclusively in your Google Sheet.
         let predefinedSchedules = {
             synced: [], 
             web: [
@@ -565,6 +566,8 @@
             isDragging = true;
             floatPlayer.classList.add('dragging');
             
+            floatPlayer.style.right = 'auto';
+            
             const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
             const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
             
@@ -572,7 +575,6 @@
             dragStartX = clientX; dragStartY = clientY;
             initialLeft = rect.left; initialTop = rect.top;
 
-            // BUG FIX: Lock the exact pixel coordinates BEFORE releasing the right/bottom anchors so it doesn't jump
             floatPlayer.style.left = `${initialLeft}px`;
             floatPlayer.style.top = `${initialTop}px`;
             floatPlayer.style.right = 'auto';
@@ -823,7 +825,6 @@
                         currentScheduleName = modeStr;
                         showToast(`Loaded: ${modeStr.toUpperCase()} Schedule`);
                     } else {
-                        // Fallback completely to the dropdown if the sheet returns totally blank data
                         let safeMode = predefinedSchedules[modeStr] ? modeStr : 'synced';
                         const modeDropdown = document.getElementById('scheduleMode');
                         if(modeDropdown) modeDropdown.value = safeMode;
@@ -864,7 +865,6 @@
                     if (p.settings) classSettings = p.settings;
                     if (p.lunchDuties) lunchDuties = p.lunchDuties;
                     
-                    // Migrate old 'daily' string to the new 'synced' default
                     let savedMode = p.mode || 'synced';
                     if (savedMode === 'daily' || savedMode === 'regular') savedMode = 'synced';
                     currentMode = savedMode;
@@ -1015,7 +1015,6 @@
                     disclaimer.style.display = 'block'; 
                     btn.classList.add('active-btn');
                     
-                    // Force Minimal View off if turning options on
                     if (isMinimalView) toggleMinimalView(false);
                 }
             }
@@ -1034,7 +1033,6 @@
                     if(isDarkMode) btn.style.color = '#90caf9';
                     else btn.style.color = '#003366';
                     
-                    // Automatically turn on Student View to hide checkboxes
                     if (!isStudentView) toggleStudentView(false);
                     
                 } else {
@@ -1089,12 +1087,36 @@
             saveLocalSettings(); 
         }
 
+        // FAILSAFE AUDIO SCRIPT IMPLEMENTED HERE:
         function playBellWithQueue(timesLeft = 1, onCompleteCallback = null) {
             const audio = document.getElementById('regularBellAudio'); 
-            if(!audio) return;
+            if(!audio) {
+                if (onCompleteCallback) onCompleteCallback();
+                return;
+            }
             audio.currentTime = 0;
-            audio.onended = () => { if (timesLeft > 1) playBellWithQueue(timesLeft - 1, onCompleteCallback); else { audio.onended = null; if (onCompleteCallback) onCompleteCallback(); } };
-            audio.play().catch(e => console.log("Audio play failed.", e));
+            
+            audio.onended = () => { 
+                if (timesLeft > 1) playBellWithQueue(timesLeft - 1, onCompleteCallback); 
+                else { 
+                    audio.onended = null; 
+                    if (onCompleteCallback) onCompleteCallback(); 
+                } 
+            };
+            
+            let playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(e => {
+                    console.error("Audio play failed (Autoplay blocked or dead link):", e);
+                    audio.onended = null; 
+                    
+                    // Fallback timer: if the audio is blocked, wait 1.5 seconds and trigger the voice anyway!
+                    setTimeout(() => {
+                        if (timesLeft > 1) playBellWithQueue(timesLeft - 1, onCompleteCallback);
+                        else if (onCompleteCallback) onCompleteCallback();
+                    }, 1500); 
+                });
+            }
         }
 
         function speak(text) {
@@ -1195,11 +1217,18 @@
             if(!list) return;
             list.innerHTML = '';
             
-            if (!Array.isArray(activeSchedule) || activeSchedule.length === 0) {
-                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Loading Schedule...</em></li>'; return; 
+            if (!Array.isArray(activeSchedule)) {
+                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Schedule data is missing or corrupted.</em></li>'; return; 
             }
 
-            activeSchedule.forEach(period => {
+            let filteredSchedule = activeSchedule;
+            if (!showZero) filteredSchedule = activeSchedule.filter(p => p && p.name && !String(p.name).includes("0 pd"));
+
+            if (!filteredSchedule || filteredSchedule.length === 0) { 
+                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>No periods added yet.</em></li>'; return; 
+            }
+
+            filteredSchedule.forEach(period => {
                 try {
                     const key = String(period.name);
                     const safeKey = key.replace(/'/g, "\\'"); 
