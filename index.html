@@ -384,8 +384,8 @@
             <div class="control-group">
                 <label class="title" for="scheduleMode">2. Mode & Auto-Sync:</label>
                 <select id="scheduleMode" onchange="changeMode()" style="margin-bottom: 8px;">
-                    <option value="daily">Daily Schedule</option>
-                    <option value="web">WEB Schedule</option>
+                    <option value="synced" id="syncedOption">Loading Google Sheet...</option>
+                    <option value="web">WEB Schedule (Hardcoded)</option>
                     <option value="custom">Custom Schedule</option>
                 </select>
                 
@@ -488,8 +488,6 @@
         </div>
     </div>
 
-    <audio id="regularBellAudio" src="https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73467.mp3" preload="auto"></audio>
-
     <script>
         const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec"; 
 
@@ -508,13 +506,9 @@
             "That's all for today. Go out there and do great things!"
         ];
 
+        // The hardcoded Daily schedule was stripped! It now lives exclusively in your Google Sheet.
         let predefinedSchedules = {
-            daily: [
-                { name: "1st", start: "08:20", end: "09:13" }, { name: "HR", start: "09:20", end: "09:30" }, 
-                { name: "2nd", start: "09:37", end: "10:30" }, { name: "3rd", start: "10:37", end: "11:30" }, 
-                { name: "4th", start: "11:37", end: "12:30" }, { name: "5th", start: "12:37", end: "13:30" }, 
-                { name: "6th", start: "13:37", end: "14:30" }, { name: "7th", start: "14:37", end: "15:30" }
-            ],
+            synced: [], 
             web: [
                 { name: "1st", start: "08:20", end: "08:50" }, { name: "HR", start: "08:56", end: "09:05" }, 
                 { name: "2nd", start: "09:11", end: "09:40" }, { name: "3rd", start: "09:46", end: "10:15" }, 
@@ -527,11 +521,11 @@
             custom: []
         };
 
-        let currentMode = 'daily', activeSchedule = [];
+        let currentMode = 'synced', activeSchedule = [];
         let globalVolume = 1.0, globalVoicePref = '', classSettings = {}, lunchDuties = [];
         let savedVibes = [], currentVibeUrl = '', vibeVolume = 50;
         let currentTestSound = 'positive', sidebarVisible = true, isStudentView = false, isMinimalView = false, isDarkMode = false, showZero = false, playGoodbyes = false;
-        let currentScheduleName = "Daily"; 
+        let currentScheduleName = "Loading..."; 
         
         let playedActions = {};
         let currentMinuteTracker = "";
@@ -805,7 +799,6 @@
                 
                 if (data && data.mode) {
                     let modeStr = String(data.mode || '').toLowerCase().trim();
-                    let fetchedMode = modeStr === 'regular' ? 'daily' : modeStr;
                     
                     if (Array.isArray(data.schedule) && data.schedule.length > 0) {
                         let cleanSchedule = [];
@@ -821,34 +814,31 @@
                         
                         let select = document.getElementById('scheduleMode');
                         if(select) {
-                            let syncedOpt = select.querySelector('option[value="synced"]');
-                            if (!syncedOpt) {
-                                syncedOpt = document.createElement('option');
-                                syncedOpt.value = 'synced';
-                                select.appendChild(syncedOpt);
+                            let syncedOpt = document.getElementById('syncedOption');
+                            if (syncedOpt) {
+                                syncedOpt.innerText = `Sheet: ${modeStr.toUpperCase()}`;
                             }
-                            syncedOpt.innerText = `Synced: ${fetchedMode.toUpperCase()}`;
-                            select.value = 'synced';
                         }
                         
-                        currentScheduleName = fetchedMode;
-                        showToast(`Loaded: ${fetchedMode.toUpperCase()} Schedule`);
+                        currentScheduleName = modeStr;
+                        showToast(`Loaded: ${modeStr.toUpperCase()} Schedule`);
                     } else {
-                        let safeMode = predefinedSchedules[fetchedMode] ? fetchedMode : 'daily';
+                        // Fallback completely to the dropdown if the sheet returns totally blank data
+                        let safeMode = predefinedSchedules[modeStr] ? modeStr : 'synced';
                         const modeDropdown = document.getElementById('scheduleMode');
                         if(modeDropdown) modeDropdown.value = safeMode;
                         showToast(`Loaded: ${safeMode.toUpperCase()} Schedule`);
                     }
 
                     const ind = document.getElementById('autoIndicator');
-                    if(ind) { ind.style.display = 'block'; ind.innerText = `✓ Auto-Synced: ${fetchedMode.toUpperCase()}`; }
+                    if(ind) { ind.style.display = 'block'; ind.innerText = `✓ Auto-Synced: ${modeStr.toUpperCase()}`; }
                     changeMode(); 
                 }
             } catch (err) { 
                 console.error("Could not sync with Google Calendar.", err);
                 const modeDropdown = document.getElementById('scheduleMode');
-                if(modeDropdown) modeDropdown.value = 'daily';
-                showToast("Loaded: Default Daily Schedule");
+                if(modeDropdown) modeDropdown.value = 'synced';
+                showToast("Falling back to local cache.");
                 changeMode();
             }
         }
@@ -874,7 +864,11 @@
                     if (p.settings) classSettings = p.settings;
                     if (p.lunchDuties) lunchDuties = p.lunchDuties;
                     
-                    currentMode = p.mode === 'regular' ? 'daily' : (p.mode || 'daily');
+                    // Migrate old 'daily' string to the new 'synced' default
+                    let savedMode = p.mode || 'synced';
+                    if (savedMode === 'daily' || savedMode === 'regular') savedMode = 'synced';
+                    currentMode = savedMode;
+                    
                     const modeDropdown = document.getElementById('scheduleMode');
                     if(modeDropdown) modeDropdown.value = currentMode;
                     
@@ -1013,17 +1007,15 @@
             
             if(container && disclaimer && btn) {
                 if (isStudentView) {
-                    // Turn OFF teacher options
                     container.classList.add('student-view'); 
                     disclaimer.style.display = 'none'; 
                     btn.classList.remove('active-btn');
                 } else {
-                    // Turn ON teacher options
                     container.classList.remove('student-view'); 
                     disclaimer.style.display = 'block'; 
                     btn.classList.add('active-btn');
                     
-                    // BUG FIX: Automatically force Minimal View off so options actually appear!
+                    // Force Minimal View off if turning options on
                     if (isMinimalView) toggleMinimalView(false);
                 }
             }
@@ -1041,6 +1033,10 @@
                     btn.classList.add('active-btn');
                     if(isDarkMode) btn.style.color = '#90caf9';
                     else btn.style.color = '#003366';
+                    
+                    // Automatically turn on Student View to hide checkboxes
+                    if (!isStudentView) toggleStudentView(false);
+                    
                 } else {
                     container.classList.remove('minimal-view'); 
                     btn.classList.remove('active-btn');
@@ -1199,18 +1195,11 @@
             if(!list) return;
             list.innerHTML = '';
             
-            if (!Array.isArray(activeSchedule)) {
-                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Schedule data is missing or corrupted.</em></li>'; return; 
+            if (!Array.isArray(activeSchedule) || activeSchedule.length === 0) {
+                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Loading Schedule...</em></li>'; return; 
             }
 
-            let filteredSchedule = activeSchedule;
-            if (!showZero) filteredSchedule = activeSchedule.filter(p => p && p.name && !String(p.name).includes("0 pd"));
-
-            if (!filteredSchedule || filteredSchedule.length === 0) { 
-                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>No periods added yet.</em></li>'; return; 
-            }
-
-            filteredSchedule.forEach(period => {
+            activeSchedule.forEach(period => {
                 try {
                     const key = String(period.name);
                     const safeKey = key.replace(/'/g, "\\'"); 
@@ -1377,11 +1366,9 @@
                     triggerEvent(current24, `start-${pNameStr}`, () => {
                         triggerVisualAlert();
                         let speechText = "";
-                        
                         if (s.open) speechText += "Please remember to sign in to WEB. ";
                         if (s.putaway) speechText += "Class is beginning. Please place your phones in the cell phone caddy. ";
                         if (hasLunch1) speechText += "Reminder: You have lunch duty today.";
-                        
                         if (speechText) playBellWithQueue(3, () => speak(speechText));
                         else playBellWithQueue(3);
                     });
