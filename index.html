@@ -178,6 +178,7 @@
         }
         body.dark-mode .open-badge { background-color: #2e7d32; color: #e8f5e9; }
         .student-view .open-badge { font-size: 1.2rem; padding: 4px 12px; margin-left: 15px; transform: translateY(-3px); display: inline-block; }
+        .minimal-view .open-badge { font-size: 1.5rem; vertical-align: middle; margin-left: 15px;}
 
         /* --- Layout & Structure --- */
         .dashboard-wrapper { display: flex; flex-wrap: wrap; gap: 15px; max-width: 1300px; margin: 0 auto; width: 100%; align-items: flex-start; z-index: 2; transition: all 0.4s ease; }
@@ -278,16 +279,31 @@
         body.dark-mode .student-view .period-time { color: #e0e0e0; }
         .student-view .schedule-header { display: none; } 
 
+
         /* ==========================================================
            SLIM FOCUS MODE (MINIMAL) CSS
            ========================================================== */
         
         body.minimal-active {
-            padding-top: 15vh; 
+            padding-top: 5vh; /* Moved significantly higher! */
             align-items: center; 
         }
         
-        body.minimal-active .sidebar { display: none; }
+        /* Float the sidebar in minimal mode so it can still be accessed */
+        body.minimal-active .sidebar { 
+            display: block;
+            position: fixed;
+            left: 20px;
+            top: 20px;
+            bottom: 20px;
+            z-index: 2000;
+            overflow-y: auto;
+            height: calc(100vh - 40px);
+            margin: 0;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.15);
+        }
+        body.minimal-active.dark-mode .sidebar { box-shadow: 10px 0 30px rgba(0,0,0,0.8); }
+        body.minimal-active .sidebar.collapsed { display: none !important; }
         
         body.minimal-active .dashboard-wrapper {
             display: flex;
@@ -295,6 +311,7 @@
             align-items: center;
             width: 100%;
             max-width: 900px; 
+            margin-top: 0;
         }
 
         body.minimal-active .main-content { width: 100%; min-width: unset; }
@@ -305,11 +322,11 @@
             top: 0; left: auto; transform: none;
             background: rgba(255, 255, 255, 0.65); 
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            padding: 15px 30px 25px; 
+            padding: 15px 30px 10px; 
             border-radius: 100px 100px 0 0; 
-            margin: 0 auto -20px auto; 
+            margin: 0 auto; 
             box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
-            z-index: 1;
+            z-index: 3; /* Placed above the container so it doesn't clip the clock */
         }
         body.minimal-active.dark-mode .floating-header {
             background: rgba(30, 30, 30, 0.65);
@@ -317,10 +334,28 @@
         }
         body.minimal-active .header-logo { max-width: 80px; } 
 
-        /* THE CLOCK MOVES INTO THE SLIM BAR */
+        /* THE FILLET (Sesame Street Inner Corners) */
+        body.minimal-active .floating-header::before,
+        body.minimal-active .floating-header::after {
+            content: ''; position: absolute; bottom: 0; width: 15px; height: 15px; pointer-events: none;
+        }
+        body.minimal-active .floating-header::before {
+            left: -15px; background: radial-gradient(circle at 0 0, transparent 15px, rgba(255, 255, 255, 0.65) 15px);
+        }
+        body.minimal-active .floating-header::after {
+            right: -15px; background: radial-gradient(circle at 100% 0, transparent 15px, rgba(255, 255, 255, 0.65) 15px);
+        }
+        body.minimal-active.dark-mode .floating-header::before {
+            background: radial-gradient(circle at 0 0, transparent 15px, rgba(30, 30, 30, 0.65) 15px);
+        }
+        body.minimal-active.dark-mode .floating-header::after {
+            background: radial-gradient(circle at 100% 0, transparent 15px, rgba(30, 30, 30, 0.65) 15px);
+        }
+
+        /* THE CLOCK STRADDLES THE DOME AND RECTANGLE */
         body.minimal-active #clock {
             position: absolute;
-            top: calc(100% + 14px); 
+            top: calc(100% + 34px); /* Drops it exactly into the center of the 68px tall rectangle */
             left: 50%;
             transform: translate(-50%, -50%);
             font-size: 2.2rem; 
@@ -347,6 +382,7 @@
             height: 68px; 
             display: flex;
             align-items: center;
+            margin-top: 0;
         }
         body.minimal-active.dark-mode .schedule-container {
             background: rgba(30, 30, 30, 0.65);
@@ -666,20 +702,17 @@
         let playedActions = {};
         let currentMinuteTracker = "";
         
-        // --- State Machine Variables for Media Player ---
         let mrBsJukebox = false;
-        let jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; // Default Clean Pop Playlist
+        let jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
         let isMainVibePlaying = false;
         let activePlayerUrl = '';
         let lastPeriodStatus = null; 
         let lastActivityTime = Date.now();
 
-        // --- Activity Tracker for Bandwidth Saver ---
         ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart'].forEach(evt => {
             document.addEventListener(evt, () => { lastActivityTime = Date.now(); }, {passive: true});
         });
 
-        // --- Scroll Listener for Dynamic Header ---
         window.addEventListener('scroll', () => {
             const header = document.getElementById('floating-header');
             if(header) {
@@ -688,7 +721,6 @@
             }
         });
 
-        // --- Fullscreen State Listener ---
         document.addEventListener('fullscreenchange', () => {
             const fsBtn = document.getElementById('fullScreenBtn');
             if(fsBtn) {
@@ -697,7 +729,6 @@
             }
         });
 
-        // --- Drag Logic for Floating Player ---
         const floatPlayer = document.getElementById('floating-player');
         let isDragging = false, dragStartX, dragStartY, initialLeft, initialTop;
 
@@ -743,7 +774,6 @@
             floatPlayer.classList.remove('dragging');
         }
 
-        // --- YouTube Playlist & API Engine ---
         let ytPlayer = null;
         let isYtApiReady = false;
 
@@ -823,7 +853,6 @@
             }
         }
 
-        // --- Core Music Player Engine ---
         function applyMusicState(url, shouldPlay) {
             if (!url) { stopVibeCore(); return true; } 
             
