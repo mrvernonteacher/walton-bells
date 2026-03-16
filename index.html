@@ -24,7 +24,7 @@
             flex-direction: column;
             min-height: 100vh;
             box-sizing: border-box;
-            transition: background-color 0.3s ease, color 0.3s ease;
+            transition: background-color 0.3s ease, color 0.3s ease, padding 0.4s ease;
             overflow-x: hidden;
             position: relative; 
         }
@@ -181,7 +181,7 @@
         .minimal-view .open-badge { font-size: 1.5rem; }
 
         /* --- Layout & Structure --- */
-        .dashboard-wrapper { display: flex; flex-wrap: wrap; gap: 15px; max-width: 1300px; margin: 0 auto; width: 100%; align-items: flex-start; z-index: 2; }
+        .dashboard-wrapper { display: flex; flex-wrap: wrap; gap: 15px; max-width: 1300px; margin: 0 auto; width: 100%; align-items: flex-start; z-index: 2; transition: all 0.4s ease; }
 
         .sidebar {
             flex: 1; min-width: 320px; max-width: 350px; padding: 15px 20px;
@@ -279,28 +279,117 @@
         body.dark-mode .student-view .period-time { color: #e0e0e0; }
         .student-view .schedule-header { display: none; } 
 
-        /* --- FOCUS MODE (Minimal View) CSS --- */
-        .minimal-view .options-col { display: none; }
-        .minimal-view .schedule-header { display: none; }
-        .minimal-view .schedule-grid { grid-template-columns: 1fr 1fr; padding: 15px 30px; }
-        .minimal-view #schedule-list li:not(.current-period) { display: none !important; }
+        /* ==========================================================
+           SESAME STREET SIGN (FOCUS MODE) CSS
+           ========================================================== */
         
-        .minimal-view #schedule-list li.current-period { 
-            background: transparent !important; border-left: none !important; box-shadow: none !important; padding: 10px 0;
+        body.minimal-active {
+            padding-top: 8vh; /* Push down smoothly */
+            align-items: center; /* Center everything horizontally */
         }
-        .minimal-view .period-name { font-size: 3rem; color: #003366; text-align: left; }
-        body.dark-mode .minimal-view .period-name { color: #90caf9; }
-        .minimal-view .period-time { font-size: 2.8rem; font-weight: bold; color: #333; text-align: right; }
-        body.dark-mode .minimal-view .period-time { color: #e0e0e0; }
         
-        .minimal-view #schedule-list.no-active-period::after {
-            content: "Outside School Hours";
-            display: block; padding: 20px; text-align: center; font-size: 1.5rem; font-weight: bold; color: #888;
+        body.minimal-active .sidebar { display: none; }
+        
+        body.minimal-active .dashboard-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 1000px;
         }
 
-        .footer { margin-top: 25px; font-size: 0.85rem; color: #555; text-align: center; width: 100%; transition: color 0.3s ease; }
-        .footer p { margin: 0 0 5px 0; font-weight: bold;}
-        .footer-logo { max-width: 180px; height: auto; display: inline-block; }
+        body.minimal-active .main-content { width: 100%; min-width: unset; }
+
+        /* THE DOME (Top of the Sign) */
+        body.minimal-active .floating-header {
+            position: relative;
+            top: 0; left: auto; transform: none;
+            background: rgba(255, 255, 255, 0.90);
+            padding: 25px 90px 30px;
+            border-radius: 200px 200px 0 0; /* Perfect semi-circle arch */
+            margin: 0 auto -20px auto; /* Overlaps bottom container */
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.15);
+            z-index: 1;
+        }
+        body.minimal-active.dark-mode .floating-header {
+            background: rgba(30, 30, 30, 0.90);
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.7);
+        }
+        body.minimal-active #clock {
+            background: transparent; box-shadow: none; padding: 0; font-size: 3.5rem;
+        }
+
+        /* THE RECTANGLE (Bottom of the Sign) */
+        body.minimal-active .schedule-container {
+            position: relative;
+            z-index: 2; /* Pops over the dome to create the hard edge */
+            border-radius: 35px; 
+            background: rgba(255, 255, 255, 0.90);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            padding: 30px;
+        }
+        body.minimal-active.dark-mode .schedule-container {
+            background: rgba(30, 30, 30, 0.90);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+        }
+
+        /* Tidy up the inner buttons to float top right */
+        body.minimal-active .schedule-header-wrap h3 { display: none; }
+        body.minimal-active .schedule-header-wrap { 
+            position: absolute; right: 20px; top: 20px; border: none; padding: 0; margin: 0; width: auto; 
+        }
+
+        body.minimal-active .options-col, body.minimal-active .schedule-header { display: none; }
+        body.minimal-active #schedule-list li:not(.current-period) { display: none !important; }
+        
+        /* The Sports Scoreboard look for the current period */
+        body.minimal-active #schedule-list li.current-period { 
+            background: transparent !important; border-left: none !important; box-shadow: none !important; padding: 20px 10px 10px;
+        }
+        body.minimal-active .schedule-grid { grid-template-columns: 1fr 1fr; gap: 0; }
+        
+        body.minimal-active .period-name { 
+            font-size: 4.5rem; color: #003366; text-align: right; 
+            padding-right: 40px; border-right: 4px solid rgba(150,150,150,0.3); 
+        }
+        body.minimal-active.dark-mode .period-name { color: #90caf9; border-right-color: rgba(255,255,255,0.2);}
+        
+        body.minimal-active .period-time { 
+            font-size: 3.5rem; font-weight: bold; color: #333; text-align: left; 
+            padding-left: 40px; 
+        }
+        body.minimal-active.dark-mode .period-time { color: #e0e0e0; }
+        
+        body.minimal-active #schedule-list.no-active-period::after {
+            content: "Outside School Hours";
+            display: block; padding: 40px; text-align: center; font-size: 2.5rem; font-weight: bold; color: #888;
+        }
+
+        /* --- THE NEW FLOATING PILL FOOTER --- */
+        .footer { margin-top: 25px; font-size: 0.85rem; color: #555; text-align: center; width: 100%; transition: all 0.4s ease; }
+        .footer p { margin: 0 0 5px 0; font-weight: bold; transition: all 0.3s ease;}
+        .footer-logo { max-width: 180px; height: auto; display: inline-block; transition: all 0.3s ease;}
+        
+        body.minimal-active .footer {
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.90);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            padding: 10px 30px;
+            border-radius: 50px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            margin: 0;
+            width: auto;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            z-index: 100;
+        }
+        body.minimal-active.dark-mode .footer { background: rgba(30, 30, 30, 0.90); box-shadow: 0 5px 20px rgba(0,0,0,0.8); }
+        body.minimal-active .footer p { margin: 0; font-size: 1rem; }
+        body.minimal-active .footer-logo { max-width: 140px; }
     </style>
 </head>
 <body>
@@ -698,7 +787,7 @@
             if(select && select.value) {
                 currentVibeUrl = select.value;
                 saveLocalSettings();
-                lastPeriodStatus = null; // Forces engine to evaluate and load immediately
+                lastPeriodStatus = null; 
             }
         }
 
@@ -766,7 +855,7 @@
             if(!currentVibeUrl) return;
             isMainVibePlaying = true;
             saveLocalSettings();
-            lastPeriodStatus = null; // Forces engine to evaluate and load immediately
+            lastPeriodStatus = null; 
         }
 
         function stopVibeCore() {
@@ -807,7 +896,6 @@
                     }
                 } catch(e) {}
             } else if (event.data == YT.PlayerState.ENDED) {
-                // FIX: Force the video to loop if the backgrounded tab drops the native loop command
                 event.target.playVideo();
             } else {
                 floatBtn.innerText = "▶";
@@ -982,6 +1070,7 @@
                         const mBtn = document.getElementById('minimalViewBtn');
                         if(sCont) sCont.classList.add('minimal-view');
                         if(mBtn) mBtn.classList.add('active-btn');
+                        document.body.classList.add('minimal-active'); // Re-apply dome effect
                     }
                     
                     if (p.dark === true) { 
@@ -1105,6 +1194,7 @@
             
             if(container && btn) {
                 if (isMinimalView) {
+                    document.body.classList.add('minimal-active');
                     container.classList.add('minimal-view'); 
                     btn.classList.add('active-btn');
                     if(isDarkMode) btn.style.color = '#90caf9';
@@ -1113,6 +1203,7 @@
                     if (!isStudentView) toggleStudentView(false);
                     
                 } else {
+                    document.body.classList.remove('minimal-active');
                     container.classList.remove('minimal-view'); 
                     btn.classList.remove('active-btn');
                     if(isDarkMode) btn.style.color = '#666';
@@ -1125,7 +1216,7 @@
         function toggleJukebox() {
             const tog = document.getElementById('jukeboxToggle');
             if(tog) mrBsJukebox = tog.checked;
-            lastPeriodStatus = null; // Triggers a re-evaluation on next clock tick
+            lastPeriodStatus = null; 
             saveLocalSettings();
         }
 
@@ -1136,7 +1227,7 @@
             } else {
                 jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
             }
-            lastPeriodStatus = null; // Force re-eval
+            lastPeriodStatus = null; 
             saveLocalSettings();
         }
 
@@ -1555,6 +1646,16 @@
                         let speechText = "One minute until class begins.";
                         if (s.putaway) speechText += " Please place your phones in the cell phone caddy.";
                         playBellWithQueue(1, () => speak(speechText));
+                    });
+                }
+
+                // --- 5-MINUTE AUTO-COLLAPSE TRIGGER ---
+                if (current24 === startPlus5) {
+                    triggerEvent(current24, `autominimal5m-${pNameStr}`, () => { 
+                        if (isMainVibePlaying && currentVibeUrl && !isMinimalView) {
+                            toggleMinimalView(true);
+                            showToast("Focus Mode Auto-Enabled.");
+                        }
                     });
                 }
 
