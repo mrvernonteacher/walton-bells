@@ -178,7 +178,7 @@
         }
         body.dark-mode .open-badge { background-color: #2e7d32; color: #e8f5e9; }
         .student-view .open-badge { font-size: 1.2rem; padding: 4px 12px; margin-left: 15px; transform: translateY(-3px); display: inline-block; }
-        .minimal-view .open-badge { font-size: 1.5rem; }
+        .minimal-view .open-badge { font-size: 1.5rem; vertical-align: middle; margin-left: 15px;}
 
         /* --- Layout & Structure --- */
         .dashboard-wrapper { display: flex; flex-wrap: wrap; gap: 15px; max-width: 1300px; margin: 0 auto; width: 100%; align-items: flex-start; z-index: 2; transition: all 0.4s ease; }
@@ -280,11 +280,11 @@
         .student-view .schedule-header { display: none; } 
 
         /* ==========================================================
-           SESAME STREET SIGN (FOCUS MODE) CSS
+           SLIM FOCUS MODE (MINIMAL) CSS
            ========================================================== */
         
         body.minimal-active {
-            padding-top: 8vh; /* Push down smoothly */
+            padding-top: 10vh; /* Push down to center */
             align-items: center; /* Center everything horizontally */
         }
         
@@ -295,7 +295,7 @@
             flex-direction: column;
             align-items: center;
             width: 100%;
-            max-width: 1000px;
+            max-width: 1100px;
         }
 
         body.minimal-active .main-content { width: 100%; min-width: unset; }
@@ -305,9 +305,9 @@
             position: relative;
             top: 0; left: auto; transform: none;
             background: rgba(255, 255, 255, 0.90);
-            padding: 25px 90px 30px;
-            border-radius: 200px 200px 0 0; /* Perfect semi-circle arch */
-            margin: 0 auto -20px auto; /* Overlaps bottom container */
+            padding: 20px 40px 30px;
+            border-radius: 150px 150px 0 0; /* Perfect semi-circle arch */
+            margin: 0 auto -25px auto; /* Overlaps bottom container smoothly */
             box-shadow: 0 -10px 30px rgba(0,0,0,0.15);
             z-index: 1;
         }
@@ -315,81 +315,97 @@
             background: rgba(30, 30, 30, 0.90);
             box-shadow: 0 -10px 30px rgba(0,0,0,0.7);
         }
-        body.minimal-active #clock {
-            background: transparent; box-shadow: none; padding: 0; font-size: 3.5rem;
-        }
+        body.minimal-active .header-logo { max-width: 120px; } /* Slightly smaller for the dome */
 
-        /* THE RECTANGLE (Bottom of the Sign) */
+        /* THE CLOCK MOVES INTO THE SLIM BAR */
+        body.minimal-active #clock {
+            position: absolute;
+            top: calc(100% + 10px); /* Pushes down perfectly into the center of the bar */
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 3.2rem;
+            background: transparent;
+            box-shadow: none;
+            padding: 0; margin: 0;
+            color: #003366;
+            z-index: 10;
+            white-space: nowrap;
+        }
+        body.minimal-active.dark-mode #clock { color: #e0e0e0; }
+
+        /* THE SLIM RECTANGLE BAR */
         body.minimal-active .schedule-container {
             position: relative;
-            z-index: 2; /* Pops over the dome to create the hard edge */
+            z-index: 2; 
             border-radius: 35px; 
             background: rgba(255, 255, 255, 0.90);
             box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-            padding: 30px;
+            padding: 20px;
+            width: 100%;
         }
         body.minimal-active.dark-mode .schedule-container {
             background: rgba(30, 30, 30, 0.90);
             box-shadow: 0 15px 35px rgba(0,0,0,0.7);
         }
 
-        /* Tidy up the inner buttons to float top right */
+        /* Buttons on left/right edges */
         body.minimal-active .schedule-header-wrap h3 { display: none; }
         body.minimal-active .schedule-header-wrap { 
-            position: absolute; right: 20px; top: 20px; border: none; padding: 0; margin: 0; width: auto; 
+            position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 100%; 
+            border: none; padding: 0 25px; margin: 0; display: flex; justify-content: space-between;
+            pointer-events: none; z-index: 10; box-sizing: border-box;
         }
+        body.minimal-active .schedule-header-wrap > * { pointer-events: auto; }
 
         body.minimal-active .options-col, body.minimal-active .schedule-header { display: none; }
         body.minimal-active #schedule-list li:not(.current-period) { display: none !important; }
         
-        /* The Sports Scoreboard look for the current period */
+        /* The Split Layout inside the Bar */
         body.minimal-active #schedule-list li.current-period { 
-            background: transparent !important; border-left: none !important; box-shadow: none !important; padding: 20px 10px 10px;
+            background: transparent !important; border-left: none !important; box-shadow: none !important; 
+            padding: 10px 90px; /* Inset from the buttons */
+            display: flex !important; justify-content: space-between; align-items: center;
+            width: 100%; box-sizing: border-box;
         }
-        body.minimal-active .schedule-grid { grid-template-columns: 1fr 1fr; gap: 0; }
         
         body.minimal-active .period-name { 
-            font-size: 4.5rem; color: #003366; text-align: right; 
-            padding-right: 40px; border-right: 4px solid rgba(150,150,150,0.3); 
+            font-size: 3.2rem; color: #003366; text-align: left; 
+            border: none; padding: 0; flex: 1;
         }
-        body.minimal-active.dark-mode .period-name { color: #90caf9; border-right-color: rgba(255,255,255,0.2);}
+        body.minimal-active.dark-mode .period-name { color: #90caf9; }
         
         body.minimal-active .period-time { 
-            font-size: 3.5rem; font-weight: bold; color: #333; text-align: left; 
-            padding-left: 40px; 
+            font-size: 3.2rem; font-weight: bold; color: #333; text-align: right; 
+            padding: 0; flex: 1;
         }
         body.minimal-active.dark-mode .period-time { color: #e0e0e0; }
         
+        body.minimal-active #schedule-list.no-active-period { margin-top: 30px; }
         body.minimal-active #schedule-list.no-active-period::after {
-            content: "Outside School Hours";
-            display: block; padding: 40px; text-align: center; font-size: 2.5rem; font-weight: bold; color: #888;
+            content: "Outside School Hours"; display: block; padding: 20px; 
+            text-align: center; font-size: 2.5rem; font-weight: bold; color: #888;
         }
 
-        /* --- THE NEW FLOATING PILL FOOTER --- */
+        /* --- THE ORIGINAL FOOTER, MOVED TO BOTTOM --- */
         .footer { margin-top: 25px; font-size: 0.85rem; color: #555; text-align: center; width: 100%; transition: all 0.4s ease; }
         .footer p { margin: 0 0 5px 0; font-weight: bold; transition: all 0.3s ease;}
         .footer-logo { max-width: 180px; height: auto; display: inline-block; transition: all 0.3s ease;}
         
         body.minimal-active .footer {
             position: fixed;
-            bottom: 25px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.90);
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            padding: 10px 30px;
-            border-radius: 50px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
             margin: 0;
-            width: auto;
-            display: flex;
-            align-items: center;
-            gap: 20px;
             z-index: 100;
         }
-        body.minimal-active.dark-mode .footer { background: rgba(30, 30, 30, 0.90); box-shadow: 0 5px 20px rgba(0,0,0,0.8); }
-        body.minimal-active .footer p { margin: 0; font-size: 1rem; }
-        body.minimal-active .footer-logo { max-width: 140px; }
+        body.minimal-active .footer p {
+            color: rgba(255, 255, 255, 0.85); 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.5); /* Helps it pop off any video background */
+        }
+        body.minimal-active .footer-logo {
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)) drop-shadow(0 0 10px rgba(0,0,0,0.5));
+        }
     </style>
 </head>
 <body>
@@ -1070,7 +1086,7 @@
                         const mBtn = document.getElementById('minimalViewBtn');
                         if(sCont) sCont.classList.add('minimal-view');
                         if(mBtn) mBtn.classList.add('active-btn');
-                        document.body.classList.add('minimal-active'); // Re-apply dome effect
+                        document.body.classList.add('minimal-active'); 
                     }
                     
                     if (p.dark === true) { 
