@@ -178,7 +178,6 @@
         }
         body.dark-mode .open-badge { background-color: #2e7d32; color: #e8f5e9; }
         .student-view .open-badge { font-size: 1.2rem; padding: 4px 12px; margin-left: 15px; transform: translateY(-3px); display: inline-block; }
-        .minimal-view .open-badge { font-size: 1.5rem; vertical-align: middle; margin-left: 15px;}
 
         /* --- Layout & Structure --- */
         .dashboard-wrapper { display: flex; flex-wrap: wrap; gap: 15px; max-width: 1300px; margin: 0 auto; width: 100%; align-items: flex-start; z-index: 2; transition: all 0.4s ease; }
@@ -284,8 +283,8 @@
            ========================================================== */
         
         body.minimal-active {
-            padding-top: 10vh; /* Push down to center */
-            align-items: center; /* Center everything horizontally */
+            padding-top: 15vh; 
+            align-items: center; 
         }
         
         body.minimal-active .sidebar { display: none; }
@@ -295,7 +294,7 @@
             flex-direction: column;
             align-items: center;
             width: 100%;
-            max-width: 1100px;
+            max-width: 900px; 
         }
 
         body.minimal-active .main-content { width: 100%; min-width: unset; }
@@ -304,32 +303,34 @@
         body.minimal-active .floating-header {
             position: relative;
             top: 0; left: auto; transform: none;
-            background: rgba(255, 255, 255, 0.90);
-            padding: 20px 40px 30px;
-            border-radius: 150px 150px 0 0; /* Perfect semi-circle arch */
-            margin: 0 auto -25px auto; /* Overlaps bottom container smoothly */
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.15);
+            background: rgba(255, 255, 255, 0.65); 
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            padding: 15px 30px 25px; 
+            border-radius: 100px 100px 0 0; 
+            margin: 0 auto -20px auto; 
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
             z-index: 1;
         }
         body.minimal-active.dark-mode .floating-header {
-            background: rgba(30, 30, 30, 0.90);
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.7);
+            background: rgba(30, 30, 30, 0.65);
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
         }
-        body.minimal-active .header-logo { max-width: 120px; } /* Slightly smaller for the dome */
+        body.minimal-active .header-logo { max-width: 80px; } 
 
         /* THE CLOCK MOVES INTO THE SLIM BAR */
         body.minimal-active #clock {
             position: absolute;
-            top: calc(100% + 10px); /* Pushes down perfectly into the center of the bar */
+            top: calc(100% + 14px); 
             left: 50%;
-            transform: translateX(-50%);
-            font-size: 3.2rem;
+            transform: translate(-50%, -50%);
+            font-size: 2.2rem; 
             background: transparent;
             box-shadow: none;
             padding: 0; margin: 0;
             color: #003366;
             z-index: 10;
             white-space: nowrap;
+            display: block !important;
         }
         body.minimal-active.dark-mode #clock { color: #e0e0e0; }
 
@@ -337,54 +338,69 @@
         body.minimal-active .schedule-container {
             position: relative;
             z-index: 2; 
-            border-radius: 35px; 
-            background: rgba(255, 255, 255, 0.90);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-            padding: 20px;
+            border-radius: 20px; 
+            background: rgba(255, 255, 255, 0.65); 
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            padding: 0 20px;
             width: 100%;
+            height: 68px; 
+            display: flex;
+            align-items: center;
         }
         body.minimal-active.dark-mode .schedule-container {
-            background: rgba(30, 30, 30, 0.90);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+            background: rgba(30, 30, 30, 0.65);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
         }
 
         /* Buttons on left/right edges */
         body.minimal-active .schedule-header-wrap h3 { display: none; }
         body.minimal-active .schedule-header-wrap { 
             position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 100%; 
-            border: none; padding: 0 25px; margin: 0; display: flex; justify-content: space-between;
-            pointer-events: none; z-index: 10; box-sizing: border-box;
+            border: none; padding: 0 15px; margin: 0; display: flex; justify-content: space-between;
+            pointer-events: none; z-index: 11; box-sizing: border-box; height: 0; 
         }
         body.minimal-active .schedule-header-wrap > * { pointer-events: auto; }
 
         body.minimal-active .options-col, body.minimal-active .schedule-header { display: none; }
+        body.minimal-active #schedule-list { width: 100%; margin: 0; padding: 0 50px; }
         body.minimal-active #schedule-list li:not(.current-period) { display: none !important; }
         
         /* The Split Layout inside the Bar */
         body.minimal-active #schedule-list li.current-period { 
             background: transparent !important; border-left: none !important; box-shadow: none !important; 
-            padding: 10px 90px; /* Inset from the buttons */
+            padding: 0; 
             display: flex !important; justify-content: space-between; align-items: center;
             width: 100%; box-sizing: border-box;
+            height: 68px;
         }
         
         body.minimal-active .period-name { 
-            font-size: 3.2rem; color: #003366; text-align: left; 
-            border: none; padding: 0; flex: 1;
+            font-size: 1.6rem; color: #003366; text-align: left; 
+            border: none; padding: 0; flex: 1; white-space: nowrap;
         }
         body.minimal-active.dark-mode .period-name { color: #90caf9; }
         
         body.minimal-active .period-time { 
-            font-size: 3.2rem; font-weight: bold; color: #333; text-align: right; 
-            padding: 0; flex: 1;
+            font-size: 1.4rem; font-weight: normal; color: #333; text-align: right; 
+            padding: 0; flex: 1; white-space: nowrap;
         }
         body.minimal-active.dark-mode .period-time { color: #e0e0e0; }
         
-        body.minimal-active #schedule-list.no-active-period { margin-top: 30px; }
-        body.minimal-active #schedule-list.no-active-period::after {
-            content: "Outside School Hours"; display: block; padding: 20px; 
-            text-align: center; font-size: 2.5rem; font-weight: bold; color: #888;
+        /* Fixed "Outside School Hours" UI */
+        body.minimal-active #schedule-list.no-active-period { 
+            margin: 0; padding: 0 50px; height: 68px; display: flex; align-items: center; justify-content: space-between;
         }
+        body.minimal-active #schedule-list.no-active-period::before {
+            content: "Outside School Hours";
+            display: block; font-size: 1.4rem; font-weight: bold; color: #666; flex: 1; text-align: left;
+        }
+        body.minimal-active.dark-mode #schedule-list.no-active-period::before { color: #aaa; }
+        body.minimal-active #schedule-list.no-active-period::after {
+            content: ""; display: block; flex: 1; 
+        }
+        
+        body.minimal-active .open-badge { font-size: 0.9rem; vertical-align: middle; margin-left: 10px; padding: 2px 6px;}
 
         /* --- THE ORIGINAL FOOTER, MOVED TO BOTTOM --- */
         .footer { margin-top: 25px; font-size: 0.85rem; color: #555; text-align: center; width: 100%; transition: all 0.4s ease; }
@@ -401,7 +417,7 @@
         }
         body.minimal-active .footer p {
             color: rgba(255, 255, 255, 0.85); 
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.5); /* Helps it pop off any video background */
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.5); 
         }
         body.minimal-active .footer-logo {
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)) drop-shadow(0 0 10px rgba(0,0,0,0.5));
@@ -655,7 +671,7 @@
         let jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; // Default Clean Pop Playlist
         let isMainVibePlaying = false;
         let activePlayerUrl = '';
-        let lastPeriodStatus = null; // 'class', 'passing', or 'outside'
+        let lastPeriodStatus = null; 
         let lastActivityTime = Date.now();
 
         // --- Activity Tracker for Bandwidth Saver ---
