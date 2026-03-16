@@ -24,7 +24,7 @@
             flex-direction: column;
             min-height: 100vh;
             box-sizing: border-box;
-            transition: background-color 0.3s ease, color 0.3s ease, padding 0.4s ease;
+            transition: background-color 0.3s ease, color 0.3s ease;
             overflow-x: hidden;
             position: relative; 
         }
@@ -178,10 +178,10 @@
         }
         body.dark-mode .open-badge { background-color: #2e7d32; color: #e8f5e9; }
         .student-view .open-badge { font-size: 1.2rem; padding: 4px 12px; margin-left: 15px; transform: translateY(-3px); display: inline-block; }
-        .minimal-view .open-badge { font-size: 1.5rem; vertical-align: middle; margin-left: 15px;}
+        .minimal-view .open-badge { font-size: 1.5rem; }
 
         /* --- Layout & Structure --- */
-        .dashboard-wrapper { display: flex; flex-wrap: wrap; gap: 15px; max-width: 1300px; margin: 0 auto; width: 100%; align-items: flex-start; z-index: 2; transition: all 0.4s ease; }
+        .dashboard-wrapper { display: flex; flex-wrap: wrap; gap: 15px; max-width: 1300px; margin: 0 auto; width: 100%; align-items: flex-start; z-index: 2; }
 
         .sidebar {
             flex: 1; min-width: 320px; max-width: 350px; padding: 15px 20px;
@@ -279,195 +279,28 @@
         body.dark-mode .student-view .period-time { color: #e0e0e0; }
         .student-view .schedule-header { display: none; } 
 
-
-        /* ==========================================================
-           SLIM FOCUS MODE (MINIMAL) CSS - WATERMARK EDITION
-           ========================================================== */
+        /* --- FOCUS MODE (Minimal View) CSS --- */
+        .minimal-view .options-col { display: none; }
+        .minimal-view .schedule-header { display: none; }
+        .minimal-view .schedule-grid { grid-template-columns: 1fr 1fr; padding: 15px 30px; }
+        .minimal-view #schedule-list li:not(.current-period) { display: none !important; }
         
-        body.minimal-active {
-            padding-top: 5vh; /* Pushed significantly higher */
-            align-items: center; 
+        .minimal-view #schedule-list li.current-period { 
+            background: transparent !important; border-left: none !important; box-shadow: none !important; padding: 10px 0;
         }
+        .minimal-view .period-name { font-size: 3rem; color: #003366; text-align: left; }
+        body.dark-mode .minimal-view .period-name { color: #90caf9; }
+        .minimal-view .period-time { font-size: 2.8rem; font-weight: bold; color: #333; text-align: right; }
+        body.dark-mode .minimal-view .period-time { color: #e0e0e0; }
         
-        /* Float the sidebar in minimal mode so it can still be accessed */
-        body.minimal-active .sidebar { 
-            display: block;
-            position: fixed;
-            left: 20px;
-            top: 20px;
-            bottom: 20px;
-            z-index: 2000;
-            overflow-y: auto;
-            height: calc(100vh - 40px);
-            margin: 0;
-            box-shadow: 10px 0 30px rgba(0,0,0,0.15);
-        }
-        body.minimal-active.dark-mode .sidebar { box-shadow: 10px 0 30px rgba(0,0,0,0.8); }
-        body.minimal-active .sidebar.collapsed { display: none !important; }
-        
-        body.minimal-active .dashboard-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            max-width: 1000px; 
-            margin-top: 0;
-            position: relative;
-        }
-
-        body.minimal-active .main-content { width: 100%; min-width: unset; }
-
-        /* --- THE LOGO MOVES INSIDE THE PILL CONTAINER --- */
-        body.minimal-active .header-logo {
-            display: none !important; /* Hide it from the floating header */
-        }
-
-        /* --- THE INVISIBLE MASTER CONTAINER FOR CLOCK AND BAR --- */
-        body.minimal-active .floating-header {
-            position: fixed;
-            top: 5vh; 
-            left: 50%; 
-            transform: translateX(-50%);
-            width: 100%;
-            max-width: 1000px;
-            height: 75px; /* Must match the pill height */
-            background: transparent; 
-            backdrop-filter: none; -webkit-backdrop-filter: none;
-            padding: 0; 
-            border-radius: 0; 
-            margin: 0; 
-            box-shadow: none;
-            z-index: 100; /* Stays above the bar */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            pointer-events: none; /* Let clicks pass through to buttons in the header-wrap */
-        }
-        body.minimal-active.dark-mode .floating-header { background: transparent; box-shadow: none; }
-
-        /* THE CENTERED CLOCK, ABOVE THE BAR */
-        body.minimal-active #clock {
-            position: relative;
-            font-size: 2.8rem; 
-            background: transparent;
-            box-shadow: none;
-            padding: 0; margin: 0;
-            color: #003366;
-            z-index: 10;
-            white-space: nowrap;
-            display: block !important;
-            pointer-events: auto; /* Let it be clicked for visual alert */
-        }
-        body.minimal-active.dark-mode #clock { color: #e0e0e0; }
-
-        /* --- THE SLIM FROSTED PILL BAR --- */
-        body.minimal-active .schedule-container {
-            position: relative;
-            z-index: 2; /* Sits below the clock */
-            border-radius: 40px; 
-            background: rgba(255, 255, 255, 0.45); /* Highly transparent glass */
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            padding: 0 20px;
-            width: 100%;
-            height: 75px; 
-            display: flex;
-            align-items: center;
-            margin-top: 0;
-            overflow: hidden; /* --- IMPORTANT: This masks the background logo edges --- */
-        }
-        body.minimal-active.dark-mode .schedule-container {
-            background: rgba(30, 30, 30, 0.45);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-        }
-
-        /* --- The Masked Background Watermark (Inside the Bar) --- */
-        body.minimal-active .schedule-container::before {
-            content: "";
-            position: absolute;
-            top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 100%; height: 100%;
-            background-image: url('https://drive.google.com/thumbnail?id=1XJEeGiblu9O3iGevy_j8RLR06LcyimqQ&sz=w600');
-            background-repeat: no-repeat;
-            background-position: center center;
-            background-size: 200px auto; /* Scaled slightly larger for visual cropped effect */
-            opacity: 0.1; /* Very faint ghost effect */
-            z-index: 1; /* Lowest inside the bar */
-            pointer-events: none;
-        }
-        body.minimal-active.dark-mode .schedule-container::before { opacity: 0.2; }
-
-        /* Buttons on left/right edges */
-        body.minimal-active .schedule-header-wrap h3 { display: none; }
-        body.minimal-active .schedule-header-wrap { 
-            position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 100%; 
-            border: none; padding: 0 20px; margin: 0; display: flex; justify-content: space-between;
-            z-index: 11; box-sizing: border-box; height: 0; 
-            pointer-events: none; /* Layout only */
-        }
-        body.minimal-active .schedule-header-wrap > * { pointer-events: auto; /* Buttons active */ }
-        body.minimal-active .header-icon-btn { z-index: 12; } /* Ensure buttons are clickable */
-
-        body.minimal-active .options-col, body.minimal-active .schedule-header { display: none; }
-        body.minimal-active #schedule-list { width: 100%; margin: 0; padding: 0 60px; z-index: 3;}
-        body.minimal-active #schedule-list li:not(.current-period) { display: none !important; }
-        
-        /* The Split Layout inside the Bar */
-        body.minimal-active #schedule-list li.current-period { 
-            background: transparent !important; border-left: none !important; box-shadow: none !important; 
-            padding: 0 120px; /* Keep class name and time clear of the center clock */
-            display: flex !important; justify-content: space-between; align-items: center;
-            width: 100%; box-sizing: border-box;
-            height: 75px;
-        }
-        
-        body.minimal-active .period-name { 
-            font-size: 1.8rem; color: #003366; text-align: left; 
-            border: none; padding: 0; flex: 1; white-space: nowrap;
-        }
-        body.minimal-active.dark-mode .period-name { color: #90caf9; }
-        
-        body.minimal-active .period-time { 
-            font-size: 1.6rem; font-weight: normal; color: #333; text-align: right; 
-            padding: 0; flex: 1; white-space: nowrap;
-        }
-        body.minimal-active.dark-mode .period-time { color: #e0e0e0; }
-        
-        /* Fixed "Outside School Hours" UI */
-        body.minimal-active #schedule-list.no-active-period { 
-            margin: 0; padding: 0 60px; height: 75px; display: flex; align-items: center; justify-content: space-between;
-        }
-        body.minimal-active #schedule-list.no-active-period::before {
+        .minimal-view #schedule-list.no-active-period::after {
             content: "Outside School Hours";
-            display: block; font-size: 1.6rem; font-weight: bold; color: #555; flex: 1; text-align: left;
+            display: block; padding: 20px; text-align: center; font-size: 1.5rem; font-weight: bold; color: #888;
         }
-        body.minimal-active.dark-mode #schedule-list.no-active-period::before { color: #aaa; }
-        body.minimal-active #schedule-list.no-active-period::after {
-            content: ""; display: block; flex: 1; 
-        }
-        
-        body.minimal-active .open-badge { font-size: 1rem; vertical-align: middle; margin-left: 10px; padding: 3px 8px;}
 
-        /* --- THE ORIGINAL FOOTER, MOVED TO BOTTOM --- */
-        .footer { margin-top: 25px; font-size: 0.85rem; color: #555; text-align: center; width: 100%; transition: all 0.4s ease; }
-        .footer p { margin: 0 0 5px 0; font-weight: bold; transition: all 0.3s ease;}
-        .footer-logo { max-width: 180px; height: auto; display: inline-block; transition: all 0.3s ease;}
-        
-        body.minimal-active .footer {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            margin: 0;
-            z-index: 100;
-        }
-        body.minimal-active .footer p {
-            color: rgba(255, 255, 255, 0.85); 
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.5); 
-        }
-        body.minimal-active .footer-logo {
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)) drop-shadow(0 0 10px rgba(0,0,0,0.5));
-        }
+        .footer { margin-top: 25px; font-size: 0.85rem; color: #555; text-align: center; width: 100%; transition: color 0.3s ease; }
+        .footer p { margin: 0 0 5px 0; font-weight: bold;}
+        .footer-logo { max-width: 180px; height: auto; display: inline-block; }
     </style>
 </head>
 <body>
@@ -712,17 +545,14 @@
         let playedActions = {};
         let currentMinuteTracker = "";
         
+        // --- State Machine Variables for Media Player ---
         let mrBsJukebox = false;
-        let jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
+        let jukeboxUrl = "https://www.youtube.com/watch?v=b-bK2Vn3D38"; // Default Pop Playlist
         let isMainVibePlaying = false;
         let activePlayerUrl = '';
-        let lastPeriodStatus = null; 
-        let lastActivityTime = Date.now();
+        let lastPeriodStatus = null; // 'class', 'passing', or 'outside'
 
-        ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart'].forEach(evt => {
-            document.addEventListener(evt, () => { lastActivityTime = Date.now(); }, {passive: true});
-        });
-
+        // --- Scroll Listener for Dynamic Header ---
         window.addEventListener('scroll', () => {
             const header = document.getElementById('floating-header');
             if(header) {
@@ -731,6 +561,7 @@
             }
         });
 
+        // --- Fullscreen State Listener ---
         document.addEventListener('fullscreenchange', () => {
             const fsBtn = document.getElementById('fullScreenBtn');
             if(fsBtn) {
@@ -739,6 +570,7 @@
             }
         });
 
+        // --- Drag Logic for Floating Player ---
         const floatPlayer = document.getElementById('floating-player');
         let isDragging = false, dragStartX, dragStartY, initialLeft, initialTop;
 
@@ -784,6 +616,7 @@
             floatPlayer.classList.remove('dragging');
         }
 
+        // --- YouTube Playlist & API Engine ---
         let ytPlayer = null;
         let isYtApiReady = false;
 
@@ -859,17 +692,18 @@
             if(select && select.value) {
                 currentVibeUrl = select.value;
                 saveLocalSettings();
-                lastPeriodStatus = null; 
+                lastPeriodStatus = null; // Forces engine to evaluate and load immediately
             }
         }
 
+        // --- Core Music Player Engine ---
         function applyMusicState(url, shouldPlay) {
             if (!url) { stopVibeCore(); return true; } 
             
             const vid = extractVideoID(url);
             if (!vid) return true;
 
-            if (!isYtApiReady) return false; 
+            if (!isYtApiReady) return false; // Fail silently, updateClock will retry next tick
 
             activePlayerUrl = url;
             const bgContainer = document.getElementById('vibe-bg');
@@ -926,7 +760,7 @@
             if(!currentVibeUrl) return;
             isMainVibePlaying = true;
             saveLocalSettings();
-            lastPeriodStatus = null; 
+            lastPeriodStatus = null; // Forces engine to evaluate and load immediately
         }
 
         function stopVibeCore() {
@@ -958,6 +792,7 @@
                     const titleEl = document.getElementById('float-vibe-title');
                     if(title && titleEl) titleEl.innerText = title;
                     
+                    // Only update saved playlist names if the MAIN vibe is playing (don't overwrite with Jukebox titles)
                     if(title && activePlayerUrl === currentVibeUrl) {
                         let updated = false;
                         savedVibes.forEach(v => {
@@ -966,8 +801,6 @@
                         if(updated) { saveLocalSettings(); renderVibeDropdown(); }
                     }
                 } catch(e) {}
-            } else if (event.data == YT.PlayerState.ENDED) {
-                event.target.playVideo();
             } else {
                 floatBtn.innerText = "▶";
             }
@@ -1141,7 +974,6 @@
                         const mBtn = document.getElementById('minimalViewBtn');
                         if(sCont) sCont.classList.add('minimal-view');
                         if(mBtn) mBtn.classList.add('active-btn');
-                        document.body.classList.add('minimal-active'); 
                     }
                     
                     if (p.dark === true) { 
@@ -1265,7 +1097,6 @@
             
             if(container && btn) {
                 if (isMinimalView) {
-                    document.body.classList.add('minimal-active');
                     container.classList.add('minimal-view'); 
                     btn.classList.add('active-btn');
                     if(isDarkMode) btn.style.color = '#90caf9';
@@ -1274,7 +1105,6 @@
                     if (!isStudentView) toggleStudentView(false);
                     
                 } else {
-                    document.body.classList.remove('minimal-active');
                     container.classList.remove('minimal-view'); 
                     btn.classList.remove('active-btn');
                     if(isDarkMode) btn.style.color = '#666';
@@ -1287,7 +1117,7 @@
         function toggleJukebox() {
             const tog = document.getElementById('jukeboxToggle');
             if(tog) mrBsJukebox = tog.checked;
-            lastPeriodStatus = null; 
+            lastPeriodStatus = null; // Triggers a re-evaluation on next clock tick
             saveLocalSettings();
         }
 
@@ -1298,7 +1128,7 @@
             } else {
                 jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
             }
-            lastPeriodStatus = null; 
+            lastPeriodStatus = null; // Force re-eval
             saveLocalSettings();
         }
 
@@ -1342,9 +1172,11 @@
             saveLocalSettings(); 
         }
 
+        // --- Bulletproof Audio Fallback System ---
         function playBellWithQueue(timesLeft = 1, onCompleteCallback = null) {
             const audio = document.getElementById('regularBellAudio'); 
             
+            // Failsafe 1: If audio object doesn't exist, skip to voice.
             if(!audio) {
                 if (onCompleteCallback) onCompleteCallback();
                 return;
@@ -1362,6 +1194,7 @@
             
             let playPromise = audio.play();
             
+            // Failsafe 2: If the browser blocks autoplay or the file is dead, skip to voice after 1.5s
             if (playPromise !== undefined) {
                 playPromise.catch(e => {
                     console.error("Audio play blocked. Triggering failsafe voice delay.", e);
@@ -1557,6 +1390,7 @@
             setTimeout(() => { overlay.remove(); }, 6000); 
         }
 
+        // --- Returns object containing exact index and explicit passing period flag ---
         function highlightCurrentPeriod(current24) {
             const list = document.getElementById('schedule-list');
             const listItems = document.querySelectorAll('#schedule-list li');
@@ -1601,6 +1435,7 @@
                 list.classList.add('no-active-period');
             }
 
+            // Calculate if exactly in a passing period
             let inClass = false;
             for (let i=0; i<periods.length; i++) {
                 if (currentMins >= periods[i].startMins && currentMins < periods[i].endMins) {
@@ -1632,14 +1467,6 @@
             if(clk) clk.innerText = now.toLocaleTimeString('en-US');
             let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
             const todayDayOfWeek = now.getDay(); 
-
-            // --- Bandwidth Saver ---
-            const currentHourFloat = now.getHours() + (now.getMinutes() / 60);
-            const inactiveMinutes = (Date.now() - lastActivityTime) / 60000;
-            if (currentHourFloat >= 16.5 && inactiveMinutes >= 15 && activePlayerUrl) {
-                stopVibe();
-                showToast("Inactive past 4:30 PM. Auto-stopped to save bandwidth.");
-            }
             
             // HIGHLIGHT & STATE MACHINE FOR MEDIA PLAYER
             let status = highlightCurrentPeriod(current24);
@@ -1651,8 +1478,10 @@
                 let success = false;
                 
                 if (mrBsJukebox && todayDayOfWeek === 5 && currentStatus === 'passing') {
+                    // Friday Passing Period -> Play Jukebox
                     success = applyMusicState(jukeboxUrl, true);
                 } else {
+                    // Normal class time, or outside school hours, or Jukebox is off
                     if (isMainVibePlaying && currentVibeUrl) {
                         success = applyMusicState(currentVibeUrl, true);
                     } else {
@@ -1717,16 +1546,6 @@
                         let speechText = "One minute until class begins.";
                         if (s.putaway) speechText += " Please place your phones in the cell phone caddy.";
                         playBellWithQueue(1, () => speak(speechText));
-                    });
-                }
-
-                // --- 5-MINUTE AUTO-COLLAPSE TRIGGER ---
-                if (current24 === startPlus5) {
-                    triggerEvent(current24, `autominimal5m-${pNameStr}`, () => { 
-                        if (isMainVibePlaying && currentVibeUrl && !isMinimalView) {
-                            toggleMinimalView(true);
-                            showToast("Focus Mode Auto-Enabled.");
-                        }
                     });
                 }
 
