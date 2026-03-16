@@ -281,11 +281,11 @@
 
 
         /* ==========================================================
-           SLIM FOCUS MODE (MINIMAL) CSS
+           SLIM FOCUS MODE (MINIMAL) CSS - WATERMARK EDITION
            ========================================================== */
         
         body.minimal-active {
-            padding-top: 5vh; /* Moved significantly higher! */
+            padding-top: 5vh; /* Pushed significantly higher */
             align-items: center; 
         }
         
@@ -310,133 +310,133 @@
             flex-direction: column;
             align-items: center;
             width: 100%;
-            max-width: 900px; 
+            max-width: 1000px; 
             margin-top: 0;
+            position: relative;
         }
 
         body.minimal-active .main-content { width: 100%; min-width: unset; }
 
-        /* THE DOME (Top of the Sign) */
+        /* THE FLOATING HEADER BECOMES THE INVISIBLE CLOCK/WATERMARK CONTAINER */
         body.minimal-active .floating-header {
-            position: relative;
-            top: 0; left: auto; transform: none;
-            background: rgba(255, 255, 255, 0.65); 
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            padding: 15px 30px 10px; 
-            border-radius: 100px 100px 0 0; 
-            margin: 0 auto; 
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
-            z-index: 3; /* Placed above the container so it doesn't clip the clock */
+            position: fixed;
+            top: 5vh; 
+            left: 50%; 
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 1000px;
+            height: 75px;
+            background: transparent; 
+            backdrop-filter: none; -webkit-backdrop-filter: none;
+            padding: 0; 
+            border-radius: 0; 
+            margin: 0; 
+            box-shadow: none;
+            z-index: 10;
+            justify-content: center;
+            align-items: center;
+            flex-direction: row; 
         }
-        body.minimal-active.dark-mode .floating-header {
-            background: rgba(30, 30, 30, 0.65);
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
-        }
-        body.minimal-active .header-logo { max-width: 80px; } 
-
-        /* THE FILLET (Sesame Street Inner Corners) */
-        body.minimal-active .floating-header::before,
-        body.minimal-active .floating-header::after {
-            content: ''; position: absolute; bottom: 0; width: 15px; height: 15px; pointer-events: none;
-        }
-        body.minimal-active .floating-header::before {
-            left: -15px; background: radial-gradient(circle at 0 0, transparent 15px, rgba(255, 255, 255, 0.65) 15px);
-        }
-        body.minimal-active .floating-header::after {
-            right: -15px; background: radial-gradient(circle at 100% 0, transparent 15px, rgba(255, 255, 255, 0.65) 15px);
-        }
-        body.minimal-active.dark-mode .floating-header::before {
-            background: radial-gradient(circle at 0 0, transparent 15px, rgba(30, 30, 30, 0.65) 15px);
-        }
-        body.minimal-active.dark-mode .floating-header::after {
-            background: radial-gradient(circle at 100% 0, transparent 15px, rgba(30, 30, 30, 0.65) 15px);
-        }
-
-        /* THE CLOCK STRADDLES THE DOME AND RECTANGLE */
-        body.minimal-active #clock {
+        body.minimal-active.dark-mode .floating-header { background: transparent; box-shadow: none; }
+        
+        /* THE WATERMARK LOGO */
+        body.minimal-active .header-logo { 
             position: absolute;
-            top: calc(100% + 34px); /* Drops it exactly into the center of the 68px tall rectangle */
+            top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 2.2rem; 
+            max-width: 160px; /* Sits perfectly behind the center clock */
+            opacity: 0.12; /* Subtle ghost effect */
+            z-index: 1;
+            pointer-events: none;
+        } 
+        body.minimal-active.dark-mode .header-logo { opacity: 0.25; }
+
+        /* THE CENTERED CLOCK */
+        body.minimal-active #clock {
+            position: relative;
+            font-size: 2.8rem; 
             background: transparent;
             box-shadow: none;
             padding: 0; margin: 0;
             color: #003366;
-            z-index: 10;
+            z-index: 2;
             white-space: nowrap;
-            display: block !important;
+            text-shadow: 0 0 15px rgba(255,255,255,0.8); /* Helps it pop over the watermark */
         }
-        body.minimal-active.dark-mode #clock { color: #e0e0e0; }
+        body.minimal-active.dark-mode #clock { 
+            color: #e0e0e0; 
+            text-shadow: 0 0 15px rgba(0,0,0,0.8);
+        }
 
-        /* THE SLIM RECTANGLE BAR */
+        /* THE SLIM FROSTED PILL BAR */
         body.minimal-active .schedule-container {
             position: relative;
             z-index: 2; 
-            border-radius: 20px; 
-            background: rgba(255, 255, 255, 0.65); 
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-radius: 40px; 
+            background: rgba(255, 255, 255, 0.45); /* Highly transparent glass */
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
             padding: 0 20px;
             width: 100%;
-            height: 68px; 
+            height: 75px; 
             display: flex;
             align-items: center;
             margin-top: 0;
         }
         body.minimal-active.dark-mode .schedule-container {
-            background: rgba(30, 30, 30, 0.65);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            background: rgba(30, 30, 30, 0.45);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
         }
 
         /* Buttons on left/right edges */
         body.minimal-active .schedule-header-wrap h3 { display: none; }
         body.minimal-active .schedule-header-wrap { 
             position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 100%; 
-            border: none; padding: 0 15px; margin: 0; display: flex; justify-content: space-between;
+            border: none; padding: 0 20px; margin: 0; display: flex; justify-content: space-between;
             pointer-events: none; z-index: 11; box-sizing: border-box; height: 0; 
         }
         body.minimal-active .schedule-header-wrap > * { pointer-events: auto; }
 
         body.minimal-active .options-col, body.minimal-active .schedule-header { display: none; }
-        body.minimal-active #schedule-list { width: 100%; margin: 0; padding: 0 50px; }
+        body.minimal-active #schedule-list { width: 100%; margin: 0; padding: 0 60px; /* Keep clear of buttons */ }
         body.minimal-active #schedule-list li:not(.current-period) { display: none !important; }
         
         /* The Split Layout inside the Bar */
         body.minimal-active #schedule-list li.current-period { 
             background: transparent !important; border-left: none !important; box-shadow: none !important; 
-            padding: 0; 
+            padding: 0 120px; /* Keep class name and time clear of the center clock */
             display: flex !important; justify-content: space-between; align-items: center;
             width: 100%; box-sizing: border-box;
-            height: 68px;
+            height: 75px;
         }
         
         body.minimal-active .period-name { 
-            font-size: 1.6rem; color: #003366; text-align: left; 
+            font-size: 1.8rem; color: #003366; text-align: left; 
             border: none; padding: 0; flex: 1; white-space: nowrap;
         }
         body.minimal-active.dark-mode .period-name { color: #90caf9; }
         
         body.minimal-active .period-time { 
-            font-size: 1.4rem; font-weight: normal; color: #333; text-align: right; 
+            font-size: 1.6rem; font-weight: normal; color: #333; text-align: right; 
             padding: 0; flex: 1; white-space: nowrap;
         }
         body.minimal-active.dark-mode .period-time { color: #e0e0e0; }
         
         /* Fixed "Outside School Hours" UI */
         body.minimal-active #schedule-list.no-active-period { 
-            margin: 0; padding: 0 50px; height: 68px; display: flex; align-items: center; justify-content: space-between;
+            margin: 0; padding: 0 60px; height: 75px; display: flex; align-items: center; justify-content: space-between;
         }
         body.minimal-active #schedule-list.no-active-period::before {
             content: "Outside School Hours";
-            display: block; font-size: 1.4rem; font-weight: bold; color: #666; flex: 1; text-align: left;
+            display: block; font-size: 1.6rem; font-weight: bold; color: #555; flex: 1; text-align: left;
         }
         body.minimal-active.dark-mode #schedule-list.no-active-period::before { color: #aaa; }
         body.minimal-active #schedule-list.no-active-period::after {
             content: ""; display: block; flex: 1; 
         }
         
-        body.minimal-active .open-badge { font-size: 0.9rem; vertical-align: middle; margin-left: 10px; padding: 2px 6px;}
+        body.minimal-active .open-badge { font-size: 1rem; vertical-align: middle; margin-left: 10px; padding: 3px 8px;}
 
         /* --- THE ORIGINAL FOOTER, MOVED TO BOTTOM --- */
         .footer { margin-top: 25px; font-size: 0.85rem; color: #555; text-align: center; width: 100%; transition: all 0.4s ease; }
