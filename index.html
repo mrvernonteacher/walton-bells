@@ -547,10 +547,16 @@
         
         // --- State Machine Variables for Media Player ---
         let mrBsJukebox = false;
-        let jukeboxUrl = "https://www.youtube.com/watch?v=b-bK2Vn3D38"; // Default Pop Playlist
+        let jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; // Default Clean Pop Playlist
         let isMainVibePlaying = false;
         let activePlayerUrl = '';
         let lastPeriodStatus = null; // 'class', 'passing', or 'outside'
+        let lastActivityTime = Date.now();
+
+        // --- Activity Tracker for Bandwidth Saver ---
+        ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart'].forEach(evt => {
+            document.addEventListener(evt, () => { lastActivityTime = Date.now(); }, {passive: true});
+        });
 
         // --- Scroll Listener for Dynamic Header ---
         window.addEventListener('scroll', () => {
@@ -703,7 +709,7 @@
             const vid = extractVideoID(url);
             if (!vid) return true;
 
-            if (!isYtApiReady) return false; // Fail silently, updateClock will retry next tick
+            if (!isYtApiReady) return false; 
 
             activePlayerUrl = url;
             const bgContainer = document.getElementById('vibe-bg');
@@ -792,7 +798,6 @@
                     const titleEl = document.getElementById('float-vibe-title');
                     if(title && titleEl) titleEl.innerText = title;
                     
-                    // Only update saved playlist names if the MAIN vibe is playing (don't overwrite with Jukebox titles)
                     if(title && activePlayerUrl === currentVibeUrl) {
                         let updated = false;
                         savedVibes.forEach(v => {
@@ -801,6 +806,9 @@
                         if(updated) { saveLocalSettings(); renderVibeDropdown(); }
                     }
                 } catch(e) {}
+            } else if (event.data == YT.PlayerState.ENDED) {
+                // FIX: Force the video to loop if the backgrounded tab drops the native loop command
+                event.target.playVideo();
             } else {
                 floatBtn.innerText = "▶";
             }
@@ -1172,11 +1180,9 @@
             saveLocalSettings(); 
         }
 
-        // --- Bulletproof Audio Fallback System ---
         function playBellWithQueue(timesLeft = 1, onCompleteCallback = null) {
             const audio = document.getElementById('regularBellAudio'); 
             
-            // Failsafe 1: If audio object doesn't exist, skip to voice.
             if(!audio) {
                 if (onCompleteCallback) onCompleteCallback();
                 return;
@@ -1194,7 +1200,6 @@
             
             let playPromise = audio.play();
             
-            // Failsafe 2: If the browser blocks autoplay or the file is dead, skip to voice after 1.5s
             if (playPromise !== undefined) {
                 playPromise.catch(e => {
                     console.error("Audio play blocked. Triggering failsafe voice delay.", e);
@@ -1390,7 +1395,6 @@
             setTimeout(() => { overlay.remove(); }, 6000); 
         }
 
-        // --- Returns object containing exact index and explicit passing period flag ---
         function highlightCurrentPeriod(current24) {
             const list = document.getElementById('schedule-list');
             const listItems = document.querySelectorAll('#schedule-list li');
@@ -1435,7 +1439,6 @@
                 list.classList.add('no-active-period');
             }
 
-            // Calculate if exactly in a passing period
             let inClass = false;
             for (let i=0; i<periods.length; i++) {
                 if (currentMins >= periods[i].startMins && currentMins < periods[i].endMins) {
@@ -1467,6 +1470,14 @@
             if(clk) clk.innerText = now.toLocaleTimeString('en-US');
             let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
             const todayDayOfWeek = now.getDay(); 
+
+            // --- Bandwidth Saver ---
+            const currentHourFloat = now.getHours() + (now.getMinutes() / 60);
+            const inactiveMinutes = (Date.now() - lastActivityTime) / 60000;
+            if (currentHourFloat >= 16.5 && inactiveMinutes >= 15 && activePlayerUrl) {
+                stopVibe();
+                showToast("Inactive past 4:30 PM. Auto-stopped to save bandwidth.");
+            }
             
             // HIGHLIGHT & STATE MACHINE FOR MEDIA PLAYER
             let status = highlightCurrentPeriod(current24);
@@ -1478,10 +1489,8 @@
                 let success = false;
                 
                 if (mrBsJukebox && todayDayOfWeek === 5 && currentStatus === 'passing') {
-                    // Friday Passing Period -> Play Jukebox
                     success = applyMusicState(jukeboxUrl, true);
                 } else {
-                    // Normal class time, or outside school hours, or Jukebox is off
                     if (isMainVibePlaying && currentVibeUrl) {
                         success = applyMusicState(currentVibeUrl, true);
                     } else {
