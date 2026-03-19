@@ -146,7 +146,6 @@
         body.dark-mode #schedule-list li { border-color: #444; }
         body.dark-mode #schedule-list li:nth-child(even) { background-color: rgba(255,255,255,0.03); }
         body.dark-mode select, body.dark-mode input[type="text"], body.dark-mode input[type="time"] { background: #333; color: #fff; border-color: #555; }
-        body.dark-mode #jukeboxUrlInput { background: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.2); color: #e0e0e0;}
         body.dark-mode .period-time { color: #ddd; }
         body.dark-mode .dropdown-content { background-color: #333; border-color: #555; }
         body.dark-mode .dropdown-content button { color: #e0e0e0; border-color: #444; }
@@ -160,7 +159,7 @@
         body.dark-mode .split-button-main { background-color: #0288d1; }
         body.dark-mode .split-button-caret { background-color: #0277bd; border-left: 1px solid #01579b; }
 
-        /* --- Positive Goodbyes & Jukebox UI --- */
+        /* --- Positive Goodbyes UI --- */
         .goodbye-box {
             background: rgba(92, 184, 92, 0.15); border: 1px solid rgba(92, 184, 92, 0.4);
             padding: 12px; border-radius: 8px; margin-top: 15px; transition: all 0.3s ease;
@@ -178,7 +177,6 @@
         }
         body.dark-mode .open-badge { background-color: #2e7d32; color: #e8f5e9; }
         .student-view .open-badge { font-size: 1.2rem; padding: 4px 12px; margin-left: 15px; transform: translateY(-3px); display: inline-block; }
-        .minimal-view .open-badge { font-size: 1.5rem; }
 
         /* --- Layout & Structure --- */
         .dashboard-wrapper { display: flex; flex-wrap: wrap; gap: 15px; max-width: 1300px; margin: 0 auto; width: 100%; align-items: flex-start; z-index: 2; }
@@ -278,25 +276,6 @@
         .student-view .period-time { font-size: 1.8rem; font-weight: bold; color: #333; }
         body.dark-mode .student-view .period-time { color: #e0e0e0; }
         .student-view .schedule-header { display: none; } 
-
-        /* --- FOCUS MODE (Minimal View) CSS --- */
-        .minimal-view .options-col { display: none; }
-        .minimal-view .schedule-header { display: none; }
-        .minimal-view .schedule-grid { grid-template-columns: 1fr 1fr; padding: 15px 30px; }
-        .minimal-view #schedule-list li:not(.current-period) { display: none !important; }
-        
-        .minimal-view #schedule-list li.current-period { 
-            background: transparent !important; border-left: none !important; box-shadow: none !important; padding: 10px 0;
-        }
-        .minimal-view .period-name { font-size: 3rem; color: #003366; text-align: left; }
-        body.dark-mode .minimal-view .period-name { color: #90caf9; }
-        .minimal-view .period-time { font-size: 2.8rem; font-weight: bold; color: #333; text-align: right; }
-        body.dark-mode .minimal-view .period-time { color: #e0e0e0; }
-        
-        .minimal-view #schedule-list.no-active-period::after {
-            content: "Outside School Hours";
-            display: block; padding: 20px; text-align: center; font-size: 1.5rem; font-weight: bold; color: #888;
-        }
 
         .footer { margin-top: 25px; font-size: 0.85rem; color: #555; text-align: center; width: 100%; transition: color 0.3s ease; }
         .footer p { margin: 0 0 5px 0; font-weight: bold;}
@@ -421,21 +400,7 @@
 
             <div class="control-group">
                 <label class="title">4. Classroom Vibe Playlist</label>
-                
-                <div class="goodbye-box" style="margin-top: 5px; margin-bottom: 15px; padding: 10px;">
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: bold; font-size: 0.95rem;">
-                        <input type="checkbox" id="jukeboxToggle" onchange="toggleJukebox()" style="width: 16px; height: 16px;"> 
-                        Mr. B's Jukebox (Fridays)
-                    </label>
-                    <div class="goodbye-desc" style="margin-top: 4px; margin-left: 24px; font-size: 0.75rem;">
-                        Automatically plays an upbeat Clean Pop playlist during passing periods on Fridays.
-                    </div>
-                    <div style="margin-left: 24px; margin-top: 8px; display: flex; gap: 5px;">
-                        <input type="text" id="jukeboxUrlInput" placeholder="Custom Playlist URL (Optional)" style="font-size: 0.8rem; padding: 4px; border: 1px solid rgba(0,0,0,0.2); background: rgba(255,255,255,0.5); width: 100%; border-radius: 4px;" onchange="updateJukeboxUrl()">
-                    </div>
-                </div>
-
-                <label class="sub-label" style="margin-bottom: 5px; display: block;">Main Classroom Vibe URL:</label>
+                <label class="sub-label" style="margin-bottom: 5px; display: block;">Select or add a YouTube URL:</label>
                 <div style="display:flex; gap:6px; margin-bottom: 8px;">
                     <select id="vibeSelect" style="flex-grow: 1; min-width: 0;" onchange="changeVibeSelection()">
                         <option value="">-- Add a Vibe --</option>
@@ -444,15 +409,10 @@
                     <button class="btn btn-danger inline" style="width: auto; padding: 6px 10px;" onclick="removeVibe()" title="Remove URL">✖</button>
                 </div>
                 
-                <div class="volume-container" style="margin-bottom: 8px;">
+                <div class="volume-container">
                     <span>🎵 🔈</span>
                     <input type="range" id="vibeVolumeControl" min="0" max="100" step="1" value="50" onchange="changeVibeVolume()">
                     <span>🔊</span>
-                </div>
-
-                <div style="display:flex; gap:6px;">
-                    <button class="btn inline" style="flex-grow: 1;" onclick="startVibe()">▶ Start Vibe</button>
-                    <button class="btn btn-danger inline" onclick="stopVibe()">Stop</button>
                 </div>
             </div>
         </div>
@@ -466,12 +426,6 @@
                         <h3 id="schedule-title">Active Schedule</h3>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <button id="minimalViewBtn" class="header-icon-btn" onclick="toggleMinimalView(true)" title="Focus Mode (Show Current Class Only)">
-                            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                                <path d="M4 11h16v2H4z"/>
-                            </svg>
-                        </button>
-                        
                         <button id="studentViewBtn" class="header-icon-btn active-btn" onclick="toggleStudentView(true)" title="Toggle Options">
                             <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
                                 <rect x="4" y="4" width="4" height="4" rx="1"/><rect x="10" y="4" width="4" height="4" rx="1"/><rect x="16" y="4" width="4" height="4" rx="1"/><rect x="4" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="16" y="10" width="4" height="4" rx="1"/><rect x="4" y="16" width="4" height="4" rx="1"/><rect x="10" y="16" width="4" height="4" rx="1"/><rect x="16" y="16" width="4" height="4" rx="1"/>
@@ -539,18 +493,11 @@
         let currentMode = 'synced', activeSchedule = [];
         let globalVolume = 1.0, globalVoicePref = '', classSettings = {}, lunchDuties = [];
         let savedVibes = [], currentVibeUrl = '', vibeVolume = 50;
-        let currentTestSound = 'positive', sidebarVisible = true, isStudentView = false, isMinimalView = false, isDarkMode = false, showZero = false, playGoodbyes = false;
+        let currentTestSound = 'positive', sidebarVisible = true, isStudentView = false, isDarkMode = false, showZero = false, playGoodbyes = false;
         let currentScheduleName = "Loading..."; 
         
         let playedActions = {};
         let currentMinuteTracker = "";
-        
-        // --- State Machine Variables for Media Player ---
-        let mrBsJukebox = false;
-        let jukeboxUrl = "https://www.youtube.com/watch?v=b-bK2Vn3D38"; // Default Pop Playlist
-        let isMainVibePlaying = false;
-        let activePlayerUrl = '';
-        let lastPeriodStatus = null; // 'class', 'passing', or 'outside'
 
         // --- Scroll Listener for Dynamic Header ---
         window.addEventListener('scroll', () => {
@@ -692,21 +639,26 @@
             if(select && select.value) {
                 currentVibeUrl = select.value;
                 saveLocalSettings();
-                lastPeriodStatus = null; // Forces engine to evaluate and load immediately
+                startVibe();
             }
         }
 
-        // --- Core Music Player Engine ---
-        function applyMusicState(url, shouldPlay) {
-            if (!url) { stopVibeCore(); return true; } 
-            
-            const vid = extractVideoID(url);
-            if (!vid) return true;
+        function toggleVibePlay() {
+            if (ytPlayer && typeof ytPlayer.getPlayerState === 'function') {
+                try {
+                    let state = ytPlayer.getPlayerState();
+                    if (state === YT.PlayerState.PLAYING) ytPlayer.pauseVideo();
+                    else ytPlayer.playVideo();
+                } catch(e) { console.error(e); }
+            } else { startVibe(); }
+        }
 
-            if (!isYtApiReady) return false; // Fail silently, updateClock will retry next tick
-
-            activePlayerUrl = url;
+        function startVibe() {
+            if(!currentVibeUrl) return;
+            const vid = extractVideoID(currentVibeUrl);
             const bgContainer = document.getElementById('vibe-bg');
+            if(!vid) return;
+
             updateFloatingPlayerVisibility();
             if(bgContainer) bgContainer.style.opacity = "0.45";
 
@@ -714,71 +666,21 @@
                 try { ytPlayer.destroy(); ytPlayer = null; } catch(e) {}
             } 
             
+            if (!isYtApiReady) { showToast("YouTube API loading. Try again in 2 seconds."); return; }
+            
             if(bgContainer) bgContainer.innerHTML = '<div id="yt-player-container"></div>';
             
             try {
                 ytPlayer = new YT.Player('yt-player-container', {
                     videoId: vid,
-                    playerVars: { 'autoplay': shouldPlay ? 1 : 0, 'controls': 0, 'autohide': 1, 'wmode': 'opaque', 'showinfo': 0, 'loop': 1, 'playlist': vid, 'mute': 0 },
-                    events: { 
-                        'onReady': function(e) { 
-                            try { 
-                                e.target.setVolume(vibeVolume); 
-                                if(shouldPlay) e.target.playVideo(); 
-                            } catch(err) {} 
-                        }, 
-                        'onStateChange': onPlayerStateChange 
-                    }
+                    playerVars: { 'autoplay': 1, 'controls': 0, 'autohide': 1, 'wmode': 'opaque', 'showinfo': 0, 'loop': 1, 'playlist': vid, 'mute': 0 },
+                    events: { 'onReady': onPlayerReady, 'onStateChange': onPlayerStateChange }
                 });
             } catch(e) {}
-            
-            return true;
         }
 
-        function toggleVibePlay() {
-            if (ytPlayer && typeof ytPlayer.getPlayerState === 'function') {
-                try {
-                    let state = ytPlayer.getPlayerState();
-                    if (state === YT.PlayerState.PLAYING) {
-                        ytPlayer.pauseVideo();
-                        if (activePlayerUrl === currentVibeUrl) {
-                            isMainVibePlaying = false;
-                            saveLocalSettings();
-                        }
-                    } else {
-                        ytPlayer.playVideo();
-                        if (activePlayerUrl === currentVibeUrl) {
-                            isMainVibePlaying = true;
-                            saveLocalSettings();
-                        }
-                    }
-                } catch(e) { console.error(e); }
-            } else { startVibe(); }
-        }
-
-        function startVibe() {
-            if(!currentVibeUrl) return;
-            isMainVibePlaying = true;
-            saveLocalSettings();
-            lastPeriodStatus = null; // Forces engine to evaluate and load immediately
-        }
-
-        function stopVibeCore() {
-            activePlayerUrl = '';
-            const bg = document.getElementById('vibe-bg');
-            if(bg) bg.style.opacity = "0";
-            if (ytPlayer) { try { ytPlayer.destroy(); ytPlayer = null; } catch(e) {} }
-            updateFloatingPlayerVisibility();
-        }
-
-        function stopVibe() {
-            isMainVibePlaying = false;
-            saveLocalSettings();
-            if (activePlayerUrl === jukeboxUrl) {
-                if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') ytPlayer.pauseVideo();
-            } else {
-                stopVibeCore();
-            }
+        function onPlayerReady(event) { 
+            try { event.target.setVolume(vibeVolume); event.target.playVideo(); } catch(e) {}
         }
 
         function onPlayerStateChange(event) {
@@ -792,8 +694,7 @@
                     const titleEl = document.getElementById('float-vibe-title');
                     if(title && titleEl) titleEl.innerText = title;
                     
-                    // Only update saved playlist names if the MAIN vibe is playing (don't overwrite with Jukebox titles)
-                    if(title && activePlayerUrl === currentVibeUrl) {
+                    if(title && currentVibeUrl) {
                         let updated = false;
                         savedVibes.forEach(v => {
                             if(v.url === currentVibeUrl && v.title !== title) { v.title = title; updated = true; }
@@ -801,6 +702,9 @@
                         if(updated) { saveLocalSettings(); renderVibeDropdown(); }
                     }
                 } catch(e) {}
+            } else if (event.data == YT.PlayerState.ENDED) {
+                // FIX: Force the video to loop if the background tab drops the native loop command
+                event.target.playVideo();
             } else {
                 floatBtn.innerText = "▶";
             }
@@ -819,6 +723,12 @@
         function changeVibeVolume() { 
             const ctrl = document.getElementById('vibeVolumeControl');
             if(ctrl) syncVibeVolume(ctrl.value); 
+        }
+
+        function stopVibe() {
+            const bg = document.getElementById('vibe-bg');
+            if(bg) bg.style.opacity = "0";
+            if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') { try { ytPlayer.pauseVideo(); } catch(e) {} }
         }
 
         function showToast(message) {
@@ -907,10 +817,9 @@
             try {
                 const data = {
                     mode: currentMode, vol: globalVolume, voice: globalVoicePref, testSound: currentTestSound,
-                    side: sidebarVisible, student: isStudentView, minimal: isMinimalView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
+                    side: sidebarVisible, student: isStudentView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
                     customSchedule: predefinedSchedules.custom, settings: classSettings, lunchDuties: lunchDuties,
-                    savedVibes: savedVibes, vibe: currentVibeUrl, vibeVol: vibeVolume,
-                    mrBsJukebox: mrBsJukebox, jukeboxUrl: jukeboxUrl, isMainVibePlaying: isMainVibePlaying
+                    savedVibes: savedVibes, vibe: currentVibeUrl, vibeVol: vibeVolume
                 };
                 localStorage.setItem('waltonBellState', JSON.stringify(data));
             } catch (e) {}
@@ -936,7 +845,9 @@
                     if (p.vol !== undefined) {
                         globalVolume = p.vol;
                         const vControl = document.getElementById('volumeControl');
+                        const aControl = document.getElementById('regularBellAudio');
                         if(vControl) vControl.value = globalVolume;
+                        if(aControl) aControl.volume = globalVolume;
                     }
                     if (p.vibeVol !== undefined) { syncVibeVolume(p.vibeVol); }
 
@@ -967,14 +878,6 @@
                         if(dText) dText.style.display = 'none';
                         if(svBtn) svBtn.classList.remove('active-btn');
                     }
-
-                    if (p.minimal === true) {
-                        isMinimalView = true;
-                        const sCont = document.getElementById('schedule-container');
-                        const mBtn = document.getElementById('minimalViewBtn');
-                        if(sCont) sCont.classList.add('minimal-view');
-                        if(mBtn) mBtn.classList.add('active-btn');
-                    }
                     
                     if (p.dark === true) { 
                         isDarkMode = true;
@@ -1001,17 +904,6 @@
                     } else if (p.vibe) {
                         currentVibeUrl = p.vibe;
                     }
-
-                    if (p.mrBsJukebox !== undefined) mrBsJukebox = p.mrBsJukebox;
-                    if (p.jukeboxUrl) jukeboxUrl = p.jukeboxUrl;
-                    if (p.isMainVibePlaying !== undefined) isMainVibePlaying = p.isMainVibePlaying;
-
-                    const jkToggle = document.getElementById('jukeboxToggle');
-                    if(jkToggle) jkToggle.checked = mrBsJukebox;
-                    const jkInput = document.getElementById('jukeboxUrlInput');
-                    if(jkInput && jukeboxUrl !== "https://www.youtube.com/watch?v=CLLpSmaof4E") {
-                        jkInput.value = jukeboxUrl;
-                    }
                 }
             } catch (e) {}
             renderLunchDuties();
@@ -1029,16 +921,13 @@
             if(!toggle) return;
             isDarkMode = toggle.checked;
             const svBtn = document.getElementById('studentViewBtn');
-            const mvBtn = document.getElementById('minimalViewBtn');
             
             if (isDarkMode) { 
                 document.body.classList.add('dark-mode'); 
                 if(!isStudentView && svBtn) svBtn.style.color = '#90caf9';
-                if(isMinimalView && mvBtn) mvBtn.style.color = '#90caf9';
             } else { 
                 document.body.classList.remove('dark-mode'); 
                 if(!isStudentView && svBtn) svBtn.style.color = '#003366';
-                if(isMinimalView && mvBtn) mvBtn.style.color = '#003366';
             }
             if (shouldSave) saveLocalSettings();
             renderLunchDuties(); 
@@ -1063,7 +952,7 @@
         function updateFloatingPlayerVisibility() {
             const player = document.getElementById('floating-player');
             if (player) {
-                if (activePlayerUrl) player.classList.add('visible');
+                if (currentVibeUrl) player.classList.add('visible');
                 else player.classList.remove('visible');
             }
         }
@@ -1083,53 +972,9 @@
                     container.classList.remove('student-view'); 
                     disclaimer.style.display = 'block'; 
                     btn.classList.add('active-btn');
-                    
-                    if (isMinimalView) toggleMinimalView(false);
                 }
             }
             if (shouldSave) saveLocalSettings();
-        }
-
-        function toggleMinimalView(shouldSave = true) {
-            isMinimalView = !isMinimalView;
-            const container = document.getElementById('schedule-container');
-            const btn = document.getElementById('minimalViewBtn');
-            
-            if(container && btn) {
-                if (isMinimalView) {
-                    container.classList.add('minimal-view'); 
-                    btn.classList.add('active-btn');
-                    if(isDarkMode) btn.style.color = '#90caf9';
-                    else btn.style.color = '#003366';
-                    
-                    if (!isStudentView) toggleStudentView(false);
-                    
-                } else {
-                    container.classList.remove('minimal-view'); 
-                    btn.classList.remove('active-btn');
-                    if(isDarkMode) btn.style.color = '#666';
-                    else btn.style.color = '#aaa';
-                }
-            }
-            if (shouldSave) saveLocalSettings();
-        }
-
-        function toggleJukebox() {
-            const tog = document.getElementById('jukeboxToggle');
-            if(tog) mrBsJukebox = tog.checked;
-            lastPeriodStatus = null; // Triggers a re-evaluation on next clock tick
-            saveLocalSettings();
-        }
-
-        function updateJukeboxUrl() {
-            const inp = document.getElementById('jukeboxUrlInput');
-            if(inp && inp.value.trim() !== '') {
-                jukeboxUrl = inp.value.trim();
-            } else {
-                jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
-            }
-            lastPeriodStatus = null; // Force re-eval
-            saveLocalSettings();
         }
 
         function toggleGoodbyes() { 
@@ -1162,7 +1007,9 @@
 
         function changeVolume() { 
             const vc = document.getElementById('volumeControl');
+            const au = document.getElementById('regularBellAudio');
             if(vc) globalVolume = vc.value; 
+            if(au) au.volume = globalVolume; 
             saveLocalSettings(); 
         }
         
@@ -1172,11 +1019,9 @@
             saveLocalSettings(); 
         }
 
-        // --- Bulletproof Audio Fallback System ---
         function playBellWithQueue(timesLeft = 1, onCompleteCallback = null) {
             const audio = document.getElementById('regularBellAudio'); 
             
-            // Failsafe 1: If audio object doesn't exist, skip to voice.
             if(!audio) {
                 if (onCompleteCallback) onCompleteCallback();
                 return;
@@ -1194,7 +1039,6 @@
             
             let playPromise = audio.play();
             
-            // Failsafe 2: If the browser blocks autoplay or the file is dead, skip to voice after 1.5s
             if (playPromise !== undefined) {
                 playPromise.catch(e => {
                     console.error("Audio play blocked. Triggering failsafe voice delay.", e);
@@ -1390,11 +1234,9 @@
             setTimeout(() => { overlay.remove(); }, 6000); 
         }
 
-        // --- Returns object containing exact index and explicit passing period flag ---
         function highlightCurrentPeriod(current24) {
-            const list = document.getElementById('schedule-list');
             const listItems = document.querySelectorAll('#schedule-list li');
-            if (listItems.length === 0 || !list) return { index: -1, isPassing: false };
+            if (listItems.length === 0) return;
             
             const currentMins = timeToMins(current24);
             let highlightIndex = -1;
@@ -1410,7 +1252,7 @@
                 li.classList.remove('current-period'); 
             });
 
-            if (periods.length === 0) return { index: -1, isPassing: false };
+            if (periods.length === 0) return;
             
             if (currentMins >= periods[0].startMins && currentMins < periods[periods.length - 1].endMins) {
                 for (let i = 0; i < periods.length; i++) {
@@ -1430,23 +1272,7 @@
 
             if (highlightIndex !== -1) {
                 periods[highlightIndex].li.classList.add('current-period');
-                list.classList.remove('no-active-period');
-            } else {
-                list.classList.add('no-active-period');
             }
-
-            // Calculate if exactly in a passing period
-            let inClass = false;
-            for (let i=0; i<periods.length; i++) {
-                if (currentMins >= periods[i].startMins && currentMins < periods[i].endMins) {
-                    inClass = true;
-                    break;
-                }
-            }
-            let inSchool = (currentMins >= periods[0].startMins && currentMins < periods[periods.length - 1].endMins);
-            let isPassing = inSchool && !inClass;
-
-            return { index: highlightIndex, isPassing: isPassing };
         }
 
         function triggerEvent(time, action, callback) {
@@ -1466,34 +1292,13 @@
             const clk = document.getElementById('clock');
             if(clk) clk.innerText = now.toLocaleTimeString('en-US');
             let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-            const todayDayOfWeek = now.getDay(); 
             
-            // HIGHLIGHT & STATE MACHINE FOR MEDIA PLAYER
-            let status = highlightCurrentPeriod(current24);
-            let currentStatus = 'outside';
-            if (status.isPassing) currentStatus = 'passing';
-            else if (status.index !== -1) currentStatus = 'class';
-
-            if (lastPeriodStatus !== currentStatus) {
-                let success = false;
-                
-                if (mrBsJukebox && todayDayOfWeek === 5 && currentStatus === 'passing') {
-                    // Friday Passing Period -> Play Jukebox
-                    success = applyMusicState(jukeboxUrl, true);
-                } else {
-                    // Normal class time, or outside school hours, or Jukebox is off
-                    if (isMainVibePlaying && currentVibeUrl) {
-                        success = applyMusicState(currentVibeUrl, true);
-                    } else {
-                        success = applyMusicState('', false); 
-                    }
-                }
-                if (success) lastPeriodStatus = currentStatus;
-            }
+            highlightCurrentPeriod(current24);
 
             if (current24 === '06:00' && now.getSeconds() === 0) { fetchDailySchedule(); }
             if(!Array.isArray(activeSchedule)) return;
 
+            const todayDayOfWeek = now.getDay(); 
             const isWebDay = currentScheduleName.toLowerCase().includes('web');
 
             activeSchedule.forEach(period => {
