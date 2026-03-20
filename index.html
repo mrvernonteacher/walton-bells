@@ -48,10 +48,21 @@
             padding: 0 30px; box-sizing: border-box;
             background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-radius: 0 0 15px 15px;
             z-index: 1000;
-            transition: all 0.4s ease;
+            transition: border-radius 0.4s ease, box-shadow 0.4s ease, background 0.4s ease;
         }
         body.dark-mode .floating-header { background: rgba(30, 30, 30, 0.85); box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+
+        /* The Seamless Glass Merge Trick */
+        body.minimal-active .floating-header {
+            border-radius: 0;
+            box-shadow: none;
+            border-bottom: 1px solid rgba(150,150,150,0.2);
+        }
+        body.dark-mode.minimal-active .floating-header {
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
 
         .header-logo { height: 36px; width: auto; opacity: 0.6; transition: opacity 0.3s ease; display: block; }
         .header-logo:hover { opacity: 1; }
@@ -268,7 +279,7 @@
         /* --- BULLETPROOF GRID LAYOUT --- */
         .schedule-grid {
             display: grid; 
-            grid-template-columns: minmax(130px, auto) 1fr minmax(280px, auto); 
+            grid-template-columns: minmax(130px, auto) 1fr minmax(180px, auto); 
             gap: 15px; 
             align-items: center; 
             padding: 8px 10px;
@@ -293,7 +304,6 @@
         
         #schedule-list { list-style-type: none; padding: 0; margin: 0; }
         
-        /* List Item Base Settings */
         #schedule-list li { 
             border-bottom: 1px solid rgba(150,150,150,0.2); border-left: 5px solid transparent; 
             max-height: 250px; overflow: hidden; opacity: 1;
@@ -301,7 +311,6 @@
         }
         #schedule-list li:nth-child(even) { background-color: rgba(0,0,0,0.03); }
 
-        /* INCREASED DEFAULT FONT SIZES & FORCED NO WRAP */
         .period-name { grid-column: 1; font-weight: bold; text-align: left; font-size: 1.6rem; align-self: center; transition: all 0.4s ease; white-space: nowrap; }
         .period-time { grid-column: 3; text-align: right; font-size: 1.4rem; color: #555; align-self: center; transition: all 0.4s ease; white-space: nowrap; }
 
@@ -342,22 +351,36 @@
         body.dark-mode .waffle-closed .period-time { color: #e0e0e0; }
 
         /* =========================================================
-           STATE 2: MINIMAL VIEW (The "Docked" Focus Mode) 
+           STATE 2: MINIMAL VIEW (The Full-Width Docked Focus Mode) 
            ========================================================= */
         .minimal-view.schedule-container { 
-            position: sticky; 
+            position: fixed; 
             top: 65px; /* Docks right under the header */
-            z-index: 90;
-            border-radius: 0 0 15px 15px; 
-            border-top: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
-            margin-top: -15px; /* Pulls it flush with the header */
-            background: rgba(255, 255, 255, 0.95);
+            left: 0;
+            width: 100%;
+            max-width: none;
+            z-index: 990;
+            border-radius: 0 0 20px 20px; 
+            border: none;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15); 
+            margin: 0; 
+            padding: 10px 30px 25px 30px; 
+            background: rgba(255, 255, 255, 0.85); /* Matches active header */
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
         }
         body.dark-mode .minimal-view.schedule-container {
-            background: rgba(30, 30, 30, 0.95);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background: rgba(30, 30, 30, 0.85);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.6);
+        }
+
+        /* Restrict inner content width to match original grid */
+        .minimal-view .schedule-header-wrap, .minimal-view #schedule-list {
+            width: 100%;
+            max-width: 1260px;
         }
 
         .minimal-view .schedule-grid { grid-template-columns: auto 1fr auto; padding: 10px 30px; gap: 20px; border: none; }
@@ -421,7 +444,9 @@
             .waffle-closed .options-wrapper { max-height: 0px; }
             
             .floating-player { bottom: 10px; right: 10px; left: 10px; justify-content: space-between; border-radius: 15px; }
-            .footer { position: relative; transform: none; left: 0; bottom: 0; margin-top: 20px; padding-bottom: 20px;}
+            
+            /* Responsive padding for docked minimal view */
+            .minimal-view.schedule-container { padding: 10px 15px 20px 15px; }
         }
     </style>
 </head>
@@ -1455,9 +1480,11 @@
             if(container && btn) {
                 if (isMinimalView) {
                     container.classList.add('minimal-view'); 
+                    document.body.classList.add('minimal-active'); 
                     btn.classList.add('active-btn');
                 } else {
                     container.classList.remove('minimal-view'); 
+                    document.body.classList.remove('minimal-active'); 
                     btn.classList.remove('active-btn');
                 }
             }
@@ -1754,7 +1781,7 @@
                     let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
                     let isWebBlock = /^[A-D](\s|-)?Block/i.test(key);
                     let webOpenCheckbox = isWebBlock ? 
-                        `<div class="options-col opt-center"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
+                        `<div class="options-col"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
                         `<div class="options-col"></div>`;
 
                     li.innerHTML = `
@@ -1776,6 +1803,7 @@
                     `;
                     list.appendChild(li);
                     
+                    // Trigger fetch if URL is present
                     if (s.icalUrl) {
                         fetchAgenda(s.icalUrl, `agenda-${safeKey}`);
                     }
