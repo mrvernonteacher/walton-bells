@@ -247,7 +247,7 @@
             padding: 6px 10px; border-radius: 5px; font-weight: bold; border: 1px solid #d6e9c6; text-align: center;
         }
 
-        /* Schedule Grid - UPDATED columns for iCal */
+        /* Schedule Grid */
         .schedule-grid {
             display: grid; grid-template-columns: 90px repeat(6, 1fr) 110px; gap: 6px; align-items: center; text-align: center; transition: all 0.3s ease;
         }
@@ -258,7 +258,6 @@
         #schedule-list { list-style-type: none; padding: 0; margin: 0; }
         #schedule-list li { padding: 6px 4px; border-bottom: 1px solid rgba(150,150,150,0.2); transition: all 0.3s ease; border-left: 5px solid transparent; }
         #schedule-list li:nth-child(even) { background-color: rgba(0,0,0,0.03); }
-        #schedule-list input[type="checkbox"] { cursor: pointer; transform: scale(1.2); margin: 0; }
 
         .period-name { font-weight: bold; text-align: left; font-size: 1.05rem; transition: all 0.3s ease;}
         .period-time { text-align: right; font-size: 0.95rem; color: #555; transition: all 0.3s ease;}
@@ -388,15 +387,14 @@
                         </div>
                     </div>
 
-                    <div class="goodbye-box">
-                        <div class="switch-container" style="margin: 0 0 5px 0;">
+                    <div class="goodbye-box" title="Reads an encouraging, randomized message out loud after the final class bell rings.">
+                        <div class="switch-container" style="margin: 0;">
                             <label style="margin: 0; font-weight: bold; cursor: pointer;">Play Positive Goodbyes</label>
                             <label class="switch">
                                 <input type="checkbox" id="playGoodbyes" onchange="toggleGoodbyes()">
                                 <span class="slider"></span>
                             </label>
                         </div>
-                        <div class="goodbye-desc" style="font-size: 0.8rem; opacity: 0.85; margin-top: 5px;">Reads an encouraging, randomized message out loud after the final class bell rings.</div>
                     </div>
                 </div>
             </div>
@@ -538,12 +536,12 @@
                 
                 <div class="schedule-grid schedule-header">
                     <div class="period-name">Class</div>
-                    <div class="options-col" title="Add to Google Calendar">iCal</div>
                     <div class="options-col" title="Cell Phone Caddy: Reminds students to put phones away at the start of class.">Cell Caddy</div>
                     <div class="options-col" title="Take Attendance: Sends an automated reminder 5 minutes into the period.">Attend.</div>
                     <div class="options-col" title="5-Min Clean Up: Reminds students to clean their area 5 minutes before class ends.">Clean</div>
                     <div class="options-col" title="1 Min Warning: Rings 1 bell and gives a 1-minute warning.">1 min left</div>
                     <div class="options-col" title="Mark this WEB block as your planning/open period.">WEB Open</div>
+                    <div class="options-col" title="Link a Google Calendar iCal feed">iCal</div>
                     <div class="period-time">Time</div>
                 </div>
                 
@@ -563,7 +561,7 @@
     <script>
         const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec"; 
 
-        const DEFAULT_PREFS = { open: false, putaway: false, attendance: false, cleanup: false, retrieve: false };
+        const DEFAULT_PREFS = { open: false, putaway: false, attendance: false, cleanup: false, retrieve: false, icalUrl: '' };
 
         const GOODBYE_MESSAGES = [
             "Great work today. Have a wonderful rest of your day.",
@@ -1463,6 +1461,18 @@
             if (settingType === 'open') renderSchedule(); 
         }
 
+        function setIcalFeed(periodName) {
+            const currentUrl = classSettings[periodName]?.icalUrl || '';
+            const url = prompt(`Paste the iCal feed URL for ${periodName}:`, currentUrl);
+            if (url !== null) {
+                if (!classSettings[periodName]) classSettings[periodName] = { ...DEFAULT_PREFS };
+                classSettings[periodName].icalUrl = url.trim();
+                saveLocalSettings();
+                renderSchedule(); 
+                showToast("iCal feed updated");
+            }
+        }
+
         function renderSchedule() {
             const list = document.getElementById('schedule-list'); 
             if(!list) return;
@@ -1494,17 +1504,19 @@
                     let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
                     let isWebBlock = /^[A-D](\s|-)?Block/i.test(key);
                     let webOpenCheckbox = isWebBlock ? 
-                        `<div class="options-col"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''} title="Mark as WEB Open Block"></div>` : 
+                        `<div class="options-col" style="display:flex; justify-content:center;"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
                         `<div class="options-col"></div>`;
 
                     li.innerHTML = `
                         <div class="period-name">${key} ${openBadgeHtml}</div>
-                        <div class="options-col"><button onclick="window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent('${safeKey} Class'), '_blank')" style="background:none;border:none;cursor:pointer;font-size:1.1rem;transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Subscribe to iCal">📅➕</button></div>
-                        <div class="options-col"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'putaway', this.checked)" ${s.putaway ? 'checked' : ''} title="Phone Caddy"></div>
-                        <div class="options-col"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'attendance', this.checked)" ${s.attendance ? 'checked' : ''} title="Take Attendance"></div>
-                        <div class="options-col"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'cleanup', this.checked)" ${s.cleanup ? 'checked' : ''} title="5-Min Clean Up"></div>
-                        <div class="options-col"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'retrieve', this.checked)" ${s.retrieve ? 'checked' : ''} title="1 Min Warning & Retrieve"></div>
+                        <div class="options-col" style="display:flex; justify-content:center;"><label class="switch" title="Phone Caddy"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'putaway', this.checked)" ${s.putaway ? 'checked' : ''}><span class="slider"></span></label></div>
+                        <div class="options-col" style="display:flex; justify-content:center;"><label class="switch" title="Take Attendance"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'attendance', this.checked)" ${s.attendance ? 'checked' : ''}><span class="slider"></span></label></div>
+                        <div class="options-col" style="display:flex; justify-content:center;"><label class="switch" title="5-Min Clean Up"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'cleanup', this.checked)" ${s.cleanup ? 'checked' : ''}><span class="slider"></span></label></div>
+                        <div class="options-col" style="display:flex; justify-content:center;"><label class="switch" title="1 Min Warning & Retrieve"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'retrieve', this.checked)" ${s.retrieve ? 'checked' : ''}><span class="slider"></span></label></div>
                         ${webOpenCheckbox}
+                        <div class="options-col" style="display:flex; justify-content:center;">
+                            <button onclick="setIcalFeed('${safeKey}')" style="background:none;border:none;cursor:pointer;font-size:1.3rem;transition:transform 0.2s; filter: ${s.icalUrl ? 'none' : 'grayscale(100%) opacity(0.4)'}" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="${s.icalUrl ? 'Edit iCal Feed' : 'Add iCal Feed'}">📅</button>
+                        </div>
                         <div class="period-time">${formatTime12(String(period.start))} - ${formatTime12(String(period.end))}</div>
                     `;
                     list.appendChild(li);
