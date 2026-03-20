@@ -175,8 +175,8 @@
             font-size: 0.8rem; margin-left: 10px; vertical-align: middle; font-weight: bold; letter-spacing: 0.5px;
         }
         body.dark-mode .open-badge { background-color: #2e7d32; color: #e8f5e9; }
-        .student-view .open-badge { font-size: 1.2rem; padding: 4px 12px; margin-left: 15px; transform: translateY(-3px); display: inline-block; }
-        .minimal-view .open-badge { font-size: 1.5rem; }
+        .student-view .open-badge { font-size: 1.2rem; padding: 4px 12px; margin-left: 15px; transform: translateY(-3px); display: inline-block; transition: all 0.4s ease;}
+        .minimal-view .open-badge { font-size: 1.5rem; transition: all 0.4s ease;}
 
         /* --- Layout & Structure --- */
         .dashboard-wrapper { display: flex; flex-wrap: wrap; gap: 15px; max-width: 1300px; margin: 0 auto; width: 100%; align-items: flex-start; z-index: 2; }
@@ -247,22 +247,44 @@
             padding: 6px 10px; border-radius: 5px; font-weight: bold; border: 1px solid #d6e9c6; text-align: center;
         }
 
-        /* Schedule Grid */
+        /* Schedule Grid - Animated Transitions */
         .schedule-grid {
-            display: grid; grid-template-columns: 90px repeat(6, 1fr) 110px; gap: 6px; align-items: center; text-align: center; transition: all 0.3s ease;
+            display: grid; 
+            grid-template-columns: 90px 1fr 1fr 1fr 1fr 1fr 1fr 110px; 
+            gap: 6px; 
+            align-items: center; 
+            text-align: center; 
+            transition: grid-template-columns 0.5s cubic-bezier(0.4, 0, 0.2, 1), gap 0.5s ease;
         }
+        
+        .options-col { 
+            display: flex; justify-content: center; align-items: center;
+            transition: opacity 0.3s ease, padding 0.5s ease; 
+            overflow: hidden;
+            white-space: nowrap;
+            opacity: 1;
+        }
+        
         .schedule-header { font-size: 0.8rem; font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 6px; margin-bottom: 6px; transition: color 0.3s ease; }
         .options-col[title] { cursor: help; border-bottom: 1px dotted rgba(0,0,0,0.3); padding-bottom: 2px; } 
         body.dark-mode .options-col[title] { border-bottom: 1px dotted rgba(255,255,255,0.4); }
         
-        .opt-center { display: flex; justify-content: center; align-items: center; } /* Replaces inline styles */
-
         #schedule-list { list-style-type: none; padding: 0; margin: 0; }
-        #schedule-list li { padding: 6px 4px; border-bottom: 1px solid rgba(150,150,150,0.2); transition: all 0.3s ease; border-left: 5px solid transparent; }
+        
+        /* List Item Animations for Minimal/Focus View */
+        #schedule-list li { 
+            padding: 6px 4px; 
+            border-bottom: 1px solid rgba(150,150,150,0.2); 
+            border-left: 5px solid transparent; 
+            max-height: 250px; /* Upper bound for animation */
+            overflow: hidden;
+            opacity: 1;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), padding 0.5s ease, opacity 0.5s ease, margin 0.5s ease, font-size 0.4s ease;
+        }
         #schedule-list li:nth-child(even) { background-color: rgba(0,0,0,0.03); }
 
-        .period-name { font-weight: bold; text-align: left; font-size: 1.05rem; transition: all 0.3s ease;}
-        .period-time { text-align: right; font-size: 0.95rem; color: #555; transition: all 0.3s ease;}
+        .period-name { font-weight: bold; text-align: left; font-size: 1.05rem; transition: all 0.4s ease;}
+        .period-time { text-align: right; font-size: 0.95rem; color: #555; transition: all 0.4s ease;}
 
         /* --- Current Period Highlight --- */
         #schedule-list li.current-period {
@@ -277,33 +299,49 @@
         }
 
         /* --- Agenda Display CSS --- */
-        .agenda-display { display: none; font-size: 0.85rem; font-weight: normal; color: #666; margin-top: 4px; line-height: 1.2; }
+        .agenda-display { 
+            font-size: 0.85rem; font-weight: normal; color: #666; 
+            margin-top: 0px; line-height: 1.3;
+            max-height: 0; opacity: 0; overflow: hidden;
+            transition: max-height 0.5s ease, margin 0.5s ease, opacity 0.5s ease;
+        }
         body.dark-mode .agenda-display { color: #aaa; }
 
-        /* --- Student View CSS --- */
-        .student-view .options-col { display: none !important; }
-        .student-view .schedule-grid { grid-template-columns: 1fr 1fr; padding: 2px 20px; }
+        /* --- Waffle Menu Closed (Student View) CSS --- */
+        .student-view .schedule-grid { 
+            grid-template-columns: 1fr 0px 0px 0px 0px 0px 0px 1fr; 
+            gap: 0px; padding: 2px 20px; 
+        }
+        .student-view .options-col { opacity: 0; padding: 0 !important; border: none !important; }
         .student-view .period-name { font-size: 2rem; color: #003366; }
         body.dark-mode .student-view .period-name { color: #90caf9; }
         .student-view .period-time { font-size: 1.8rem; font-weight: bold; color: #333; }
         body.dark-mode .student-view .period-time { color: #e0e0e0; }
-        .student-view .schedule-header { display: none; } 
-        .student-view .agenda-display { display: block; font-size: 1.1rem; margin-top: 8px; }
+        .student-view .schedule-header { max-height: 0; padding: 0; margin: 0; opacity: 0; border: none; overflow: hidden;} 
+        .student-view .agenda-display { max-height: 100px; opacity: 1; margin-top: 8px; font-size: 1rem; }
 
         /* --- FOCUS MODE (Minimal View) CSS --- */
-        .minimal-view .options-col { display: none !important; }
-        .minimal-view .schedule-header { display: none; }
-        .minimal-view .schedule-grid { grid-template-columns: 1fr 1fr; padding: 15px 30px; }
-        .minimal-view #schedule-list li:not(.current-period) { display: none !important; }
+        .minimal-view .schedule-grid { 
+            grid-template-columns: 1fr 0px 0px 0px 0px 0px 0px 1fr; 
+            gap: 0px; padding: 10px 30px; 
+        }
+        .minimal-view .options-col { opacity: 0; padding: 0 !important; border: none !important; }
+        .minimal-view .schedule-header { max-height: 0; padding: 0; margin: 0; opacity: 0; border: none; overflow: hidden;} 
+        
+        /* Smooth Collapse for non-active periods */
+        .minimal-view #schedule-list li:not(.current-period) { 
+            max-height: 0px; padding-top: 0px; padding-bottom: 0px; 
+            opacity: 0; border-bottom-width: 0px; margin: 0; 
+        }
         
         .minimal-view #schedule-list li.current-period { 
-            background: transparent !important; border-left: none !important; box-shadow: none !important; padding: 10px 0;
+            background: transparent !important; border-left: none !important; box-shadow: none !important; padding: 15px 0;
         }
         .minimal-view .period-name { font-size: 3rem; color: #003366; text-align: left; }
         body.dark-mode .minimal-view .period-name { color: #90caf9; }
         .minimal-view .period-time { font-size: 2.8rem; font-weight: bold; color: #333; text-align: right; }
         body.dark-mode .minimal-view .period-time { color: #e0e0e0; }
-        .minimal-view .agenda-display { display: block; font-size: 1.4rem; margin-top: 10px; }
+        .minimal-view .agenda-display { max-height: 200px; opacity: 1; margin-top: 12px; font-size: 1.3rem; }
         
         .minimal-view #schedule-list.no-active-period::after {
             content: "Outside School Hours";
@@ -554,7 +592,7 @@
                 </div>
                 
                 <ul id="schedule-list"></ul>
-                <p id="disclaimer-text" style="font-size: 0.75rem; color: #888; text-align: right; margin-top: 8px;">*The 1-Minute Warning bell is always active by default.</p>
+                <p id="disclaimer-text" style="font-size: 0.75rem; color: #888; text-align: right; margin-top: 8px; transition: opacity 0.4s ease;">*The 1-Minute Warning bell is always active by default.</p>
             </div>
             
             <div class="footer">
@@ -970,6 +1008,59 @@
             }
         }
 
+        // --- iCal Parsing Logic ---
+        async function fetchAgenda(url, elementId) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            el.innerHTML = "<em>Fetching agenda...</em>";
+
+            try {
+                // Using allorigins proxy to bypass browser CORS blocking
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+                const response = await fetch(proxyUrl);
+                const data = await response.json();
+                const icsData = data.contents;
+
+                if (!icsData) {
+                    el.innerHTML = "<em>No data found</em>";
+                    return;
+                }
+
+                const today = new Date();
+                // Format current date to match iCal standard YYYYMMDD
+                const todayStr = today.getFullYear() + String(today.getMonth() + 1).padStart(2, '0') + String(today.getDate()).padStart(2, '0');
+                
+                const events = icsData.split('BEGIN:VEVENT');
+                let todaysEvents = [];
+
+                // Start loop at 1 to skip the calendar header metadata
+                for (let i = 1; i < events.length; i++) {
+                    const eventText = events[i];
+                    
+                    // Regex to find DTSTART and SUMMARY lines
+                    const dtStartMatch = eventText.match(/DTSTART.*:([0-9]{8})/); 
+                    const summaryMatch = eventText.match(/SUMMARY:(.*)/);
+
+                    if (dtStartMatch && summaryMatch) {
+                        const eventDate = dtStartMatch[1];
+                        if (eventDate === todayStr) {
+                            todaysEvents.push(summaryMatch[1].trim());
+                        }
+                    }
+                }
+
+                if (todaysEvents.length > 0) {
+                    el.innerHTML = "📌 " + todaysEvents.join('<br>📌 ');
+                } else {
+                    el.innerHTML = "<em>No events scheduled for today</em>";
+                }
+
+            } catch (error) {
+                console.error("iCal Fetch Error:", error);
+                el.innerHTML = "<em>Error loading feed</em>";
+            }
+        }
+
         function saveLocalSettings() {
             try {
                 const data = {
@@ -1033,7 +1124,7 @@
                         const dText = document.getElementById('disclaimer-text');
                         const svBtn = document.getElementById('studentViewBtn');
                         if(sCont) sCont.classList.add('student-view');
-                        if(dText) dText.style.display = 'none';
+                        if(dText) dText.style.opacity = '0';
                         if(svBtn) svBtn.classList.remove('active-btn');
                     }
                     
@@ -1182,11 +1273,11 @@
             if(container && disclaimer && btn) {
                 if (isStudentView) {
                     container.classList.add('student-view'); 
-                    disclaimer.style.display = 'none'; 
+                    disclaimer.style.opacity = '0'; 
                     btn.classList.remove('active-btn');
                 } else {
                     container.classList.remove('student-view'); 
-                    disclaimer.style.display = 'block'; 
+                    disclaimer.style.opacity = '1'; 
                     btn.classList.add('active-btn');
                     
                     if (isMinimalView) toggleMinimalView(false);
@@ -1516,9 +1607,9 @@
                         `<div class="options-col"></div>`;
 
                     li.innerHTML = `
-                        <div class="period-name">
-                            ${key} ${openBadgeHtml}
-                            <div class="agenda-display" id="agenda-${safeKey}">${s.icalUrl ? '📅 Feed Linked (Ready for parser)' : ''}</div>
+                        <div class="period-name" style="display: flex; flex-direction: column; justify-content: center;">
+                            <div>${key} ${openBadgeHtml}</div>
+                            <div class="agenda-display" id="agenda-${safeKey}">${s.icalUrl ? '📅 Feed Linked (Waiting for collapse...)' : ''}</div>
                         </div>
                         <div class="options-col opt-center"><label class="switch" title="Phone Caddy"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'putaway', this.checked)" ${s.putaway ? 'checked' : ''}><span class="slider"></span></label></div>
                         <div class="options-col opt-center"><label class="switch" title="Take Attendance"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'attendance', this.checked)" ${s.attendance ? 'checked' : ''}><span class="slider"></span></label></div>
@@ -1531,6 +1622,12 @@
                         <div class="period-time">${formatTime12(String(period.start))} - ${formatTime12(String(period.end))}</div>
                     `;
                     list.appendChild(li);
+                    
+                    // Trigger fetch if URL is present
+                    if (s.icalUrl) {
+                        fetchAgenda(s.icalUrl, `agenda-${safeKey}`);
+                    }
+                    
                 } catch(e) { console.error("Error rendering a row:", e); }
             });
             
