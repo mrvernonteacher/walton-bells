@@ -19,7 +19,7 @@
             background-color: #f4f4f9;
             color: #333;
             margin: 0;
-            padding: 90px 20px 20px 20px; /* Reduced padding to fit new top bar */
+            padding: 90px 20px 100px 20px; /* Extra bottom padding for floating footer */
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -40,7 +40,7 @@
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: none;
         }
 
-        /* --- NEW Translucent Top Bar --- */
+        /* --- Translucent Top Bar --- */
         .floating-header {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 65px;
@@ -48,7 +48,6 @@
             padding: 0 30px; box-sizing: border-box;
             background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            border-radius: 0 0 15px 15px;
             z-index: 1000;
             transition: all 0.4s ease;
         }
@@ -58,6 +57,16 @@
         .header-logo:hover { opacity: 1; }
         #clock { font-size: 1.8rem; font-weight: bold; color: #003366; background: transparent; box-shadow: none; padding: 0; margin: 0; }
         body.dark-mode #clock { color: #e0e0e0; }
+
+        /* --- Floating Footer --- */
+        .footer { 
+            position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
+            font-size: 0.85rem; color: #555; text-align: center; width: 100%; 
+            transition: color 0.3s ease; z-index: 10; pointer-events: none;
+        }
+        .footer p { margin: 0 0 5px 0; font-weight: bold; text-shadow: 0 0 5px rgba(255,255,255,0.8);}
+        body.dark-mode .footer p { text-shadow: 0 0 5px rgba(0,0,0,0.8); }
+        .footer-logo { max-width: 150px; height: auto; display: inline-block; opacity: 0.7; }
 
         /* --- Smart State Icon Buttons --- */
         .header-icon-btn {
@@ -81,7 +90,7 @@
             transition: top 0.5s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.5s ease;
             pointer-events: none;
         }
-        #toast.show { top: 20px; opacity: 1; }
+        #toast.show { top: 80px; opacity: 1; }
         body.dark-mode #toast { background-color: #2e7d32; color: #e8f5e9; }
 
         /* --- Draggable Floating Media Player --- */
@@ -140,7 +149,6 @@
         body.dark-mode .dropdown-content { background-color: #333; border-color: #555; }
         body.dark-mode .dropdown-content button { color: #e0e0e0; border-color: #444; }
         body.dark-mode .dropdown-content button:hover { background-color: #444; color: #90caf9; }
-        body.dark-mode .footer { color: #aaa; }
         body.dark-mode #autoIndicator { background-color: #1b5e20; color: #a5d6a7; border-color: #2e7d32; }
         body.dark-mode .duty-item { border-bottom-color: #444 !important; }
         
@@ -260,7 +268,7 @@
         /* --- BULLETPROOF GRID LAYOUT --- */
         .schedule-grid {
             display: grid; 
-            grid-template-columns: minmax(130px, auto) 1fr minmax(180px, auto); 
+            grid-template-columns: minmax(130px, auto) 1fr minmax(280px, auto); 
             gap: 15px; 
             align-items: center; 
             padding: 8px 10px;
@@ -293,19 +301,20 @@
         }
         #schedule-list li:nth-child(even) { background-color: rgba(0,0,0,0.03); }
 
-        .period-name { grid-column: 1; font-weight: bold; text-align: left; font-size: 1.6rem; align-self: center; transition: all 0.4s ease; }
-        .period-time { grid-column: 3; text-align: right; font-size: 1.4rem; color: #555; align-self: center; transition: all 0.4s ease; }
+        /* INCREASED DEFAULT FONT SIZES & FORCED NO WRAP */
+        .period-name { grid-column: 1; font-weight: bold; text-align: left; font-size: 1.6rem; align-self: center; transition: all 0.4s ease; white-space: nowrap; }
+        .period-time { grid-column: 3; text-align: right; font-size: 1.4rem; color: #555; align-self: center; transition: all 0.4s ease; white-space: nowrap; }
 
         /* --- Current Period Progress Bar Highlight --- */
         #schedule-list li.current-period {
             background: linear-gradient(to right, rgba(92, 184, 92, 0.2) var(--progress, 0%), rgba(92, 184, 92, 0.03) var(--progress, 0%)) !important;
-            border-left: 5px solid #5cb85c !important;
-            box-shadow: inset 0 0 10px rgba(92, 184, 92, 0.1) !important;
+            border-left: 5px solid #5cb85c;
+            box-shadow: inset 0 0 10px rgba(92, 184, 92, 0.1);
         }
         body.dark-mode #schedule-list li.current-period {
             background: linear-gradient(to right, rgba(144, 202, 249, 0.25) var(--progress, 0%), rgba(144, 202, 249, 0.03) var(--progress, 0%)) !important;
-            border-left: 5px solid #90caf9 !important;
-            box-shadow: inset 0 0 10px rgba(144, 202, 249, 0.1) !important;
+            border-left: 5px solid #90caf9;
+            box-shadow: inset 0 0 10px rgba(144, 202, 249, 0.1);
         }
 
         /* --- Standard Agenda Display CSS --- */
@@ -336,11 +345,19 @@
            STATE 2: MINIMAL VIEW (The "Docked" Focus Mode) 
            ========================================================= */
         .minimal-view.schedule-container { 
-            position: sticky; top: 75px; z-index: 90;
-            border: 2px solid rgba(49, 176, 213, 0.4); box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            position: sticky; 
+            top: 65px; /* Docks right under the header */
+            z-index: 90;
+            border-radius: 0 0 15px 15px; 
+            border-top: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            margin-top: -15px; /* Pulls it flush with the header */
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
         }
         body.dark-mode .minimal-view.schedule-container {
-            border-color: rgba(144, 202, 249, 0.4); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background: rgba(30, 30, 30, 0.95);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         .minimal-view .schedule-grid { grid-template-columns: auto 1fr auto; padding: 10px 30px; gap: 20px; border: none; }
@@ -359,7 +376,6 @@
         .minimal-view .period-time { font-size: 3rem; font-weight: bold; color: #333; }
         body.dark-mode .minimal-view .period-time { color: #e0e0e0; }
         
-        /* Force minimal view rules over waffle rules */
         .minimal-view .options-wrapper { max-height: 0px !important; opacity: 0 !important; pointer-events: none; }
         .minimal-view .agenda-display.has-data { 
             max-height: 80px !important; opacity: 1 !important; font-size: 1.4rem; 
@@ -405,11 +421,8 @@
             .waffle-closed .options-wrapper { max-height: 0px; }
             
             .floating-player { bottom: 10px; right: 10px; left: 10px; justify-content: space-between; border-radius: 15px; }
+            .footer { position: relative; transform: none; left: 0; bottom: 0; margin-top: 20px; padding-bottom: 20px;}
         }
-
-        .footer { margin-top: 25px; font-size: 0.85rem; color: #555; text-align: center; width: 100%; transition: color 0.3s ease; }
-        .footer p { margin: 0 0 5px 0; font-weight: bold;}
-        .footer-logo { max-width: 180px; height: auto; display: inline-block; }
     </style>
 </head>
 <body>
@@ -664,11 +677,12 @@
                 <ul id="schedule-list"></ul>
             </div>
             
-            <div class="footer">
-                <p>Walton Engineering, solving your problems.</p>
-                <img src="https://drive.google.com/thumbnail?id=1C_7ujbANbJaMShbWDxuXx0m4ZTJLtkSE&sz=w800" alt="Walton Engineering Logo" class="footer-logo">
-            </div>
         </div>
+    </div>
+
+    <div class="footer">
+        <p>Walton Engineering, solving your problems.</p>
+        <img src="https://drive.google.com/thumbnail?id=1C_7ujbANbJaMShbWDxuXx0m4ZTJLtkSE&sz=w800" alt="Walton Engineering Logo" class="footer-logo">
     </div>
 
     <audio id="regularBellAudio" src="bell.mp3" preload="auto"></audio>
@@ -736,14 +750,6 @@
         let savedGlobalVol = 1.0;
         let isGlobalMuted = false;
 
-        window.addEventListener('scroll', () => {
-            const header = document.getElementById('floating-header');
-            if(header) {
-                if(window.scrollY > 30) header.classList.add('scrolled');
-                else header.classList.remove('scrolled');
-            }
-        });
-
         document.addEventListener('fullscreenchange', () => {
             const fsBtn = document.getElementById('fullScreenBtn');
             if(fsBtn) {
@@ -760,7 +766,6 @@
         document.addEventListener('mouseup', dragEnd);
 
         floatPlayer.addEventListener('touchstart', dragStart, {passive: false});
-        document.addEventListener('touchmove', drag, {passive: false});
         document.addEventListener('touchmove', drag, {passive: false});
         document.addEventListener('touchend', dragEnd);
 
@@ -1168,6 +1173,7 @@
                         const icsData = await response.text();
 
                         if (icsData.startsWith('Error:')) {
+                            console.error("Apps Script Error:", icsData);
                             return `<em class="agenda-error" title="${icsData}">Apps Script error</em>`;
                         }
 
@@ -1230,6 +1236,7 @@
                 }
 
             } catch (error) {
+                console.error("iCal Fetch Error:", error);
                 el.innerHTML = "<em class='agenda-error'>Error loading feed.</em>";
                 agendaCache[fetchUrlStr] = "<em class='agenda-error'>Error loading feed.</em>";
             }
@@ -1386,17 +1393,11 @@
             const toggle = document.getElementById('darkModeToggle');
             if(!toggle) return;
             isDarkMode = toggle.checked;
-            const wBtn = document.getElementById('waffleViewBtn');
-            const mBtn = document.getElementById('minimalViewBtn');
             
             if (isDarkMode) { 
                 document.body.classList.add('dark-mode'); 
-                if(isWaffleClosed && wBtn) wBtn.style.color = '#90caf9';
-                if(isMinimalView && mBtn) mBtn.style.color = '#90caf9';
             } else { 
                 document.body.classList.remove('dark-mode'); 
-                if(isWaffleClosed && wBtn) wBtn.style.color = '#31b0d5';
-                if(isMinimalView && mBtn) mBtn.style.color = '#31b0d5';
             }
             if (shouldSave) saveLocalSettings();
             renderLunchDuties(); 
@@ -1436,13 +1437,9 @@
                 if (isWaffleClosed) {
                     container.classList.add('waffle-closed'); 
                     btn.classList.remove('active-btn');
-                    if(isDarkMode) btn.style.color = '#90caf9';
-                    else btn.style.color = '#31b0d5';
                 } else {
                     container.classList.remove('waffle-closed'); 
                     btn.classList.add('active-btn');
-                    if(isDarkMode) btn.style.color = '#666';
-                    else btn.style.color = '#aaa';
                 }
             }
             if (shouldSave) saveLocalSettings();
@@ -1459,13 +1456,9 @@
                 if (isMinimalView) {
                     container.classList.add('minimal-view'); 
                     btn.classList.add('active-btn');
-                    if(isDarkMode) btn.style.color = '#90caf9';
-                    else btn.style.color = '#31b0d5';
                 } else {
                     container.classList.remove('minimal-view'); 
                     btn.classList.remove('active-btn');
-                    if(isDarkMode) btn.style.color = '#666';
-                    else btn.style.color = '#aaa';
                 }
             }
             if (shouldSave) saveLocalSettings();
@@ -1761,7 +1754,7 @@
                     let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
                     let isWebBlock = /^[A-D](\s|-)?Block/i.test(key);
                     let webOpenCheckbox = isWebBlock ? 
-                        `<div class="options-col"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
+                        `<div class="options-col opt-center"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
                         `<div class="options-col"></div>`;
 
                     li.innerHTML = `
@@ -1783,7 +1776,6 @@
                     `;
                     list.appendChild(li);
                     
-                    // Trigger fetch if URL is present
                     if (s.icalUrl) {
                         fetchAgenda(s.icalUrl, `agenda-${safeKey}`);
                     }
