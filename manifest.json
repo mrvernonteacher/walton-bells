@@ -1,0 +1,21 @@
+{
+  "name": "Walton Bell Schedule",
+  "short_name": "Bell Schedule",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f4f4f9",
+  "theme_color": "#003366",
+  "icons": [
+    {
+      "src": "https://drive.google.com/thumbnail?id=1XJEeGiblu9O3iGevy_j8RLR06LcyimqQ&sz=w192",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://drive.google.com/thumbnail?id=1XJEeGiblu9O3iGevy_j8RLR06LcyimqQ&sz=w512",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
