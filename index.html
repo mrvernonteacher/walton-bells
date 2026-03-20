@@ -144,7 +144,6 @@
         body.dark-mode h1, body.dark-mode h3, body.dark-mode .schedule-header, body.dark-mode .period-name, body.dark-mode .title { color: #90caf9; border-color: #444; }
         body.dark-mode .control-group label.title { color: #90caf9; }
         body.dark-mode .sub-label, body.dark-mode #darkModeLabel { color: #ccc !important; }
-        body.dark-mode #disclaimer-text { color: #aaa !important; }
         body.dark-mode #schedule-list li { border-color: #444; }
         body.dark-mode #schedule-list li:nth-child(even) { background-color: rgba(255,255,255,0.03); }
         body.dark-mode select, body.dark-mode input[type="text"], body.dark-mode input[type="time"], body.dark-mode input[type="date"] { background: #333; color: #fff; border-color: #555; }
@@ -302,8 +301,8 @@
         }
         #schedule-list li:nth-child(even) { background-color: rgba(0,0,0,0.03); }
 
-        .period-name { font-weight: bold; text-align: left; font-size: 1.05rem; align-self: center; transition: all 0.4s ease; }
-        .period-time { text-align: right; font-size: 0.95rem; color: #555; align-self: center; transition: all 0.4s ease; }
+        .period-name { grid-column: 1; grid-row: 1; font-weight: bold; text-align: left; font-size: 1.25rem; align-self: center; transition: all 0.4s ease; }
+        .period-time { grid-column: 8; grid-row: 1; text-align: right; font-size: 1.15rem; color: #555; align-self: center; transition: all 0.4s ease; }
 
         /* --- Current Period Progress Bar Highlight --- */
         #schedule-list li.current-period {
@@ -619,7 +618,6 @@
                 </div>
                 
                 <ul id="schedule-list"></ul>
-                <p id="disclaimer-text" style="font-size: 0.75rem; color: #888; text-align: right; margin-top: 8px; transition: opacity 0.4s ease;">*The 1-Minute Warning bell is always active by default.</p>
             </div>
             
             <div class="footer">
@@ -1246,7 +1244,6 @@
                     }
                     
                     if (p.waffleClosed !== undefined) { setWaffleState(p.waffleClosed, false); }
-                    else if (p.student === true) { setWaffleState(true, false); }
                     
                     if (p.minimalView !== undefined) { setMinimalView(p.minimalView, false); }
                     
@@ -1344,17 +1341,11 @@
             const toggle = document.getElementById('darkModeToggle');
             if(!toggle) return;
             isDarkMode = toggle.checked;
-            const wBtn = document.getElementById('waffleViewBtn');
-            const mBtn = document.getElementById('minimalViewBtn');
             
             if (isDarkMode) { 
                 document.body.classList.add('dark-mode'); 
-                if(isWaffleClosed && wBtn) wBtn.style.color = '#90caf9';
-                if(isMinimalView && mBtn) mBtn.style.color = '#90caf9';
             } else { 
                 document.body.classList.remove('dark-mode'); 
-                if(isWaffleClosed && wBtn) wBtn.style.color = '#003366';
-                if(isMinimalView && mBtn) mBtn.style.color = '#003366';
             }
             if (shouldSave) saveLocalSettings();
             renderLunchDuties(); 
@@ -1394,13 +1385,9 @@
                 if (isWaffleClosed) {
                     container.classList.add('waffle-closed'); 
                     btn.classList.remove('active-btn');
-                    if(isDarkMode) btn.style.color = '#90caf9';
-                    else btn.style.color = '#003366';
                 } else {
                     container.classList.remove('waffle-closed'); 
                     btn.classList.add('active-btn');
-                    if(isDarkMode) btn.style.color = '#666';
-                    else btn.style.color = '#aaa';
                 }
             }
             if (shouldSave) saveLocalSettings();
@@ -1417,13 +1404,9 @@
                 if (isMinimalView) {
                     container.classList.add('minimal-view'); 
                     btn.classList.add('active-btn');
-                    if(isDarkMode) btn.style.color = '#90caf9';
-                    else btn.style.color = '#003366';
                 } else {
                     container.classList.remove('minimal-view'); 
                     btn.classList.remove('active-btn');
-                    if(isDarkMode) btn.style.color = '#666';
-                    else btn.style.color = '#aaa';
                 }
             }
             if (shouldSave) saveLocalSettings();
@@ -1719,7 +1702,7 @@
                     let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
                     let isWebBlock = /^[A-D](\s|-)?Block/i.test(key);
                     let webOpenCheckbox = isWebBlock ? 
-                        `<div class="options-col"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
+                        `<div class="options-col opt-center"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
                         `<div class="options-col"></div>`;
 
                     li.innerHTML = `
