@@ -196,7 +196,7 @@
 
         .schedule-container { padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; box-sizing: border-box; transition: all 0.4s ease; }
         
-        /* --- UPDATED HEADER LAYOUT (3 columns for perfect centering) --- */
+        /* --- UPDATED HEADER LAYOUT --- */
         .schedule-header-wrap { 
             display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-bottom: 10px; 
             border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 8px; transition: all 0.4s ease;
@@ -270,20 +270,18 @@
             padding: 6px 10px; border-radius: 5px; font-weight: bold; border: 1px solid #d6e9c6; text-align: center;
         }
 
-        /* --- BULLETPROOF GRID LAYOUT --- */
-        /* Fixed outer grid so the middle wrapper stays perfectly centered without staggering */
+        /* --- BULLETPROOF DESKTOP GRID LAYOUT --- */
         .schedule-grid {
             display: grid; 
-            grid-template-columns: 160px 1fr 220px; 
-            gap: 15px; 
+            grid-template-columns: 160px 1fr 240px; /* Widened right column to prevent wrap */
+            gap: 10px; 
             align-items: center; 
-            padding: 12px 15px;
+            padding: 8px 10px;
             transition: all 0.4s ease;
         }
         
         .schedule-header { font-size: 1.1rem; font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 6px; margin-bottom: 6px; transition: color 0.3s ease; }
         
-        /* Middle Section holds both the sliders and the agenda text */
         .middle-section {
             display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden;
             width: 100%;
@@ -300,7 +298,6 @@
         
         #schedule-list { list-style-type: none; padding: 0; margin: 0; }
         
-        /* List Item Base Settings */
         #schedule-list li { 
             border-bottom: 1px solid rgba(150,150,150,0.2); border-left: 5px solid transparent; 
             max-height: 250px; overflow: hidden; opacity: 1;
@@ -308,9 +305,8 @@
         }
         #schedule-list li:nth-child(even) { background-color: rgba(0,0,0,0.03); }
 
-        /* Doubled Base Font Sizes */
-        .period-name { grid-column: 1; font-weight: bold; text-align: left; font-size: 1.8rem; align-self: center; transition: all 0.4s ease; }
-        .period-time { grid-column: 3; text-align: right; font-size: 1.6rem; color: #555; align-self: center; transition: all 0.4s ease; }
+        .period-name { grid-column: 1; font-weight: bold; text-align: left; font-size: 1.2rem; align-self: center; transition: all 0.4s ease; }
+        .period-time { grid-column: 3; text-align: right; font-size: 1.05rem; color: #555; align-self: center; transition: all 0.4s ease; }
 
         /* --- Current Period Progress Bar Highlight --- */
         #schedule-list li.current-period {
@@ -336,20 +332,20 @@
         body.dark-mode .agenda-error { color: #ff8a80 !important; }
 
         /* =========================================================
-           STATE 1: WAFFLE CLOSED (Options hidden, Agenda visible) 
+           STATE 1: WAFFLE CLOSED 
            ========================================================= */
-        .waffle-closed .schedule-grid { grid-template-columns: 180px 1fr 240px; }
+        .waffle-closed .schedule-grid { grid-template-columns: 180px 1fr 280px; }
         .waffle-closed .options-wrapper { max-height: 0px; opacity: 0; pointer-events: none; }
         .waffle-closed .agenda-display.has-data { max-height: 40px; opacity: 1; margin-top: 4px; }
         .waffle-closed .schedule-header .options-wrapper { max-height: 0px; opacity: 0; }
         
-        .waffle-closed .period-name { font-size: 2.2rem; color: #003366; }
+        .waffle-closed .period-name { font-size: 2rem; color: #003366; }
         body.dark-mode .waffle-closed .period-name { color: #90caf9; }
-        .waffle-closed .period-time { font-size: 2rem; font-weight: bold; color: #333; }
+        .waffle-closed .period-time { font-size: 1.6rem; font-weight: bold; color: #333; }
         body.dark-mode .waffle-closed .period-time { color: #e0e0e0; }
 
         /* =========================================================
-           STATE 2: MINIMAL VIEW (Focus Mode - Tighter vertical space) 
+           STATE 2: MINIMAL VIEW (Focus Mode) 
            ========================================================= */
         .minimal-view .schedule-grid { grid-template-columns: auto 1fr auto; padding: 10px 30px; gap: 20px; border: none; }
         .minimal-view .schedule-header { max-height: 0; padding: 0; margin: 0; opacity: 0; border: none; overflow: hidden;} 
@@ -362,12 +358,11 @@
             background: transparent !important; border-left: none !important; box-shadow: none !important; padding: 15px 0;
         }
         
-        .minimal-view .period-name { font-size: 3.5rem; color: #003366; }
+        .minimal-view .period-name { font-size: 3rem; color: #003366; }
         body.dark-mode .minimal-view .period-name { color: #90caf9; }
-        .minimal-view .period-time { font-size: 3rem; font-weight: bold; color: #333; }
+        .minimal-view .period-time { font-size: 2.4rem; font-weight: bold; color: #333; }
         body.dark-mode .minimal-view .period-time { color: #e0e0e0; }
         
-        /* Force minimal view rules over waffle rules */
         .minimal-view .options-wrapper { max-height: 0px !important; opacity: 0 !important; pointer-events: none; }
         .minimal-view .agenda-display.has-data { 
             max-height: 80px !important; opacity: 1 !important; font-size: 1.4rem; 
@@ -377,6 +372,40 @@
         .minimal-view #schedule-list.no-active-period::after {
             content: "Outside School Hours";
             display: block; padding: 20px; text-align: center; font-size: 1.5rem; font-weight: bold; color: #888;
+        }
+
+        /* =========================================================
+           MOBILE BROWSER OVERRIDES (< 850px screens)
+           ========================================================= */
+        @media (max-width: 850px) {
+            body { padding-top: 220px; padding-left: 10px; padding-right: 10px;}
+            .dashboard-wrapper { flex-direction: column; }
+            .sidebar { max-width: 100%; width: 100%; margin-bottom: 20px; box-sizing: border-box;}
+            .schedule-header { display: none !important; }
+            .schedule-header-wrap { grid-template-columns: 1fr; gap: 15px; text-align: center;}
+            .header-left, .header-right { justify-self: center; justify-content: center; }
+            
+            /* Stack elements vertically instead of 3-column grid */
+            .schedule-grid, .waffle-closed .schedule-grid, .minimal-view .schedule-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+                text-align: center;
+                padding: 15px;
+            }
+            .period-name, .waffle-closed .period-name, .minimal-view .period-name {
+                grid-column: 1; grid-row: auto; text-align: center; font-size: 1.8rem;
+            }
+            .middle-section { grid-column: 1; grid-row: auto; }
+            .period-time, .waffle-closed .period-time, .minimal-view .period-time {
+                grid-column: 1; grid-row: auto; text-align: center; font-size: 1.4rem;
+            }
+            .agenda-display { grid-column: 1 !important; grid-row: auto !important; white-space: normal; }
+            
+            /* Wrap options into 2 rows of 3 on small screens */
+            .options-wrapper { grid-template-columns: repeat(3, 1fr); max-height: 80px; }
+            .waffle-closed .options-wrapper { max-height: 0px; }
+            
+            .floating-player { bottom: 10px; right: 10px; left: 10px; justify-content: space-between; border-radius: 15px; }
         }
 
         .footer { margin-top: 25px; font-size: 0.85rem; color: #555; text-align: center; width: 100%; transition: color 0.3s ease; }
@@ -1357,11 +1386,17 @@
             const toggle = document.getElementById('darkModeToggle');
             if(!toggle) return;
             isDarkMode = toggle.checked;
+            const wBtn = document.getElementById('waffleViewBtn');
+            const mBtn = document.getElementById('minimalViewBtn');
             
             if (isDarkMode) { 
                 document.body.classList.add('dark-mode'); 
+                if(isWaffleClosed && wBtn) wBtn.style.color = '#90caf9';
+                if(isMinimalView && mBtn) mBtn.style.color = '#90caf9';
             } else { 
                 document.body.classList.remove('dark-mode'); 
+                if(isWaffleClosed && wBtn) wBtn.style.color = '#003366';
+                if(isMinimalView && mBtn) mBtn.style.color = '#003366';
             }
             if (shouldSave) saveLocalSettings();
             renderLunchDuties(); 
@@ -1401,9 +1436,13 @@
                 if (isWaffleClosed) {
                     container.classList.add('waffle-closed'); 
                     btn.classList.remove('active-btn');
+                    if(isDarkMode) btn.style.color = '#90caf9';
+                    else btn.style.color = '#003366';
                 } else {
                     container.classList.remove('waffle-closed'); 
                     btn.classList.add('active-btn');
+                    if(isDarkMode) btn.style.color = '#666';
+                    else btn.style.color = '#aaa';
                 }
             }
             if (shouldSave) saveLocalSettings();
@@ -1420,9 +1459,13 @@
                 if (isMinimalView) {
                     container.classList.add('minimal-view'); 
                     btn.classList.add('active-btn');
+                    if(isDarkMode) btn.style.color = '#90caf9';
+                    else btn.style.color = '#003366';
                 } else {
                     container.classList.remove('minimal-view'); 
                     btn.classList.remove('active-btn');
+                    if(isDarkMode) btn.style.color = '#666';
+                    else btn.style.color = '#aaa';
                 }
             }
             if (shouldSave) saveLocalSettings();
