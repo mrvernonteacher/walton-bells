@@ -1010,7 +1010,7 @@
             }
         }
 
-        // --- iCal Parsing Logic using Apps Script ---
+        // --- Multi-Day iCal Parsing Logic using Apps Script ---
         async function fetchAgenda(url, elementId) {
             const el = document.getElementById(elementId);
             if (!el) return;
@@ -1018,13 +1018,11 @@
             el.innerHTML = "<em>Fetching agenda...</em>";
 
             try {
-                // Fix webcal:// protocols just in case
                 let fetchUrlStr = url.trim();
                 if (fetchUrlStr.startsWith('webcal://')) {
                     fetchUrlStr = 'https://' + fetchUrlStr.substring(9);
                 }
 
-                // Route through your private Google Apps Script
                 const fetchUrl = `${GOOGLE_CALENDAR_SCRIPT_URL}?icalUrl=${encodeURIComponent(fetchUrlStr)}`;
                 const response = await fetch(fetchUrl);
                 
@@ -1032,7 +1030,6 @@
                 
                 const icsData = await response.text();
 
-                // Catch Apps Script errors passed back as text
                 if (icsData.startsWith('Error:')) {
                     console.error("Apps Script Error:", icsData);
                     el.innerHTML = `<em class="agenda-error" title="${icsData}">Apps Script blocked fetch (Did you Authorize?)</em>`;
@@ -1046,7 +1043,7 @@
                 }
 
                 const today = new Date();
-                const todayStr = today.getFullYear() + String(today.getMonth() + 1).padStart(2, '0') + String(today.getDate()).padStart(2, '0');
+                const todayInt = parseInt(today.getFullYear() + String(today.getMonth() + 1).padStart(2, '0') + String(today.getDate()).padStart(2, '0'), 10);
                 
                 const events = icsData.split('BEGIN:VEVENT');
                 let todaysEvents = [];
@@ -1054,13 +1051,30 @@
                 for (let i = 1; i < events.length; i++) {
                     const eventText = events[i];
                     
-                    // Regex handles: DTSTART:20260320 OR DTSTART;VALUE=DATE:20260320 OR DTSTART;TZID=...:20260320T...
                     const dtStartMatch = eventText.match(/DTSTART(?:;[^:]*)?:([0-9]{8})/); 
+                    const dtEndMatch = eventText.match(/DTEND(?:;[^:]*)?:([0-9]{8})/); 
+                    const isTimedMatch = eventText.match(/DTSTART(?:;[^:]*)?:[0-9]{8}T/);
                     const summaryMatch = eventText.match(/SUMMARY:([^\r\n]*)/);
 
                     if (dtStartMatch && summaryMatch) {
-                        const eventDate = dtStartMatch[1];
-                        if (eventDate === todayStr) {
+                        const startInt = parseInt(dtStartMatch[1], 10);
+                        let isActive = false;
+
+                        if (dtEndMatch) {
+                            const endInt = parseInt(dtEndMatch[1], 10);
+                            if (isTimedMatch) {
+                                // Timed events usually include the end date directly
+                                isActive = (todayInt >= startInt && todayInt <= endInt);
+                            } else {
+                                // Standard iCal all-day events make the end date the day AFTER the event finishes (exclusive)
+                                isActive = (todayInt >= startInt && todayInt < endInt);
+                            }
+                        } else {
+                            // Single day event with no DTEND specified
+                            isActive = (startInt === todayInt);
+                        }
+
+                        if (isActive) {
                             todaysEvents.push(summaryMatch[1].trim());
                         }
                     }
