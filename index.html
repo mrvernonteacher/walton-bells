@@ -100,8 +100,8 @@
         .floating-player {
             position: fixed; bottom: 20px; right: 20px; top: auto; left: auto;
             background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            border-radius: 20px; padding: 8px 15px 8px 10px;
-            display: flex; align-items: center; gap: 10px;
+            border-radius: 20px; padding: 10px 15px 10px 10px;
+            display: flex; align-items: center; gap: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             z-index: 1000; opacity: 0; pointer-events: none; 
             transition: opacity 0.4s ease;
@@ -116,17 +116,19 @@
 
         .float-btn {
             background: #003366; color: white; border: none; border-radius: 50%;
-            width: 36px; height: 36px; font-size: 1.1rem; cursor: pointer;
+            width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer;
             display: flex; align-items: center; justify-content: center; transition: background 0.2s; flex-shrink: 0;
         }
         .float-btn:hover { background: #002244; }
         body.dark-mode .float-btn { background: #1976d2; }
         body.dark-mode .float-btn:hover { background: #1565c0; }
         
-        .float-content { display: flex; flex-direction: column; gap: 2px; }
-        .float-info { font-weight: bold; font-size: 0.8rem; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #003366; cursor: text;}
+        .float-content { display: flex; flex-direction: column; gap: 6px; }
+        .float-info { font-weight: bold; font-size: 0.85rem; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #003366; cursor: text;}
         body.dark-mode .float-info { color: #90caf9; }
-        .float-volume { display: flex; align-items: center; gap: 5px; font-size: 0.8rem; }
+        .float-volume { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
+        .float-volume span { cursor: pointer; transition: transform 0.2s; user-select: none; width: 18px; text-align: center; }
+        .float-volume span:hover { transform: scale(1.2); }
         .float-volume input { width: 100px; cursor: pointer; height: 4px; margin: 0;}
 
         /* --- Dark Mode & Glassmorphism UI --- */
@@ -213,6 +215,8 @@
         
         select, input[type="text"], input[type="time"], input[type="date"] { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 0.9rem; background: rgba(255,255,255,0.9); margin-bottom: 8px;}
         .volume-container { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; margin-top: 10px;}
+        .volume-container span { cursor: pointer; transition: transform 0.2s; user-select: none; width: 20px; text-align: center;}
+        .volume-container span:hover { transform: scale(1.2); }
         input[type="range"] { flex-grow: 1; cursor: pointer; }
 
         .split-button-container { display: flex; align-items: stretch; width: 100%; margin-top: 5px; margin-bottom: 5px;}
@@ -391,8 +395,12 @@
                 <span id="float-vibe-title">Classroom Vibe</span>
             </div>
             <div class="float-volume">
-                <span>🔈</span>
-                <input type="range" id="floatVibeVolume" min="0" max="100" step="1" value="50" onchange="syncVibeVolume(this.value)">
+                <span id="vibeMuteIcon" onclick="toggleFloatVibeMute()" title="Mute/Unmute Vibe">🎵</span>
+                <input type="range" id="floatVibeVolume" min="0" max="100" step="1" value="50" oninput="syncVibeVolume(this.value)">
+            </div>
+            <div class="float-volume">
+                <span id="bellMuteIcon" onclick="toggleFloatBellMute()" title="Mute/Unmute Bells & Voice">🔔</span>
+                <input type="range" id="floatBellVolume" min="0" max="1" step="0.05" value="1" oninput="syncGlobalVolume(this.value)">
             </div>
         </div>
     </div>
@@ -423,8 +431,8 @@
                     </select>
 
                     <div class="volume-container" title="Master volume for the bell chime and voice announcements.">
-                        <span>🔔 🔈</span>
-                        <input type="range" id="volumeControl" min="0" max="1" step="0.05" value="1" onchange="changeVolume()">
+                        <span id="sidebarBellIcon" onclick="toggleFloatBellMute()" title="Mute/Unmute Bells & Voice">🔔</span>
+                        <input type="range" id="volumeControl" min="0" max="1" step="0.05" value="1" oninput="syncGlobalVolume(this.value)">
                         <span>🔊</span>
                     </div>
                     
@@ -562,8 +570,8 @@
                     </div>
                     
                     <div class="volume-container" style="margin-bottom: 12px;" title="Adjust the background music volume.">
-                        <span>🎵 🔈</span>
-                        <input type="range" id="vibeVolumeControl" min="0" max="100" step="1" value="50" onchange="changeVibeVolume()">
+                        <span id="sidebarVibeIcon" onclick="toggleFloatVibeMute()" title="Mute/Unmute Vibe">🎵</span>
+                        <input type="range" id="vibeVolumeControl" min="0" max="100" step="1" value="50" oninput="syncVibeVolume(this.value)">
                         <span>🔊</span>
                     </div>
 
@@ -678,6 +686,12 @@
         let agendaCache = {};
         let agendaPromises = {};
 
+        // --- MUTE STATE VARIABLES ---
+        let savedVibeVol = 50;
+        let isVibeMuted = false;
+        let savedGlobalVol = 1.0;
+        let isGlobalMuted = false;
+
         // --- Scroll Listener for Dynamic Header ---
         window.addEventListener('scroll', () => {
             const header = document.getElementById('floating-header');
@@ -709,7 +723,7 @@
         document.addEventListener('touchend', dragEnd);
 
         function dragStart(e) {
-            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.tagName === 'SPAN') return;
             isDragging = true;
             floatPlayer.classList.add('dragging');
             
@@ -934,14 +948,67 @@
             }
         }
 
+        // --- NEW AUDIO SYNC FUNCTIONS ---
+        
         function syncVibeVolume(val) {
-            vibeVolume = val;
+            vibeVolume = parseInt(val);
             const mainVol = document.getElementById('vibeVolumeControl');
             const floatVol = document.getElementById('floatVibeVolume');
-            if(mainVol) mainVol.value = val;
-            if(floatVol) floatVol.value = val;
-            if (ytPlayer && typeof ytPlayer.setVolume === 'function') { try { ytPlayer.setVolume(val); } catch(e) {} }
+            const floatIcon = document.getElementById('vibeMuteIcon');
+            const sideIcon = document.getElementById('sidebarVibeIcon');
+            
+            if(mainVol) mainVol.value = vibeVolume;
+            if(floatVol) floatVol.value = vibeVolume;
+            
+            isVibeMuted = (vibeVolume === 0);
+            if(floatIcon) floatIcon.innerText = isVibeMuted ? '🔇' : '🎵';
+            if(sideIcon) sideIcon.innerText = isVibeMuted ? '🔇' : '🎵';
+
+            if (ytPlayer && typeof ytPlayer.setVolume === 'function') { try { ytPlayer.setVolume(vibeVolume); } catch(e) {} }
             saveLocalSettings();
+        }
+
+        function toggleFloatVibeMute() {
+            if(isVibeMuted) {
+                syncVibeVolume(savedVibeVol);
+            } else {
+                savedVibeVol = vibeVolume > 0 ? vibeVolume : 50;
+                syncVibeVolume(0);
+            }
+        }
+
+        function syncGlobalVolume(val) {
+            globalVolume = parseFloat(val);
+            const mainVol = document.getElementById('volumeControl');
+            const floatVol = document.getElementById('floatBellVolume');
+            const floatIcon = document.getElementById('bellMuteIcon');
+            const sideIcon = document.getElementById('sidebarBellIcon');
+            
+            if(mainVol) mainVol.value = globalVolume;
+            if(floatVol) floatVol.value = globalVolume;
+            
+            isGlobalMuted = (globalVolume === 0);
+            if(floatIcon) floatIcon.innerText = isGlobalMuted ? '🔕' : '🔔';
+            if(sideIcon) sideIcon.innerText = isGlobalMuted ? '🔕' : '🔔';
+
+            const audio = document.getElementById('regularBellAudio'); 
+            if(audio) audio.volume = globalVolume;
+
+            saveLocalSettings();
+        }
+
+        function toggleFloatBellMute() {
+            if(isGlobalMuted) {
+                syncGlobalVolume(savedGlobalVol);
+            } else {
+                savedGlobalVol = globalVolume > 0 ? globalVolume : 1.0;
+                syncGlobalVolume(0);
+            }
+        }
+
+        function changeVolume() { 
+            const vc = document.getElementById('volumeControl');
+            if(vc) syncGlobalVolume(vc.value); 
         }
 
         function changeVibeVolume() { 
@@ -1041,7 +1108,6 @@
                 fetchUrlStr = 'https://' + fetchUrlStr.substring(9);
             }
 
-            // 1. Check if we already have the answer for this exact URL
             if (agendaCache[fetchUrlStr]) {
                 if (agendaCache[fetchUrlStr] !== 'empty') {
                     el.innerHTML = agendaCache[fetchUrlStr];
@@ -1057,7 +1123,6 @@
             el.classList.add('has-data');
 
             try {
-                // 2. If we aren't currently fetching this URL, start a new fetch promise
                 if (!agendaPromises[fetchUrlStr]) {
                     const fetchUrl = `${GOOGLE_CALENDAR_SCRIPT_URL}?icalUrl=${encodeURIComponent(fetchUrlStr)}`;
                     
@@ -1117,13 +1182,10 @@
                     });
                 }
 
-                // 3. Wait for the fetch promise to resolve
                 const resultHtml = await agendaPromises[fetchUrlStr];
                 
-                // 4. Save the final result to the memory cache so we never fetch it again
                 agendaCache[fetchUrlStr] = resultHtml;
 
-                // 5. Render to the UI
                 if (resultHtml !== 'empty') {
                     el.innerHTML = resultHtml;
                     el.classList.add('has-data');
@@ -1172,9 +1234,9 @@
                     
                     globalVoicePref = p.voice || '';
                     if (p.vol !== undefined) {
-                        globalVolume = p.vol;
-                        const vControl = document.getElementById('volumeControl');
-                        if(vControl) vControl.value = globalVolume;
+                        syncGlobalVolume(p.vol);
+                    } else {
+                        syncGlobalVolume(1.0);
                     }
                     if (p.vibeVol !== undefined) { syncVibeVolume(p.vibeVol); }
 
@@ -1440,12 +1502,6 @@
             saveLocalSettings();
         }
 
-        function changeVolume() { 
-            const vc = document.getElementById('volumeControl');
-            if(vc) globalVolume = vc.value; 
-            saveLocalSettings(); 
-        }
-        
         function changeVoicePref() { 
             const vp = document.getElementById('voicePreference');
             if(vp) globalVoicePref = vp.value; 
@@ -1639,8 +1695,6 @@
         }
 
         function setIcalFeed(periodName) {
-            // Because URLs can be long, they might have been cached. If they edit the URL, the old cache stays put, 
-            // but the new URL will naturally trigger a fresh fetch automatically.
             const currentUrl = classSettings[periodName]?.icalUrl || '';
             const url = prompt(`Paste the iCal feed URL for ${periodName}:`, currentUrl);
             if (url !== null) {
@@ -1701,6 +1755,7 @@
                     `;
                     list.appendChild(li);
                     
+                    // Trigger fetch if URL is present
                     if (s.icalUrl) {
                         fetchAgenda(s.icalUrl, `agenda-${safeKey}`);
                     }
