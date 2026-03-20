@@ -177,8 +177,12 @@
             font-size: 0.8rem; margin-left: 10px; vertical-align: middle; font-weight: bold; letter-spacing: 0.5px;
         }
         body.dark-mode .open-badge { background-color: #2e7d32; color: #e8f5e9; }
-        .student-view .open-badge { font-size: 1.2rem; padding: 4px 12px; margin-left: 15px; transform: translateY(-3px); display: inline-block; transition: all 0.4s ease;}
-        .minimal-view .open-badge { font-size: 1.5rem; transition: all 0.4s ease;}
+        
+        /* Badges enlarge beautifully during smooth transitions */
+        .waffle-closed .open-badge, .minimal-view .open-badge { 
+            font-size: 1.2rem; padding: 4px 12px; margin-left: 15px; transform: translateY(-3px); transition: all 0.4s ease;
+        }
+        .minimal-view .open-badge { font-size: 1.5rem; }
 
         /* --- Layout & Structure --- */
         .dashboard-wrapper { display: flex; flex-wrap: wrap; gap: 15px; max-width: 1300px; margin: 0 auto; width: 100%; align-items: flex-start; z-index: 2; }
@@ -263,23 +267,24 @@
             padding: 6px 10px; border-radius: 5px; font-weight: bold; border: 1px solid #d6e9c6; text-align: center;
         }
 
-        /* Schedule Grid - Animated Transitions & Explicit Auto-Placement */
+        /* --- THE MASTER GRID - Explicit Setup for Smooth Slides --- */
         .schedule-grid {
             display: grid; 
-            grid-template-columns: 90px repeat(6, 1fr) 110px; 
+            grid-template-columns: minmax(130px, 1.5fr) 1fr 1fr 1fr 1fr 1fr 1fr minmax(110px, 1.2fr); 
             gap: 6px; 
             align-items: center; 
             text-align: center; 
-            transition: all 0.5s ease;
+            transition: grid-template-columns 0.5s cubic-bezier(0.4, 0, 0.2, 1), gap 0.5s ease, padding 0.5s ease;
         }
         
         .options-col { 
             display: flex; justify-content: center; align-items: center;
-            transition: opacity 0.3s ease, padding 0.5s ease; 
             overflow: hidden;
             white-space: nowrap;
             opacity: 1;
             grid-row: 1; 
+            min-width: 0; /* Allows complete collapse */
+            transition: opacity 0.3s ease, transform 0.4s ease;
         }
         
         .schedule-header { font-size: 0.8rem; font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 6px; margin-bottom: 6px; transition: color 0.3s ease; }
@@ -288,7 +293,7 @@
         
         #schedule-list { list-style-type: none; padding: 0; margin: 0; }
         
-        /* List Item Animations */
+        /* List Item Base Settings */
         #schedule-list li { 
             padding: 6px 4px; 
             border-bottom: 1px solid rgba(150,150,150,0.2); 
@@ -296,86 +301,91 @@
             max-height: 250px; 
             overflow: hidden;
             opacity: 1;
-            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), padding 0.5s ease, opacity 0.5s ease, margin 0.5s ease, font-size 0.4s ease;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), padding 0.5s ease, opacity 0.5s ease, margin 0.5s ease;
         }
         #schedule-list li:nth-child(even) { background-color: rgba(0,0,0,0.03); }
 
-        .period-name { grid-column: 1; grid-row: 1; font-weight: bold; text-align: left; font-size: 1.05rem; transition: all 0.4s ease; }
-        .period-time { grid-column: 8; grid-row: 1; text-align: right; font-size: 0.95rem; color: #555; transition: all 0.4s ease; }
+        .period-name { grid-column: 1; grid-row: 1; font-weight: bold; text-align: left; font-size: 1.05rem; align-self: center; transition: all 0.4s ease; }
+        .period-time { grid-column: 8; grid-row: 1; text-align: right; font-size: 0.95rem; color: #555; align-self: center; transition: all 0.4s ease; }
 
         /* --- Current Period Progress Bar Highlight --- */
         #schedule-list li.current-period {
-            background: linear-gradient(to right, rgba(92, 184, 92, 0.2) var(--progress, 0%), rgba(92, 184, 92, 0.05) var(--progress, 0%)) !important;
+            background: linear-gradient(to right, rgba(92, 184, 92, 0.2) var(--progress, 0%), rgba(92, 184, 92, 0.03) var(--progress, 0%)) !important;
             border-left: 5px solid #5cb85c;
             box-shadow: inset 0 0 10px rgba(92, 184, 92, 0.1);
         }
         body.dark-mode #schedule-list li.current-period {
-            background: linear-gradient(to right, rgba(144, 202, 249, 0.25) var(--progress, 0%), rgba(144, 202, 249, 0.05) var(--progress, 0%)) !important;
+            background: linear-gradient(to right, rgba(144, 202, 249, 0.25) var(--progress, 0%), rgba(144, 202, 249, 0.03) var(--progress, 0%)) !important;
             border-left: 5px solid #90caf9;
             box-shadow: inset 0 0 10px rgba(144, 202, 249, 0.1);
         }
 
-        /* --- Standard Agenda Display CSS (Row 2 underneath options) --- */
+        /* --- Standard Agenda Display CSS (Hidden when Waffle Open) --- */
         .agenda-display { 
             grid-column: 2 / 8; 
-            grid-row: 2; 
+            grid-row: 1; 
             font-size: 0.9rem; font-weight: 600; color: #004080; 
-            margin-top: 0px; line-height: 1.3;
+            margin: 0; line-height: 1.3;
             max-height: 0; opacity: 0; overflow: hidden;
             transition: max-height 0.4s ease, margin 0.4s ease, opacity 0.4s ease;
-            text-align: center;
+            text-align: center; align-self: center;
         }
         body.dark-mode .agenda-display { color: #81d4fa; }
-        .agenda-error { color: #d9534f !important; font-style: italic; }
+        .agenda-error { color: #d9534f !important; font-style: italic; font-weight: normal; }
         body.dark-mode .agenda-error { color: #ff8a80 !important; }
 
-        .agenda-display.has-data {
-            max-height: 40px; opacity: 1; margin-top: -2px; margin-bottom: 4px;
+        /* =========================================================
+           STATE 1: WAFFLE CLOSED (Options hidden, Agenda visible inline) 
+           ========================================================= */
+        .waffle-closed .schedule-grid { 
+            grid-template-columns: 1fr 0px 0px 0px 0px 0px 0px auto; 
+            gap: 0px; padding: 10px 15px; 
         }
-
-        /* --- Waffle Menu Closed (Student View) CSS --- */
-        .student-view .schedule-grid { 
-            grid-template-columns: auto 1fr auto; 
-            gap: 15px; padding: 10px 20px; 
+        .waffle-closed .options-col { 
+            opacity: 0; pointer-events: none; transform: scale(0.8);
         }
-        .student-view .options-col { opacity: 0; display: none !important; }
-        .student-view .period-name { grid-column: 1; grid-row: 1; font-size: 2rem; color: #003366; align-self: center;}
-        body.dark-mode .student-view .period-name { color: #90caf9; }
-        .student-view .period-time { grid-column: 3; grid-row: 1; font-size: 1.8rem; font-weight: bold; color: #333; align-self: center;}
-        body.dark-mode .student-view .period-time { color: #e0e0e0; }
-        .student-view .schedule-header { max-height: 0; padding: 0; margin: 0; opacity: 0; border: none; overflow: hidden;} 
+        .waffle-closed .schedule-header { 
+            max-height: 0; padding: 0; margin: 0; opacity: 0; border: none; overflow: hidden;
+        } 
+        .waffle-closed .period-name { font-size: 2rem; color: #003366; }
+        body.dark-mode .waffle-closed .period-name { color: #90caf9; }
+        .waffle-closed .period-time { font-size: 1.8rem; font-weight: bold; color: #333; }
+        body.dark-mode .waffle-closed .period-time { color: #e0e0e0; }
         
-        .student-view .agenda-display { 
-            grid-column: 2; grid-row: 1; 
-            max-height: 100px; opacity: 1; margin: 0; font-size: 1.1rem; 
-            text-align: center; align-self: center; white-space: normal;
+        .waffle-closed .agenda-display.has-data {
+            max-height: 100px; opacity: 1; font-size: 1.1rem;
         }
 
-        /* --- FOCUS MODE (Minimal View) CSS --- */
+        /* =========================================================
+           STATE 2: MINIMAL VIEW (Focus Mode - Overrides Waffle State) 
+           ========================================================= */
         .minimal-view .schedule-grid { 
-            grid-template-columns: auto 1fr auto; 
-            gap: 20px; padding: 15px 30px; 
+            grid-template-columns: 1fr 0px 0px 0px 0px 0px 0px auto; 
+            gap: 0px; padding: 15px 30px; 
         }
-        .minimal-view .options-col { display: none !important; }
-        .minimal-view .schedule-header { max-height: 0; padding: 0; margin: 0; opacity: 0; border: none; overflow: hidden;} 
+        .minimal-view .options-col { 
+            opacity: 0; pointer-events: none; transform: scale(0.8);
+        }
+        .minimal-view .schedule-header { 
+            max-height: 0; padding: 0; margin: 0; opacity: 0; border: none; overflow: hidden;
+        } 
         
+        /* Smooth Collapse for non-active periods */
         .minimal-view #schedule-list li:not(.current-period) { 
             max-height: 0px; padding-top: 0px; padding-bottom: 0px; 
             opacity: 0; border-bottom-width: 0px; margin: 0; 
         }
-        
         .minimal-view #schedule-list li.current-period { 
             background: transparent !important; border-left: none !important; box-shadow: none !important; padding: 15px 0;
         }
-        .minimal-view .period-name { grid-column: 1; grid-row: 1; font-size: 3rem; color: #003366; align-self: center;}
+        
+        .minimal-view .period-name { font-size: 3rem; color: #003366; }
         body.dark-mode .minimal-view .period-name { color: #90caf9; }
-        .minimal-view .period-time { grid-column: 3; grid-row: 1; font-size: 2.8rem; font-weight: bold; color: #333; align-self: center;}
+        .minimal-view .period-time { font-size: 2.8rem; font-weight: bold; color: #333; }
         body.dark-mode .minimal-view .period-time { color: #e0e0e0; }
         
-        .minimal-view .agenda-display { 
-            grid-column: 2; grid-row: 1; 
-            max-height: 250px; opacity: 1; margin: 0; font-size: 1.4rem; 
-            text-align: center; align-self: center; white-space: normal;
+        .minimal-view .agenda-display.has-data {
+            max-height: 250px; opacity: 1; font-size: 1.4rem; 
         }
         
         .minimal-view #schedule-list.no-active-period::after {
@@ -611,7 +621,7 @@
                             </svg>
                         </button>
                         
-                        <button id="studentViewBtn" class="header-icon-btn active-btn" onclick="toggleStudentView(true)" title="Toggle Options">
+                        <button id="waffleViewBtn" class="header-icon-btn active-btn" onclick="toggleWaffleMenu(true)" title="Toggle Options">
                             <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
                                 <rect x="4" y="4" width="4" height="4" rx="1"/><rect x="10" y="4" width="4" height="4" rx="1"/><rect x="16" y="4" width="4" height="4" rx="1"/><rect x="4" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="16" y="10" width="4" height="4" rx="1"/><rect x="4" y="16" width="4" height="4" rx="1"/><rect x="10" y="16" width="4" height="4" rx="1"/><rect x="16" y="16" width="4" height="4" rx="1"/>
                             </svg>
@@ -680,7 +690,12 @@
         let globalVolume = 1.0, globalVoicePref = '', classSettings = {};
         let lunchDuties = [], customReminders = [];
         let savedVibes = [], currentVibeUrl = '', vibeVolume = 50;
-        let currentTestSound = 'positive', sidebarVisible = true, isStudentView = false, isMinimalView = false, isDarkMode = false, showZero = false;
+        
+        // --- DECOUPLED VIEW VARIABLES ---
+        let isWaffleClosed = false; 
+        let isMinimalView = false; 
+        
+        let currentTestSound = 'positive', sidebarVisible = true, isDarkMode = false, showZero = false;
         let playGoodbyes = false, muteBells = false;
         let accordionStates = { sec1: true, sec2: true, sec3: true, sec4: true };
         let currentScheduleName = "Loading..."; 
@@ -706,7 +721,6 @@
         let savedGlobalVol = 1.0;
         let isGlobalMuted = false;
 
-        // --- Scroll Listener for Dynamic Header ---
         window.addEventListener('scroll', () => {
             const header = document.getElementById('floating-header');
             if(header) {
@@ -715,7 +729,6 @@
             }
         });
 
-        // --- Fullscreen State Listener ---
         document.addEventListener('fullscreenchange', () => {
             const fsBtn = document.getElementById('fullScreenBtn');
             if(fsBtn) {
@@ -724,7 +737,6 @@
             }
         });
 
-        // --- Drag Logic for Floating Player ---
         const floatPlayer = document.getElementById('floating-player');
         let isDragging = false, dragStartX, dragStartY, initialLeft, initialTop;
 
@@ -770,7 +782,6 @@
             floatPlayer.classList.remove('dragging');
         }
 
-        // --- YouTube Playlist & API Engine ---
         let ytPlayer = null;
         let isYtApiReady = false;
 
@@ -850,12 +861,11 @@
             }
         }
 
-        // --- Core Music Player Engine ---
         function applyMusicState(url, shouldPlay) {
             if (!url) { stopVibeCore(); return true; } 
             
             activePlayerUrl = url;
-            updateFloatingPlayerVisibility(); // Force UI update even before API loads
+            updateFloatingPlayerVisibility(); 
             
             const vid = extractVideoID(url);
             if (!vid) return true;
@@ -962,8 +972,6 @@
             }
         }
 
-        // --- NEW AUDIO SYNC FUNCTIONS ---
-        
         function syncVibeVolume(val) {
             vibeVolume = parseInt(val);
             const mainVol = document.getElementById('vibeVolumeControl');
@@ -1112,7 +1120,6 @@
             }
         }
 
-        // --- Smart Caching iCal Parser Logic ---
         async function fetchAgenda(url, elementId) {
             const el = document.getElementById(elementId);
             if (!el) return;
@@ -1122,7 +1129,6 @@
                 fetchUrlStr = 'https://' + fetchUrlStr.substring(9);
             }
 
-            // 1. Check if we already have the answer for this exact URL
             if (agendaCache[fetchUrlStr]) {
                 if (agendaCache[fetchUrlStr] !== 'empty') {
                     el.innerHTML = agendaCache[fetchUrlStr];
@@ -1138,7 +1144,6 @@
             el.classList.add('has-data');
 
             try {
-                // 2. If we aren't currently fetching this URL, start a new fetch promise
                 if (!agendaPromises[fetchUrlStr]) {
                     const fetchUrl = `${GOOGLE_CALENDAR_SCRIPT_URL}?icalUrl=${encodeURIComponent(fetchUrlStr)}`;
                     
@@ -1198,13 +1203,9 @@
                     });
                 }
 
-                // 3. Wait for the fetch promise to resolve
                 const resultHtml = await agendaPromises[fetchUrlStr];
-                
-                // 4. Save the final result to the memory cache so we never fetch it again
                 agendaCache[fetchUrlStr] = resultHtml;
 
-                // 5. Render to the UI
                 if (resultHtml !== 'empty') {
                     el.innerHTML = resultHtml;
                     el.classList.add('has-data');
@@ -1224,7 +1225,7 @@
             try {
                 const data = {
                     mode: currentMode, vol: globalVolume, voice: globalVoicePref, testSound: currentTestSound,
-                    side: sidebarVisible, student: isStudentView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
+                    side: sidebarVisible, waffleClosed: isWaffleClosed, minimalView: isMinimalView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
                     customSchedule: predefinedSchedules.custom, settings: classSettings, lunchDuties: lunchDuties,
                     savedVibes: savedVibes, vibe: currentVibeUrl, vibeVol: vibeVolume, muteB: muteBells,
                     mrBsJukebox: mrBsJukebox, jukeboxUrl: jukeboxUrl, isMainVibePlaying: isMainVibePlaying,
@@ -1252,11 +1253,7 @@
                     if(modeDropdown) modeDropdown.value = currentMode;
                     
                     globalVoicePref = p.voice || '';
-                    if (p.vol !== undefined) {
-                        syncGlobalVolume(p.vol);
-                    } else {
-                        syncGlobalVolume(1.0);
-                    }
+                    if (p.vol !== undefined) { syncGlobalVolume(p.vol); } else { syncGlobalVolume(1.0); }
                     if (p.vibeVol !== undefined) { syncVibeVolume(p.vibeVol); }
 
                     if (p.testSound) {
@@ -1277,9 +1274,11 @@
                         if(hamBtn) hamBtn.classList.remove('active-btn');
                     }
                     
-                    if (p.student === true) {
-                        setStudentView(true, false);
-                    }
+                    // Restore independent views
+                    if (p.waffleClosed !== undefined) { setWaffleState(p.waffleClosed, false); }
+                    else if (p.student === true) { setWaffleState(true, false); } // Legacy fallback
+                    
+                    if (p.minimalView !== undefined) { setMinimalView(p.minimalView, false); }
                     
                     if (p.dark === true) { 
                         isDarkMode = true;
@@ -1337,7 +1336,6 @@
             updateFloatingPlayerVisibility();
         }
 
-        // --- Accordion Logic ---
         function toggleAccordion(id, shouldSave = true) {
             const content = document.getElementById(id);
             const chevron = document.getElementById('chev-' + id);
@@ -1376,17 +1374,17 @@
             const toggle = document.getElementById('darkModeToggle');
             if(!toggle) return;
             isDarkMode = toggle.checked;
-            const svBtn = document.getElementById('studentViewBtn');
-            const mvBtn = document.getElementById('minimalViewBtn');
+            const wBtn = document.getElementById('waffleViewBtn');
+            const mBtn = document.getElementById('minimalViewBtn');
             
             if (isDarkMode) { 
                 document.body.classList.add('dark-mode'); 
-                if(!isStudentView && svBtn) svBtn.style.color = '#90caf9';
-                if(isMinimalView && mvBtn) mvBtn.style.color = '#90caf9';
+                if(isWaffleClosed && wBtn) wBtn.style.color = '#90caf9';
+                if(isMinimalView && mBtn) mBtn.style.color = '#90caf9';
             } else { 
                 document.body.classList.remove('dark-mode'); 
-                if(!isStudentView && svBtn) svBtn.style.color = '#003366';
-                if(isMinimalView && mvBtn) mvBtn.style.color = '#003366';
+                if(isWaffleClosed && wBtn) wBtn.style.color = '#003366';
+                if(isMinimalView && mBtn) mBtn.style.color = '#003366';
             }
             if (shouldSave) saveLocalSettings();
             renderLunchDuties(); 
@@ -1416,39 +1414,42 @@
             }
         }
 
-        // --- NEW VIEW TOGGLE LOGIC ---
-        function setStudentView(state, shouldSave = true) {
-            isStudentView = state;
+        // --- DECOUPLED VIEW TOGGLES ---
+        function setWaffleState(isClosed, shouldSave = true) {
+            if (isWaffleClosed === isClosed && shouldSave) return;
+            isWaffleClosed = isClosed;
             const container = document.getElementById('schedule-container');
-            const disclaimer = document.getElementById('disclaimer-text');
-            const btn = document.getElementById('studentViewBtn');
-            if(container && disclaimer && btn) {
-                if (isStudentView) {
-                    container.classList.add('student-view'); 
-                    disclaimer.style.opacity = '0'; 
+            const btn = document.getElementById('waffleViewBtn');
+            
+            if(container && btn) {
+                if (isWaffleClosed) {
+                    container.classList.add('waffle-closed'); 
                     btn.classList.remove('active-btn');
-                    if (isMinimalView) setMinimalView(false, false);
+                    if(isDarkMode) btn.style.color = '#90caf9';
+                    else btn.style.color = '#003366';
                 } else {
-                    container.classList.remove('student-view'); 
-                    disclaimer.style.opacity = '1'; 
+                    container.classList.remove('waffle-closed'); 
                     btn.classList.add('active-btn');
+                    if(isDarkMode) btn.style.color = '#666';
+                    else btn.style.color = '#aaa';
                 }
             }
             if (shouldSave) saveLocalSettings();
         }
-        function toggleStudentView(shouldSave = true) { setStudentView(!isStudentView, shouldSave); }
+        function toggleWaffleMenu(shouldSave = true) { setWaffleState(!isWaffleClosed, shouldSave); }
 
         function setMinimalView(state, shouldSave = true) {
+            if (isMinimalView === state) return;
             isMinimalView = state;
             const container = document.getElementById('schedule-container');
             const btn = document.getElementById('minimalViewBtn');
+            
             if(container && btn) {
                 if (isMinimalView) {
                     container.classList.add('minimal-view'); 
                     btn.classList.add('active-btn');
                     if(isDarkMode) btn.style.color = '#90caf9';
                     else btn.style.color = '#003366';
-                    if (isStudentView) setStudentView(false, false);
                 } else {
                     container.classList.remove('minimal-view'); 
                     btn.classList.remove('active-btn');
@@ -1810,7 +1811,7 @@
             setTimeout(() => { overlay.remove(); }, 6000); 
         }
 
-        // --- UPDATED PROGRESS BAR HIGHLIGHTER ---
+        // --- PROGRESS BAR HIGHLIGHTER ---
         function highlightCurrentPeriod(now) {
             const listItems = document.querySelectorAll('#schedule-list li');
             if (listItems.length === 0) return null;
@@ -1884,7 +1885,7 @@
             let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
             const todayDayOfWeek = now.getDay(); 
             
-            // --- NEW AUTO-TOGGLE STATE MACHINE ---
+            // --- AUTO-TOGGLE STATE MACHINE ---
             let status = highlightCurrentPeriod(now);
             let currentStatus = 'outside';
             let autoState = 'passing';
@@ -1919,9 +1920,9 @@
             // Handle Auto-Transitions
             if (lastAutoState !== null && autoState !== lastAutoState) {
                 if (autoState === 'core-class') {
-                    setMinimalView(true, true); // Auto collapse 5 mins in
+                    setMinimalView(true, true); 
                 } else if (autoState === 'dead-start' || autoState === 'dead-end' || autoState === 'passing') {
-                    setMinimalView(false, true); // Auto expand during dead times/passing
+                    setMinimalView(false, true); 
                 }
             }
             lastAutoState = autoState;
