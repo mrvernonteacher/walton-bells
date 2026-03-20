@@ -71,14 +71,14 @@
         }
         body.dark-mode #clock { background: rgba(30, 30, 30, 0.85); color: #e0e0e0; box-shadow: 0 4px 10px rgba(0,0,0,0.7); }
 
-        /* --- Smart State Icon Buttons --- */
+        /* --- Smart State Icon Buttons (UPDATED TO LIGHT BLUE) --- */
         .header-icon-btn {
             background: none; border: none; color: #aaa; cursor: pointer; padding: 6px 8px; border-radius: 8px;
             display: flex; align-items: center; justify-content: center; transition: background-color 0.2s, color 0.2s;
             font-size: 1.6rem; line-height: 1;
         }
         .header-icon-btn:hover { background-color: rgba(150,150,150,0.2); color: #888; }
-        .header-icon-btn.active-btn { color: #003366; } 
+        .header-icon-btn.active-btn { color: #31b0d5; } /* Light Blue when active */
         
         body.dark-mode .header-icon-btn { color: #666; }
         body.dark-mode .header-icon-btn:hover { background-color: rgba(150,150,150,0.2); color: #aaa; }
@@ -196,7 +196,7 @@
 
         .schedule-container { padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; box-sizing: border-box; transition: all 0.4s ease; }
         
-        /* --- UPDATED HEADER LAYOUT --- */
+        /* --- HEADER LAYOUT --- */
         .schedule-header-wrap { 
             display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-bottom: 10px; 
             border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 8px; transition: all 0.4s ease;
@@ -270,17 +270,17 @@
             padding: 6px 10px; border-radius: 5px; font-weight: bold; border: 1px solid #d6e9c6; text-align: center;
         }
 
-        /* --- BULLETPROOF DESKTOP GRID LAYOUT --- */
+        /* --- BULLETPROOF GRID LAYOUT --- */
         .schedule-grid {
             display: grid; 
-            grid-template-columns: 160px 1fr 240px; /* Widened right column to prevent wrap */
-            gap: 10px; 
+            grid-template-columns: minmax(130px, auto) 1fr minmax(180px, auto); 
+            gap: 15px; 
             align-items: center; 
             padding: 8px 10px;
             transition: all 0.4s ease;
         }
         
-        .schedule-header { font-size: 1.1rem; font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 6px; margin-bottom: 6px; transition: color 0.3s ease; }
+        .schedule-header { font-size: 0.8rem; font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 6px; margin-bottom: 6px; transition: color 0.3s ease; }
         
         .middle-section {
             display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden;
@@ -298,6 +298,7 @@
         
         #schedule-list { list-style-type: none; padding: 0; margin: 0; }
         
+        /* List Item Base Settings */
         #schedule-list li { 
             border-bottom: 1px solid rgba(150,150,150,0.2); border-left: 5px solid transparent; 
             max-height: 250px; overflow: hidden; opacity: 1;
@@ -305,8 +306,9 @@
         }
         #schedule-list li:nth-child(even) { background-color: rgba(0,0,0,0.03); }
 
-        .period-name { grid-column: 1; font-weight: bold; text-align: left; font-size: 1.2rem; align-self: center; transition: all 0.4s ease; }
-        .period-time { grid-column: 3; text-align: right; font-size: 1.05rem; color: #555; align-self: center; transition: all 0.4s ease; }
+        /* INCREASED DEFAULT FONT SIZES */
+        .period-name { grid-column: 1; font-weight: bold; text-align: left; font-size: 1.6rem; align-self: center; transition: all 0.4s ease; }
+        .period-time { grid-column: 3; text-align: right; font-size: 1.4rem; color: #555; align-self: center; transition: all 0.4s ease; }
 
         /* --- Current Period Progress Bar Highlight --- */
         #schedule-list li.current-period {
@@ -332,20 +334,20 @@
         body.dark-mode .agenda-error { color: #ff8a80 !important; }
 
         /* =========================================================
-           STATE 1: WAFFLE CLOSED 
+           STATE 1: WAFFLE CLOSED (Options hidden, Agenda visible) 
            ========================================================= */
-        .waffle-closed .schedule-grid { grid-template-columns: 180px 1fr 280px; }
+        .waffle-closed .schedule-grid { grid-template-columns: 200px 1fr 280px; }
         .waffle-closed .options-wrapper { max-height: 0px; opacity: 0; pointer-events: none; }
         .waffle-closed .agenda-display.has-data { max-height: 40px; opacity: 1; margin-top: 4px; }
         .waffle-closed .schedule-header .options-wrapper { max-height: 0px; opacity: 0; }
         
-        .waffle-closed .period-name { font-size: 2rem; color: #003366; }
+        .waffle-closed .period-name { font-size: 2.2rem; color: #003366; }
         body.dark-mode .waffle-closed .period-name { color: #90caf9; }
-        .waffle-closed .period-time { font-size: 1.6rem; font-weight: bold; color: #333; }
+        .waffle-closed .period-time { font-size: 2rem; font-weight: bold; color: #333; }
         body.dark-mode .waffle-closed .period-time { color: #e0e0e0; }
 
         /* =========================================================
-           STATE 2: MINIMAL VIEW (Focus Mode) 
+           STATE 2: MINIMAL VIEW (Focus Mode - Tighter vertical space) 
            ========================================================= */
         .minimal-view .schedule-grid { grid-template-columns: auto 1fr auto; padding: 10px 30px; gap: 20px; border: none; }
         .minimal-view .schedule-header { max-height: 0; padding: 0; margin: 0; opacity: 0; border: none; overflow: hidden;} 
@@ -358,11 +360,12 @@
             background: transparent !important; border-left: none !important; box-shadow: none !important; padding: 15px 0;
         }
         
-        .minimal-view .period-name { font-size: 3rem; color: #003366; }
+        .minimal-view .period-name { font-size: 3.5rem; color: #003366; }
         body.dark-mode .minimal-view .period-name { color: #90caf9; }
-        .minimal-view .period-time { font-size: 2.4rem; font-weight: bold; color: #333; }
+        .minimal-view .period-time { font-size: 3rem; font-weight: bold; color: #333; }
         body.dark-mode .minimal-view .period-time { color: #e0e0e0; }
         
+        /* Force minimal view rules over waffle rules */
         .minimal-view .options-wrapper { max-height: 0px !important; opacity: 0 !important; pointer-events: none; }
         .minimal-view .agenda-display.has-data { 
             max-height: 80px !important; opacity: 1 !important; font-size: 1.4rem; 
@@ -1168,6 +1171,7 @@
                         const icsData = await response.text();
 
                         if (icsData.startsWith('Error:')) {
+                            console.error("Apps Script Error:", icsData);
                             return `<em class="agenda-error" title="${icsData}">Apps Script error</em>`;
                         }
 
@@ -1230,6 +1234,7 @@
                 }
 
             } catch (error) {
+                console.error("iCal Fetch Error:", error);
                 el.innerHTML = "<em class='agenda-error'>Error loading feed.</em>";
                 agendaCache[fetchUrlStr] = "<em class='agenda-error'>Error loading feed.</em>";
             }
@@ -1386,17 +1391,11 @@
             const toggle = document.getElementById('darkModeToggle');
             if(!toggle) return;
             isDarkMode = toggle.checked;
-            const wBtn = document.getElementById('waffleViewBtn');
-            const mBtn = document.getElementById('minimalViewBtn');
             
             if (isDarkMode) { 
                 document.body.classList.add('dark-mode'); 
-                if(isWaffleClosed && wBtn) wBtn.style.color = '#90caf9';
-                if(isMinimalView && mBtn) mBtn.style.color = '#90caf9';
             } else { 
                 document.body.classList.remove('dark-mode'); 
-                if(isWaffleClosed && wBtn) wBtn.style.color = '#003366';
-                if(isMinimalView && mBtn) mBtn.style.color = '#003366';
             }
             if (shouldSave) saveLocalSettings();
             renderLunchDuties(); 
@@ -1436,13 +1435,9 @@
                 if (isWaffleClosed) {
                     container.classList.add('waffle-closed'); 
                     btn.classList.remove('active-btn');
-                    if(isDarkMode) btn.style.color = '#90caf9';
-                    else btn.style.color = '#003366';
                 } else {
                     container.classList.remove('waffle-closed'); 
                     btn.classList.add('active-btn');
-                    if(isDarkMode) btn.style.color = '#666';
-                    else btn.style.color = '#aaa';
                 }
             }
             if (shouldSave) saveLocalSettings();
@@ -1459,13 +1454,9 @@
                 if (isMinimalView) {
                     container.classList.add('minimal-view'); 
                     btn.classList.add('active-btn');
-                    if(isDarkMode) btn.style.color = '#90caf9';
-                    else btn.style.color = '#003366';
                 } else {
                     container.classList.remove('minimal-view'); 
                     btn.classList.remove('active-btn');
-                    if(isDarkMode) btn.style.color = '#666';
-                    else btn.style.color = '#aaa';
                 }
             }
             if (shouldSave) saveLocalSettings();
@@ -1761,7 +1752,7 @@
                     let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
                     let isWebBlock = /^[A-D](\s|-)?Block/i.test(key);
                     let webOpenCheckbox = isWebBlock ? 
-                        `<div class="options-col"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
+                        `<div class="options-col opt-center"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
                         `<div class="options-col"></div>`;
 
                     li.innerHTML = `
