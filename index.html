@@ -1015,31 +1015,37 @@
             el.innerHTML = "<em>Fetching agenda...</em>";
 
             try {
-                // Using allorigins proxy to bypass browser CORS blocking
-                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-                const response = await fetch(proxyUrl);
-                const data = await response.json();
-                const icsData = data.contents;
+                // 1. Fix webcal:// protocols so fetch doesn't instantly fail
+                let fetchUrl = url.trim();
+                if (fetchUrl.startsWith('webcal://')) {
+                    fetchUrl = 'https://' + fetchUrl.substring(9);
+                }
 
-                if (!icsData) {
-                    el.innerHTML = "<em>No data found</em>";
+                // 2. Use the 'raw' endpoint to pull text directly (avoids JSON packaging issues)
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(fetchUrl)}`;
+                const response = await fetch(proxyUrl);
+                
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
+                const icsData = await response.text();
+
+                if (!icsData || !icsData.includes('BEGIN:VCALENDAR')) {
+                    el.innerHTML = "<em>Invalid or empty calendar data</em>";
                     return;
                 }
 
                 const today = new Date();
-                // Format current date to match iCal standard YYYYMMDD
                 const todayStr = today.getFullYear() + String(today.getMonth() + 1).padStart(2, '0') + String(today.getDate()).padStart(2, '0');
                 
                 const events = icsData.split('BEGIN:VEVENT');
                 let todaysEvents = [];
 
-                // Start loop at 1 to skip the calendar header metadata
                 for (let i = 1; i < events.length; i++) {
                     const eventText = events[i];
                     
-                    // Regex to find DTSTART and SUMMARY lines
-                    const dtStartMatch = eventText.match(/DTSTART.*:([0-9]{8})/); 
-                    const summaryMatch = eventText.match(/SUMMARY:(.*)/);
+                    // Improved regex to handle timezones and strip line breaks from the summary
+                    const dtStartMatch = eventText.match(/DTSTART[^:]*:([0-9]{8})/); 
+                    const summaryMatch = eventText.match(/SUMMARY:([^\r\n]*)/);
 
                     if (dtStartMatch && summaryMatch) {
                         const eventDate = dtStartMatch[1];
@@ -1057,7 +1063,7 @@
 
             } catch (error) {
                 console.error("iCal Fetch Error:", error);
-                el.innerHTML = "<em>Error loading feed</em>";
+                el.innerHTML = "<em>Error loading feed. Check URL.</em>";
             }
         }
 
