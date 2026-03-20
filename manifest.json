@@ -1,7 +1,7 @@
 {
   "name": "Walton Bell Schedule",
   "short_name": "Bell Schedule",
-  "start_url": "index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f4f4f9",
   "theme_color": "#003366",
