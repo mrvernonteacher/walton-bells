@@ -145,7 +145,7 @@
         body.dark-mode #disclaimer-text { color: #aaa !important; }
         body.dark-mode #schedule-list li { border-color: #444; }
         body.dark-mode #schedule-list li:nth-child(even) { background-color: rgba(255,255,255,0.03); }
-        body.dark-mode select, body.dark-mode input[type="text"], body.dark-mode input[type="time"], body.dark-mode input[type="date"] { background: #333; color: #fff; border-color: #555; }
+        body.dark-mode select, body.dark-mode input[type="text"], body.dark-mode input[type="time"] { background: #333; color: #fff; border-color: #555; }
         body.dark-mode #jukeboxUrlInput { background: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.2); color: #e0e0e0;}
         body.dark-mode .period-time { color: #ddd; }
         body.dark-mode .dropdown-content { background-color: #333; border-color: #555; }
@@ -160,14 +160,17 @@
         body.dark-mode .split-button-main { background-color: #0288d1; }
         body.dark-mode .split-button-caret { background-color: #0277bd; border-left: 1px solid #01579b; }
 
-        /* --- Positive Goodbyes & Jukebox UI --- */
-        .goodbye-box {
-            background: rgba(92, 184, 92, 0.15); border: 1px solid rgba(92, 184, 92, 0.4);
-            padding: 12px; border-radius: 8px; margin-top: 15px; transition: all 0.3s ease;
-        }
-        .goodbye-box label { color: #003366; transition: color 0.3s ease; font-weight: bold; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 8px;}
-        body.dark-mode .goodbye-box { background: rgba(144, 202, 249, 0.1); border-color: rgba(144, 202, 249, 0.3); }
-        body.dark-mode .goodbye-box label { color: #90caf9; }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; margin-top: 5px;}
+
+        /* Custom Toggles */
+        .switch-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #003366; }
+        input:checked + .slider:before { transform: translateX(20px); }
+        body.dark-mode input:checked + .slider { background-color: #90caf9; }
 
         /* --- Open Block Badge --- */
         .open-badge {
@@ -198,58 +201,15 @@
         }
         .schedule-header-wrap h3 { margin: 0; font-size: 1.5rem; color: #003366; transition: color 0.3s ease; }
 
-        /* UI Controls & Accordions */
-        .control-group { border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 10px; margin-bottom: 10px;}
+        /* UI Controls */
+        .control-group { margin-bottom: 12px; border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 12px;}
         .control-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
+        .control-group label.title { font-weight: bold; display: block; margin-bottom: 5px; color: #003366; transition: color 0.3s ease; }
+        .sub-label { font-size: 0.9rem; color: #555; transition: color 0.3s ease; cursor: help; }
         
-        .accordion-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 5px 0; }
-        .accordion-header label.title { font-weight: bold; margin-bottom: 0; color: #003366; transition: color 0.3s ease; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; pointer-events: none;}
-        .chevron { font-size: 0.8rem; color: #888; transition: transform 0.3s ease; }
-        .accordion-content { overflow: hidden; transition: max-height 0.3s ease-out; }
-        
-        .sub-label { font-size: 0.95rem; color: #444; font-weight: 500; transition: color 0.3s ease; cursor: help; }
-        body.dark-mode .sub-label { color: #ccc; }
-        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; margin-top: 5px;}
-        
-        select, input[type="text"], input[type="time"], input[type="date"] { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 0.9rem; background: rgba(255,255,255,0.9); margin-bottom: 8px;}
-        .volume-container { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; margin-top: 10px;}
-        input[type="range"] { flex-grow: 1; cursor: pointer; }
-
-        .split-button-container { display: flex; align-items: stretch; width: 100%; margin-top: 5px; margin-bottom: 5px;}
-        .split-button-main { flex-grow: 1; background-color: #5bc0de; color: white; border: none; padding: 8px 12px; border-radius: 5px 0 0 5px; cursor: pointer; font-size: 0.95rem; font-weight: bold; transition: background-color 0.2s; text-align: left; }
-        .split-button-main:hover { background-color: #31b0d5; }
-        .dropdown { position: relative; display: flex; }
-        .split-button-caret { background-color: #46b8da; color: white; border: none; border-left: 1px solid #31b0d5; padding: 0 10px; border-radius: 0 5px 5px 0; cursor: pointer; font-size: 1rem; transition: background-color 0.2s; }
-        .split-button-caret:hover { background-color: #31b0d5; }
-        .dropdown-content { display: none; position: absolute; right: 0; top: 100%; background-color: #fff; min-width: 240px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 10; border-radius: 5px; overflow: hidden; border: 1px solid #ddd; }
-        .dropdown-content.show { display: block; }
-        .dropdown-content button { color: #333; padding: 8px 12px; text-decoration: none; display: block; width: 100%; background: none; border: none; border-bottom: 1px solid #eee; text-align: left; margin: 0; font-size: 0.9rem; }
-        .dropdown-content button:hover { background-color: #f1f1f1; color: #003366; }
-
-        .btn { background-color: #003366; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 0.95rem; width: 100%; margin-top: 8px; font-weight: bold; transition: background-color 0.2s; }
-        .btn.inline { width: auto; margin-top: 0; padding: 6px 12px;}
-        .btn:hover { background-color: #002244; }
-        .btn-danger { background-color: #d9534f; }
-        .btn-danger:hover { background-color: #c9302c; }
-
-        /* Custom Toggles */
-        .switch-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; margin-top: 5px;}
-        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
-        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: #003366; }
-        input:checked + .slider:before { transform: translateX(20px); }
-        body.dark-mode input:checked + .slider { background-color: #90caf9; }
-
-        #autoIndicator {
-            display: none; margin-bottom: 10px; font-size: 0.8rem; background: #dff0d8; color: #3c763d; 
-            padding: 6px 10px; border-radius: 5px; font-weight: bold; border: 1px solid #d6e9c6; text-align: center;
-        }
-
         /* Schedule Grid */
         .schedule-grid {
-            display: grid; grid-template-columns: 90px repeat(5, 1fr) 110px; gap: 6px; align-items: center; text-align: center; transition: all 0.3s ease;
+            display: grid; grid-template-columns: 120px repeat(5, 1fr) 110px; gap: 6px; align-items: center; text-align: center; transition: all 0.3s ease;
         }
         .schedule-header { font-size: 0.8rem; font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 6px; margin-bottom: 6px; transition: color 0.3s ease; }
         .options-col[title] { cursor: help; border-bottom: 1px dotted rgba(0,0,0,0.3); padding-bottom: 2px; } 
@@ -260,7 +220,7 @@
         #schedule-list li:nth-child(even) { background-color: rgba(0,0,0,0.03); }
         #schedule-list input[type="checkbox"] { cursor: pointer; transform: scale(1.2); margin: 0; }
 
-        .period-name { font-weight: bold; text-align: left; font-size: 1.05rem; transition: all 0.3s ease;}
+        .period-name { font-weight: bold; text-align: left; font-size: 1.05rem; transition: all 0.3s ease; display: flex; align-items: center; gap: 5px;}
         .period-time { text-align: right; font-size: 0.95rem; color: #555; transition: all 0.3s ease;}
 
         /* --- Current Period Highlight --- */
@@ -283,6 +243,7 @@
         .student-view .period-time { font-size: 1.8rem; font-weight: bold; color: #333; }
         body.dark-mode .student-view .period-time { color: #e0e0e0; }
         .student-view .schedule-header { display: none; } 
+        .student-view .agenda-btn { display: none; }
 
         /* --- FOCUS MODE (Minimal View) CSS --- */
         .minimal-view .options-col { display: none; }
@@ -297,11 +258,19 @@
         body.dark-mode .minimal-view .period-name { color: #90caf9; }
         .minimal-view .period-time { font-size: 2.8rem; font-weight: bold; color: #333; text-align: right; }
         body.dark-mode .minimal-view .period-time { color: #e0e0e0; }
+        .minimal-view .agenda-btn { display: none; }
         
         .minimal-view #schedule-list.no-active-period::after {
             content: "Outside School Hours";
             display: block; padding: 20px; text-align: center; font-size: 1.5rem; font-weight: bold; color: #888;
         }
+
+        /* --- Custom Agenda Display in Minimal Mode --- */
+        .minimal-agenda {
+            display: none; width: 100%; text-align: center; font-size: 1.5rem; font-weight: 500;
+            color: #003366; margin-top: 20px; z-index: 10;
+        }
+        body.dark-mode .minimal-agenda { color: #90caf9; }
 
         .footer { margin-top: 25px; font-size: 0.85rem; color: #555; text-align: center; width: 100%; transition: color 0.3s ease; }
         .footer p { margin: 0 0 5px 0; font-weight: bold;}
@@ -338,9 +307,9 @@
     <div class="dashboard-wrapper">
         <div class="sidebar" id="sidebar">
             
-            <div class="control-group" style="padding-bottom: 5px; margin-bottom: 5px; border-bottom: none;">
-                <div class="switch-container" title="Toggle between light and dark UI themes.">
-                    <span class="sub-label" id="darkModeLabel">Dark Mode</span>
+            <div class="control-group">
+                <div class="switch-container">
+                    <span class="sub-label" style="font-weight: bold;" id="darkModeLabel">Dark Mode</span>
                     <label class="switch">
                         <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode(true)">
                         <span class="slider"></span>
@@ -349,161 +318,115 @@
             </div>
 
             <div class="control-group">
-                <div class="accordion-header" onclick="toggleAccordion('sec1')">
-                    <label class="title">1. Audio & Voice Settings</label>
-                    <span class="chevron" id="chev-sec1">▼</span>
+                <label class="title">1. Bell & Voice Settings</label>
+                
+                <label class="sub-label" style="margin-bottom: 5px; display: block;">Dynamic Voice Selection:</label>
+                <select id="voicePreference" onchange="changeVoicePref()" style="margin-bottom: 8px;">
+                    <option value="">Loading voices...</option>
+                </select>
+
+                <div class="volume-container">
+                    <span>🔔 🔈</span>
+                    <input type="range" id="volumeControl" min="0" max="1" step="0.05" value="1" onchange="changeVolume()">
+                    <span>🔊</span>
                 </div>
-                <div class="accordion-content" id="sec1">
-                    <select id="voicePreference" onchange="changeVoicePref()" title="Select the computer voice used for automated announcements.">
-                        <option value="">Loading voices...</option>
+                
+                <div class="split-button-container">
+                    <button id="playBtn" class="split-button-main" onclick="testSelectedSound()">▶ Play Voice Test</button>
+                    <div class="dropdown">
+                        <button class="split-button-caret" onclick="toggleDropdown(event)">▼</button>
+                        <div id="soundDropdown" class="dropdown-content">
+                            <button onclick="selectTestSound('positive', 'Voice Test')">Voice Test (Positive Msg)</button>
+                            <button onclick="selectTestSound('start', 'Class Start')">Class Start (3 Rings & Caddy)</button>
+                            <button onclick="selectTestSound('end', 'Class End')">Class End (3 Rings)</button>
+                            <button onclick="selectTestSound('warning1m', '1-Min Warning')">1-Min Warning (1 Ring)</button>
+                            <button onclick="selectTestSound('attendance', 'Take Attend.')">Take Attendance Voice</button>
+                            <button onclick="selectTestSound('cleanup', '5-Min Clean')">5-Min Clean-Up Voice</button>
+                            <button onclick="selectTestSound('lunch', 'Lunch Duty')">Lunch Duty Voice</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-row" title="Reads an encouraging, randomized message out loud after the final class bell rings.">
+                    <span class="sub-label">Positive Goodbyes</span>
+                    <label class="switch">
+                        <input type="checkbox" id="playGoodbyes" onchange="toggleGoodbyes()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="title" for="scheduleMode">2. Mode & Auto-Sync:</label>
+                <select id="scheduleMode" onchange="changeMode()" style="margin-bottom: 8px;">
+                    <option value="synced" id="syncedOption">Loading Google Sheet...</option>
+                    <option value="web">WEB Schedule (Hardcoded)</option>
+                    <option value="custom">Custom Schedule</option>
+                </select>
+                
+                <div id="autoIndicator">✓ Auto-Synced</div>
+                
+                <div class="setting-row" title="Show or hide the 0 Period block from the schedule.">
+                    <span class="sub-label">Show 0 Period</span>
+                    <label class="switch">
+                        <input type="checkbox" id="showZeroPeriod" onchange="changeMode()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="control-group" id="lunch-builder">
+                <label class="title">3. Weekly Lunch Duties:</label>
+                <div style="display:flex; gap:6px; margin-bottom:6px;">
+                    <select id="lunchDay">
+                        <option value="1">Mon</option><option value="2">Tue</option><option value="3">Wed</option><option value="4">Thu</option><option value="5">Fri</option>
                     </select>
-
-                    <div class="volume-container" title="Master volume for the bell chime and voice announcements.">
-                        <span>🔔 🔈</span>
-                        <input type="range" id="volumeControl" min="0" max="1" step="0.05" value="1" onchange="changeVolume()">
-                        <span>🔊</span>
-                    </div>
-                    
-                    <div class="setting-row" title="Mutes the bell chime, but keeps automated voice announcements active.">
-                        <span class="sub-label">Mute Bell Sounds</span>
-                        <label class="switch">
-                            <input type="checkbox" id="muteBellsToggle" onchange="toggleMuteBells()">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-
-                    <div class="split-button-container" title="Test the selected audio/voice combination.">
-                        <button id="playBtn" class="split-button-main" onclick="testSelectedSound()">▶ Play Voice Test</button>
-                        <div class="dropdown">
-                            <button class="split-button-caret" onclick="toggleDropdown(event)">▼</button>
-                            <div id="soundDropdown" class="dropdown-content">
-                                <button onclick="selectTestSound('positive', 'Voice Test')">Voice Test (Positive Msg)</button>
-                                <button onclick="selectTestSound('start', 'Class Start')">Class Start (3 Rings & Caddy)</button>
-                                <button onclick="selectTestSound('end', 'Class End')">Class End (3 Rings)</button>
-                                <button onclick="selectTestSound('warning1m', '1-Min Warning')">1-Min Warning (1 Ring)</button>
-                                <button onclick="selectTestSound('attendance', 'Take Attend.')">Take Attendance Voice</button>
-                                <button onclick="selectTestSound('cleanup', '5-Min Clean')">5-Min Clean-Up Voice</button>
-                                <button onclick="selectTestSound('lunch', 'Lunch Duty')">Lunch Duty Voice</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="goodbye-box">
-                        <label>
-                            <input type="checkbox" id="playGoodbyes" onchange="toggleGoodbyes()" style="width: 16px; height: 16px; margin-right: 8px;"> 
-                            Play Positive Goodbyes
-                        </label>
-                        <div class="goodbye-desc">Reads an encouraging, randomized message out loud after the final class bell rings.</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="control-group">
-                <div class="accordion-header" onclick="toggleAccordion('sec2')">
-                    <label class="title">2. Schedule Settings</label>
-                    <span class="chevron" id="chev-sec2">▼</span>
-                </div>
-                <div class="accordion-content" id="sec2">
-                    <div id="autoIndicator" title="The current schedule successfully loaded from the Google Sheet.">✓ Auto-Synced</div>
-
-                    <select id="scheduleMode" onchange="changeMode()" title="Override the auto-synced schedule with a manual selection.">
-                        <option value="synced" id="syncedOption">Loading Google Sheet...</option>
-                        <option value="web">WEB Schedule (Hardcoded)</option>
-                        <option value="custom">Custom Schedule</option>
+                    <select id="lunchHalf">
+                        <option value="1">1st Half</option><option value="2">2nd Half</option>
                     </select>
-                    
-                    <div class="setting-row" title="Adds or removes the 0 Period block from the active schedule view.">
-                        <span class="sub-label">Show 0 Period</span>
-                        <label class="switch">
-                            <input type="checkbox" id="showZeroPeriod" onchange="changeMode()">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
                 </div>
+                <div style="display:flex; gap:6px; margin-bottom:6px;">
+                    <select id="lunchPeriod" style="flex-grow: 1;">
+                        <option value="3rd">3rd Period</option>
+                        <option value="4th">4th Period</option>
+                        <option value="5th">5th Period</option>
+                        <option value="6th">6th Period</option>
+                    </select>
+                    <button class="btn inline" onclick="addLunchDuty()">Add</button>
+                </div>
+                <ul id="lunch-duty-list" style="list-style:none; padding:0; margin-top:10px; font-size:0.85rem; color:#555;"></ul>
             </div>
 
             <div class="control-group">
-                <div class="accordion-header" onclick="toggleAccordion('sec3')">
-                    <label class="title">3. Custom Reminders</label>
-                    <span class="chevron" id="chev-sec3">▼</span>
+                <label class="title">4. Classroom Vibe Playlist</label>
+                
+                <div class="setting-row" title="Automatically plays an upbeat Clean Pop playlist during passing periods on Fridays.">
+                    <span class="sub-label">Mr. B's Jukebox (Fridays)</span>
+                    <label class="switch">
+                        <input type="checkbox" id="jukeboxToggle" onchange="toggleJukebox()">
+                        <span class="slider"></span>
+                    </label>
                 </div>
-                <div class="accordion-content" id="sec3">
-                    
-                    <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dotted rgba(150,150,150,0.5);">
-                        <span class="sub-label" style="display:block; margin-bottom:5px;">Add Custom Reminder:</span>
-                        <input type="text" id="remName" placeholder="Reminder Name (e.g. Brain Break)">
-                        <div style="display:flex; gap:6px; margin-top:6px;">
-                            <input type="time" id="remTime" style="flex:1;">
-                            <select id="remDay" style="flex:1;" title="Select day of the week or Daily.">
-                                <option value="All">Daily</option>
-                                <option value="1">Mon</option><option value="2">Tue</option>
-                                <option value="3">Wed</option><option value="4">Thu</option><option value="5">Fri</option>
-                            </select>
-                        </div>
-                        <button class="btn" onclick="addCustomReminder()" style="margin-top: 6px;">Add Reminder</button>
-                        <ul id="custom-reminder-list" style="list-style:none; padding:0; margin-top:10px; font-size:0.85rem; color:#555;"></ul>
-                    </div>
+                <input type="text" id="jukeboxUrlInput" placeholder="Custom Jukebox URL (Optional)" style="margin-bottom: 12px;" onchange="updateJukeboxUrl()">
 
-                    <span class="sub-label" style="display:block; margin-bottom:5px;">Weekly Lunch Duties:</span>
-                    <div style="display:flex; gap:6px; margin-bottom:6px;" title="Select the day and half of lunch.">
-                        <select id="lunchDay">
-                            <option value="1">Mon</option><option value="2">Tue</option><option value="3">Wed</option><option value="4">Thu</option><option value="5">Fri</option>
-                        </select>
-                        <select id="lunchHalf">
-                            <option value="1">1st Half</option><option value="2">2nd Half</option>
-                        </select>
-                    </div>
-                    <div style="display:flex; gap:6px; margin-bottom:6px;" title="Select the class period and click Add.">
-                        <select id="lunchPeriod" style="flex-grow: 1;">
-                            <option value="3rd">3rd Period</option>
-                            <option value="4th">4th Period</option>
-                            <option value="5th">5th Period</option>
-                            <option value="6th">6th Period</option>
-                        </select>
-                        <button class="btn inline" onclick="addLunchDuty()">Add</button>
-                    </div>
-                    <ul id="lunch-duty-list" style="list-style:none; padding:0; margin-top:10px; font-size:0.85rem; color:#555;"></ul>
+                <label class="sub-label" style="margin-bottom: 5px; display: block;">Main Classroom Vibe URL:</label>
+                <div style="display:flex; gap:6px; margin-bottom: 8px;">
+                    <select id="vibeSelect" style="flex-grow: 1; min-width: 0;" onchange="changeVibeSelection()">
+                        <option value="">-- Add a Vibe --</option>
+                    </select>
+                    <button class="btn inline" style="width: auto; padding: 6px 10px;" onclick="addNewVibe()" title="Add New URL">➕</button>
+                    <button class="btn btn-danger inline" style="width: auto; padding: 6px 10px;" onclick="removeVibe()" title="Remove URL">✖</button>
                 </div>
-            </div>
-
-            <div class="control-group">
-                <div class="accordion-header" onclick="toggleAccordion('sec4')">
-                    <label class="title">4. Classroom Vibe Settings</label>
-                    <span class="chevron" id="chev-sec4">▼</span>
+                
+                <div class="volume-container" style="margin-bottom: 8px;">
+                    <span>🎵 🔈</span>
+                    <input type="range" id="vibeVolumeControl" min="0" max="100" step="1" value="50" onchange="changeVibeVolume()">
+                    <span>🔊</span>
                 </div>
-                <div class="accordion-content" id="sec4">
-                    
-                    <div class="goodbye-box" style="margin-top: 5px; margin-bottom: 15px; padding: 10px;">
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: bold; font-size: 0.95rem;">
-                            <input type="checkbox" id="jukeboxToggle" onchange="toggleJukebox()" style="width: 16px; height: 16px;"> 
-                            Mr. B's Jukebox (Fridays)
-                        </label>
-                        <div class="goodbye-desc" style="margin-top: 4px; margin-left: 24px; font-size: 0.75rem;">
-                            Automatically plays an upbeat Clean Pop playlist during passing periods on Fridays.
-                        </div>
-                        <div style="margin-left: 24px; margin-top: 8px; display: flex; gap: 5px;">
-                            <input type="text" id="jukeboxUrlInput" placeholder="Custom Playlist URL (Optional)" style="font-size: 0.8rem; padding: 4px; border: 1px solid rgba(0,0,0,0.2); background: rgba(255,255,255,0.5); width: 100%; border-radius: 4px;" onchange="updateJukeboxUrl()" title="Paste a specific YouTube playlist for Friday Jukebox.">
-                        </div>
-                    </div>
 
-                    <div style="display:flex; gap:6px; margin-bottom: 8px;" title="Select or manage your saved YouTube background videos.">
-                        <select id="vibeSelect" style="flex-grow: 1; min-width: 0;" onchange="changeVibeSelection()">
-                            <option value="">-- Add a Vibe --</option>
-                        </select>
-                        <button class="btn inline" style="width: auto; padding: 6px 10px;" onclick="addNewVibe()" title="Add New URL">➕</button>
-                        <button class="btn btn-danger inline" style="width: auto; padding: 6px 10px;" onclick="removeVibe()" title="Remove URL">✖</button>
-                    </div>
-                    
-                    <div class="volume-container" style="margin-bottom: 12px;" title="Adjust the background music volume.">
-                        <span>🎵 🔈</span>
-                        <input type="range" id="vibeVolumeControl" min="0" max="100" step="1" value="50" onchange="changeVibeVolume()">
-                        <span>🔊</span>
-                    </div>
-
-                    <div style="display:flex; gap:6px;">
-                        <button class="btn inline" style="flex-grow: 1;" onclick="startVibe()">▶ Start Vibe</button>
-                        <button class="btn btn-danger inline" onclick="stopVibe()">Stop</button>
-                    </div>
+                <div style="display:flex; gap:6px;">
+                    <button class="btn inline" style="flex-grow: 1;" onclick="startVibe()">▶ Start Vibe</button>
+                    <button class="btn btn-danger inline" onclick="stopVibe()">Stop</button>
                 </div>
             </div>
         </div>
@@ -533,7 +456,7 @@
                 </div>
                 
                 <div class="schedule-grid schedule-header">
-                    <div class="period-name">Class</div>
+                    <div class="period-name" style="justify-content: flex-start;">Class</div>
                     <div class="options-col" title="Cell Phone Caddy: Reminds students to put phones away at the start of class.">Cell Caddy</div>
                     <div class="options-col" title="Take Attendance: Sends an automated reminder 5 minutes into the period.">Attend.</div>
                     <div class="options-col" title="5-Min Clean Up: Reminds students to clean their area 5 minutes before class ends.">Clean</div>
@@ -543,9 +466,11 @@
                 </div>
                 
                 <ul id="schedule-list"></ul>
-                <p id="disclaimer-text" style="font-size: 0.75rem; color: #888; text-align: right; margin-top: 8px;">*The 1-Minute Warning bell is always active by default.</p>
+                <p id="disclaimer-text" style="font-size: 0.75rem; color: #888; text-align: right; margin-top: 8px;">*The 1-Minute Warning bell is always active by default. Lunch duties run automatically from your sidebar settings.</p>
             </div>
             
+            <div id="minimal-agenda-display" class="minimal-agenda"></div>
+
             <div class="footer">
                 <p>Walton Engineering, solving your problems.</p>
                 <img src="https://drive.google.com/thumbnail?id=1C_7ujbANbJaMShbWDxuXx0m4ZTJLtkSE&sz=w800" alt="Walton Engineering Logo" class="footer-logo">
@@ -588,25 +513,23 @@
         };
 
         let currentMode = 'synced', activeSchedule = [];
-        let globalVolume = 1.0, globalVoicePref = '', classSettings = {};
-        let lunchDuties = [], customReminders = [];
+        let globalVolume = 1.0, globalVoicePref = '', classSettings = {}, lunchDuties = [];
         let savedVibes = [], currentVibeUrl = '', vibeVolume = 50;
-        let currentTestSound = 'positive', sidebarVisible = true, isStudentView = false, isMinimalView = false, isDarkMode = false, showZero = false;
-        let playGoodbyes = false, muteBells = false;
-        let accordionStates = { sec1: true, sec2: true, sec3: true, sec4: true };
+        let calendarAgendas = {}; 
+        let currentlyDisplayedAgendaPeriod = null;
+
+        let currentTestSound = 'positive', sidebarVisible = true, isStudentView = false, isMinimalView = false, isDarkMode = false, showZero = false, playGoodbyes = false;
         let currentScheduleName = "Loading..."; 
         
         let playedActions = {};
         let currentMinuteTracker = "";
         
-        // --- State Machine Variables for Media Player ---
         let mrBsJukebox = false;
         let jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
         let isMainVibePlaying = false;
         let activePlayerUrl = '';
         let lastPeriodStatus = null; 
 
-        // --- Scroll Listener for Dynamic Header ---
         window.addEventListener('scroll', () => {
             const header = document.getElementById('floating-header');
             if(header) {
@@ -615,7 +538,6 @@
             }
         });
 
-        // --- Fullscreen State Listener ---
         document.addEventListener('fullscreenchange', () => {
             const fsBtn = document.getElementById('fullScreenBtn');
             if(fsBtn) {
@@ -624,7 +546,6 @@
             }
         });
 
-        // --- Drag Logic for Floating Player ---
         const floatPlayer = document.getElementById('floating-player');
         let isDragging = false, dragStartX, dragStartY, initialLeft, initialTop;
 
@@ -670,7 +591,6 @@
             floatPlayer.classList.remove('dragging');
         }
 
-        // --- YouTube Playlist & API Engine ---
         let ytPlayer = null;
         let isYtApiReady = false;
 
@@ -750,19 +670,17 @@
             }
         }
 
-        // --- Core Music Player Engine ---
         function applyMusicState(url, shouldPlay) {
             if (!url) { stopVibeCore(); return true; } 
-            
-            activePlayerUrl = url;
-            updateFloatingPlayerVisibility(); // Force UI update even before API loads
             
             const vid = extractVideoID(url);
             if (!vid) return true;
 
             if (!isYtApiReady) return false; 
 
+            activePlayerUrl = url;
             const bgContainer = document.getElementById('vibe-bg');
+            updateFloatingPlayerVisibility();
             if(bgContainer) bgContainer.style.opacity = "0.45";
 
             if (ytPlayer) {
@@ -907,6 +825,64 @@
         }
         window.speechSynthesis.onvoiceschanged = populateVoiceList;
 
+        // --- Class Agenda ICS Fetcher ---
+        async function updateAgendaDisplay(periodName) {
+            const agendaContainer = document.getElementById('minimal-agenda-display');
+            if (!agendaContainer) return;
+            
+            const url = calendarAgendas[periodName];
+            if (!url) {
+                agendaContainer.innerText = "";
+                return;
+            }
+            
+            // Prevent spamming requests
+            if (currentlyDisplayedAgendaPeriod === periodName && agendaContainer.innerText !== "Loading agenda..." && agendaContainer.innerText !== "") return;
+            currentlyDisplayedAgendaPeriod = periodName;
+            
+            agendaContainer.innerText = "Loading agenda...";
+            
+            try {
+                const proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(url);
+                const response = await fetch(proxyUrl);
+                if(!response.ok) throw new Error("Network response was not ok");
+                
+                const data = await response.json();
+                const text = data.contents;
+                
+                if (!text) throw new Error("Empty feed data");
+
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const dd = String(today.getDate()).padStart(2, '0');
+                const todayStr = `${yyyy}${mm}${dd}`; 
+                
+                const events = text.split("BEGIN:VEVENT");
+                let todaysEvents = [];
+                
+                for (let i = 1; i < events.length; i++) {
+                    let ev = events[i];
+                    if (ev.includes(`DTSTART:${todayStr}`) || ev.includes(`DTSTART;VALUE=DATE:${todayStr}`) || ev.includes(`${todayStr}T`)) {
+                        let summaryMatch = ev.match(/SUMMARY:(.*)/);
+                        if (summaryMatch) {
+                            todaysEvents.push(summaryMatch[1].trim().replace(/\\,/g, ','));
+                        }
+                    }
+                }
+                
+                if (todaysEvents.length > 0) {
+                    agendaContainer.innerText = "📅 Today's Agenda: " + todaysEvents.join(" | ");
+                } else {
+                    agendaContainer.innerText = "📅 No unique events scheduled for today.";
+                }
+                
+            } catch (e) {
+                console.error("Agenda Fetch Error:", e);
+                agendaContainer.innerText = "📅 Unable to load agenda (Ensure URL is a Public iCal feed)";
+            }
+        }
+
         async function fetchDailySchedule() {
             if (!GOOGLE_CALENDAR_SCRIPT_URL) return;
             
@@ -963,11 +939,11 @@
             try {
                 const data = {
                     mode: currentMode, vol: globalVolume, voice: globalVoicePref, testSound: currentTestSound,
-                    side: sidebarVisible, student: isStudentView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
+                    side: sidebarVisible, student: isStudentView, minimal: isMinimalView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
                     customSchedule: predefinedSchedules.custom, settings: classSettings, lunchDuties: lunchDuties,
-                    savedVibes: savedVibes, vibe: currentVibeUrl, vibeVol: vibeVolume, muteB: muteBells,
+                    savedVibes: savedVibes, vibe: currentVibeUrl, vibeVol: vibeVolume,
                     mrBsJukebox: mrBsJukebox, jukeboxUrl: jukeboxUrl, isMainVibePlaying: isMainVibePlaying,
-                    customReminders: customReminders, accordions: accordionStates
+                    calendarAgendas: calendarAgendas
                 };
                 localStorage.setItem('waltonBellState', JSON.stringify(data));
             } catch (e) {}
@@ -981,7 +957,7 @@
                     if (p.customSchedule) predefinedSchedules.custom = p.customSchedule;
                     if (p.settings) classSettings = p.settings;
                     if (p.lunchDuties) lunchDuties = p.lunchDuties;
-                    if (p.customReminders) customReminders = p.customReminders;
+                    if (p.calendarAgendas) calendarAgendas = p.calendarAgendas;
                     
                     let savedMode = p.mode || 'synced';
                     if (savedMode === 'daily' || savedMode === 'regular') savedMode = 'synced';
@@ -1025,6 +1001,14 @@
                         if(dText) dText.style.display = 'none';
                         if(svBtn) svBtn.classList.remove('active-btn');
                     }
+
+                    if (p.minimal === true) {
+                        isMinimalView = true;
+                        const sCont = document.getElementById('schedule-container');
+                        const mBtn = document.getElementById('minimalViewBtn');
+                        if(sCont) sCont.classList.add('minimal-view');
+                        if(mBtn) mBtn.classList.add('active-btn');
+                    }
                     
                     if (p.dark === true) { 
                         isDarkMode = true;
@@ -1041,11 +1025,6 @@
                         const pgToggle = document.getElementById('playGoodbyes');
                         if(pgToggle) pgToggle.checked = true; 
                         playGoodbyes = true; 
-                    }
-                    if (p.muteB === true) { 
-                        const mbToggle = document.getElementById('muteBellsToggle');
-                        if(mbToggle) mbToggle.checked = true; 
-                        muteBells = true; 
                     }
                     
                     if (p.savedVibes) savedVibes = p.savedVibes;
@@ -1067,51 +1046,12 @@
                     if(jkInput && jukeboxUrl !== "https://www.youtube.com/watch?v=CLLpSmaof4E") {
                         jkInput.value = jukeboxUrl;
                     }
-
-                    if (p.accordions) {
-                        accordionStates = p.accordions;
-                        Object.keys(accordionStates).forEach(id => {
-                            if(!accordionStates[id]) toggleAccordion(id, false); // collapse if saved as false
-                        });
-                    }
                 }
             } catch (e) {}
             renderLunchDuties();
-            renderCustomReminders();
             renderVibeDropdown();
             updateFloatingPlayerVisibility();
         }
-
-        // --- Accordion Logic ---
-        function toggleAccordion(id, shouldSave = true) {
-            const content = document.getElementById(id);
-            const chevron = document.getElementById('chev-' + id);
-            if (!content || !chevron) return;
-            
-            if (content.style.maxHeight === "0px" || content.style.maxHeight === "") {
-                content.style.maxHeight = content.scrollHeight + "px";
-                chevron.style.transform = "rotate(0deg)";
-                accordionStates[id] = true;
-                setTimeout(() => { if(accordionStates[id]) content.style.maxHeight = "none"; }, 300);
-            } else {
-                content.style.maxHeight = content.scrollHeight + "px"; // Force pixel height for transition
-                setTimeout(() => {
-                    content.style.maxHeight = "0px";
-                    chevron.style.transform = "rotate(-90deg)";
-                    accordionStates[id] = false;
-                }, 10);
-            }
-            if(shouldSave) saveLocalSettings();
-        }
-
-        // Initialize accordions open
-        setTimeout(() => {
-            ['sec1', 'sec2', 'sec3', 'sec4'].forEach(id => {
-                const el = document.getElementById(id);
-                if(el && accordionStates[id] !== false) el.style.maxHeight = "none";
-                else if (el) { el.style.maxHeight = "0px"; document.getElementById('chev-'+id).style.transform = "rotate(-90deg)"; }
-            });
-        }, 100);
 
         function toggleFullScreen() {
             if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(err => {});
@@ -1188,6 +1128,7 @@
             isMinimalView = !isMinimalView;
             const container = document.getElementById('schedule-container');
             const btn = document.getElementById('minimalViewBtn');
+            const agDisplay = document.getElementById('minimal-agenda-display');
             
             if(container && btn) {
                 if (isMinimalView) {
@@ -1198,11 +1139,16 @@
                     
                     if (!isStudentView) toggleStudentView(false);
                     
+                    if (currentlyDisplayedAgendaPeriod) updateAgendaDisplay(currentlyDisplayedAgendaPeriod);
+                    if (agDisplay) agDisplay.style.display = 'block';
+                    
                 } else {
                     container.classList.remove('minimal-view'); 
                     btn.classList.remove('active-btn');
                     if(isDarkMode) btn.style.color = '#666';
                     else btn.style.color = '#aaa';
+                    
+                    if (agDisplay) agDisplay.style.display = 'none';
                 }
             }
             if (shouldSave) saveLocalSettings();
@@ -1229,12 +1175,6 @@
         function toggleGoodbyes() { 
             const tog = document.getElementById('playGoodbyes');
             if(tog) playGoodbyes = tog.checked; 
-            saveLocalSettings(); 
-        }
-
-        function toggleMuteBells() { 
-            const tog = document.getElementById('muteBellsToggle');
-            if(tog) muteBells = tog.checked; 
             saveLocalSettings(); 
         }
 
@@ -1272,12 +1212,26 @@
             saveLocalSettings(); 
         }
 
-        function playBellWithQueue(timesLeft = 1, onCompleteCallback = null) {
-            if (muteBells) {
-                if (onCompleteCallback) onCompleteCallback();
-                return;
+        // --- Prompt for Agenda ---
+        function promptAgenda(periodName) {
+            let currentUrl = calendarAgendas[periodName] || '';
+            let url = prompt(`Paste the Google Calendar "Public address in iCal format" (.ics) for ${periodName}\n\n(Leave blank to remove):`, currentUrl);
+            if (url !== null) {
+                if (url.trim() === '') {
+                    delete calendarAgendas[periodName];
+                } else {
+                    calendarAgendas[periodName] = url.trim();
+                }
+                saveLocalSettings();
+                renderSchedule(); 
+                if (isMinimalView) {
+                    currentlyDisplayedAgendaPeriod = null; 
+                    updateClock(); 
+                }
             }
+        }
 
+        function playBellWithQueue(timesLeft = 1, onCompleteCallback = null) {
             const audio = document.getElementById('regularBellAudio'); 
             
             if(!audio) {
@@ -1332,49 +1286,6 @@
             else if (currentTestSound === 'lunch') speak("Reminder. You have lunch duty.");
         }
 
-        // --- Custom Reminders Logic ---
-        function addCustomReminder() {
-            const name = document.getElementById('remName').value;
-            const time = document.getElementById('remTime').value;
-            const day = document.getElementById('remDay').value;
-            
-            if(name && time) {
-                customReminders.push({ name, time, day });
-                renderCustomReminders();
-                saveLocalSettings();
-                document.getElementById('remName').value = '';
-                document.getElementById('remTime').value = '';
-                
-                // Recalculate accordion height so it doesn't clip
-                const content = document.getElementById('sec3');
-                if(content.style.maxHeight !== "0px" && content.style.maxHeight !== "none") {
-                    content.style.maxHeight = "none";
-                }
-            } else {
-                showToast("Please enter a Name and Time");
-            }
-        }
-        
-        function removeCustomReminder(index) { 
-            customReminders.splice(index, 1); 
-            renderCustomReminders(); 
-            saveLocalSettings(); 
-        }
-
-        function renderCustomReminders() {
-            const list = document.getElementById('custom-reminder-list'); 
-            if(!list) return;
-            list.innerHTML = '';
-            const days = {"All": "Daily", "1": "Mon", "2": "Tue", "3": "Wed", "4": "Thu", "5": "Fri"};
-            customReminders.forEach((rem, index) => {
-                const li = document.createElement('li'); li.className = "duty-item";
-                li.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid #eee;";
-                li.innerHTML = `<span><b>${formatTime12(rem.time)}</b> - ${rem.name} (${days[rem.day]})</span>
-                                <button onclick="removeCustomReminder(${index})" style="background:none; border:none; color:#d9534f; cursor:pointer; font-size:1.1rem;" title="Remove Reminder">✖</button>`;
-                list.appendChild(li);
-            });
-        }
-
         function addLunchDuty() {
             const dayVal = document.getElementById('lunchDay');
             const halfVal = document.getElementById('lunchHalf');
@@ -1388,12 +1299,6 @@
                 lunchDuties.push({ day, half, period });
                 renderLunchDuties(); saveLocalSettings(); 
                 periodVal.value = '3rd';
-                
-                // Recalculate accordion height so it doesn't clip
-                const content = document.getElementById('sec3');
-                if(content.style.maxHeight !== "0px" && content.style.maxHeight !== "none") {
-                    content.style.maxHeight = "none";
-                }
             }
         }
         function removeLunchDuty(index) { lunchDuties.splice(index, 1); renderLunchDuties(); saveLocalSettings(); }
@@ -1441,6 +1346,11 @@
             const st = document.getElementById('schedule-title');
             if(st && st.childNodes[0]) st.childNodes[0].nodeValue = currentScheduleName.toUpperCase() + ' Schedule '; 
             renderSchedule(); saveLocalSettings();
+            
+            if (isMinimalView) {
+                currentlyDisplayedAgendaPeriod = null; 
+                updateClock();
+            }
         }
 
         function toggleSetting(periodName, settingType, isChecked) {
@@ -1485,8 +1395,11 @@
                         `<div class="options-col"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''} title="Mark as WEB Open Block"></div>` : 
                         `<div class="options-col"></div>`;
 
+                    let agendaIcon = calendarAgendas[key] ? '📅✓' : '📅➕';
+                    let agendaBtnHtml = `<button class="agenda-btn" onclick="promptAgenda('${safeKey}')" title="${calendarAgendas[key] ? 'Edit' : 'Link'} Google Calendar Feed" style="background:none; border:none; cursor:pointer; font-size:1.1rem; padding: 0 6px; vertical-align: middle;">${agendaIcon}</button>`;
+
                     li.innerHTML = `
-                        <div class="period-name">${key} ${openBadgeHtml}</div>
+                        <div class="period-name">${key} ${openBadgeHtml} ${agendaBtnHtml}</div>
                         <div class="options-col"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'putaway', this.checked)" ${s.putaway ? 'checked' : ''} title="Phone Caddy"></div>
                         <div class="options-col"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'attendance', this.checked)" ${s.attendance ? 'checked' : ''} title="Take Attendance"></div>
                         <div class="options-col"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'cleanup', this.checked)" ${s.cleanup ? 'checked' : ''} title="5-Min Clean Up"></div>
@@ -1543,7 +1456,7 @@
 
         function highlightCurrentPeriod(current24) {
             const listItems = document.querySelectorAll('#schedule-list li');
-            if (listItems.length === 0) return;
+            if (listItems.length === 0) return { index: -1, isPassing: false };
             
             const currentMins = timeToMins(current24);
             let highlightIndex = -1;
@@ -1559,7 +1472,7 @@
                 li.classList.remove('current-period'); 
             });
 
-            if (periods.length === 0) return;
+            if (periods.length === 0) return { index: -1, isPassing: false };
             
             if (currentMins >= periods[0].startMins && currentMins < periods[periods.length - 1].endMins) {
                 for (let i = 0; i < periods.length; i++) {
@@ -1633,21 +1546,22 @@
                 }
                 if (success) lastPeriodStatus = currentStatus;
             }
+            
+            // --- Minimal Agenda Update Logic ---
+            if (status && status.index !== -1 && Array.isArray(activeSchedule)) {
+                let pName = activeSchedule[status.index].name;
+                if (isMinimalView && currentlyDisplayedAgendaPeriod !== pName) {
+                    updateAgendaDisplay(pName);
+                }
+            } else {
+                if (currentlyDisplayedAgendaPeriod !== null) {
+                    currentlyDisplayedAgendaPeriod = null;
+                    const ag = document.getElementById('minimal-agenda-display');
+                    if (ag) ag.innerText = "";
+                }
+            }
 
             if (current24 === '06:00' && now.getSeconds() === 0) { fetchDailySchedule(); }
-            
-            // --- Process Custom Reminders ---
-            customReminders.forEach(rem => {
-                if (current24 === rem.time) {
-                    if (rem.day === 'All' || parseInt(rem.day) === todayDayOfWeek) {
-                        triggerEvent(current24, `custom-${rem.name}`, () => {
-                            triggerVisualAlert();
-                            playBellWithQueue(1, () => speak(`Reminder. ${rem.name}`));
-                        });
-                    }
-                }
-            });
-            
             if(!Array.isArray(activeSchedule)) return;
 
             const isWebDay = currentScheduleName.toLowerCase().includes('web');
