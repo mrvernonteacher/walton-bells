@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Walton Bell Schedule</title>
     <style>
+        /* --- Clean Browser Resets --- */
+        button, input, span { -webkit-tap-highlight-color: transparent; }
+        button:focus, input:focus, span:focus, .float-btn:focus, .header-icon-btn:focus { outline: none !important; }
+
         /* --- Sleek Auto-Hiding Scrollbars --- */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -133,7 +137,7 @@
         .float-volume span:hover { transform: scale(1.2); }
         .float-volume input { width: 100px; cursor: pointer; height: 4px; margin: 0;}
 
-        /* --- Dark Mode UI Basics --- */
+        /* --- Dark Mode & Glassmorphism UI --- */
         body.dark-mode { background-color: #121212; color: #e0e0e0; }
         
         .schedule-container, .sidebar { 
@@ -162,60 +166,6 @@
         body.dark-mode .split-button-main { background-color: #0288d1; }
         body.dark-mode .split-button-caret { background-color: #0277bd; border-left: 1px solid #01579b; }
 
-        /* --- Sidebar Specifics --- */
-        .dashboard-wrapper { display: flex; flex-wrap: wrap; gap: 15px; max-width: 1400px; margin: 0 auto; width: 100%; align-items: flex-start; z-index: 2; }
-
-        .sidebar {
-            flex: 1; min-width: 320px; max-width: 350px; padding: 15px 20px;
-            border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1);
-            opacity: 1; overflow: hidden; transform-origin: left center;
-        }
-        .sidebar.collapsed { min-width: 0; max-width: 0; padding: 0; margin-left: -15px; opacity: 0; transform: scaleX(0); border: none; max-height: 0; }
-
-        .control-group { border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 10px; margin-bottom: 10px;}
-        .control-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
-        .accordion-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 5px 0; }
-        .accordion-header label.title { font-weight: bold; margin-bottom: 0; color: #003366; transition: color 0.4s ease; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; pointer-events: none;}
-        .chevron { font-size: 0.8rem; color: #888; transition: transform 0.4s cubic-bezier(0.25, 1.2, 0.3, 1); }
-        .accordion-content { overflow: hidden; transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
-        .sub-label { font-size: 0.95rem; color: #444; font-weight: 500; transition: color 0.4s ease; cursor: help; }
-        body.dark-mode .sub-label { color: #ccc; }
-        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; margin-top: 5px;}
-        
-        select, input[type="text"], input[type="time"], input[type="date"] { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 0.9rem; background: rgba(255,255,255,0.9); margin-bottom: 8px; transition: background 0.4s, color 0.4s;}
-        .volume-container { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; margin-top: 10px;}
-        .volume-container span { cursor: pointer; transition: transform 0.2s; user-select: none; width: 20px; text-align: center;}
-        .volume-container span:hover { transform: scale(1.2); }
-        input[type="range"] { flex-grow: 1; cursor: pointer; }
-
-        .split-button-container { display: flex; align-items: stretch; width: 100%; margin-top: 5px; margin-bottom: 5px;}
-        .split-button-main { flex-grow: 1; background-color: #5bc0de; color: white; border: none; padding: 8px 12px; border-radius: 5px 0 0 5px; cursor: pointer; font-size: 0.95rem; font-weight: bold; transition: background-color 0.2s; text-align: left; }
-        .split-button-main:hover { background-color: #31b0d5; }
-        .dropdown { position: relative; display: flex; }
-        .split-button-caret { background-color: #46b8da; color: white; border: none; border-left: 1px solid #31b0d5; padding: 0 10px; border-radius: 0 5px 5px 0; cursor: pointer; font-size: 1rem; transition: background-color 0.2s; }
-        .split-button-caret:hover { background-color: #31b0d5; }
-        .dropdown-content { display: none; position: absolute; right: 0; top: 100%; background-color: #fff; min-width: 240px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 10; border-radius: 5px; overflow: hidden; border: 1px solid #ddd; }
-        .dropdown-content.show { display: block; animation: dropDownFade 0.3s cubic-bezier(0.25, 1.2, 0.3, 1); transform-origin: top right;}
-        @keyframes dropDownFade { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        .dropdown-content button { color: #333; padding: 8px 12px; text-decoration: none; display: block; width: 100%; background: none; border: none; border-bottom: 1px solid #eee; text-align: left; margin: 0; font-size: 0.9rem; transition: background 0.2s;}
-        .dropdown-content button:hover { background-color: #f1f1f1; color: #003366; }
-
-        .btn { background-color: #003366; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 0.95rem; width: 100%; margin-top: 8px; font-weight: bold; transition: background-color 0.2s, transform 0.2s; }
-        .btn.inline { width: auto; margin-top: 0; padding: 6px 12px;}
-        .btn:hover { background-color: #002244; transform: translateY(-1px);}
-        .btn-danger { background-color: #d9534f; }
-        .btn-danger:hover { background-color: #c9302c; }
-
-        /* Custom Toggles */
-        .switch-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; margin-top: 5px;}
-        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s cubic-bezier(0.25, 1.2, 0.3, 1); border-radius: 20px; }
-        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s cubic-bezier(0.25, 1.2, 0.3, 1); border-radius: 50%; }
-        input:checked + .slider { background-color: #31b0d5; } 
-        input:checked + .slider:before { transform: translateX(20px); }
-        body.dark-mode input:checked + .slider { background-color: #90caf9; }
-
         /* --- Positive Goodbyes & Jukebox UI --- */
         .goodbye-box {
             background: rgba(92, 184, 92, 0.15); border: 1px solid rgba(92, 184, 92, 0.4);
@@ -236,14 +186,19 @@
             font-size: 1rem; padding: 4px 10px; margin-left: 15px; transform: translateY(-2px); transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1);
         }
 
-        /* --- THE MASTER SCHEDULE CONTAINER --- */
-        .main-content { flex: 2; min-width: 500px; display: flex; flex-direction: column; }
+        /* --- Layout & Structure --- */
+        .dashboard-wrapper { display: flex; flex-wrap: wrap; gap: 15px; max-width: 1400px; margin: 0 auto; width: 100%; align-items: flex-start; z-index: 2; }
 
-        .schedule-container { 
-            padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
-            width: 100%; box-sizing: border-box; 
-            transition: all 0.7s cubic-bezier(0.34, 1.2, 0.64, 1); /* Liquid physics for container */
+        .sidebar {
+            flex: 1; min-width: 320px; max-width: 350px; padding: 15px 20px;
+            border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1);
+            opacity: 1; overflow: hidden; transform-origin: left center;
         }
+        .sidebar.collapsed { min-width: 0; max-width: 0; padding: 0; margin-left: -15px; opacity: 0; transform: scaleX(0); border: none; max-height: 0; }
+
+        .main-content { flex: 2; min-width: 500px; display: flex; flex-direction: column; transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); }
+
+        .schedule-container { padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; box-sizing: border-box; transition: all 0.6s cubic-bezier(0.34, 1.2, 0.64, 1); }
         
         .schedule-title-row { 
             display: flex; justify-content: center; align-items: center; margin-bottom: 10px; 
@@ -266,7 +221,7 @@
         /* --- BULLETPROOF GRID LAYOUT --- */
         .schedule-grid {
             display: grid; 
-            grid-template-columns: minmax(130px, auto) 1fr minmax(220px, auto); /* Fixed right width */
+            grid-template-columns: minmax(130px, auto) 1fr minmax(220px, auto); 
             gap: 15px; 
             align-items: center; 
             padding: 8px 10px;
@@ -298,8 +253,7 @@
         }
         #schedule-list li:nth-child(even) { background-color: rgba(0,0,0,0.03); }
 
-        /* INCREASED DEFAULT FONT SIZES & FORCED NO WRAP */
-        .period-name { grid-column: 1; font-weight: bold; text-align: left; font-size: 1.6rem; align-self: center; transition: all 0.5s cubic-bezier(0.25, 1.2, 0.3, 1); white-space: nowrap; }
+        .period-name { grid-column: 1; font-weight: bold; text-align: left; font-size: 1.6rem; align-self: center; transition: all 0.5s cubic-bezier(0.25, 1.2, 0.3, 1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .period-time { grid-column: 3; text-align: right; font-size: 1.4rem; color: #555; align-self: center; transition: all 0.5s cubic-bezier(0.25, 1.2, 0.3, 1); white-space: nowrap; }
 
         /* --- Current Period Progress Bar Highlight --- */
@@ -341,24 +295,48 @@
         /* =========================================================
            STATE 2: MINIMAL VIEW (The "Fly to Top Bar" Liquid Dock) 
            ========================================================= */
-           
+        
+        /* Remove the shadow and rounding from the header so the schedule merges seamlessly */
+        body.minimal-active .floating-header {
+            border-radius: 0;
+            box-shadow: none;
+            border-bottom: 1px solid rgba(150,150,150,0.2);
+        }
+        body.dark-mode.minimal-active .floating-header {
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }   
+
+        /* The Schedule container snaps exactly below the 75px header */
         body.minimal-active .schedule-container { 
             position: fixed; 
-            top: 0; 
-            left: 220px; /* Dodges the Logo/Hamburger */
-            right: 320px; /* Dodges the Toggles/Clock */
-            width: auto;
-            height: 75px;
-            z-index: 1101; /* Floats inside header */
-            border-radius: 0; 
+            top: 75px; 
+            left: 0;
+            width: 100%;
+            max-width: none;
+            z-index: 1090; 
+            border-radius: 0 0 20px 20px; 
             border: none;
-            box-shadow: none; 
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15); 
             margin: 0; 
-            padding: 0; 
-            background: transparent !important;
+            padding: 5px 30px 15px 30px; 
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            align-items: center;
+        }
+        body.dark-mode.minimal-active .schedule-container {
+            background: rgba(30, 30, 30, 0.85) !important;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.6);
+        }
+
+        /* Locks the internal text width so it doesn't span all the way to the edges of ultrawide monitors */
+        body.minimal-active .schedule-grid { 
+            width: 100%; 
+            max-width: 1260px; 
+            grid-template-columns: auto 1fr auto; 
+            padding: 5px 20px; 
+            gap: 20px; border: none; 
         }
 
         /* Erase the normal header and non-active classes */
@@ -366,22 +344,21 @@
         body.minimal-active .schedule-header { opacity: 0; max-height: 0; margin: 0; padding: 0; border: none; }
         body.minimal-active #schedule-list li:not(.current-period) { opacity: 0; max-height: 0; padding: 0; margin: 0; border: none; }
         
-        /* Format the active class to perfectly fit the 75px bar */
+        /* Format the active class */
         body.minimal-active #schedule-list li.current-period { 
-            height: 75px; padding: 0 10px; margin: 0; border: none !important; box-shadow: none !important; 
-            background: transparent !important;
+            padding: 10px 15px; margin: 0; border-radius: 10px;
         }
         
-        /* Shrunk slightly to fit beautifully in the header */
-        body.minimal-active .period-name { font-size: 1.8rem; color: #003366; }
+        /* Shrunk slightly to fit beautifully in the dropdown */
+        body.minimal-active .period-name { font-size: 2.5rem; color: #003366; }
         body.dark-mode.minimal-active .period-name { color: #90caf9; }
-        body.minimal-active .period-time { font-size: 1.6rem; font-weight: bold; color: #333; }
+        body.minimal-active .period-time { font-size: 2.2rem; font-weight: bold; color: #333; }
         body.dark-mode.minimal-active .period-time { color: #e0e0e0; }
         
         body.minimal-active .options-wrapper { display: none; }
         body.minimal-active .agenda-display.has-data { 
-            max-height: 30px; opacity: 1; font-size: 1rem; 
-            white-space: nowrap; margin: 0; padding: 0 10px;
+            max-height: 40px; opacity: 1; font-size: 1.2rem; 
+            white-space: normal; margin: 0; padding: 0 10px;
         }
 
         /* =========================================================
@@ -390,10 +367,10 @@
         @media (max-width: 850px) {
             body { padding-top: 85px; padding-left: 10px; padding-right: 10px;}
             
-            .floating-header { padding: 0 15px; border-radius: 0 0 15px 15px; grid-template-columns: 1fr auto; }
+            .floating-header { padding: 0 15px; border-radius: 0 0 15px 15px; grid-template-columns: 1fr auto; height: 70px;}
             .header-logo { height: 28px; }
             #clock { font-size: 1.5rem; min-width: 100px; }
-            .header-center { display: none; } /* Hide center space on mobile */
+            .header-center { display: none; } 
             
             .dashboard-wrapper { flex-direction: column; }
             .sidebar { max-width: 100%; width: 100%; margin-bottom: 20px; box-sizing: border-box;}
@@ -412,15 +389,23 @@
             }
             .middle-section { grid-column: 1; grid-row: auto; }
             .period-time, .waffle-closed .period-time, body.minimal-active .period-time {
-                grid-column: 1; grid-row: auto; text-align: center; font-size: 1.4rem;
+                grid-column: 1; grid-row: auto; text-align: center; font-size: 1.4rem; white-space: normal;
             }
             .agenda-display { grid-column: 1 !important; grid-row: auto !important; white-space: normal; }
             
             .options-wrapper { grid-template-columns: repeat(3, 1fr); max-height: 80px; }
             .waffle-closed .options-wrapper { max-height: 0px; }
             
-            .floating-player { bottom: 10px; right: 10px; left: 10px; justify-content: space-between; border-radius: 15px; }
-            .footer { position: relative; transform: none; left: 0; bottom: 0; margin-top: 20px; padding-bottom: 20px;}
+            /* --- Mobile Fixed Bottom Player --- */
+            .floating-player { 
+                position: fixed !important; bottom: 0 !important; right: 0 !important; left: 0 !important; 
+                width: 100% !important; border-radius: 20px 20px 0 0 !important; 
+                justify-content: space-between; padding: 15px 20px !important;
+                box-shadow: 0 -5px 15px rgba(0,0,0,0.15) !important;
+                transform: translateY(100%);
+            }
+            .floating-player.visible { transform: translateY(0) !important; }
+            .drag-handle { display: none !important; } /* Hide drag handle on mobile */
 
             /* Cancel fixed top bar docking on mobile since screen is too narrow */
             body.minimal-active .schedule-container {
@@ -778,6 +763,7 @@
         document.addEventListener('touchend', dragEnd);
 
         function dragStart(e) {
+            if (window.innerWidth <= 850) return; // Disable drag on mobile screens
             if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.tagName === 'SPAN') return;
             isDragging = true;
             floatPlayer.classList.add('dragging');
@@ -810,6 +796,16 @@
             isDragging = false;
             floatPlayer.classList.remove('dragging');
         }
+
+        // Reset inline drag styles if window resizes to mobile layout
+        window.addEventListener('resize', () => {
+            if (window.innerWidth <= 850) {
+                floatPlayer.style.top = '';
+                floatPlayer.style.left = '';
+                floatPlayer.style.right = '';
+                floatPlayer.style.bottom = '';
+            }
+        });
 
         let ytPlayer = null;
         let isYtApiReady = false;
