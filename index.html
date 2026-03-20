@@ -255,6 +255,8 @@
         .options-col[title] { cursor: help; border-bottom: 1px dotted rgba(0,0,0,0.3); padding-bottom: 2px; } 
         body.dark-mode .options-col[title] { border-bottom: 1px dotted rgba(255,255,255,0.4); }
         
+        .opt-center { display: flex; justify-content: center; align-items: center; } /* Replaces inline styles */
+
         #schedule-list { list-style-type: none; padding: 0; margin: 0; }
         #schedule-list li { padding: 6px 4px; border-bottom: 1px solid rgba(150,150,150,0.2); transition: all 0.3s ease; border-left: 5px solid transparent; }
         #schedule-list li:nth-child(even) { background-color: rgba(0,0,0,0.03); }
@@ -274,17 +276,22 @@
             box-shadow: inset 0 0 10px rgba(144, 202, 249, 0.1);
         }
 
+        /* --- Agenda Display CSS --- */
+        .agenda-display { display: none; font-size: 0.85rem; font-weight: normal; color: #666; margin-top: 4px; line-height: 1.2; }
+        body.dark-mode .agenda-display { color: #aaa; }
+
         /* --- Student View CSS --- */
-        .student-view .options-col { display: none; }
+        .student-view .options-col { display: none !important; }
         .student-view .schedule-grid { grid-template-columns: 1fr 1fr; padding: 2px 20px; }
         .student-view .period-name { font-size: 2rem; color: #003366; }
         body.dark-mode .student-view .period-name { color: #90caf9; }
         .student-view .period-time { font-size: 1.8rem; font-weight: bold; color: #333; }
         body.dark-mode .student-view .period-time { color: #e0e0e0; }
         .student-view .schedule-header { display: none; } 
+        .student-view .agenda-display { display: block; font-size: 1.1rem; margin-top: 8px; }
 
         /* --- FOCUS MODE (Minimal View) CSS --- */
-        .minimal-view .options-col { display: none; }
+        .minimal-view .options-col { display: none !important; }
         .minimal-view .schedule-header { display: none; }
         .minimal-view .schedule-grid { grid-template-columns: 1fr 1fr; padding: 15px 30px; }
         .minimal-view #schedule-list li:not(.current-period) { display: none !important; }
@@ -296,6 +303,7 @@
         body.dark-mode .minimal-view .period-name { color: #90caf9; }
         .minimal-view .period-time { font-size: 2.8rem; font-weight: bold; color: #333; text-align: right; }
         body.dark-mode .minimal-view .period-time { color: #e0e0e0; }
+        .minimal-view .agenda-display { display: block; font-size: 1.4rem; margin-top: 10px; }
         
         .minimal-view #schedule-list.no-active-period::after {
             content: "Outside School Hours";
@@ -1504,17 +1512,20 @@
                     let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
                     let isWebBlock = /^[A-D](\s|-)?Block/i.test(key);
                     let webOpenCheckbox = isWebBlock ? 
-                        `<div class="options-col" style="display:flex; justify-content:center;"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
+                        `<div class="options-col opt-center"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
                         `<div class="options-col"></div>`;
 
                     li.innerHTML = `
-                        <div class="period-name">${key} ${openBadgeHtml}</div>
-                        <div class="options-col" style="display:flex; justify-content:center;"><label class="switch" title="Phone Caddy"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'putaway', this.checked)" ${s.putaway ? 'checked' : ''}><span class="slider"></span></label></div>
-                        <div class="options-col" style="display:flex; justify-content:center;"><label class="switch" title="Take Attendance"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'attendance', this.checked)" ${s.attendance ? 'checked' : ''}><span class="slider"></span></label></div>
-                        <div class="options-col" style="display:flex; justify-content:center;"><label class="switch" title="5-Min Clean Up"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'cleanup', this.checked)" ${s.cleanup ? 'checked' : ''}><span class="slider"></span></label></div>
-                        <div class="options-col" style="display:flex; justify-content:center;"><label class="switch" title="1 Min Warning & Retrieve"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'retrieve', this.checked)" ${s.retrieve ? 'checked' : ''}><span class="slider"></span></label></div>
+                        <div class="period-name">
+                            ${key} ${openBadgeHtml}
+                            <div class="agenda-display" id="agenda-${safeKey}">${s.icalUrl ? '📅 Feed Linked (Ready for parser)' : ''}</div>
+                        </div>
+                        <div class="options-col opt-center"><label class="switch" title="Phone Caddy"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'putaway', this.checked)" ${s.putaway ? 'checked' : ''}><span class="slider"></span></label></div>
+                        <div class="options-col opt-center"><label class="switch" title="Take Attendance"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'attendance', this.checked)" ${s.attendance ? 'checked' : ''}><span class="slider"></span></label></div>
+                        <div class="options-col opt-center"><label class="switch" title="5-Min Clean Up"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'cleanup', this.checked)" ${s.cleanup ? 'checked' : ''}><span class="slider"></span></label></div>
+                        <div class="options-col opt-center"><label class="switch" title="1 Min Warning & Retrieve"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'retrieve', this.checked)" ${s.retrieve ? 'checked' : ''}><span class="slider"></span></label></div>
                         ${webOpenCheckbox}
-                        <div class="options-col" style="display:flex; justify-content:center;">
+                        <div class="options-col opt-center">
                             <button onclick="setIcalFeed('${safeKey}')" style="background:none;border:none;cursor:pointer;font-size:1.3rem;transition:transform 0.2s; filter: ${s.icalUrl ? 'none' : 'grayscale(100%) opacity(0.4)'}" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="${s.icalUrl ? 'Edit iCal Feed' : 'Add iCal Feed'}">📅</button>
                         </div>
                         <div class="period-time">${formatTime12(String(period.start))} - ${formatTime12(String(period.end))}</div>
