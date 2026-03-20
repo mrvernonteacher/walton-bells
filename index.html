@@ -144,6 +144,7 @@
         body.dark-mode h1, body.dark-mode h3, body.dark-mode .schedule-header, body.dark-mode .period-name, body.dark-mode .title { color: #90caf9; border-color: #444; }
         body.dark-mode .control-group label.title { color: #90caf9; }
         body.dark-mode .sub-label, body.dark-mode #darkModeLabel { color: #ccc !important; }
+        body.dark-mode #disclaimer-text { color: #aaa !important; }
         body.dark-mode #schedule-list li { border-color: #444; }
         body.dark-mode #schedule-list li:nth-child(even) { background-color: rgba(255,255,255,0.03); }
         body.dark-mode select, body.dark-mode input[type="text"], body.dark-mode input[type="time"], body.dark-mode input[type="date"] { background: #333; color: #fff; border-color: #555; }
@@ -196,10 +197,15 @@
 
         .schedule-container { padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; box-sizing: border-box; transition: all 0.4s ease; }
         
+        /* --- UPDATED HEADER LAYOUT (3 columns for perfect centering) --- */
         .schedule-header-wrap { 
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; 
+            display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-bottom: 10px; 
             border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 8px; transition: all 0.4s ease;
         }
+        .header-left { display: flex; align-items: center; gap: 12px; justify-self: start; }
+        .header-center { justify-self: center; }
+        .header-right { display: flex; align-items: center; gap: 8px; justify-self: end; }
+        
         .schedule-header-wrap h3 { margin: 0; font-size: 1.5rem; color: #003366; transition: color 0.3s ease; }
 
         /* --- Alert Pulse Animation --- */
@@ -211,7 +217,7 @@
         #dead-time-warning {
             color: #d9534f; font-weight: 900; font-size: 1rem; text-transform: uppercase;
             letter-spacing: 0.5px; animation: pulseAlert 2s infinite; background: rgba(217, 83, 79, 0.15);
-            padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(217, 83, 79, 0.3); margin-left: 15px;
+            padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(217, 83, 79, 0.3);
         }
 
         /* UI Controls & Accordions */
@@ -266,10 +272,11 @@
         }
 
         /* --- BULLETPROOF GRID LAYOUT --- */
+        /* Fixed outer grid so the middle wrapper stays perfectly centered */
         .schedule-grid {
             display: grid; 
-            grid-template-columns: minmax(110px, auto) 1fr minmax(130px, auto); 
-            gap: 15px; 
+            grid-template-columns: minmax(130px, 1fr) 5fr minmax(170px, 1fr); 
+            gap: 10px; 
             align-items: center; 
             padding: 8px 10px;
             transition: all 0.4s ease;
@@ -280,6 +287,7 @@
         /* Middle Section holds both the sliders and the agenda text */
         .middle-section {
             display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden;
+            width: 100%;
         }
 
         .options-wrapper {
@@ -301,8 +309,8 @@
         }
         #schedule-list li:nth-child(even) { background-color: rgba(0,0,0,0.03); }
 
-        .period-name { grid-column: 1; grid-row: 1; font-weight: bold; text-align: left; font-size: 1.25rem; align-self: center; transition: all 0.4s ease; }
-        .period-time { grid-column: 8; grid-row: 1; text-align: right; font-size: 1.15rem; color: #555; align-self: center; transition: all 0.4s ease; }
+        .period-name { grid-column: 1; font-weight: bold; text-align: left; font-size: 1.05rem; align-self: center; transition: all 0.4s ease; }
+        .period-time { grid-column: 3; text-align: right; font-size: 0.95rem; color: #555; align-self: center; transition: all 0.4s ease; }
 
         /* --- Current Period Progress Bar Highlight --- */
         #schedule-list li.current-period {
@@ -333,6 +341,11 @@
         .waffle-closed .options-wrapper { max-height: 0px; opacity: 0; pointer-events: none; }
         .waffle-closed .agenda-display.has-data { max-height: 40px; opacity: 1; margin-top: 4px; }
         .waffle-closed .schedule-header .options-wrapper { max-height: 0px; opacity: 0; }
+        
+        .waffle-closed .period-name { font-size: 1.5rem; color: #003366; }
+        body.dark-mode .waffle-closed .period-name { color: #90caf9; }
+        .waffle-closed .period-time { font-size: 1.3rem; font-weight: bold; color: #333; }
+        body.dark-mode .waffle-closed .period-time { color: #e0e0e0; }
 
         /* =========================================================
            STATE 2: MINIMAL VIEW (Focus Mode - Tighter vertical space) 
@@ -578,22 +591,24 @@
         </div>
 
         <div class="main-content">
-            <div class="schedule-container" id="schedule-container">
+            <div class="schedule-container waffle-closed" id="schedule-container">
                 
                 <div class="schedule-header-wrap">
-                    <div style="display: flex; align-items: center; gap: 12px;">
+                    <div class="header-left">
                         <button id="hamburgerBtn" class="header-icon-btn active-btn" onclick="toggleSidebar(true)" title="Toggle Settings">☰</button>
                         <h3 id="schedule-title">Active Schedule</h3>
+                    </div>
+                    <div class="header-center">
                         <span id="dead-time-warning" style="display: none;">DEAD TIME &mdash; NO HALL PASSES</span>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 8px;">
+                    <div class="header-right">
                         <button id="minimalViewBtn" class="header-icon-btn" onclick="toggleMinimalView(true)" title="Focus Mode (Show Current Class Only)">
                             <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
                                 <path d="M4 11h16v2H4z"/>
                             </svg>
                         </button>
                         
-                        <button id="waffleViewBtn" class="header-icon-btn active-btn" onclick="toggleWaffleMenu(true)" title="Toggle Options">
+                        <button id="waffleViewBtn" class="header-icon-btn" onclick="toggleWaffleMenu(true)" title="Toggle Options">
                             <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
                                 <rect x="4" y="4" width="4" height="4" rx="1"/><rect x="10" y="4" width="4" height="4" rx="1"/><rect x="16" y="4" width="4" height="4" rx="1"/><rect x="4" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="16" y="10" width="4" height="4" rx="1"/><rect x="4" y="16" width="4" height="4" rx="1"/><rect x="10" y="16" width="4" height="4" rx="1"/><rect x="16" y="16" width="4" height="4" rx="1"/>
                             </svg>
@@ -666,7 +681,7 @@
         let lunchDuties = [], customReminders = [];
         let savedVibes = [], currentVibeUrl = '', vibeVolume = 50;
         
-        let isWaffleClosed = false; 
+        let isWaffleClosed = true; 
         let isMinimalView = false; 
         
         let currentTestSound = 'positive', sidebarVisible = true, isDarkMode = false, showZero = false;
@@ -1123,6 +1138,7 @@
                         const icsData = await response.text();
 
                         if (icsData.startsWith('Error:')) {
+                            console.error("Apps Script Error:", icsData);
                             return `<em class="agenda-error" title="${icsData}">Apps Script error</em>`;
                         }
 
@@ -1702,7 +1718,7 @@
                     let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
                     let isWebBlock = /^[A-D](\s|-)?Block/i.test(key);
                     let webOpenCheckbox = isWebBlock ? 
-                        `<div class="options-col opt-center"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
+                        `<div class="options-col"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
                         `<div class="options-col"></div>`;
 
                     li.innerHTML = `
