@@ -606,9 +606,6 @@
 
     <script>
         const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec"; 
-        
-        // --- PASTE YOUR NEW APPS SCRIPT DEPLOYMENT URL HERE ---
-        const GOOGLE_ICAL_PARSER_URL = "YOUR_NEW_APPS_SCRIPT_URL_HERE";
 
         const DEFAULT_PREFS = { open: false, putaway: false, attendance: false, cleanup: false, retrieve: false, icalUrl: '' };
 
@@ -1016,17 +1013,11 @@
             const el = document.getElementById(elementId);
             if (!el) return;
             
-            // Wait for apps script URL to be added
-            if (GOOGLE_ICAL_PARSER_URL === "YOUR_NEW_APPS_SCRIPT_URL_HERE") {
-                el.innerHTML = "<em>Waiting for Apps Script URL...</em>";
-                return;
-            }
-            
             el.innerHTML = "<em>Fetching agenda...</em>";
 
             try {
                 // Route through your private Google Apps Script
-                const fetchUrl = `${GOOGLE_ICAL_PARSER_URL}?icalUrl=${encodeURIComponent(url.trim())}`;
+                const fetchUrl = `${GOOGLE_CALENDAR_SCRIPT_URL}?icalUrl=${encodeURIComponent(url.trim())}`;
                 const response = await fetch(fetchUrl);
                 
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
