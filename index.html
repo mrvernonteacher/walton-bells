@@ -19,12 +19,12 @@
             background-color: #f4f4f9;
             color: #333;
             margin: 0;
-            padding: 90px 20px 100px 20px; 
+            padding: 100px 20px 100px 20px; 
             display: flex;
             flex-direction: column;
             min-height: 100vh;
             box-sizing: border-box;
-            transition: background-color 0.4s ease, color 0.4s ease;
+            transition: background-color 0.5s ease, color 0.5s ease;
             overflow-x: hidden;
             position: relative; 
         }
@@ -40,48 +40,33 @@
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: none;
         }
 
-        /* --- Translucent Top Bar (With Spring Physics) --- */
+        /* --- Master Top Navigation Bar --- */
         .floating-header {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 65px;
-            display: flex; flex-direction: row; justify-content: space-between; align-items: center;
+            top: 0; left: 0; width: 100%; height: 75px;
+            display: grid; grid-template-columns: 200px 1fr 300px; align-items: center;
             padding: 0 30px; box-sizing: border-box;
-            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
             border-radius: 0 0 15px 15px;
-            z-index: 1000;
-            transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); /* Liquid Spring */
+            z-index: 1100;
+            transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1);
         }
-        body.dark-mode .floating-header { background: rgba(30, 30, 30, 0.85); box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+        body.dark-mode .floating-header { background: rgba(30, 30, 30, 0.85); box-shadow: 0 4px 20px rgba(0,0,0,0.5); border-bottom: 1px solid rgba(255,255,255,0.05); }
 
-        body.minimal-active .floating-header {
-            border-radius: 0;
-            box-shadow: none;
-            border-bottom: 1px solid rgba(150,150,150,0.2);
-        }
-        body.dark-mode.minimal-active .floating-header {
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
+        .header-left { display: flex; align-items: center; gap: 15px; justify-self: start; }
+        .header-center { justify-self: center; display: flex; flex-direction: column; align-items: center; width: 100%; }
+        .header-right { display: flex; align-items: center; gap: 10px; justify-self: end; }
 
-        .header-logo { height: 36px; width: auto; opacity: 0.6; transition: opacity 0.4s ease; display: block; }
+        .header-logo { height: 38px; width: auto; opacity: 0.6; transition: opacity 0.4s ease; display: block; }
         .header-logo:hover { opacity: 1; }
-        #clock { font-size: 1.8rem; font-weight: bold; color: #003366; background: transparent; box-shadow: none; padding: 0; margin: 0; transition: color 0.4s ease;}
+        #clock { font-size: 2rem; font-weight: bold; color: #003366; background: transparent; box-shadow: none; padding: 0; margin: 0; transition: color 0.4s ease; min-width: 140px; text-align: right;}
         body.dark-mode #clock { color: #e0e0e0; }
-
-        /* --- Floating Footer --- */
-        .footer { 
-            position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
-            font-size: 0.85rem; color: #555; text-align: center; width: 100%; 
-            transition: color 0.4s ease; z-index: 10; pointer-events: none;
-        }
-        .footer p { margin: 0 0 5px 0; font-weight: bold; text-shadow: 0 0 5px rgba(255,255,255,0.8);}
-        body.dark-mode .footer p { text-shadow: 0 0 5px rgba(0,0,0,0.8); }
-        .footer-logo { max-width: 150px; height: auto; display: inline-block; opacity: 0.7; }
 
         /* --- Smart State Icon Buttons --- */
         .header-icon-btn {
             background: none; border: none; color: #aaa; cursor: pointer; padding: 6px 8px; border-radius: 8px;
-            display: flex; align-items: center; justify-content: center; transition: background-color 0.3s, color 0.3s, transform 0.4s cubic-bezier(0.25, 1.2, 0.3, 1);
+            display: flex; align-items: center; justify-content: center; transition: all 0.3s cubic-bezier(0.25, 1.2, 0.3, 1);
             font-size: 1.6rem; line-height: 1;
         }
         .header-icon-btn:hover { background-color: rgba(150,150,150,0.2); color: #888; transform: scale(1.05);}
@@ -90,6 +75,16 @@
         body.dark-mode .header-icon-btn { color: #666; }
         body.dark-mode .header-icon-btn:hover { background-color: rgba(150,150,150,0.2); color: #aaa; }
         body.dark-mode .header-icon-btn.active-btn { color: #90caf9; } 
+
+        /* --- Floating Footer --- */
+        .footer { 
+            position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%);
+            font-size: 0.85rem; color: #555; text-align: center; width: 100%; 
+            transition: color 0.4s ease; z-index: 10; pointer-events: none;
+        }
+        .footer p { margin: 0 0 5px 0; font-weight: bold; text-shadow: 0 0 8px rgba(255,255,255,0.9);}
+        body.dark-mode .footer p { text-shadow: 0 0 8px rgba(0,0,0,0.9); color: #aaa;}
+        .footer-logo { max-width: 160px; height: auto; display: inline-block; opacity: 0.7; }
 
         /* --- Toast Notification --- */
         #toast {
@@ -100,7 +95,7 @@
             transition: top 0.6s cubic-bezier(0.25, 1.2, 0.3, 1), opacity 0.4s ease;
             pointer-events: none;
         }
-        #toast.show { top: 80px; opacity: 1; }
+        #toast.show { top: 90px; opacity: 1; }
         body.dark-mode #toast { background-color: #2e7d32; color: #e8f5e9; }
 
         /* --- Draggable Floating Media Player --- */
@@ -124,7 +119,7 @@
         .float-btn {
             background: #003366; color: white; border: none; border-radius: 50%;
             width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; transition: background 0.3s, transform 0.3s; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; transition: background 0.3s, transform 0.3s cubic-bezier(0.25, 1.2, 0.3, 1); flex-shrink: 0;
         }
         .float-btn:hover { background: #002244; transform: scale(1.1); }
         body.dark-mode .float-btn { background: #1976d2; }
@@ -138,7 +133,7 @@
         .float-volume span:hover { transform: scale(1.2); }
         .float-volume input { width: 100px; cursor: pointer; height: 4px; margin: 0;}
 
-        /* --- Dark Mode & Glassmorphism UI --- */
+        /* --- Dark Mode UI Basics --- */
         body.dark-mode { background-color: #121212; color: #e0e0e0; }
         
         .schedule-container, .sidebar { 
@@ -167,28 +162,8 @@
         body.dark-mode .split-button-main { background-color: #0288d1; }
         body.dark-mode .split-button-caret { background-color: #0277bd; border-left: 1px solid #01579b; }
 
-        /* --- Positive Goodbyes & Jukebox UI --- */
-        .goodbye-box {
-            background: rgba(92, 184, 92, 0.15); border: 1px solid rgba(92, 184, 92, 0.4);
-            padding: 12px; border-radius: 8px; margin-top: 15px; transition: all 0.4s ease;
-        }
-        .goodbye-box label { color: #003366; transition: color 0.4s ease; font-weight: bold; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 8px;}
-        body.dark-mode .goodbye-box { background: rgba(144, 202, 249, 0.1); border-color: rgba(144, 202, 249, 0.3); }
-        body.dark-mode .goodbye-box label { color: #90caf9; }
-
-        /* --- Open Block Badge --- */
-        .open-badge {
-            background-color: #5cb85c; color: white; padding: 2px 8px; border-radius: 12px; 
-            font-size: 0.8rem; margin-left: 10px; vertical-align: middle; font-weight: bold; letter-spacing: 0.5px;
-        }
-        body.dark-mode .open-badge { background-color: #2e7d32; color: #e8f5e9; }
-        
-        .waffle-closed .open-badge, .minimal-view .open-badge { 
-            font-size: 1rem; padding: 4px 10px; margin-left: 15px; transform: translateY(-2px); transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1);
-        }
-
-        /* --- Layout & Structure --- */
-        .dashboard-wrapper { display: flex; flex-wrap: wrap; gap: 15px; max-width: 1300px; margin: 0 auto; width: 100%; align-items: flex-start; z-index: 2; }
+        /* --- Sidebar Specifics --- */
+        .dashboard-wrapper { display: flex; flex-wrap: wrap; gap: 15px; max-width: 1400px; margin: 0 auto; width: 100%; align-items: flex-start; z-index: 2; }
 
         .sidebar {
             flex: 1; min-width: 320px; max-width: 350px; padding: 15px 20px;
@@ -197,42 +172,12 @@
         }
         .sidebar.collapsed { min-width: 0; max-width: 0; padding: 0; margin-left: -15px; opacity: 0; transform: scaleX(0); border: none; max-height: 0; }
 
-        .main-content { flex: 2; min-width: 500px; display: flex; flex-direction: column; transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); }
-
-        .schedule-container { padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; box-sizing: border-box; transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); }
-        
-        /* --- HEADER LAYOUT --- */
-        .schedule-header-wrap { 
-            display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-bottom: 10px; 
-            border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 8px; transition: all 0.5s ease;
-        }
-        .header-left { display: flex; align-items: center; gap: 12px; justify-self: start; }
-        .header-center { justify-self: center; }
-        .header-right { display: flex; align-items: center; gap: 8px; justify-self: end; }
-        
-        .schedule-header-wrap h3 { margin: 0; font-size: 1.5rem; color: #003366; transition: color 0.4s ease; }
-
-        /* --- Alert Pulse Animation --- */
-        @keyframes pulseAlert {
-            0% { opacity: 1; text-shadow: 0 0 4px rgba(217, 83, 79, 0.4); box-shadow: 0 0 8px rgba(217, 83, 79, 0.2); }
-            50% { opacity: 0.7; text-shadow: none; box-shadow: none; }
-            100% { opacity: 1; text-shadow: 0 0 4px rgba(217, 83, 79, 0.4); box-shadow: 0 0 8px rgba(217, 83, 79, 0.2); }
-        }
-        #dead-time-warning {
-            color: #d9534f; font-weight: 900; font-size: 1rem; text-transform: uppercase;
-            letter-spacing: 0.5px; animation: pulseAlert 2s infinite; background: rgba(217, 83, 79, 0.15);
-            padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(217, 83, 79, 0.3);
-        }
-
-        /* UI Controls & Accordions */
         .control-group { border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 10px; margin-bottom: 10px;}
         .control-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
-        
         .accordion-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 5px 0; }
         .accordion-header label.title { font-weight: bold; margin-bottom: 0; color: #003366; transition: color 0.4s ease; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; pointer-events: none;}
         .chevron { font-size: 0.8rem; color: #888; transition: transform 0.4s cubic-bezier(0.25, 1.2, 0.3, 1); }
         .accordion-content { overflow: hidden; transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
-        
         .sub-label { font-size: 0.95rem; color: #444; font-weight: 500; transition: color 0.4s ease; cursor: help; }
         body.dark-mode .sub-label { color: #ccc; }
         .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; margin-top: 5px;}
@@ -271,22 +216,64 @@
         input:checked + .slider:before { transform: translateX(20px); }
         body.dark-mode input:checked + .slider { background-color: #90caf9; }
 
-        #autoIndicator {
-            display: none; margin-bottom: 10px; font-size: 0.8rem; background: #dff0d8; color: #3c763d; 
-            padding: 6px 10px; border-radius: 5px; font-weight: bold; border: 1px solid #d6e9c6; text-align: center;
+        /* --- Positive Goodbyes & Jukebox UI --- */
+        .goodbye-box {
+            background: rgba(92, 184, 92, 0.15); border: 1px solid rgba(92, 184, 92, 0.4);
+            padding: 12px; border-radius: 8px; margin-top: 15px; transition: all 0.4s ease;
+        }
+        .goodbye-box label { color: #003366; transition: color 0.4s ease; font-weight: bold; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 8px;}
+        body.dark-mode .goodbye-box { background: rgba(144, 202, 249, 0.1); border-color: rgba(144, 202, 249, 0.3); }
+        body.dark-mode .goodbye-box label { color: #90caf9; }
+
+        /* --- Open Block Badge --- */
+        .open-badge {
+            background-color: #5cb85c; color: white; padding: 2px 8px; border-radius: 12px; 
+            font-size: 0.8rem; margin-left: 10px; vertical-align: middle; font-weight: bold; letter-spacing: 0.5px;
+        }
+        body.dark-mode .open-badge { background-color: #2e7d32; color: #e8f5e9; }
+        
+        .waffle-closed .open-badge, body.minimal-active .open-badge { 
+            font-size: 1rem; padding: 4px 10px; margin-left: 15px; transform: translateY(-2px); transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1);
+        }
+
+        /* --- THE MASTER SCHEDULE CONTAINER --- */
+        .main-content { flex: 2; min-width: 500px; display: flex; flex-direction: column; }
+
+        .schedule-container { 
+            padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+            width: 100%; box-sizing: border-box; 
+            transition: all 0.7s cubic-bezier(0.34, 1.2, 0.64, 1); /* Liquid physics for container */
+        }
+        
+        .schedule-title-row { 
+            display: flex; justify-content: center; align-items: center; margin-bottom: 10px; 
+            border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 8px; 
+            transition: all 0.4s ease; overflow: hidden;
+        }
+        .schedule-title-row h3 { margin: 0; font-size: 1.5rem; color: #003366; transition: color 0.4s ease; }
+
+        @keyframes pulseAlert {
+            0% { opacity: 1; text-shadow: 0 0 4px rgba(217, 83, 79, 0.4); box-shadow: 0 0 8px rgba(217, 83, 79, 0.2); }
+            50% { opacity: 0.7; text-shadow: none; box-shadow: none; }
+            100% { opacity: 1; text-shadow: 0 0 4px rgba(217, 83, 79, 0.4); box-shadow: 0 0 8px rgba(217, 83, 79, 0.2); }
+        }
+        #dead-time-warning {
+            color: #d9534f; font-weight: 900; font-size: 1.1rem; text-transform: uppercase;
+            letter-spacing: 0.5px; animation: pulseAlert 2s infinite; background: rgba(217, 83, 79, 0.15);
+            padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(217, 83, 79, 0.3); margin-left: 15px;
         }
 
         /* --- BULLETPROOF GRID LAYOUT --- */
         .schedule-grid {
             display: grid; 
-            grid-template-columns: minmax(130px, auto) 1fr minmax(180px, auto); 
+            grid-template-columns: minmax(130px, auto) 1fr minmax(220px, auto); /* Fixed right width */
             gap: 15px; 
             align-items: center; 
             padding: 8px 10px;
             transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1);
         }
         
-        .schedule-header { font-size: 0.8rem; font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 6px; margin-bottom: 6px; transition: color 0.4s ease; }
+        .schedule-header { font-size: 0.9rem; font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 6px; margin-bottom: 6px; transition: color 0.4s ease; }
         
         .middle-section {
             display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden;
@@ -295,7 +282,7 @@
 
         .options-wrapper {
             display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; width: 100%;
-            max-height: 50px; opacity: 1; transition: max-height 0.5s cubic-bezier(0.25, 1.2, 0.3, 1), opacity 0.4s ease;
+            max-height: 50px; opacity: 1; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
         }
         
         .options-col { display: flex; justify-content: center; align-items: center; white-space: nowrap; font-size: 0.95rem; }
@@ -304,7 +291,6 @@
         
         #schedule-list { list-style-type: none; padding: 0; margin: 0; }
         
-        /* List Item Base Settings */
         #schedule-list li { 
             border-bottom: 1px solid rgba(150,150,150,0.2); border-left: 5px solid transparent; 
             max-height: 250px; overflow: hidden; opacity: 1;
@@ -312,19 +298,20 @@
         }
         #schedule-list li:nth-child(even) { background-color: rgba(0,0,0,0.03); }
 
+        /* INCREASED DEFAULT FONT SIZES & FORCED NO WRAP */
         .period-name { grid-column: 1; font-weight: bold; text-align: left; font-size: 1.6rem; align-self: center; transition: all 0.5s cubic-bezier(0.25, 1.2, 0.3, 1); white-space: nowrap; }
         .period-time { grid-column: 3; text-align: right; font-size: 1.4rem; color: #555; align-self: center; transition: all 0.5s cubic-bezier(0.25, 1.2, 0.3, 1); white-space: nowrap; }
 
         /* --- Current Period Progress Bar Highlight --- */
         #schedule-list li.current-period {
             background: linear-gradient(to right, rgba(92, 184, 92, 0.2) var(--progress, 0%), rgba(92, 184, 92, 0.03) var(--progress, 0%)) !important;
-            border-left: 5px solid #5cb85c;
-            box-shadow: inset 0 0 10px rgba(92, 184, 92, 0.1);
+            border-left: 5px solid #5cb85c !important;
+            box-shadow: inset 0 0 10px rgba(92, 184, 92, 0.1) !important;
         }
         body.dark-mode #schedule-list li.current-period {
             background: linear-gradient(to right, rgba(144, 202, 249, 0.25) var(--progress, 0%), rgba(144, 202, 249, 0.03) var(--progress, 0%)) !important;
-            border-left: 5px solid #90caf9;
-            box-shadow: inset 0 0 10px rgba(144, 202, 249, 0.1);
+            border-left: 5px solid #90caf9 !important;
+            box-shadow: inset 0 0 10px rgba(144, 202, 249, 0.1) !important;
         }
 
         /* --- Standard Agenda Display CSS --- */
@@ -332,7 +319,7 @@
             font-size: 1.1rem; font-weight: 600; color: #004080; text-align: center; width: 100%;
             max-height: 0px; opacity: 0; overflow: hidden;
             white-space: nowrap; text-overflow: ellipsis;
-            transition: max-height 0.5s cubic-bezier(0.25, 1.2, 0.3, 1), opacity 0.4s ease, margin 0.4s ease;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, margin 0.4s ease;
         }
         body.dark-mode .agenda-display { color: #81d4fa; }
         .agenda-error { color: #d9534f !important; font-style: italic; font-weight: normal; }
@@ -352,70 +339,49 @@
         body.dark-mode .waffle-closed .period-time { color: #e0e0e0; }
 
         /* =========================================================
-           STATE 2: MINIMAL VIEW (The Full-Width Docked Focus Mode with Refraction) 
+           STATE 2: MINIMAL VIEW (The "Fly to Top Bar" Liquid Dock) 
            ========================================================= */
            
-        @keyframes liquidSheen {
-            0% { background-position: 200% center; }
-            100% { background-position: -200% center; }
-        }
-           
-        .minimal-view.schedule-container { 
+        body.minimal-active .schedule-container { 
             position: fixed; 
-            top: 65px; 
-            left: 0;
-            width: 100%;
-            max-width: none;
-            z-index: 990;
-            border-radius: 0 0 20px 20px; 
+            top: 0; 
+            left: 220px; /* Dodges the Logo/Hamburger */
+            right: 320px; /* Dodges the Toggles/Clock */
+            width: auto;
+            height: 75px;
+            z-index: 1101; /* Floats inside header */
+            border-radius: 0; 
             border: none;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.15); 
+            box-shadow: none; 
             margin: 0; 
-            padding: 10px 30px 25px 30px; 
-            
-            /* Animated Liquid Glass Background */
-            background-color: rgba(255, 255, 255, 0.85); 
-            background-image: linear-gradient(115deg, rgba(255,255,255,0.0) 0%, rgba(255,255,255,0.4) 40%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0.4) 60%, rgba(255,255,255,0.0) 100%);
-            background-size: 200% auto;
-            animation: liquidSheen 6s ease-in-out infinite alternate;
-            
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            padding: 0; 
+            background: transparent !important;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            box-sizing: border-box;
-        }
-        body.dark-mode .minimal-view.schedule-container {
-            background-color: rgba(30, 30, 30, 0.85);
-            background-image: linear-gradient(115deg, rgba(30,30,30,0.0) 0%, rgba(50,50,50,0.4) 40%, rgba(70,70,70,0.6) 50%, rgba(50,50,50,0.4) 60%, rgba(30,30,30,0.0) 100%);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.6);
+            justify-content: center;
         }
 
-        .minimal-view .schedule-header-wrap, .minimal-view #schedule-list {
-            width: 100%;
-            max-width: 1260px;
-        }
-
-        .minimal-view .schedule-grid { grid-template-columns: auto 1fr auto; padding: 10px 30px; gap: 20px; border: none; }
-        .minimal-view .schedule-header { max-height: 0; padding: 0; margin: 0; opacity: 0; border: none; overflow: hidden;} 
+        /* Erase the normal header and non-active classes */
+        body.minimal-active .schedule-title-row { opacity: 0; max-height: 0; margin: 0; padding: 0; border: none; }
+        body.minimal-active .schedule-header { opacity: 0; max-height: 0; margin: 0; padding: 0; border: none; }
+        body.minimal-active #schedule-list li:not(.current-period) { opacity: 0; max-height: 0; padding: 0; margin: 0; border: none; }
         
-        .minimal-view #schedule-list li:not(.current-period) { 
-            max-height: 0px; padding-top: 0px; padding-bottom: 0px; 
-            opacity: 0; border-bottom-width: 0px; margin: 0; border: none; 
-        }
-        .minimal-view #schedule-list li.current-period { 
-            padding: 15px 20px; border-radius: 10px;
+        /* Format the active class to perfectly fit the 75px bar */
+        body.minimal-active #schedule-list li.current-period { 
+            height: 75px; padding: 0 10px; margin: 0; border: none !important; box-shadow: none !important; 
+            background: transparent !important;
         }
         
-        .minimal-view .period-name { font-size: 3.5rem; color: #003366; }
-        body.dark-mode .minimal-view .period-name { color: #90caf9; }
-        .minimal-view .period-time { font-size: 3rem; font-weight: bold; color: #333; }
-        body.dark-mode .minimal-view .period-time { color: #e0e0e0; }
+        /* Shrunk slightly to fit beautifully in the header */
+        body.minimal-active .period-name { font-size: 1.8rem; color: #003366; }
+        body.dark-mode.minimal-active .period-name { color: #90caf9; }
+        body.minimal-active .period-time { font-size: 1.6rem; font-weight: bold; color: #333; }
+        body.dark-mode.minimal-active .period-time { color: #e0e0e0; }
         
-        .minimal-view .options-wrapper { max-height: 0px !important; opacity: 0 !important; pointer-events: none; }
-        .minimal-view .agenda-display.has-data { 
-            max-height: 80px !important; opacity: 1 !important; font-size: 1.4rem; 
-            white-space: normal; margin-top: 8px;
+        body.minimal-active .options-wrapper { display: none; }
+        body.minimal-active .agenda-display.has-data { 
+            max-height: 30px; opacity: 1; font-size: 1rem; 
+            white-space: nowrap; margin: 0; padding: 0 10px;
         }
 
         /* =========================================================
@@ -424,31 +390,28 @@
         @media (max-width: 850px) {
             body { padding-top: 85px; padding-left: 10px; padding-right: 10px;}
             
-            .floating-header { padding: 0 15px; border-radius: 0 0 15px 15px; }
+            .floating-header { padding: 0 15px; border-radius: 0 0 15px 15px; grid-template-columns: 1fr auto; }
             .header-logo { height: 28px; }
-            #clock { font-size: 1.5rem; }
+            #clock { font-size: 1.5rem; min-width: 100px; }
+            .header-center { display: none; } /* Hide center space on mobile */
             
             .dashboard-wrapper { flex-direction: column; }
             .sidebar { max-width: 100%; width: 100%; margin-bottom: 20px; box-sizing: border-box;}
             .schedule-header { display: none !important; }
             
-            .schedule-header-wrap { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; padding: 0 5px; }
-            .header-left { order: 1; justify-content: flex-start; }
-            #schedule-title { display: none; }
-            .header-right { order: 2; justify-content: flex-end; }
-            .header-center { order: 3; width: 100%; margin-top: 10px; }
+            .schedule-title-row { flex-direction: column; text-align: center; gap: 5px; }
             
-            .schedule-grid, .waffle-closed .schedule-grid, .minimal-view .schedule-grid {
+            .schedule-grid, .waffle-closed .schedule-grid, body.minimal-active .schedule-grid {
                 grid-template-columns: 1fr;
                 gap: 8px;
                 text-align: center;
                 padding: 15px;
             }
-            .period-name, .waffle-closed .period-name, .minimal-view .period-name {
+            .period-name, .waffle-closed .period-name, body.minimal-active .period-name {
                 grid-column: 1; grid-row: auto; text-align: center; font-size: 1.8rem;
             }
             .middle-section { grid-column: 1; grid-row: auto; }
-            .period-time, .waffle-closed .period-time, .minimal-view .period-time {
+            .period-time, .waffle-closed .period-time, body.minimal-active .period-time {
                 grid-column: 1; grid-row: auto; text-align: center; font-size: 1.4rem;
             }
             .agenda-display { grid-column: 1 !important; grid-row: auto !important; white-space: normal; }
@@ -458,6 +421,16 @@
             
             .floating-player { bottom: 10px; right: 10px; left: 10px; justify-content: space-between; border-radius: 15px; }
             .footer { position: relative; transform: none; left: 0; bottom: 0; margin-top: 20px; padding-bottom: 20px;}
+
+            /* Cancel fixed top bar docking on mobile since screen is too narrow */
+            body.minimal-active .schedule-container {
+                position: relative; top: auto; left: auto; right: auto; width: 100%; height: auto;
+                background: rgba(255, 255, 255, 0.85) !important; padding: 15px !important;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important; border-radius: 10px !important;
+            }
+            body.dark-mode.minimal-active .schedule-container { background: rgba(30, 30, 30, 0.85) !important; }
+            body.minimal-active #schedule-list li.current-period { height: auto; padding: 15px !important; flex-direction: column;}
+            body.minimal-active .agenda-display.has-data { white-space: normal; margin-top: 8px;}
         }
     </style>
 </head>
@@ -468,8 +441,27 @@
     </div>
 
     <div id="floating-header" class="floating-header">
-        <img src="https://drive.google.com/thumbnail?id=1XJEeGiblu9O3iGevy_j8RLR06LcyimqQ&sz=w400" alt="Walton Logo" class="header-logo">
-        <div id="clock">00:00:00 AM</div>
+        <div class="header-left">
+            <button id="hamburgerBtn" class="header-icon-btn active-btn" onclick="toggleSidebar(true)" title="Toggle Settings">☰</button>
+            <img src="https://drive.google.com/thumbnail?id=1XJEeGiblu9O3iGevy_j8RLR06LcyimqQ&sz=w400" alt="Walton Logo" class="header-logo">
+        </div>
+        
+        <div class="header-center"></div>
+
+        <div class="header-right">
+            <button id="minimalViewBtn" class="header-icon-btn" onclick="toggleMinimalView(true)" title="Focus Mode">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M4 11h16v2H4z"/>
+                </svg>
+            </button>
+            <button id="waffleViewBtn" class="header-icon-btn" onclick="toggleWaffleMenu(true)" title="Toggle Options">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <rect x="4" y="4" width="4" height="4" rx="1"/><rect x="10" y="4" width="4" height="4" rx="1"/><rect x="16" y="4" width="4" height="4" rx="1"/><rect x="4" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="16" y="10" width="4" height="4" rx="1"/><rect x="4" y="16" width="4" height="4" rx="1"/><rect x="10" y="16" width="4" height="4" rx="1"/><rect x="16" y="16" width="4" height="4" rx="1"/>
+                </svg>
+            </button>
+            <button id="fullScreenBtn" class="header-icon-btn" onclick="toggleFullScreen()" title="Full Screen">⛶</button>
+            <div id="clock">00:00:00 AM</div>
+        </div>
     </div>
 
     <div id="floating-player" class="floating-player">
@@ -671,28 +663,9 @@
         <div class="main-content">
             <div class="schedule-container waffle-closed" id="schedule-container">
                 
-                <div class="schedule-header-wrap">
-                    <div class="header-left">
-                        <button id="hamburgerBtn" class="header-icon-btn active-btn" onclick="toggleSidebar(true)" title="Toggle Settings">☰</button>
-                        <h3 id="schedule-title">Active Schedule</h3>
-                    </div>
-                    <div class="header-center">
-                        <span id="dead-time-warning" style="display: none;">DEAD TIME &mdash; NO HALL PASSES</span>
-                    </div>
-                    <div class="header-right">
-                        <button id="minimalViewBtn" class="header-icon-btn" onclick="toggleMinimalView(true)" title="Focus Mode (Show Current Class Only)">
-                            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                                <path d="M4 11h16v2H4z"/>
-                            </svg>
-                        </button>
-                        
-                        <button id="waffleViewBtn" class="header-icon-btn" onclick="toggleWaffleMenu(true)" title="Toggle Options">
-                            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                                <rect x="4" y="4" width="4" height="4" rx="1"/><rect x="10" y="4" width="4" height="4" rx="1"/><rect x="16" y="4" width="4" height="4" rx="1"/><rect x="4" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="16" y="10" width="4" height="4" rx="1"/><rect x="4" y="16" width="4" height="4" rx="1"/><rect x="10" y="16" width="4" height="4" rx="1"/><rect x="16" y="16" width="4" height="4" rx="1"/>
-                            </svg>
-                        </button>
-                        <button id="fullScreenBtn" class="header-icon-btn" onclick="toggleFullScreen()" title="Full Screen">⛶</button>
-                    </div>
+                <div class="schedule-title-row">
+                    <h3 id="schedule-title">Active Schedule</h3>
+                    <span id="dead-time-warning" style="display: none;">DEAD TIME &mdash; NO HALL PASSES</span>
                 </div>
                 
                 <div class="schedule-grid schedule-header">
@@ -712,7 +685,6 @@
                 
                 <ul id="schedule-list"></ul>
             </div>
-            
         </div>
     </div>
 
@@ -1485,16 +1457,13 @@
         function setMinimalView(state, shouldSave = true) {
             if (isMinimalView === state) return;
             isMinimalView = state;
-            const container = document.getElementById('schedule-container');
             const btn = document.getElementById('minimalViewBtn');
             
-            if(container && btn) {
+            if(btn) {
                 if (isMinimalView) {
-                    container.classList.add('minimal-view'); 
                     document.body.classList.add('minimal-active'); 
                     btn.classList.add('active-btn');
                 } else {
-                    container.classList.remove('minimal-view'); 
                     document.body.classList.remove('minimal-active'); 
                     btn.classList.remove('active-btn');
                 }
@@ -1792,7 +1761,7 @@
                     let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
                     let isWebBlock = /^[A-D](\s|-)?Block/i.test(key);
                     let webOpenCheckbox = isWebBlock ? 
-                        `<div class="options-col opt-center"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
+                        `<div class="options-col"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
                         `<div class="options-col"></div>`;
 
                     li.innerHTML = `
