@@ -1,18 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#003366">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('sw.js');
-        });
-      }
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Walton Bell Schedule</title>
@@ -31,7 +19,7 @@
             background-color: #f4f4f9;
             color: #333;
             margin: 0;
-            padding: 280px 20px 20px 20px; 
+            padding: 90px 20px 20px 20px; /* Reduced padding to fit new top bar */
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -52,36 +40,24 @@
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: none;
         }
 
-        /* --- Dynamic Floating Header (Logo & Clock) --- */
+        /* --- NEW Translucent Top Bar --- */
         .floating-header {
             position: fixed;
-            top: 15px; left: 50%; transform: translateX(-50%);
-            display: flex; flex-direction: column; align-items: center;
-            z-index: 100;
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-            transform-origin: top center;
-            pointer-events: none; 
+            top: 0; left: 0; width: 100%; height: 65px;
+            display: flex; flex-direction: row; justify-content: space-between; align-items: center;
+            padding: 0 30px; box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-radius: 0 0 15px 15px;
+            z-index: 1000;
+            transition: all 0.4s ease;
         }
-        .floating-header > * {
-            pointer-events: auto; 
-        }
-        .floating-header.scrolled {
-            transform: translateX(-50%) scale(0.65);
-            opacity: 0.75;
-        }
-        .floating-header.scrolled:hover {
-            opacity: 1; 
-        }
-        
-        .header-logo { max-width: 140px; height: auto; display: block; margin: 0 auto; transition: all 0.3s ease;} 
-        
-        #clock {
-            font-size: 4rem; font-weight: bold; padding: 5px 20px; 
-            border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: #003366;
-            display: inline-block; margin-top: 0; transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-        }
-        body.dark-mode #clock { background: rgba(30, 30, 30, 0.85); color: #e0e0e0; box-shadow: 0 4px 10px rgba(0,0,0,0.7); }
+        body.dark-mode .floating-header { background: rgba(30, 30, 30, 0.85); box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+
+        .header-logo { height: 36px; width: auto; opacity: 0.6; transition: opacity 0.3s ease; display: block; }
+        .header-logo:hover { opacity: 1; }
+        #clock { font-size: 1.8rem; font-weight: bold; color: #003366; background: transparent; box-shadow: none; padding: 0; margin: 0; }
+        body.dark-mode #clock { color: #e0e0e0; }
 
         /* --- Smart State Icon Buttons --- */
         .header-icon-btn {
@@ -309,6 +285,7 @@
         
         #schedule-list { list-style-type: none; padding: 0; margin: 0; }
         
+        /* List Item Base Settings */
         #schedule-list li { 
             border-bottom: 1px solid rgba(150,150,150,0.2); border-left: 5px solid transparent; 
             max-height: 250px; overflow: hidden; opacity: 1;
@@ -322,13 +299,13 @@
         /* --- Current Period Progress Bar Highlight --- */
         #schedule-list li.current-period {
             background: linear-gradient(to right, rgba(92, 184, 92, 0.2) var(--progress, 0%), rgba(92, 184, 92, 0.03) var(--progress, 0%)) !important;
-            border-left: 5px solid #5cb85c;
-            box-shadow: inset 0 0 10px rgba(92, 184, 92, 0.1);
+            border-left: 5px solid #5cb85c !important;
+            box-shadow: inset 0 0 10px rgba(92, 184, 92, 0.1) !important;
         }
         body.dark-mode #schedule-list li.current-period {
             background: linear-gradient(to right, rgba(144, 202, 249, 0.25) var(--progress, 0%), rgba(144, 202, 249, 0.03) var(--progress, 0%)) !important;
-            border-left: 5px solid #90caf9;
-            box-shadow: inset 0 0 10px rgba(144, 202, 249, 0.1);
+            border-left: 5px solid #90caf9 !important;
+            box-shadow: inset 0 0 10px rgba(144, 202, 249, 0.1) !important;
         }
 
         /* --- Standard Agenda Display CSS --- */
@@ -356,17 +333,25 @@
         body.dark-mode .waffle-closed .period-time { color: #e0e0e0; }
 
         /* =========================================================
-           STATE 2: MINIMAL VIEW (Focus Mode) 
+           STATE 2: MINIMAL VIEW (The "Docked" Focus Mode) 
            ========================================================= */
+        .minimal-view.schedule-container { 
+            position: sticky; top: 75px; z-index: 90;
+            border: 2px solid rgba(49, 176, 213, 0.4); box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+        }
+        body.dark-mode .minimal-view.schedule-container {
+            border-color: rgba(144, 202, 249, 0.4); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
         .minimal-view .schedule-grid { grid-template-columns: auto 1fr auto; padding: 10px 30px; gap: 20px; border: none; }
         .minimal-view .schedule-header { max-height: 0; padding: 0; margin: 0; opacity: 0; border: none; overflow: hidden;} 
         
         .minimal-view #schedule-list li:not(.current-period) { 
             max-height: 0px; padding-top: 0px; padding-bottom: 0px; 
-            opacity: 0; border-bottom-width: 0px; margin: 0; 
+            opacity: 0; border-bottom-width: 0px; margin: 0; border: none; 
         }
         .minimal-view #schedule-list li.current-period { 
-            background: transparent !important; border-left: none !important; box-shadow: none !important; padding: 15px 0;
+            padding: 15px 20px; border-radius: 10px;
         }
         
         .minimal-view .period-name { font-size: 3.5rem; color: #003366; }
@@ -374,6 +359,7 @@
         .minimal-view .period-time { font-size: 3rem; font-weight: bold; color: #333; }
         body.dark-mode .minimal-view .period-time { color: #e0e0e0; }
         
+        /* Force minimal view rules over waffle rules */
         .minimal-view .options-wrapper { max-height: 0px !important; opacity: 0 !important; pointer-events: none; }
         .minimal-view .agenda-display.has-data { 
             max-height: 80px !important; opacity: 1 !important; font-size: 1.4rem; 
@@ -384,23 +370,11 @@
            MOBILE BROWSER OVERRIDES (< 850px screens)
            ========================================================= */
         @media (max-width: 850px) {
-            body { padding-top: 100px; padding-left: 10px; padding-right: 10px;}
+            body { padding-top: 85px; padding-left: 10px; padding-right: 10px;}
             
-            /* --- Translucent Top Bar Header --- */
-            .floating-header {
-                flex-direction: row; justify-content: space-between;
-                top: 0; left: 0; width: 100%; transform: none;
-                padding: 10px 20px; box-sizing: border-box;
-                background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-                border-radius: 0 0 20px 20px;
-                pointer-events: auto; 
-            }
-            .floating-header.scrolled { transform: translateY(-5px); opacity: 0.98; }
-            body.dark-mode .floating-header { background: rgba(30, 30, 30, 0.9); }
-            
-            .header-logo { height: 1.8rem; width: auto; margin: 0; opacity: 0.6; }
-            #clock { font-size: 1.8rem; background: transparent !important; box-shadow: none !important; padding: 0; margin: 0; }
+            .floating-header { padding: 0 15px; border-radius: 0 0 15px 15px; }
+            .header-logo { height: 28px; }
+            #clock { font-size: 1.5rem; }
             
             .dashboard-wrapper { flex-direction: column; }
             .sidebar { max-width: 100%; width: 100%; margin-bottom: 20px; box-sizing: border-box;}
@@ -786,6 +760,7 @@
         document.addEventListener('mouseup', dragEnd);
 
         floatPlayer.addEventListener('touchstart', dragStart, {passive: false});
+        document.addEventListener('touchmove', drag, {passive: false});
         document.addEventListener('touchmove', drag, {passive: false});
         document.addEventListener('touchend', dragEnd);
 
@@ -1193,7 +1168,6 @@
                         const icsData = await response.text();
 
                         if (icsData.startsWith('Error:')) {
-                            console.error("Apps Script Error:", icsData);
                             return `<em class="agenda-error" title="${icsData}">Apps Script error</em>`;
                         }
 
@@ -1256,7 +1230,6 @@
                 }
 
             } catch (error) {
-                console.error("iCal Fetch Error:", error);
                 el.innerHTML = "<em class='agenda-error'>Error loading feed.</em>";
                 agendaCache[fetchUrlStr] = "<em class='agenda-error'>Error loading feed.</em>";
             }
@@ -1413,11 +1386,17 @@
             const toggle = document.getElementById('darkModeToggle');
             if(!toggle) return;
             isDarkMode = toggle.checked;
+            const wBtn = document.getElementById('waffleViewBtn');
+            const mBtn = document.getElementById('minimalViewBtn');
             
             if (isDarkMode) { 
                 document.body.classList.add('dark-mode'); 
+                if(isWaffleClosed && wBtn) wBtn.style.color = '#90caf9';
+                if(isMinimalView && mBtn) mBtn.style.color = '#90caf9';
             } else { 
                 document.body.classList.remove('dark-mode'); 
+                if(isWaffleClosed && wBtn) wBtn.style.color = '#31b0d5';
+                if(isMinimalView && mBtn) mBtn.style.color = '#31b0d5';
             }
             if (shouldSave) saveLocalSettings();
             renderLunchDuties(); 
@@ -1457,9 +1436,13 @@
                 if (isWaffleClosed) {
                     container.classList.add('waffle-closed'); 
                     btn.classList.remove('active-btn');
+                    if(isDarkMode) btn.style.color = '#90caf9';
+                    else btn.style.color = '#31b0d5';
                 } else {
                     container.classList.remove('waffle-closed'); 
                     btn.classList.add('active-btn');
+                    if(isDarkMode) btn.style.color = '#666';
+                    else btn.style.color = '#aaa';
                 }
             }
             if (shouldSave) saveLocalSettings();
@@ -1476,9 +1459,13 @@
                 if (isMinimalView) {
                     container.classList.add('minimal-view'); 
                     btn.classList.add('active-btn');
+                    if(isDarkMode) btn.style.color = '#90caf9';
+                    else btn.style.color = '#31b0d5';
                 } else {
                     container.classList.remove('minimal-view'); 
                     btn.classList.remove('active-btn');
+                    if(isDarkMode) btn.style.color = '#666';
+                    else btn.style.color = '#aaa';
                 }
             }
             if (shouldSave) saveLocalSettings();
@@ -1774,7 +1761,7 @@
                     let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
                     let isWebBlock = /^[A-D](\s|-)?Block/i.test(key);
                     let webOpenCheckbox = isWebBlock ? 
-                        `<div class="options-col opt-center"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
+                        `<div class="options-col"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
                         `<div class="options-col"></div>`;
 
                     li.innerHTML = `
