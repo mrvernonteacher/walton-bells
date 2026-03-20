@@ -247,14 +247,14 @@
             padding: 6px 10px; border-radius: 5px; font-weight: bold; border: 1px solid #d6e9c6; text-align: center;
         }
 
-        /* Schedule Grid - Animated Transitions */
+        /* Schedule Grid - Animated Transitions & Explicit Auto-Placement */
         .schedule-grid {
             display: grid; 
-            grid-template-columns: 90px 1fr 1fr 1fr 1fr 1fr 1fr 110px; 
+            grid-template-columns: 90px repeat(6, 1fr) 110px; 
             gap: 6px; 
             align-items: center; 
             text-align: center; 
-            transition: grid-template-columns 0.5s cubic-bezier(0.4, 0, 0.2, 1), gap 0.5s ease;
+            transition: all 0.5s ease;
         }
         
         .options-col { 
@@ -263,6 +263,7 @@
             overflow: hidden;
             white-space: nowrap;
             opacity: 1;
+            grid-row: 1; /* Explicitly lock to row 1 */
         }
         
         .schedule-header { font-size: 0.8rem; font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 6px; margin-bottom: 6px; transition: color 0.3s ease; }
@@ -271,20 +272,20 @@
         
         #schedule-list { list-style-type: none; padding: 0; margin: 0; }
         
-        /* List Item Animations for Minimal/Focus View */
+        /* List Item Animations */
         #schedule-list li { 
             padding: 6px 4px; 
             border-bottom: 1px solid rgba(150,150,150,0.2); 
             border-left: 5px solid transparent; 
-            max-height: 250px; /* Upper bound for animation */
+            max-height: 250px; 
             overflow: hidden;
             opacity: 1;
             transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), padding 0.5s ease, opacity 0.5s ease, margin 0.5s ease, font-size 0.4s ease;
         }
         #schedule-list li:nth-child(even) { background-color: rgba(0,0,0,0.03); }
 
-        .period-name { font-weight: bold; text-align: left; font-size: 1.05rem; transition: all 0.4s ease;}
-        .period-time { text-align: right; font-size: 0.95rem; color: #555; transition: all 0.4s ease;}
+        .period-name { grid-column: 1; grid-row: 1; font-weight: bold; text-align: left; font-size: 1.05rem; transition: all 0.4s ease; }
+        .period-time { grid-column: 8; grid-row: 1; text-align: right; font-size: 0.95rem; color: #555; transition: all 0.4s ease; }
 
         /* --- Current Period Highlight --- */
         #schedule-list li.current-period {
@@ -298,39 +299,50 @@
             box-shadow: inset 0 0 10px rgba(144, 202, 249, 0.1);
         }
 
-        /* --- Agenda Display CSS --- */
+        /* --- Standard Agenda Display CSS (Row 2 underneath options) --- */
         .agenda-display { 
-            font-size: 0.85rem; font-weight: normal; color: #666; 
+            grid-column: 2 / 8; /* Center horizontally between Class and Time */
+            grid-row: 2; /* Drop down below the toggle options */
+            font-size: 0.9rem; font-weight: 600; color: #004080; 
             margin-top: 0px; line-height: 1.3;
             max-height: 0; opacity: 0; overflow: hidden;
-            transition: max-height 0.5s ease, margin 0.5s ease, opacity 0.5s ease;
+            transition: max-height 0.4s ease, margin 0.4s ease, opacity 0.4s ease;
+            text-align: center;
         }
-        body.dark-mode .agenda-display { color: #aaa; }
+        body.dark-mode .agenda-display { color: #81d4fa; }
         .agenda-error { color: #d9534f !important; font-style: italic; }
         body.dark-mode .agenda-error { color: #ff8a80 !important; }
 
+        .agenda-display.has-data {
+            max-height: 40px; opacity: 1; margin-top: -2px; margin-bottom: 4px;
+        }
+
         /* --- Waffle Menu Closed (Student View) CSS --- */
         .student-view .schedule-grid { 
-            grid-template-columns: 1fr 0px 0px 0px 0px 0px 0px 1fr; 
-            gap: 0px; padding: 2px 20px; 
+            grid-template-columns: auto 1fr auto; 
+            gap: 15px; padding: 10px 20px; 
         }
-        .student-view .options-col { opacity: 0; padding: 0 !important; border: none !important; }
-        .student-view .period-name { font-size: 2rem; color: #003366; }
+        .student-view .options-col { opacity: 0; display: none !important; }
+        .student-view .period-name { grid-column: 1; grid-row: 1; font-size: 2rem; color: #003366; align-self: center;}
         body.dark-mode .student-view .period-name { color: #90caf9; }
-        .student-view .period-time { font-size: 1.8rem; font-weight: bold; color: #333; }
+        .student-view .period-time { grid-column: 3; grid-row: 1; font-size: 1.8rem; font-weight: bold; color: #333; align-self: center;}
         body.dark-mode .student-view .period-time { color: #e0e0e0; }
         .student-view .schedule-header { max-height: 0; padding: 0; margin: 0; opacity: 0; border: none; overflow: hidden;} 
-        .student-view .agenda-display { max-height: 150px; opacity: 1; margin-top: 8px; font-size: 1rem; }
+        
+        .student-view .agenda-display { 
+            grid-column: 2; grid-row: 1; /* Moves inline between class and time */
+            max-height: 100px; opacity: 1; margin: 0; font-size: 1.1rem; 
+            text-align: center; align-self: center; white-space: normal;
+        }
 
         /* --- FOCUS MODE (Minimal View) CSS --- */
         .minimal-view .schedule-grid { 
-            grid-template-columns: 1fr 0px 0px 0px 0px 0px 0px 1fr; 
-            gap: 0px; padding: 10px 30px; 
+            grid-template-columns: auto 1fr auto; 
+            gap: 20px; padding: 15px 30px; 
         }
-        .minimal-view .options-col { opacity: 0; padding: 0 !important; border: none !important; }
+        .minimal-view .options-col { display: none !important; }
         .minimal-view .schedule-header { max-height: 0; padding: 0; margin: 0; opacity: 0; border: none; overflow: hidden;} 
         
-        /* Smooth Collapse for non-active periods */
         .minimal-view #schedule-list li:not(.current-period) { 
             max-height: 0px; padding-top: 0px; padding-bottom: 0px; 
             opacity: 0; border-bottom-width: 0px; margin: 0; 
@@ -339,11 +351,16 @@
         .minimal-view #schedule-list li.current-period { 
             background: transparent !important; border-left: none !important; box-shadow: none !important; padding: 15px 0;
         }
-        .minimal-view .period-name { font-size: 3rem; color: #003366; text-align: left; }
+        .minimal-view .period-name { grid-column: 1; grid-row: 1; font-size: 3rem; color: #003366; align-self: center;}
         body.dark-mode .minimal-view .period-name { color: #90caf9; }
-        .minimal-view .period-time { font-size: 2.8rem; font-weight: bold; color: #333; text-align: right; }
+        .minimal-view .period-time { grid-column: 3; grid-row: 1; font-size: 2.8rem; font-weight: bold; color: #333; align-self: center;}
         body.dark-mode .minimal-view .period-time { color: #e0e0e0; }
-        .minimal-view .agenda-display { max-height: 250px; opacity: 1; margin-top: 12px; font-size: 1.3rem; }
+        
+        .minimal-view .agenda-display { 
+            grid-column: 2; grid-row: 1; /* Moves inline between class and time */
+            max-height: 250px; opacity: 1; margin: 0; font-size: 1.4rem; 
+            text-align: center; align-self: center; white-space: normal;
+        }
         
         .minimal-view #schedule-list.no-active-period::after {
             content: "Outside School Hours";
@@ -656,6 +673,10 @@
         let isMainVibePlaying = false;
         let activePlayerUrl = '';
         let lastPeriodStatus = null; 
+
+        // --- Cache Variables for iCal ---
+        let agendaCache = {};
+        let agendaPromises = {};
 
         // --- Scroll Listener for Dynamic Header ---
         window.addEventListener('scroll', () => {
@@ -1010,85 +1031,111 @@
             }
         }
 
-        // --- Multi-Day iCal Parsing Logic using Apps Script ---
+        // --- Smart Caching iCal Parser Logic ---
         async function fetchAgenda(url, elementId) {
             const el = document.getElementById(elementId);
             if (!el) return;
             
-            el.innerHTML = "<em>Fetching agenda...</em>";
+            let fetchUrlStr = url.trim();
+            if (fetchUrlStr.startsWith('webcal://')) {
+                fetchUrlStr = 'https://' + fetchUrlStr.substring(9);
+            }
+
+            // 1. Check if we already have the answer for this exact URL
+            if (agendaCache[fetchUrlStr]) {
+                if (agendaCache[fetchUrlStr] !== 'empty') {
+                    el.innerHTML = agendaCache[fetchUrlStr];
+                    el.classList.add('has-data');
+                } else {
+                    el.innerHTML = "";
+                    el.classList.remove('has-data');
+                }
+                return;
+            }
+
+            el.innerHTML = "<em>Fetching...</em>";
+            el.classList.add('has-data');
 
             try {
-                let fetchUrlStr = url.trim();
-                if (fetchUrlStr.startsWith('webcal://')) {
-                    fetchUrlStr = 'https://' + fetchUrlStr.substring(9);
-                }
-
-                const fetchUrl = `${GOOGLE_CALENDAR_SCRIPT_URL}?icalUrl=${encodeURIComponent(fetchUrlStr)}`;
-                const response = await fetch(fetchUrl);
-                
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                
-                const icsData = await response.text();
-
-                if (icsData.startsWith('Error:')) {
-                    console.error("Apps Script Error:", icsData);
-                    el.innerHTML = `<em class="agenda-error" title="${icsData}">Apps Script blocked fetch (Did you Authorize?)</em>`;
-                    return;
-                }
-
-                if (!icsData || (!icsData.includes('BEGIN:VCALENDAR') && !icsData.includes('BEGIN:VEVENT'))) {
-                    console.warn("Invalid data received:", icsData.substring(0, 100) + "...");
-                    el.innerHTML = "<em class='agenda-error' title='Ensure you used the Secret iCal Address'>Received login page instead of calendar</em>";
-                    return;
-                }
-
-                const today = new Date();
-                const todayInt = parseInt(today.getFullYear() + String(today.getMonth() + 1).padStart(2, '0') + String(today.getDate()).padStart(2, '0'), 10);
-                
-                const events = icsData.split('BEGIN:VEVENT');
-                let todaysEvents = [];
-
-                for (let i = 1; i < events.length; i++) {
-                    const eventText = events[i];
+                // 2. If we aren't currently fetching this URL, start a new fetch promise
+                if (!agendaPromises[fetchUrlStr]) {
+                    const fetchUrl = `${GOOGLE_CALENDAR_SCRIPT_URL}?icalUrl=${encodeURIComponent(fetchUrlStr)}`;
                     
-                    const dtStartMatch = eventText.match(/DTSTART(?:;[^:]*)?:([0-9]{8})/); 
-                    const dtEndMatch = eventText.match(/DTEND(?:;[^:]*)?:([0-9]{8})/); 
-                    const isTimedMatch = eventText.match(/DTSTART(?:;[^:]*)?:[0-9]{8}T/);
-                    const summaryMatch = eventText.match(/SUMMARY:([^\r\n]*)/);
+                    agendaPromises[fetchUrlStr] = fetch(fetchUrl).then(async (response) => {
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        const icsData = await response.text();
 
-                    if (dtStartMatch && summaryMatch) {
-                        const startInt = parseInt(dtStartMatch[1], 10);
-                        let isActive = false;
+                        if (icsData.startsWith('Error:')) {
+                            console.error("Apps Script Error:", icsData);
+                            return `<em class="agenda-error" title="${icsData}">Apps Script error</em>`;
+                        }
 
-                        if (dtEndMatch) {
-                            const endInt = parseInt(dtEndMatch[1], 10);
-                            if (isTimedMatch) {
-                                // Timed events usually include the end date directly
-                                isActive = (todayInt >= startInt && todayInt <= endInt);
-                            } else {
-                                // Standard iCal all-day events make the end date the day AFTER the event finishes (exclusive)
-                                isActive = (todayInt >= startInt && todayInt < endInt);
+                        if (!icsData || (!icsData.includes('BEGIN:VCALENDAR') && !icsData.includes('BEGIN:VEVENT'))) {
+                            return "<em class='agenda-error' title='Ensure you used the Secret iCal Address'>Invalid calendar data</em>";
+                        }
+
+                        const today = new Date();
+                        const todayInt = parseInt(today.getFullYear() + String(today.getMonth() + 1).padStart(2, '0') + String(today.getDate()).padStart(2, '0'), 10);
+                        
+                        const events = icsData.split('BEGIN:VEVENT');
+                        let todaysEvents = [];
+
+                        for (let i = 1; i < events.length; i++) {
+                            const eventText = events[i];
+                            
+                            const dtStartMatch = eventText.match(/DTSTART(?:;[^:]*)?:([0-9]{8})/); 
+                            const dtEndMatch = eventText.match(/DTEND(?:;[^:]*)?:([0-9]{8})/); 
+                            const isTimedMatch = eventText.match(/DTSTART(?:;[^:]*)?:[0-9]{8}T/);
+                            const summaryMatch = eventText.match(/SUMMARY:([^\r\n]*)/);
+
+                            if (dtStartMatch && summaryMatch) {
+                                const startInt = parseInt(dtStartMatch[1], 10);
+                                let isActive = false;
+
+                                if (dtEndMatch) {
+                                    const endInt = parseInt(dtEndMatch[1], 10);
+                                    if (isTimedMatch) {
+                                        isActive = (todayInt >= startInt && todayInt <= endInt);
+                                    } else {
+                                        isActive = (todayInt >= startInt && todayInt < endInt);
+                                    }
+                                } else {
+                                    isActive = (startInt === todayInt);
+                                }
+
+                                if (isActive) {
+                                    todaysEvents.push(summaryMatch[1].trim());
+                                }
                             }
-                        } else {
-                            // Single day event with no DTEND specified
-                            isActive = (startInt === todayInt);
                         }
 
-                        if (isActive) {
-                            todaysEvents.push(summaryMatch[1].trim());
+                        if (todaysEvents.length > 0) {
+                            return todaysEvents.join(' &nbsp;|&nbsp; ');
+                        } else {
+                            return "empty";
                         }
-                    }
+                    });
                 }
 
-                if (todaysEvents.length > 0) {
-                    el.innerHTML = "📌 " + todaysEvents.join('<br>📌 ');
+                // 3. Wait for the fetch promise to resolve
+                const resultHtml = await agendaPromises[fetchUrlStr];
+                
+                // 4. Save the final result to the memory cache so we never fetch it again
+                agendaCache[fetchUrlStr] = resultHtml;
+
+                // 5. Render to the UI
+                if (resultHtml !== 'empty') {
+                    el.innerHTML = resultHtml;
+                    el.classList.add('has-data');
                 } else {
-                    el.innerHTML = "<em>No events scheduled for today</em>";
+                    el.innerHTML = "";
+                    el.classList.remove('has-data');
                 }
 
             } catch (error) {
                 console.error("iCal Fetch Error:", error);
-                el.innerHTML = "<em class='agenda-error'>Error loading feed. Check URL.</em>";
+                el.innerHTML = "<em class='agenda-error'>Error loading feed.</em>";
+                agendaCache[fetchUrlStr] = "<em class='agenda-error'>Error loading feed.</em>";
             }
         }
 
@@ -1592,6 +1639,8 @@
         }
 
         function setIcalFeed(periodName) {
+            // Because URLs can be long, they might have been cached. If they edit the URL, the old cache stays put, 
+            // but the new URL will naturally trigger a fresh fetch automatically.
             const currentUrl = classSettings[periodName]?.icalUrl || '';
             const url = prompt(`Paste the iCal feed URL for ${periodName}:`, currentUrl);
             if (url !== null) {
@@ -1638,10 +1687,7 @@
                         `<div class="options-col"></div>`;
 
                     li.innerHTML = `
-                        <div class="period-name" style="display: flex; flex-direction: column; justify-content: center;">
-                            <div>${key} ${openBadgeHtml}</div>
-                            <div class="agenda-display" id="agenda-${safeKey}">${s.icalUrl ? '📅 Feed Linked (Waiting for collapse...)' : ''}</div>
-                        </div>
+                        <div class="period-name">${key} ${openBadgeHtml}</div>
                         <div class="options-col opt-center"><label class="switch" title="Phone Caddy"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'putaway', this.checked)" ${s.putaway ? 'checked' : ''}><span class="slider"></span></label></div>
                         <div class="options-col opt-center"><label class="switch" title="Take Attendance"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'attendance', this.checked)" ${s.attendance ? 'checked' : ''}><span class="slider"></span></label></div>
                         <div class="options-col opt-center"><label class="switch" title="5-Min Clean Up"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'cleanup', this.checked)" ${s.cleanup ? 'checked' : ''}><span class="slider"></span></label></div>
@@ -1651,10 +1697,10 @@
                             <button onclick="setIcalFeed('${safeKey}')" style="background:none;border:none;cursor:pointer;font-size:1.3rem;transition:transform 0.2s; filter: ${s.icalUrl ? 'none' : 'grayscale(100%) opacity(0.4)'}" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="${s.icalUrl ? 'Edit iCal Feed' : 'Add iCal Feed'}">📅</button>
                         </div>
                         <div class="period-time">${formatTime12(String(period.start))} - ${formatTime12(String(period.end))}</div>
+                        <div class="agenda-display" id="agenda-${safeKey}"></div>
                     `;
                     list.appendChild(li);
                     
-                    // Trigger fetch if URL is present
                     if (s.icalUrl) {
                         fetchAgenda(s.icalUrl, `agenda-${safeKey}`);
                     }
