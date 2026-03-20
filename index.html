@@ -144,7 +144,6 @@
         body.dark-mode h1, body.dark-mode h3, body.dark-mode .schedule-header, body.dark-mode .period-name, body.dark-mode .title { color: #90caf9; border-color: #444; }
         body.dark-mode .control-group label.title { color: #90caf9; }
         body.dark-mode .sub-label, body.dark-mode #darkModeLabel { color: #ccc !important; }
-        body.dark-mode #disclaimer-text { color: #aaa !important; }
         body.dark-mode #schedule-list li { border-color: #444; }
         body.dark-mode #schedule-list li:nth-child(even) { background-color: rgba(255,255,255,0.03); }
         body.dark-mode select, body.dark-mode input[type="text"], body.dark-mode input[type="time"], body.dark-mode input[type="date"] { background: #333; color: #fff; border-color: #555; }
@@ -272,17 +271,17 @@
         }
 
         /* --- BULLETPROOF GRID LAYOUT --- */
-        /* Fixed outer grid so the middle wrapper stays perfectly centered */
+        /* Fixed outer grid so the middle wrapper stays perfectly centered without staggering */
         .schedule-grid {
             display: grid; 
-            grid-template-columns: minmax(130px, 1fr) 5fr minmax(170px, 1fr); 
-            gap: 10px; 
+            grid-template-columns: 160px 1fr 220px; 
+            gap: 15px; 
             align-items: center; 
-            padding: 8px 10px;
+            padding: 12px 15px;
             transition: all 0.4s ease;
         }
         
-        .schedule-header { font-size: 0.8rem; font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 6px; margin-bottom: 6px; transition: color 0.3s ease; }
+        .schedule-header { font-size: 1.1rem; font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 6px; margin-bottom: 6px; transition: color 0.3s ease; }
         
         /* Middle Section holds both the sliders and the agenda text */
         .middle-section {
@@ -292,10 +291,10 @@
 
         .options-wrapper {
             display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; width: 100%;
-            max-height: 40px; opacity: 1; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+            max-height: 50px; opacity: 1; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
         }
         
-        .options-col { display: flex; justify-content: center; align-items: center; white-space: nowrap; }
+        .options-col { display: flex; justify-content: center; align-items: center; white-space: nowrap; font-size: 0.95rem; }
         .options-col[title] { cursor: help; border-bottom: 1px dotted rgba(0,0,0,0.3); padding-bottom: 2px; } 
         body.dark-mode .options-col[title] { border-bottom: 1px dotted rgba(255,255,255,0.4); }
         
@@ -309,8 +308,9 @@
         }
         #schedule-list li:nth-child(even) { background-color: rgba(0,0,0,0.03); }
 
-        .period-name { grid-column: 1; font-weight: bold; text-align: left; font-size: 1.05rem; align-self: center; transition: all 0.4s ease; }
-        .period-time { grid-column: 3; text-align: right; font-size: 0.95rem; color: #555; align-self: center; transition: all 0.4s ease; }
+        /* Doubled Base Font Sizes */
+        .period-name { grid-column: 1; font-weight: bold; text-align: left; font-size: 1.8rem; align-self: center; transition: all 0.4s ease; }
+        .period-time { grid-column: 3; text-align: right; font-size: 1.6rem; color: #555; align-self: center; transition: all 0.4s ease; }
 
         /* --- Current Period Progress Bar Highlight --- */
         #schedule-list li.current-period {
@@ -326,7 +326,7 @@
 
         /* --- Standard Agenda Display CSS --- */
         .agenda-display { 
-            font-size: 0.95rem; font-weight: 600; color: #004080; text-align: center; width: 100%;
+            font-size: 1.1rem; font-weight: 600; color: #004080; text-align: center; width: 100%;
             max-height: 0px; opacity: 0; overflow: hidden;
             white-space: nowrap; text-overflow: ellipsis;
             transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, margin 0.4s ease;
@@ -338,19 +338,20 @@
         /* =========================================================
            STATE 1: WAFFLE CLOSED (Options hidden, Agenda visible) 
            ========================================================= */
+        .waffle-closed .schedule-grid { grid-template-columns: 180px 1fr 240px; }
         .waffle-closed .options-wrapper { max-height: 0px; opacity: 0; pointer-events: none; }
         .waffle-closed .agenda-display.has-data { max-height: 40px; opacity: 1; margin-top: 4px; }
         .waffle-closed .schedule-header .options-wrapper { max-height: 0px; opacity: 0; }
         
-        .waffle-closed .period-name { font-size: 1.5rem; color: #003366; }
+        .waffle-closed .period-name { font-size: 2.2rem; color: #003366; }
         body.dark-mode .waffle-closed .period-name { color: #90caf9; }
-        .waffle-closed .period-time { font-size: 1.3rem; font-weight: bold; color: #333; }
+        .waffle-closed .period-time { font-size: 2rem; font-weight: bold; color: #333; }
         body.dark-mode .waffle-closed .period-time { color: #e0e0e0; }
 
         /* =========================================================
            STATE 2: MINIMAL VIEW (Focus Mode - Tighter vertical space) 
            ========================================================= */
-        .minimal-view .schedule-grid { padding: 10px 30px; gap: 20px; border: none; }
+        .minimal-view .schedule-grid { grid-template-columns: auto 1fr auto; padding: 10px 30px; gap: 20px; border: none; }
         .minimal-view .schedule-header { max-height: 0; padding: 0; margin: 0; opacity: 0; border: none; overflow: hidden;} 
         
         .minimal-view #schedule-list li:not(.current-period) { 
@@ -361,15 +362,15 @@
             background: transparent !important; border-left: none !important; box-shadow: none !important; padding: 15px 0;
         }
         
-        .minimal-view .period-name { font-size: 2.2rem; color: #003366; }
+        .minimal-view .period-name { font-size: 3.5rem; color: #003366; }
         body.dark-mode .minimal-view .period-name { color: #90caf9; }
-        .minimal-view .period-time { font-size: 2rem; font-weight: bold; color: #333; }
+        .minimal-view .period-time { font-size: 3rem; font-weight: bold; color: #333; }
         body.dark-mode .minimal-view .period-time { color: #e0e0e0; }
         
         /* Force minimal view rules over waffle rules */
         .minimal-view .options-wrapper { max-height: 0px !important; opacity: 0 !important; pointer-events: none; }
         .minimal-view .agenda-display.has-data { 
-            max-height: 60px !important; opacity: 1 !important; font-size: 1.1rem; 
+            max-height: 80px !important; opacity: 1 !important; font-size: 1.4rem; 
             white-space: normal; margin-top: 8px;
         }
         
@@ -1138,7 +1139,6 @@
                         const icsData = await response.text();
 
                         if (icsData.startsWith('Error:')) {
-                            console.error("Apps Script Error:", icsData);
                             return `<em class="agenda-error" title="${icsData}">Apps Script error</em>`;
                         }
 
@@ -1795,6 +1795,10 @@
             const currentMins = now.getHours() * 60 + now.getMinutes();
             const currentSecs = currentMins * 60 + now.getSeconds();
             let highlightIndex = -1;
+            let actualClassIndex = -1;
+            let upcomingClassIndex = -1;
+            let inSchool = false;
+            let isPassing = false;
             let periods = [];
             
             listItems.forEach((li, index) => {
@@ -1809,37 +1813,51 @@
             });
 
             if (periods.length === 0) return null;
-            
+
             if (currentMins >= periods[0].startMins && currentMins < periods[periods.length - 1].endMins) {
+                inSchool = true;
                 for (let i = 0; i < periods.length; i++) {
                     let p = periods[i];
                     if (currentMins >= p.startMins && currentMins < p.endMins) {
-                        highlightIndex = p.index;
+                        actualClassIndex = p.index;
                         break;
                     }
                     if (currentMins < p.startMins) {
                         if (i > 0 && currentMins >= periods[i-1].endMins) {
-                            highlightIndex = p.index; 
+                            upcomingClassIndex = p.index; 
                         }
                         break;
                     }
                 }
             }
 
+            if (actualClassIndex !== -1) {
+                highlightIndex = actualClassIndex;
+                isPassing = false;
+            } else if (upcomingClassIndex !== -1) {
+                highlightIndex = upcomingClassIndex;
+                isPassing = true;
+            }
+
             if (highlightIndex !== -1) {
                 let p = periods[highlightIndex];
                 p.li.classList.add('current-period');
-                let startSecs = p.startMins * 60;
-                let endSecs = p.endMins * 60;
-                let progress = Math.max(0, Math.min(100, ((currentSecs - startSecs) / (endSecs - startSecs)) * 100));
-                p.li.style.setProperty('--progress', progress + '%');
+                if (!isPassing) {
+                    let startSecs = p.startMins * 60;
+                    let endSecs = p.endMins * 60;
+                    let progress = Math.max(0, Math.min(100, ((currentSecs - startSecs) / (endSecs - startSecs)) * 100));
+                    p.li.style.setProperty('--progress', progress + '%');
+                } else {
+                    p.li.style.setProperty('--progress', '0%');
+                }
             }
-            
-            let inClass = (highlightIndex !== -1);
-            let inSchool = (currentMins >= periods[0].startMins && currentMins < periods[periods.length - 1].endMins);
-            let isPassing = inSchool && !inClass;
 
-            return { index: highlightIndex, isPassing: isPassing, periodData: highlightIndex !== -1 ? periods[highlightIndex] : null };
+            return { 
+                index: highlightIndex, 
+                isPassing: isPassing, 
+                periodData: highlightIndex !== -1 ? periods[highlightIndex] : null,
+                actualClass: actualClassIndex !== -1
+            };
         }
 
         function triggerEvent(time, action, callback) {
@@ -1870,7 +1888,7 @@
                 currentStatus = 'passing';
                 autoState = 'passing';
             } 
-            else if (status && status.index !== -1) {
+            else if (status && status.actualClass) {
                 currentStatus = 'class';
                 const p = status.periodData;
                 const currentMins = now.getHours() * 60 + now.getMinutes();
