@@ -306,6 +306,8 @@
             transition: max-height 0.5s ease, margin 0.5s ease, opacity 0.5s ease;
         }
         body.dark-mode .agenda-display { color: #aaa; }
+        .agenda-error { color: #d9534f !important; font-style: italic; }
+        body.dark-mode .agenda-error { color: #ff8a80 !important; }
 
         /* --- Waffle Menu Closed (Student View) CSS --- */
         .student-view .schedule-grid { 
@@ -318,7 +320,7 @@
         .student-view .period-time { font-size: 1.8rem; font-weight: bold; color: #333; }
         body.dark-mode .student-view .period-time { color: #e0e0e0; }
         .student-view .schedule-header { max-height: 0; padding: 0; margin: 0; opacity: 0; border: none; overflow: hidden;} 
-        .student-view .agenda-display { max-height: 100px; opacity: 1; margin-top: 8px; font-size: 1rem; }
+        .student-view .agenda-display { max-height: 150px; opacity: 1; margin-top: 8px; font-size: 1rem; }
 
         /* --- FOCUS MODE (Minimal View) CSS --- */
         .minimal-view .schedule-grid { 
@@ -341,7 +343,7 @@
         body.dark-mode .minimal-view .period-name { color: #90caf9; }
         .minimal-view .period-time { font-size: 2.8rem; font-weight: bold; color: #333; text-align: right; }
         body.dark-mode .minimal-view .period-time { color: #e0e0e0; }
-        .minimal-view .agenda-display { max-height: 200px; opacity: 1; margin-top: 12px; font-size: 1.3rem; }
+        .minimal-view .agenda-display { max-height: 250px; opacity: 1; margin-top: 12px; font-size: 1.3rem; }
         
         .minimal-view #schedule-list.no-active-period::after {
             content: "Outside School Hours";
@@ -1016,16 +1018,30 @@
             el.innerHTML = "<em>Fetching agenda...</em>";
 
             try {
+                // Fix webcal:// protocols just in case
+                let fetchUrlStr = url.trim();
+                if (fetchUrlStr.startsWith('webcal://')) {
+                    fetchUrlStr = 'https://' + fetchUrlStr.substring(9);
+                }
+
                 // Route through your private Google Apps Script
-                const fetchUrl = `${GOOGLE_CALENDAR_SCRIPT_URL}?icalUrl=${encodeURIComponent(url.trim())}`;
+                const fetchUrl = `${GOOGLE_CALENDAR_SCRIPT_URL}?icalUrl=${encodeURIComponent(fetchUrlStr)}`;
                 const response = await fetch(fetchUrl);
                 
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 
                 const icsData = await response.text();
 
+                // Catch Apps Script errors passed back as text
+                if (icsData.startsWith('Error:')) {
+                    console.error("Apps Script Error:", icsData);
+                    el.innerHTML = `<em class="agenda-error" title="${icsData}">Apps Script blocked fetch (Did you Authorize?)</em>`;
+                    return;
+                }
+
                 if (!icsData || (!icsData.includes('BEGIN:VCALENDAR') && !icsData.includes('BEGIN:VEVENT'))) {
-                    el.innerHTML = "<em>Invalid or empty calendar data</em>";
+                    console.warn("Invalid data received:", icsData.substring(0, 100) + "...");
+                    el.innerHTML = "<em class='agenda-error' title='Ensure you used the Secret iCal Address'>Received login page instead of calendar</em>";
                     return;
                 }
 
@@ -1038,8 +1054,8 @@
                 for (let i = 1; i < events.length; i++) {
                     const eventText = events[i];
                     
-                    // Improved regex to handle timezones and strip line breaks from the summary
-                    const dtStartMatch = eventText.match(/DTSTART[^:]*:([0-9]{8})/); 
+                    // Regex handles: DTSTART:20260320 OR DTSTART;VALUE=DATE:20260320 OR DTSTART;TZID=...:20260320T...
+                    const dtStartMatch = eventText.match(/DTSTART(?:;[^:]*)?:([0-9]{8})/); 
                     const summaryMatch = eventText.match(/SUMMARY:([^\r\n]*)/);
 
                     if (dtStartMatch && summaryMatch) {
@@ -1058,7 +1074,7 @@
 
             } catch (error) {
                 console.error("iCal Fetch Error:", error);
-                el.innerHTML = "<em>Error loading feed. Check URL.</em>";
+                el.innerHTML = "<em class='agenda-error'>Error loading feed. Check URL.</em>";
             }
         }
 
