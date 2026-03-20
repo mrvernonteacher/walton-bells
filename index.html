@@ -146,6 +146,7 @@
         body.dark-mode #schedule-list li { border-color: #444; }
         body.dark-mode #schedule-list li:nth-child(even) { background-color: rgba(255,255,255,0.03); }
         body.dark-mode select, body.dark-mode input[type="text"], body.dark-mode input[type="time"] { background: #333; color: #fff; border-color: #555; }
+        body.dark-mode #jukeboxUrlInput { background: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.2); color: #e0e0e0;}
         body.dark-mode .period-time { color: #ddd; }
         body.dark-mode .dropdown-content { background-color: #333; border-color: #555; }
         body.dark-mode .dropdown-content button { color: #e0e0e0; border-color: #444; }
@@ -159,17 +160,6 @@
         body.dark-mode .split-button-main { background-color: #0288d1; }
         body.dark-mode .split-button-caret { background-color: #0277bd; border-left: 1px solid #01579b; }
 
-        /* --- Positive Goodbyes UI --- */
-        .goodbye-box {
-            background: rgba(92, 184, 92, 0.15); border: 1px solid rgba(92, 184, 92, 0.4);
-            padding: 12px; border-radius: 8px; margin-top: 15px; transition: all 0.3s ease;
-        }
-        .goodbye-box label { color: #003366; transition: color 0.3s ease; }
-        .goodbye-desc { font-size: 0.8rem; color: #555; margin-top: 4px; margin-left: 26px; transition: color 0.3s ease;}
-        body.dark-mode .goodbye-box { background: rgba(144, 202, 249, 0.1); border-color: rgba(144, 202, 249, 0.3); }
-        body.dark-mode .goodbye-box label { color: #90caf9; }
-        body.dark-mode .goodbye-desc { color: #aaa; }
-
         /* --- Open Block Badge --- */
         .open-badge {
             background-color: #5cb85c; color: white; padding: 2px 8px; border-radius: 12px; 
@@ -177,6 +167,7 @@
         }
         body.dark-mode .open-badge { background-color: #2e7d32; color: #e8f5e9; }
         .student-view .open-badge { font-size: 1.2rem; padding: 4px 12px; margin-left: 15px; transform: translateY(-3px); display: inline-block; }
+        .minimal-view .open-badge { font-size: 1.5rem; }
 
         /* --- Layout & Structure --- */
         .dashboard-wrapper { display: flex; flex-wrap: wrap; gap: 15px; max-width: 1300px; margin: 0 auto; width: 100%; align-items: flex-start; z-index: 2; }
@@ -198,23 +189,26 @@
         }
         .schedule-header-wrap h3 { margin: 0; font-size: 1.5rem; color: #003366; transition: color 0.3s ease; }
 
-        /* UI Controls */
-        .control-group { margin-bottom: 12px; border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 12px;}
+        /* UI Controls & Modern Clean Up */
+        .control-group { margin-bottom: 15px; border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 15px;}
         .control-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
-        .control-group label.title { font-weight: bold; display: block; margin-bottom: 5px; color: #003366; transition: color 0.3s ease; }
-        .sub-label { font-size: 0.9rem; color: #555; transition: color 0.3s ease; }
+        .control-group label.title { font-weight: bold; display: block; margin-bottom: 10px; color: #003366; transition: color 0.3s ease; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px;}
+        .sub-label { font-size: 0.95rem; color: #444; font-weight: 500; transition: color 0.3s ease; cursor: help; }
+        body.dark-mode .sub-label { color: #ccc; }
         
-        select, input[type="text"], input[type="time"] { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 0.95rem; background: rgba(255,255,255,0.9); }
-        .volume-container { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        
+        select, input[type="text"], input[type="time"] { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 0.9rem; background: rgba(255,255,255,0.9); }
+        .volume-container { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; cursor: help;}
         input[type="range"] { flex-grow: 1; cursor: pointer; }
 
-        .split-button-container { display: flex; align-items: stretch; width: 100%; margin-top: 8px; }
+        .split-button-container { display: flex; align-items: stretch; width: 100%; margin-top: 5px; }
         .split-button-main { flex-grow: 1; background-color: #5bc0de; color: white; border: none; padding: 8px 12px; border-radius: 5px 0 0 5px; cursor: pointer; font-size: 0.95rem; font-weight: bold; transition: background-color 0.2s; text-align: left; }
         .split-button-main:hover { background-color: #31b0d5; }
         .dropdown { position: relative; display: flex; }
         .split-button-caret { background-color: #46b8da; color: white; border: none; border-left: 1px solid #31b0d5; padding: 0 10px; border-radius: 0 5px 5px 0; cursor: pointer; font-size: 1rem; transition: background-color 0.2s; }
         .split-button-caret:hover { background-color: #31b0d5; }
-        .dropdown-content { display: none; position: absolute; right: 0; top: 100%; background-color: #fff; min-width: 240px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 10; border-radius: 5px; overflow: hidden; border: 1px solid #ddd; }
+        .dropdown-content { display: none; position: absolute; left: 0; top: 100%; background-color: #fff; min-width: 240px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 10; border-radius: 5px; overflow: hidden; border: 1px solid #ddd; }
         .dropdown-content.show { display: block; }
         .dropdown-content button { color: #333; padding: 8px 12px; text-decoration: none; display: block; width: 100%; background: none; border: none; border-bottom: 1px solid #eee; text-align: left; margin: 0; font-size: 0.9rem; }
         .dropdown-content button:hover { background-color: #f1f1f1; color: #003366; }
@@ -226,7 +220,7 @@
         .btn-danger:hover { background-color: #c9302c; }
 
         /* Custom Toggles */
-        .switch-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .switch-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
@@ -236,8 +230,8 @@
         body.dark-mode input:checked + .slider { background-color: #90caf9; }
 
         #autoIndicator {
-            display: none; margin-bottom: 8px; font-size: 0.8rem; background: #dff0d8; color: #3c763d; 
-            padding: 4px 8px; border-radius: 5px; font-weight: bold; border: 1px solid #d6e9c6;
+            display: none; margin-bottom: 10px; font-size: 0.8rem; background: #dff0d8; color: #3c763d; 
+            padding: 6px 10px; border-radius: 5px; font-weight: bold; border: 1px solid #d6e9c6; text-align: center;
         }
 
         /* Schedule Grid */
@@ -277,6 +271,25 @@
         body.dark-mode .student-view .period-time { color: #e0e0e0; }
         .student-view .schedule-header { display: none; } 
 
+        /* --- FOCUS MODE (Minimal View) CSS --- */
+        .minimal-view .options-col { display: none; }
+        .minimal-view .schedule-header { display: none; }
+        .minimal-view .schedule-grid { grid-template-columns: 1fr 1fr; padding: 15px 30px; }
+        .minimal-view #schedule-list li:not(.current-period) { display: none !important; }
+        
+        .minimal-view #schedule-list li.current-period { 
+            background: transparent !important; border-left: none !important; box-shadow: none !important; padding: 10px 0;
+        }
+        .minimal-view .period-name { font-size: 3rem; color: #003366; text-align: left; }
+        body.dark-mode .minimal-view .period-name { color: #90caf9; }
+        .minimal-view .period-time { font-size: 2.8rem; font-weight: bold; color: #333; text-align: right; }
+        body.dark-mode .minimal-view .period-time { color: #e0e0e0; }
+        
+        .minimal-view #schedule-list.no-active-period::after {
+            content: "Outside School Hours";
+            display: block; padding: 20px; text-align: center; font-size: 1.5rem; font-weight: bold; color: #888;
+        }
+
         .footer { margin-top: 25px; font-size: 0.85rem; color: #555; text-align: center; width: 100%; transition: color 0.3s ease; }
         .footer p { margin: 0 0 5px 0; font-weight: bold;}
         .footer-logo { max-width: 180px; height: auto; display: inline-block; }
@@ -312,9 +325,9 @@
     <div class="dashboard-wrapper">
         <div class="sidebar" id="sidebar">
             
-            <div class="control-group">
-                <div class="switch-container">
-                    <span class="sub-label" style="font-weight: bold;" id="darkModeLabel">Dark Mode</span>
+            <div class="control-group" style="padding-bottom: 5px; margin-bottom: 5px; border-bottom: none;">
+                <div class="switch-container" title="Toggle between light and dark UI themes.">
+                    <span class="sub-label" id="darkModeLabel">Dark Mode</span>
                     <label class="switch">
                         <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode(true)">
                         <span class="slider"></span>
@@ -323,20 +336,35 @@
             </div>
 
             <div class="control-group">
-                <label class="title">1. Bell & Voice Settings</label>
+                <label class="title">1. Audio & Voice Settings</label>
                 
-                <label class="sub-label" style="margin-bottom: 5px; display: block;">Dynamic Voice Selection:</label>
-                <select id="voicePreference" onchange="changeVoicePref()" style="margin-bottom: 8px;">
+                <select id="voicePreference" onchange="changeVoicePref()" style="margin-bottom: 12px;" title="Select the computer voice used for automated announcements.">
                     <option value="">Loading voices...</option>
                 </select>
 
-                <div class="volume-container">
+                <div class="volume-container" title="Master volume for the bell chime and voice announcements.">
                     <span>🔔 🔈</span>
                     <input type="range" id="volumeControl" min="0" max="1" step="0.05" value="1" onchange="changeVolume()">
                     <span>🔊</span>
                 </div>
+
+                <div class="setting-row" title="Mutes the bell chime, but keeps automated voice announcements active.">
+                    <span class="sub-label">Mute Bell Sounds</span>
+                    <label class="switch">
+                        <input type="checkbox" id="muteBellsToggle" onchange="toggleMuteBells()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-row" title="Reads an encouraging, randomized message out loud after the final class bell rings.">
+                    <span class="sub-label">Positive Goodbyes</span>
+                    <label class="switch">
+                        <input type="checkbox" id="playGoodbyes" onchange="toggleGoodbyes()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
                 
-                <div class="split-button-container">
+                <div class="split-button-container" title="Test the selected audio/voice combination.">
                     <button id="playBtn" class="split-button-main" onclick="testSelectedSound()">▶ Play Voice Test</button>
                     <div class="dropdown">
                         <button class="split-button-caret" onclick="toggleDropdown(event)">▼</button>
@@ -351,34 +379,31 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="goodbye-box">
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: bold; font-size: 0.95rem;">
-                        <input type="checkbox" id="playGoodbyes" onchange="toggleGoodbyes()" style="width: 16px; height: 16px;"> 
-                        Play Positive Goodbyes
-                    </label>
-                    <div class="goodbye-desc">Reads an encouraging, randomized message out loud after the final class bell rings.</div>
-                </div>
             </div>
 
             <div class="control-group">
-                <label class="title" for="scheduleMode">2. Mode & Auto-Sync:</label>
-                <select id="scheduleMode" onchange="changeMode()" style="margin-bottom: 8px;">
+                <label class="title" for="scheduleMode">2. Mode & Auto-Sync</label>
+                
+                <div id="autoIndicator" title="The current schedule successfully loaded from the Google Sheet.">✓ Auto-Synced</div>
+
+                <select id="scheduleMode" onchange="changeMode()" style="margin-bottom: 12px;" title="Override the auto-synced schedule with a manual selection.">
                     <option value="synced" id="syncedOption">Loading Google Sheet...</option>
                     <option value="web">WEB Schedule (Hardcoded)</option>
                     <option value="custom">Custom Schedule</option>
                 </select>
                 
-                <div id="autoIndicator">✓ Auto-Synced</div>
-                
-                <label class="sub-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                    <input type="checkbox" id="showZeroPeriod" onchange="changeMode()"> Show 0 Period
-                </label>
+                <div class="setting-row" title="Adds or removes the 0 Period block from the active schedule view.">
+                    <span class="sub-label">Show 0 Period</span>
+                    <label class="switch">
+                        <input type="checkbox" id="showZeroPeriod" onchange="changeMode()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
             </div>
 
             <div class="control-group" id="lunch-builder">
-                <label class="title">3. Weekly Lunch Duties:</label>
-                <div style="display:flex; gap:6px; margin-bottom:6px;">
+                <label class="title">3. Weekly Lunch Duties</label>
+                <div style="display:flex; gap:6px; margin-bottom:6px;" title="Select the day and half of lunch.">
                     <select id="lunchDay">
                         <option value="1">Mon</option><option value="2">Tue</option><option value="3">Wed</option><option value="4">Thu</option><option value="5">Fri</option>
                     </select>
@@ -386,7 +411,7 @@
                         <option value="1">1st Half</option><option value="2">2nd Half</option>
                     </select>
                 </div>
-                <div style="display:flex; gap:6px; margin-bottom:6px;">
+                <div style="display:flex; gap:6px; margin-bottom:6px;" title="Select the class period and click Add.">
                     <select id="lunchPeriod" style="flex-grow: 1;">
                         <option value="3rd">3rd Period</option>
                         <option value="4th">4th Period</option>
@@ -399,9 +424,20 @@
             </div>
 
             <div class="control-group">
-                <label class="title">4. Classroom Vibe Playlist</label>
-                <label class="sub-label" style="margin-bottom: 5px; display: block;">Select or add a YouTube URL:</label>
-                <div style="display:flex; gap:6px; margin-bottom: 8px;">
+                <label class="title">4. Classroom Vibe & Jukebox</label>
+                
+                <div class="setting-row" title="Automatically plays the YouTube link below during passing periods on Fridays.">
+                    <span class="sub-label">Friday Jukebox Mode</span>
+                    <label class="switch">
+                        <input type="checkbox" id="jukeboxToggle" onchange="toggleJukebox()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <input type="text" id="jukeboxUrlInput" placeholder="Custom Jukebox URL (Optional)" style="margin-bottom: 15px;" onchange="updateJukeboxUrl()" title="Paste a specific YouTube playlist for Friday Jukebox.">
+
+                <label class="sub-label" style="margin-bottom: 5px; display: block; cursor: default;">Main Classroom Vibe URL:</label>
+                <div style="display:flex; gap:6px; margin-bottom: 8px;" title="Select or manage your saved YouTube background videos.">
                     <select id="vibeSelect" style="flex-grow: 1; min-width: 0;" onchange="changeVibeSelection()">
                         <option value="">-- Add a Vibe --</option>
                     </select>
@@ -409,10 +445,15 @@
                     <button class="btn btn-danger inline" style="width: auto; padding: 6px 10px;" onclick="removeVibe()" title="Remove URL">✖</button>
                 </div>
                 
-                <div class="volume-container">
+                <div class="volume-container" style="margin-bottom: 12px;" title="Adjust the background music volume.">
                     <span>🎵 🔈</span>
                     <input type="range" id="vibeVolumeControl" min="0" max="100" step="1" value="50" onchange="changeVibeVolume()">
                     <span>🔊</span>
+                </div>
+
+                <div style="display:flex; gap:6px;">
+                    <button class="btn inline" style="flex-grow: 1;" onclick="startVibe()">▶ Start Vibe</button>
+                    <button class="btn btn-danger inline" onclick="stopVibe()">Stop</button>
                 </div>
             </div>
         </div>
@@ -426,6 +467,12 @@
                         <h3 id="schedule-title">Active Schedule</h3>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
+                        <button id="minimalViewBtn" class="header-icon-btn" onclick="toggleMinimalView(true)" title="Focus Mode (Show Current Class Only)">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                <path d="M4 11h16v2H4z"/>
+                            </svg>
+                        </button>
+                        
                         <button id="studentViewBtn" class="header-icon-btn active-btn" onclick="toggleStudentView(true)" title="Toggle Options">
                             <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
                                 <rect x="4" y="4" width="4" height="4" rx="1"/><rect x="10" y="4" width="4" height="4" rx="1"/><rect x="16" y="4" width="4" height="4" rx="1"/><rect x="4" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="16" y="10" width="4" height="4" rx="1"/><rect x="4" y="16" width="4" height="4" rx="1"/><rect x="10" y="16" width="4" height="4" rx="1"/><rect x="16" y="16" width="4" height="4" rx="1"/>
@@ -493,13 +540,19 @@
         let currentMode = 'synced', activeSchedule = [];
         let globalVolume = 1.0, globalVoicePref = '', classSettings = {}, lunchDuties = [];
         let savedVibes = [], currentVibeUrl = '', vibeVolume = 50;
-        let currentTestSound = 'positive', sidebarVisible = true, isStudentView = false, isDarkMode = false, showZero = false, playGoodbyes = false;
+        let currentTestSound = 'positive', sidebarVisible = true, isStudentView = false, isMinimalView = false, isDarkMode = false, showZero = false;
+        let playGoodbyes = false, muteBells = false;
         let currentScheduleName = "Loading..."; 
         
         let playedActions = {};
         let currentMinuteTracker = "";
+        
+        let mrBsJukebox = false;
+        let jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
+        let isMainVibePlaying = false;
+        let activePlayerUrl = '';
+        let lastPeriodStatus = null; 
 
-        // --- Scroll Listener for Dynamic Header ---
         window.addEventListener('scroll', () => {
             const header = document.getElementById('floating-header');
             if(header) {
@@ -508,7 +561,6 @@
             }
         });
 
-        // --- Fullscreen State Listener ---
         document.addEventListener('fullscreenchange', () => {
             const fsBtn = document.getElementById('fullScreenBtn');
             if(fsBtn) {
@@ -517,7 +569,6 @@
             }
         });
 
-        // --- Drag Logic for Floating Player ---
         const floatPlayer = document.getElementById('floating-player');
         let isDragging = false, dragStartX, dragStartY, initialLeft, initialTop;
 
@@ -563,7 +614,6 @@
             floatPlayer.classList.remove('dragging');
         }
 
-        // --- YouTube Playlist & API Engine ---
         let ytPlayer = null;
         let isYtApiReady = false;
 
@@ -639,26 +689,20 @@
             if(select && select.value) {
                 currentVibeUrl = select.value;
                 saveLocalSettings();
-                startVibe();
+                lastPeriodStatus = null; 
             }
         }
 
-        function toggleVibePlay() {
-            if (ytPlayer && typeof ytPlayer.getPlayerState === 'function') {
-                try {
-                    let state = ytPlayer.getPlayerState();
-                    if (state === YT.PlayerState.PLAYING) ytPlayer.pauseVideo();
-                    else ytPlayer.playVideo();
-                } catch(e) { console.error(e); }
-            } else { startVibe(); }
-        }
+        function applyMusicState(url, shouldPlay) {
+            if (!url) { stopVibeCore(); return true; } 
+            
+            const vid = extractVideoID(url);
+            if (!vid) return true;
 
-        function startVibe() {
-            if(!currentVibeUrl) return;
-            const vid = extractVideoID(currentVibeUrl);
+            if (!isYtApiReady) return false; 
+
+            activePlayerUrl = url;
             const bgContainer = document.getElementById('vibe-bg');
-            if(!vid) return;
-
             updateFloatingPlayerVisibility();
             if(bgContainer) bgContainer.style.opacity = "0.45";
 
@@ -666,21 +710,71 @@
                 try { ytPlayer.destroy(); ytPlayer = null; } catch(e) {}
             } 
             
-            if (!isYtApiReady) { showToast("YouTube API loading. Try again in 2 seconds."); return; }
-            
             if(bgContainer) bgContainer.innerHTML = '<div id="yt-player-container"></div>';
             
             try {
                 ytPlayer = new YT.Player('yt-player-container', {
                     videoId: vid,
-                    playerVars: { 'autoplay': 1, 'controls': 0, 'autohide': 1, 'wmode': 'opaque', 'showinfo': 0, 'loop': 1, 'playlist': vid, 'mute': 0 },
-                    events: { 'onReady': onPlayerReady, 'onStateChange': onPlayerStateChange }
+                    playerVars: { 'autoplay': shouldPlay ? 1 : 0, 'controls': 0, 'autohide': 1, 'wmode': 'opaque', 'showinfo': 0, 'loop': 1, 'playlist': vid, 'mute': 0 },
+                    events: { 
+                        'onReady': function(e) { 
+                            try { 
+                                e.target.setVolume(vibeVolume); 
+                                if(shouldPlay) e.target.playVideo(); 
+                            } catch(err) {} 
+                        }, 
+                        'onStateChange': onPlayerStateChange 
+                    }
                 });
             } catch(e) {}
+            
+            return true;
         }
 
-        function onPlayerReady(event) { 
-            try { event.target.setVolume(vibeVolume); event.target.playVideo(); } catch(e) {}
+        function toggleVibePlay() {
+            if (ytPlayer && typeof ytPlayer.getPlayerState === 'function') {
+                try {
+                    let state = ytPlayer.getPlayerState();
+                    if (state === YT.PlayerState.PLAYING) {
+                        ytPlayer.pauseVideo();
+                        if (activePlayerUrl === currentVibeUrl) {
+                            isMainVibePlaying = false;
+                            saveLocalSettings();
+                        }
+                    } else {
+                        ytPlayer.playVideo();
+                        if (activePlayerUrl === currentVibeUrl) {
+                            isMainVibePlaying = true;
+                            saveLocalSettings();
+                        }
+                    }
+                } catch(e) { console.error(e); }
+            } else { startVibe(); }
+        }
+
+        function startVibe() {
+            if(!currentVibeUrl) return;
+            isMainVibePlaying = true;
+            saveLocalSettings();
+            lastPeriodStatus = null; 
+        }
+
+        function stopVibeCore() {
+            activePlayerUrl = '';
+            const bg = document.getElementById('vibe-bg');
+            if(bg) bg.style.opacity = "0";
+            if (ytPlayer) { try { ytPlayer.destroy(); ytPlayer = null; } catch(e) {} }
+            updateFloatingPlayerVisibility();
+        }
+
+        function stopVibe() {
+            isMainVibePlaying = false;
+            saveLocalSettings();
+            if (activePlayerUrl === jukeboxUrl) {
+                if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') ytPlayer.pauseVideo();
+            } else {
+                stopVibeCore();
+            }
         }
 
         function onPlayerStateChange(event) {
@@ -694,7 +788,7 @@
                     const titleEl = document.getElementById('float-vibe-title');
                     if(title && titleEl) titleEl.innerText = title;
                     
-                    if(title && currentVibeUrl) {
+                    if(title && activePlayerUrl === currentVibeUrl) {
                         let updated = false;
                         savedVibes.forEach(v => {
                             if(v.url === currentVibeUrl && v.title !== title) { v.title = title; updated = true; }
@@ -703,7 +797,6 @@
                     }
                 } catch(e) {}
             } else if (event.data == YT.PlayerState.ENDED) {
-                // FIX: Force the video to loop if the background tab drops the native loop command
                 event.target.playVideo();
             } else {
                 floatBtn.innerText = "▶";
@@ -723,12 +816,6 @@
         function changeVibeVolume() { 
             const ctrl = document.getElementById('vibeVolumeControl');
             if(ctrl) syncVibeVolume(ctrl.value); 
-        }
-
-        function stopVibe() {
-            const bg = document.getElementById('vibe-bg');
-            if(bg) bg.style.opacity = "0";
-            if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') { try { ytPlayer.pauseVideo(); } catch(e) {} }
         }
 
         function showToast(message) {
@@ -817,9 +904,10 @@
             try {
                 const data = {
                     mode: currentMode, vol: globalVolume, voice: globalVoicePref, testSound: currentTestSound,
-                    side: sidebarVisible, student: isStudentView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
+                    side: sidebarVisible, student: isStudentView, minimal: isMinimalView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
                     customSchedule: predefinedSchedules.custom, settings: classSettings, lunchDuties: lunchDuties,
-                    savedVibes: savedVibes, vibe: currentVibeUrl, vibeVol: vibeVolume
+                    savedVibes: savedVibes, vibe: currentVibeUrl, vibeVol: vibeVolume,
+                    mrBsJukebox: mrBsJukebox, jukeboxUrl: jukeboxUrl, isMainVibePlaying: isMainVibePlaying, muteB: muteBells
                 };
                 localStorage.setItem('waltonBellState', JSON.stringify(data));
             } catch (e) {}
@@ -845,9 +933,7 @@
                     if (p.vol !== undefined) {
                         globalVolume = p.vol;
                         const vControl = document.getElementById('volumeControl');
-                        const aControl = document.getElementById('regularBellAudio');
                         if(vControl) vControl.value = globalVolume;
-                        if(aControl) aControl.volume = globalVolume;
                     }
                     if (p.vibeVol !== undefined) { syncVibeVolume(p.vibeVol); }
 
@@ -878,6 +964,14 @@
                         if(dText) dText.style.display = 'none';
                         if(svBtn) svBtn.classList.remove('active-btn');
                     }
+
+                    if (p.minimal === true) {
+                        isMinimalView = true;
+                        const sCont = document.getElementById('schedule-container');
+                        const mBtn = document.getElementById('minimalViewBtn');
+                        if(sCont) sCont.classList.add('minimal-view');
+                        if(mBtn) mBtn.classList.add('active-btn');
+                    }
                     
                     if (p.dark === true) { 
                         isDarkMode = true;
@@ -895,6 +989,11 @@
                         if(pgToggle) pgToggle.checked = true; 
                         playGoodbyes = true; 
                     }
+                    if (p.muteB === true) { 
+                        const mbToggle = document.getElementById('muteBellsToggle');
+                        if(mbToggle) mbToggle.checked = true; 
+                        muteBells = true; 
+                    }
                     
                     if (p.savedVibes) savedVibes = p.savedVibes;
                     
@@ -903,6 +1002,17 @@
                         currentVibeUrl = p.vibe;
                     } else if (p.vibe) {
                         currentVibeUrl = p.vibe;
+                    }
+
+                    if (p.mrBsJukebox !== undefined) mrBsJukebox = p.mrBsJukebox;
+                    if (p.jukeboxUrl) jukeboxUrl = p.jukeboxUrl;
+                    if (p.isMainVibePlaying !== undefined) isMainVibePlaying = p.isMainVibePlaying;
+
+                    const jkToggle = document.getElementById('jukeboxToggle');
+                    if(jkToggle) jkToggle.checked = mrBsJukebox;
+                    const jkInput = document.getElementById('jukeboxUrlInput');
+                    if(jkInput && jukeboxUrl !== "https://www.youtube.com/watch?v=CLLpSmaof4E") {
+                        jkInput.value = jukeboxUrl;
                     }
                 }
             } catch (e) {}
@@ -921,13 +1031,16 @@
             if(!toggle) return;
             isDarkMode = toggle.checked;
             const svBtn = document.getElementById('studentViewBtn');
+            const mvBtn = document.getElementById('minimalViewBtn');
             
             if (isDarkMode) { 
                 document.body.classList.add('dark-mode'); 
                 if(!isStudentView && svBtn) svBtn.style.color = '#90caf9';
+                if(isMinimalView && mvBtn) mvBtn.style.color = '#90caf9';
             } else { 
                 document.body.classList.remove('dark-mode'); 
                 if(!isStudentView && svBtn) svBtn.style.color = '#003366';
+                if(isMinimalView && mvBtn) mvBtn.style.color = '#003366';
             }
             if (shouldSave) saveLocalSettings();
             renderLunchDuties(); 
@@ -952,7 +1065,7 @@
         function updateFloatingPlayerVisibility() {
             const player = document.getElementById('floating-player');
             if (player) {
-                if (currentVibeUrl) player.classList.add('visible');
+                if (activePlayerUrl) player.classList.add('visible');
                 else player.classList.remove('visible');
             }
         }
@@ -972,14 +1085,64 @@
                     container.classList.remove('student-view'); 
                     disclaimer.style.display = 'block'; 
                     btn.classList.add('active-btn');
+                    
+                    if (isMinimalView) toggleMinimalView(false);
                 }
             }
             if (shouldSave) saveLocalSettings();
         }
 
+        function toggleMinimalView(shouldSave = true) {
+            isMinimalView = !isMinimalView;
+            const container = document.getElementById('schedule-container');
+            const btn = document.getElementById('minimalViewBtn');
+            
+            if(container && btn) {
+                if (isMinimalView) {
+                    container.classList.add('minimal-view'); 
+                    btn.classList.add('active-btn');
+                    if(isDarkMode) btn.style.color = '#90caf9';
+                    else btn.style.color = '#003366';
+                    
+                    if (!isStudentView) toggleStudentView(false);
+                    
+                } else {
+                    container.classList.remove('minimal-view'); 
+                    btn.classList.remove('active-btn');
+                    if(isDarkMode) btn.style.color = '#666';
+                    else btn.style.color = '#aaa';
+                }
+            }
+            if (shouldSave) saveLocalSettings();
+        }
+
+        function toggleJukebox() {
+            const tog = document.getElementById('jukeboxToggle');
+            if(tog) mrBsJukebox = tog.checked;
+            lastPeriodStatus = null; 
+            saveLocalSettings();
+        }
+
+        function updateJukeboxUrl() {
+            const inp = document.getElementById('jukeboxUrlInput');
+            if(inp && inp.value.trim() !== '') {
+                jukeboxUrl = inp.value.trim();
+            } else {
+                jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
+            }
+            lastPeriodStatus = null; 
+            saveLocalSettings();
+        }
+
         function toggleGoodbyes() { 
             const tog = document.getElementById('playGoodbyes');
             if(tog) playGoodbyes = tog.checked; 
+            saveLocalSettings(); 
+        }
+        
+        function toggleMuteBells() { 
+            const tog = document.getElementById('muteBellsToggle');
+            if(tog) muteBells = tog.checked; 
             saveLocalSettings(); 
         }
 
@@ -1007,9 +1170,7 @@
 
         function changeVolume() { 
             const vc = document.getElementById('volumeControl');
-            const au = document.getElementById('regularBellAudio');
             if(vc) globalVolume = vc.value; 
-            if(au) au.volume = globalVolume; 
             saveLocalSettings(); 
         }
         
@@ -1020,6 +1181,11 @@
         }
 
         function playBellWithQueue(timesLeft = 1, onCompleteCallback = null) {
+            if (muteBells) {
+                if (onCompleteCallback) onCompleteCallback();
+                return;
+            }
+
             const audio = document.getElementById('regularBellAudio'); 
             
             if(!audio) {
