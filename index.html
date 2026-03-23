@@ -96,7 +96,7 @@
         body.dark-mode .header-icon-btn:hover { background-color: rgba(150,150,150,0.2); color: #aaa; }
         body.dark-mode .header-icon-btn.active-btn { color: #90caf9; } 
 
-        /* --- Sidebar & Widgets Dropdown --- */
+        /* --- Sidebar & Widgets Dropdown (Z-Index Fix) --- */
         .sidebar-wrapper { position: fixed; top: 90px; left: 20px; z-index: 2000; pointer-events: none; }
         .sidebar {
             width: 350px; padding: 15px 20px; border-radius: 10px; 
@@ -166,7 +166,6 @@
         #toast.show { top: 90px; opacity: 1; }
 
         /* --- Global Dark Mode Color Inversions --- */
-        body.dark-mode { background-color: #121212; color: #e0e0e0; }
         body.dark-mode h1, body.dark-mode h3, body.dark-mode .schedule-header, body.dark-mode .period-name, body.dark-mode .title, body.dark-mode .widget-title { color: #90caf9; border-color: #444; }
         body.dark-mode .control-group label.title { color: #90caf9; }
         body.dark-mode .sub-label { color: #ccc !important; }
@@ -260,11 +259,9 @@
         .options-wrapper { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; width: 100%; max-height: 50px; opacity: 1; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease; }
         .options-col { display: flex; justify-content: center; align-items: center; white-space: nowrap; font-size: 0.95rem; }
         .options-col[title] { cursor: help; border-bottom: 1px dotted rgba(0,0,0,0.3); padding-bottom: 2px; } 
-        body.dark-mode .options-col[title] { border-bottom: 1px dotted rgba(255,255,255,0.4); }
         
         #schedule-list { list-style-type: none; padding: 0; margin: 0; }
         #schedule-list li { border-bottom: 1px solid rgba(150,150,150,0.2); border-left: 5px solid transparent; max-height: 250px; overflow: hidden; opacity: 1; transition: max-height 0.6s cubic-bezier(0.25, 1.2, 0.3, 1), padding 0.5s ease, opacity 0.5s ease, margin 0.5s ease; }
-        #schedule-list li:nth-child(even) { background-color: rgba(0,0,0,0.03); }
 
         .period-name { grid-column: 1; font-weight: bold; text-align: left; font-size: 1.6rem; align-self: center; transition: all 0.5s cubic-bezier(0.25, 1.2, 0.3, 1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px;}
         .period-time { grid-column: 3; text-align: right; font-size: 1.4rem; color: #555; align-self: center; transition: all 0.5s cubic-bezier(0.25, 1.2, 0.3, 1); white-space: nowrap; padding-left: 10px;}
@@ -307,10 +304,10 @@
 
         body.minimal-active .schedule-column { max-width: 0 !important; opacity: 0 !important; padding: 0 !important; margin: 0 !important; overflow: hidden; pointer-events: none; }
 
-        /* --- THE DOCKED WIDGETS --- */
+        /* --- THE STATIC GRID WIDGETS --- */
         .widget-card {
             border-radius: 15px; padding: 15px; display: none; flex-direction: column; overflow: hidden; width: 100%; transition: opacity 0.4s ease;
-            border: 1px solid rgba(150,150,150,0.2); box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid rgba(150,150,150,0.2);
         }
         .widget-card.active-widget { display: flex; animation: fadeWidgetIn 0.5s cubic-bezier(0.25, 1.2, 0.3, 1);}
         @keyframes fadeWidgetIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
@@ -320,10 +317,9 @@
         .widget-close { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1.2rem; line-height: 1; padding: 0 5px; transition: color 0.2s; pointer-events: auto;}
         .widget-close:hover { color: #d9534f; }
 
-        /* Weather Contrast Fix */
+        /* Weather Widget Tweaks */
         #widget-weather { min-height: 250px; flex-grow: 1;}
         #weather-container-main { height: 100%; min-height: 200px; display: block; width: 100%; overflow: hidden;}
-        body.dark-mode #weather-container-main iframe { filter: invert(1) hue-rotate(180deg); }
 
         /* --- Timer Widget Styles (Modernized) --- */
         .timer-display { font-size: 4rem; font-weight: bold; color: #333; text-align: center; margin: 10px 0; font-variant-numeric: tabular-nums; }
@@ -377,7 +373,6 @@
             .docked-name { font-size: 1.3rem; }
             .docked-time { font-size: 1.1rem; }
             .docked-badge { font-size: 0.8rem !important; padding: 2px 6px !important; }
-            .docked-schedule { gap: 8px; }
             
             .sidebar-wrapper { top: 75px; left: 10px; }
             .sidebar { max-width: calc(100vw - 20px); width: calc(100vw - 20px); }
@@ -442,7 +437,7 @@
         </div>
     </div>
 
-    <div id="floating-player" class="floating-player glass-panel">
+    <div id="floating-player" class="floating-player">
         <div class="drag-handle" title="Drag to move">⋮⋮</div>
         <button id="float-play-btn" class="float-btn" onclick="toggleVibePlay()">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
@@ -461,10 +456,10 @@
     </div>
 
     <div id="widget-menu-wrapper">
-        <div id="widget-panel-menu" class="widget-panel-menu glass-panel">
-            <div class="setting-row" style="margin:0;"><span class="sub-label">Weather Forecast</span><label class="switch"><input type="checkbox" onchange="toggleWidget('weather', this.checked, true)" id="wm-tog-weather"><span class="slider"></span></label></div>
-            <div class="setting-row" style="margin:10px 0 0 0;"><span class="sub-label">QotD / Voting</span><label class="switch"><input type="checkbox" onchange="toggleWidget('qotd', this.checked, true)" id="wm-tog-qotd"><span class="slider"></span></label></div>
-            <div class="setting-row" style="margin:10px 0 0 0;"><span class="sub-label">Class Timer</span><label class="switch"><input type="checkbox" onchange="toggleWidget('timer', this.checked, true)" id="wm-tog-timer"><span class="slider"></span></label></div>
+        <div id="widget-panel-menu" class="widget-panel-menu">
+            <div class="setting-row" style="margin:0;"><span class="sub-label">Weather Forecast</span><label class="switch"><input type="checkbox" onchange="toggleWidget('weather', this.checked)" id="wm-tog-weather"><span class="slider"></span></label></div>
+            <div class="setting-row" style="margin:10px 0 0 0;"><span class="sub-label">QotD / Voting</span><label class="switch"><input type="checkbox" onchange="toggleWidget('qotd', this.checked)" id="wm-tog-qotd"><span class="slider"></span></label></div>
+            <div class="setting-row" style="margin:10px 0 0 0;"><span class="sub-label">Class Timer</span><label class="switch"><input type="checkbox" onchange="toggleWidget('timer', this.checked)" id="wm-tog-timer"><span class="slider"></span></label></div>
         </div>
         <button class="float-btn" id="widget-menu-btn" onclick="toggleWidgetPanel(event)" title="Toggle Widgets">
             <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
@@ -474,7 +469,7 @@
     <div id="toast">Loaded Successfully</div>
 
     <div class="sidebar-wrapper">
-        <div class="sidebar collapsed glass-panel" id="sidebar">
+        <div class="sidebar collapsed" id="sidebar">
             <div class="control-group" style="padding-bottom: 5px; margin-bottom: 5px; border-bottom: none;">
                 <div class="switch-container">
                     <span class="sub-label" id="darkModeLabel">Dark Mode</span>
@@ -587,14 +582,14 @@
                 <div class="accordion-content" id="sec-schedule">
                     <div id="autoIndicator" style="font-weight:bold; margin-bottom:10px; color:#888;">Sync Status: Initializing...</div>
                     <button class="timer-btn-hollow" onclick="fetchDailySchedule()" style="width:100%; margin-bottom:10px;">Force Sync Schedule</button>
-                    <select id="scheduleMode" onchange="changeMode(true)">
-                        <option value="synced" id="syncedOption">Loading Google Sheet...</option>
+                    <select id="scheduleMode" onchange="changeMode()">
+                        <option value="synced" id="syncedOption">Google Sheet (Live)</option>
                         <option value="regular">Regular Schedule (Daily)</option>
                         <option value="web">WEB Schedule (Local)</option>
                     </select>
                     <div class="setting-row">
                         <span class="sub-label">Show 0 Period</span>
-                        <label class="switch"><input type="checkbox" id="showZeroPeriod" onchange="changeMode(true)"><span class="slider"></span></label>
+                        <label class="switch"><input type="checkbox" id="showZeroPeriod" onchange="changeMode()"><span class="slider"></span></label>
                     </div>
                 </div>
             </div>
@@ -604,13 +599,13 @@
     <div class="main-content-area">
         
         <div class="widget-column">
-            <div class="widget-card glass-panel" id="widget-weather">
-                <div class="widget-header-row"><h4 class="widget-title">Local Forecast</h4><button class="widget-close" onclick="toggleWidget('weather', false, true)">✖</button></div>
+            <div class="widget-card" id="widget-weather">
+                <div class="widget-header-row"><h4 class="widget-title">Local Forecast</h4><button class="widget-close" onclick="toggleWidget('weather', false)">✖</button></div>
                 <div id="weather-container-main"></div>
             </div>
 
-            <div class="widget-card glass-panel" id="widget-timer">
-                <div class="widget-header-row"><h4 class="widget-title">Class Timer</h4><button class="widget-close" onclick="toggleWidget('timer', false, true)">✖</button></div>
+            <div class="widget-card" id="widget-timer">
+                <div class="widget-header-row"><h4 class="widget-title">Class Timer</h4><button class="widget-close" onclick="toggleWidget('timer', false)">✖</button></div>
                 <div style="display:flex; flex-direction:column; flex-grow: 1; justify-content:center;">
                     <div class="timer-display" id="timer-display">05:00</div>
                     <div class="timer-quick-add">
@@ -626,7 +621,7 @@
         </div>
 
         <div class="schedule-column">
-            <div class="schedule-container waffle-closed glass-panel" id="schedule-container">
+            <div class="schedule-container waffle-closed" id="schedule-container">
                 <div class="schedule-title-row">
                     <h3 id="schedule-title">Loading...</h3>
                     <span id="main-dead-time-warning" class="dead-time-warning">DEAD TIME &mdash; NO HALL PASSES</span>
@@ -645,8 +640,8 @@
         </div>
 
         <div class="widget-column">
-            <div class="widget-card glass-panel" id="widget-qotd">
-                <div class="widget-header-row"><h4 class="widget-title">Question of the Day</h4><button class="widget-close" onclick="toggleWidget('qotd', false, true)">✖</button></div>
+            <div class="widget-card" id="widget-qotd">
+                <div class="widget-header-row"><h4 class="widget-title">Question of the Day</h4><button class="widget-close" onclick="toggleWidget('qotd', false)">✖</button></div>
                 
                 <div class="qotd-container" id="qotd-voting-view">
                     <div class="qotd-text" id="qotd-question">Loading question...</div>
@@ -712,6 +707,9 @@
             { q: "Would you rather accidentally call your teacher 'Mom/Dad', or walk into the wrong classroom and sit down?", a: "Call Teacher Mom", b: "Wrong Classroom" }
         ];
 
+        const playSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+        const pauseSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+
         let predefinedSchedules = {
             synced: [], 
             regular: [
@@ -744,7 +742,7 @@
         let timerInterval = null, timerTotalSeconds = 300, timerIsPlaying = false;
         let qotdResultsFetched = false, qotdManualUnlock = false; 
 
-        let currentScheduleName = "Loading..."; 
+        let currentScheduleName = "Regular"; 
         let playedActions = {}, currentMinuteTracker = "", lastAutoState = null; 
         let mrBsJukebox = false, jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
         let isMainVibePlaying = false, activePlayerUrl = '', lastPeriodStatus = null; 
@@ -754,13 +752,9 @@
 
         document.addEventListener('fullscreenchange', () => {
             const fsBtn = document.getElementById('fullScreenBtn');
-            if(fsBtn) {
-                if (document.fullscreenElement) fsBtn.classList.add('active-btn');
-                else fsBtn.classList.remove('active-btn');
-            }
+            if(fsBtn) fsBtn.classList.toggle('active-btn', document.fullscreenElement);
         });
 
-        // Widget Menu Click-Away Listener
         document.addEventListener('click', (e) => {
             const menu = document.getElementById('widget-panel-menu');
             const btn = document.getElementById('widget-menu-btn');
@@ -771,38 +765,25 @@
             }
         });
 
-        // Smart Draggable Logic for Player Only
+        // Player Drag Logic
         document.querySelectorAll('.drag-handle').forEach(handle => {
             handle.addEventListener('mousedown', function(e) {
                 if (window.innerWidth <= 850) return; 
-                if (e.target.tagName === 'BUTTON') return; 
-                
                 let isDragging = true;
                 const player = handle.closest('.floating-player');
                 player.classList.add('dragging');
-                
-                let startX = e.clientX;
-                let startY = e.clientY;
+                let startX = e.clientX; let startY = e.clientY;
                 
                 document.onmouseup = function() {
-                    isDragging = false;
-                    document.onmouseup = null;
-                    document.onmousemove = null;
-                    player.classList.remove('dragging');
+                    isDragging = false; document.onmouseup = null; document.onmousemove = null; player.classList.remove('dragging');
                 };
-
                 document.onmousemove = function(ev) {
                     if (!isDragging) return;
                     ev.preventDefault();
-                    let diffX = startX - ev.clientX;
-                    let diffY = startY - ev.clientY;
-                    startX = ev.clientX;
-                    startY = ev.clientY;
-                    
-                    player.style.top = (player.offsetTop - diffY) + "px";
-                    player.style.left = (player.offsetLeft - diffX) + "px";
-                    player.style.bottom = 'auto';
-                    player.style.right = 'auto';
+                    let diffX = startX - ev.clientX; let diffY = startY - ev.clientY;
+                    startX = ev.clientX; startY = ev.clientY;
+                    player.style.top = (player.offsetTop - diffY) + "px"; player.style.left = (player.offsetLeft - diffX) + "px";
+                    player.style.bottom = 'auto'; player.style.right = 'auto';
                 };
             });
         });
@@ -818,8 +799,8 @@
         function reloadWeatherWidget() {
             const container1 = document.getElementById('weather-container-main');
             if(!container1) return;
-            const color = isDarkMode ? '#ffffff' : '#333333';
-            container1.innerHTML = `<a class="weatherwidget-io" href="https://forecast7.com/en/33d98n84d43/east-cobb/?unit=us" data-label_1="EAST COBB" data-theme="pure" data-basecolor="rgba(0,0,0,0)" data-textcolor="${color}">EAST COBB</a>`;
+            const color = isDarkMode ? '#e0e0e0' : '#333333';
+            container1.innerHTML = `<a class="weatherwidget-io" href="https://forecast7.com/en/33d98n84d43/east-cobb/?unit=us" data-label_1="EAST COBB" data-font="Segoe UI" data-icons="Climacons Animated" data-theme="pure" data-basecolor="rgba(0,0,0,0)" data-textcolor="${color}">EAST COBB</a>`;
             !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;}else{js=d.getElementById(id);js.remove();js=d.createElement(s);js.id=id;}js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}(document,'script','weatherwidget-io-js');
         }
 
@@ -829,7 +810,7 @@
             p.style.display = p.style.display === 'none' ? 'flex' : 'none';
         }
 
-        function toggleWidget(id, isChecked, shouldSave = true) {
+        function toggleWidget(id, isChecked) {
             activeWidgets[id] = isChecked;
             const card = document.getElementById(`widget-${id}`);
             if(card) {
@@ -840,13 +821,10 @@
             
             const floatTog = document.getElementById(`wm-tog-${id}`);
             if(floatTog) floatTog.checked = isChecked;
-            
-            if(shouldSave) saveLocalSettings();
+            saveLocalSettings();
         }
 
-        let ytPlayer = null;
-        let isYtApiReady = false;
-
+        let ytPlayer = null; let isYtApiReady = false;
         var tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         var firstScriptTag = document.getElementsByTagName('script')[0];
@@ -865,14 +843,12 @@
             const select = document.getElementById('vibeSelect');
             if(!select) return;
             select.innerHTML = '';
-            
             if(savedVibes.length === 0) {
                 select.innerHTML = '<option value="">-- Playlist Empty --</option>';
             } else {
                 savedVibes.forEach(v => {
                     const opt = document.createElement('option');
-                    opt.value = v.url;
-                    opt.textContent = v.title || "Loading Title...";
+                    opt.value = v.url; opt.textContent = v.title || "Loading Title...";
                     if (v.url === currentVibeUrl) opt.selected = true;
                     select.appendChild(opt);
                 });
@@ -885,16 +861,9 @@
                 const vid = extractVideoID(url);
                 if(vid) {
                     let exists = savedVibes.find(v => extractVideoID(v.url) === vid);
-                    if(!exists) {
-                        savedVibes.push({ url: url, title: 'Loading Vibe...' });
-                    }
-                    currentVibeUrl = url;
-                    saveLocalSettings();
-                    renderVibeDropdown();
-                    startVibe(); 
-                } else {
-                    alert("Invalid YouTube URL. Please make sure it is a standard link.");
-                }
+                    if(!exists) { savedVibes.push({ url: url, title: 'Loading Vibe...' }); }
+                    currentVibeUrl = url; saveLocalSettings(); renderVibeDropdown(); startVibe(); 
+                } else { alert("Invalid YouTube URL. Please make sure it is a standard link."); }
             }
         }
         
@@ -902,45 +871,30 @@
             if(!currentVibeUrl || savedVibes.length === 0) return;
             savedVibes = savedVibes.filter(v => v.url !== currentVibeUrl);
             if(savedVibes.length > 0) {
-                currentVibeUrl = savedVibes[0].url;
-                saveLocalSettings();
-                renderVibeDropdown();
-                startVibe();
+                currentVibeUrl = savedVibes[0].url; saveLocalSettings(); renderVibeDropdown(); startVibe();
             } else {
-                currentVibeUrl = '';
-                saveLocalSettings();
-                renderVibeDropdown();
-                stopVibe();
+                currentVibeUrl = ''; saveLocalSettings(); renderVibeDropdown(); stopVibe();
             }
         }
         
         function changeVibeSelection() {
             const select = document.getElementById('vibeSelect');
-            if(select && select.value) {
-                currentVibeUrl = select.value;
-                saveLocalSettings();
-                lastPeriodStatus = null; 
-            }
+            if(select && select.value) { currentVibeUrl = select.value; saveLocalSettings(); lastPeriodStatus = null; }
         }
 
         function applyMusicState(url, shouldPlay) {
             if (!url) { stopVibeCore(); return true; } 
-            
             activePlayerUrl = url;
             updateFloatingPlayerVisibility(); 
             
             const vid = extractVideoID(url);
             if (!vid) return true;
-
             if (!isYtApiReady) return false; 
 
             const bgContainer = document.getElementById('vibe-bg');
             if(bgContainer) bgContainer.style.opacity = "0.45";
 
-            if (ytPlayer) {
-                try { ytPlayer.destroy(); ytPlayer = null; } catch(e) {}
-            } 
-            
+            if (ytPlayer) { try { ytPlayer.destroy(); ytPlayer = null; } catch(e) {} } 
             if(bgContainer) bgContainer.innerHTML = '<div id="yt-player-container"></div>';
             
             try {
@@ -948,17 +902,11 @@
                     videoId: vid,
                     playerVars: { 'autoplay': shouldPlay ? 1 : 0, 'controls': 0, 'autohide': 1, 'wmode': 'opaque', 'showinfo': 0, 'loop': 1, 'playlist': vid, 'mute': 0 },
                     events: { 
-                        'onReady': function(e) { 
-                            try { 
-                                e.target.setVolume(vibeVolume); 
-                                if(shouldPlay) e.target.playVideo(); 
-                            } catch(err) {} 
-                        }, 
+                        'onReady': function(e) { try { e.target.setVolume(vibeVolume); if(shouldPlay) e.target.playVideo(); } catch(err) {} }, 
                         'onStateChange': onPlayerStateChange 
                     }
                 });
             } catch(e) {}
-            
             return true;
         }
 
@@ -967,16 +915,16 @@
             if (ytPlayer && typeof ytPlayer.getPlayerState === 'function') {
                 try {
                     let state = ytPlayer.getPlayerState();
-                    if (state === YT.PlayerState.PLAYING) {
-                        ytPlayer.pauseVideo();
+                    if (state === YT.PlayerState.PLAYING || state === YT.PlayerState.BUFFERING) {
                         if(floatBtn) floatBtn.innerHTML = playSVG;
+                        ytPlayer.pauseVideo();
                         isMainVibePlaying = false;
-                        if (activePlayerUrl === currentVibeUrl) { saveLocalSettings(); }
+                        saveLocalSettings();
                     } else {
-                        ytPlayer.playVideo();
                         if(floatBtn) floatBtn.innerHTML = pauseSVG;
+                        ytPlayer.playVideo();
                         isMainVibePlaying = true;
-                        if (activePlayerUrl === currentVibeUrl) { saveLocalSettings(); }
+                        saveLocalSettings();
                     }
                 } catch(e) { console.error(e); }
             } else { startVibe(); }
@@ -985,6 +933,8 @@
         function startVibe() {
             if(!currentVibeUrl) return;
             isMainVibePlaying = true;
+            const floatBtn = document.getElementById('float-play-btn');
+            if(floatBtn) floatBtn.innerHTML = pauseSVG;
             saveLocalSettings();
             lastPeriodStatus = null; 
         }
@@ -994,30 +944,28 @@
             const bg = document.getElementById('vibe-bg');
             if(bg) bg.style.opacity = "0";
             if (ytPlayer) { try { ytPlayer.destroy(); ytPlayer = null; } catch(e) {} }
+            const floatBtn = document.getElementById('float-play-btn');
+            if(floatBtn) floatBtn.innerHTML = playSVG;
             updateFloatingPlayerVisibility();
         }
 
         function stopVibe() {
-            isMainVibePlaying = false;
-            saveLocalSettings();
+            isMainVibePlaying = false; saveLocalSettings();
             if (activePlayerUrl === jukeboxUrl) {
                 if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') ytPlayer.pauseVideo();
-            } else {
-                stopVibeCore();
-            }
+            } else { stopVibeCore(); }
         }
 
         function onPlayerStateChange(event) {
             const floatBtn = document.getElementById('float-play-btn');
             if(!floatBtn) return;
             
-            if (event.data == YT.PlayerState.PLAYING) {
+            if (event.data == YT.PlayerState.PLAYING || event.data == YT.PlayerState.BUFFERING) {
                 floatBtn.innerHTML = pauseSVG;
                 try {
                     let title = ytPlayer.getVideoData().title;
                     const titleEl = document.getElementById('float-vibe-title');
                     if(title && titleEl) titleEl.innerText = title;
-                    
                     if(title && activePlayerUrl === currentVibeUrl) {
                         let updated = false;
                         savedVibes.forEach(v => {
@@ -1028,7 +976,7 @@
                 } catch(e) {}
             } else if (event.data == YT.PlayerState.ENDED) {
                 event.target.playVideo();
-            } else {
+            } else if (event.data == YT.PlayerState.PAUSED || event.data == YT.PlayerState.UNSTARTED) {
                 floatBtn.innerHTML = playSVG;
             }
         }
@@ -1052,12 +1000,7 @@
         }
 
         function toggleFloatVibeMute() {
-            if(isVibeMuted) {
-                syncVibeVolume(savedVibeVol);
-            } else {
-                savedVibeVol = vibeVolume > 0 ? vibeVolume : 50;
-                syncVibeVolume(0);
-            }
+            if(isVibeMuted) { syncVibeVolume(savedVibeVol); } else { savedVibeVol = vibeVolume > 0 ? vibeVolume : 50; syncVibeVolume(0); }
         }
 
         function syncGlobalVolume(val) {
@@ -1076,23 +1019,14 @@
 
             const audio = document.getElementById('regularBellAudio'); 
             if(audio) audio.volume = globalVolume;
-
             saveLocalSettings();
         }
 
         function toggleFloatBellMute() {
-            if(isGlobalMuted) {
-                syncGlobalVolume(savedGlobalVol);
-            } else {
-                savedGlobalVol = globalVolume > 0 ? globalVolume : 1.0;
-                syncGlobalVolume(0);
-            }
+            if(isGlobalMuted) { syncGlobalVolume(savedGlobalVol); } else { savedGlobalVol = globalVolume > 0 ? globalVolume : 1.0; syncGlobalVolume(0); }
         }
 
-        function changeVolume() { 
-            const vc = document.getElementById('volumeControl');
-            if(vc) syncGlobalVolume(vc.value); 
-        }
+        function changeVolume() { const vc = document.getElementById('volumeControl'); if(vc) syncGlobalVolume(vc.value); }
 
         function showToast(message) {
             const toast = document.getElementById('toast');
@@ -1110,38 +1044,24 @@
             if(timerTotalSeconds === 0) d.style.color = '#d9534f';
             else d.style.color = '';
         }
-        function addTimerMinutes(mins) {
-            timerTotalSeconds += (mins * 60);
-            updateTimerDisplay();
-        }
-        function resetTimer() {
-            timerTotalSeconds = 300; 
-            updateTimerDisplay();
-            if(timerIsPlaying) togglePlayTimer();
-        }
+        function addTimerMinutes(mins) { timerTotalSeconds += (mins * 60); updateTimerDisplay(); }
+        function resetTimer() { timerTotalSeconds = 300; updateTimerDisplay(); if(timerIsPlaying) togglePlayTimer(); }
         function togglePlayTimer() {
             const btn = document.getElementById('timer-start-btn');
             if(timerIsPlaying) {
-                clearInterval(timerInterval);
-                timerIsPlaying = false;
+                clearInterval(timerInterval); timerIsPlaying = false;
                 if(btn) { btn.innerText = "Start"; btn.style.backgroundColor = '#31b0d5'; }
             } else {
                 if(timerTotalSeconds <= 0) return; 
                 timerIsPlaying = true;
                 if(btn) { btn.innerText = "Pause"; btn.style.backgroundColor = '#d9534f'; }
                 timerInterval = setInterval(() => {
-                    if(timerTotalSeconds > 0) {
-                        timerTotalSeconds--;
-                        updateTimerDisplay();
-                    } else {
-                        togglePlayTimer();
-                        playBellWithQueue(2); 
-                    }
+                    if(timerTotalSeconds > 0) { timerTotalSeconds--; updateTimerDisplay(); } 
+                    else { togglePlayTimer(); playBellWithQueue(2); }
                 }, 1000);
             }
         }
 
-        // QotD Logic
         function getDailyQotd() {
             const now = new Date();
             const start = new Date(now.getFullYear(), 0, 0);
@@ -1151,10 +1071,7 @@
             return qotdDatabase[dayOfYear % qotdDatabase.length];
         }
 
-        function toggleQotdLock() {
-            qotdManualUnlock = !qotdManualUnlock;
-            updateClock(); 
-        }
+        function toggleQotdLock() { qotdManualUnlock = !qotdManualUnlock; updateClock(); }
 
         function updateQotdUI(status) {
             if (!activeWidgets.qotd) return; 
@@ -1162,7 +1079,6 @@
             const qObj = getDailyQotd();
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(QOTD_APPS_SCRIPT_URL)}`;
 
-            // Main Widget Updates
             document.getElementById('qotd-question').innerText = qObj.q;
             document.getElementById('qotd-idle-question').innerText = qObj.q;
             document.getElementById('qotd-results-question').innerText = qObj.q;
@@ -1180,64 +1096,49 @@
                 const currentMins = new Date().getHours() * 60 + new Date().getMinutes();
                 
                 if (currentMins >= p.startMins && currentMins < p.startMins + 5) {
-                    // FIRST 5 MINS (Open)
                     viewVoting.style.display = 'flex'; viewIdle.style.display = 'none'; viewResults.style.display = 'none';
                     if(relockBtn) relockBtn.style.display = 'block';
-                    qotdResultsFetched = false; 
-                    qotdManualUnlock = false; 
+                    qotdResultsFetched = false; qotdManualUnlock = false; 
                 } else if (currentMins >= p.endMins - 5 && currentMins < p.endMins) {
-                    // LAST 5 MINS (Results)
                     viewVoting.style.display = 'none'; viewIdle.style.display = 'none'; viewResults.style.display = 'flex';
                     if(relockBtn) relockBtn.style.display = 'none';
                     qotdManualUnlock = false;
                     
                     if (!qotdResultsFetched) {
                         qotdResultsFetched = true;
-                        fetch(QOTD_APPS_SCRIPT_URL + "?action=getResults")
-                            .then(r => r.json())
-                            .then(data => {
-                                const votesA = parseInt(data.votesA) || 0;
-                                const votesB = parseInt(data.votesB) || 0;
-                                const total = votesA + votesB;
-                                const pctA = total === 0 ? 0 : Math.round((votesA / total) * 100);
-                                const pctB = total === 0 ? 0 : 100 - pctA;
-                                
-                                document.getElementById('qotd-bar-a').style.width = pctA + '%';
-                                document.getElementById('qotd-pct-a').innerText = pctA + '%';
-                                document.getElementById('qotd-bar-b').style.width = pctB + '%';
-                                document.getElementById('qotd-pct-b').innerText = pctB + '%';
-                                document.getElementById('qotd-total-votes').innerText = "Total Votes: " + total;
-                            }).catch(e => console.error("Error fetching QotD results:", e));
+                        fetch(QOTD_APPS_SCRIPT_URL + "?action=getResults").then(r => r.json()).then(data => {
+                            const votesA = parseInt(data.votesA) || 0;
+                            const votesB = parseInt(data.votesB) || 0;
+                            const total = votesA + votesB;
+                            const pctA = total === 0 ? 0 : Math.round((votesA / total) * 100);
+                            const pctB = total === 0 ? 0 : 100 - pctA;
+                            document.getElementById('qotd-bar-a').style.width = pctA + '%'; document.getElementById('qotd-pct-a').innerText = pctA + '%';
+                            document.getElementById('qotd-bar-b').style.width = pctB + '%'; document.getElementById('qotd-pct-b').innerText = pctB + '%';
+                            document.getElementById('qotd-total-votes').innerText = "Total Votes: " + total;
+                        }).catch(e => console.error("Error fetching QotD results:", e));
                     }
                 } else {
-                    // MID CLASS
                     if (qotdManualUnlock) {
-                        // Teacher Override Open!
                         viewVoting.style.display = 'flex'; viewIdle.style.display = 'none'; viewResults.style.display = 'none';
                         if(relockBtn) relockBtn.style.display = 'block';
                     } else {
-                        // Normal Lock
                         viewVoting.style.display = 'none'; viewIdle.style.display = 'flex'; viewResults.style.display = 'none';
                         if(relockBtn) relockBtn.style.display = 'none';
                     }
                 }
             } else {
-                // PASSING PERIOD
                 viewVoting.style.display = 'none'; viewIdle.style.display = 'flex'; viewResults.style.display = 'none';
                 if(relockBtn) relockBtn.style.display = 'none';
-                qotdResultsFetched = false;
-                qotdManualUnlock = false;
+                qotdResultsFetched = false; qotdManualUnlock = false;
             }
         }
 
-        // --- ASYNC SCHEDULE FETCHING ---
         async function fetchDailySchedule() {
             const ind = document.getElementById('autoIndicator');
             if(ind) { ind.style.display = 'block'; ind.innerText = "Sync Status: Fetching..."; ind.style.color = '#888'; }
             
             try {
-                // We use standard GET without cache buster to avoid Google App script blocking
-                const response = await fetch(GOOGLE_CALENDAR_SCRIPT_URL);
+                const response = await fetch(GOOGLE_CALENDAR_SCRIPT_URL, { method: 'GET', redirect: 'follow' });
                 const data = await response.json();
                 
                 if (data && data.schedule) {
@@ -1256,17 +1157,14 @@
 
                     if(ind) { ind.innerText = "Sync Status: ✓ Connected"; ind.style.color = '#5cb85c'; }
                     const modeDropdown = document.getElementById('scheduleMode');
-                    if(modeDropdown) {
-                        modeDropdown.value = 'synced';
-                        document.getElementById('syncedOption').innerText = `Sheet: ${modeStr.toUpperCase()}`;
-                    }
+                    if(modeDropdown) { modeDropdown.value = 'synced'; document.getElementById('syncedOption').innerText = `Sheet: ${modeStr.toUpperCase()}`; }
                     currentMode = 'synced';
                     changeMode(true);
                     showToast(`Loaded: ${modeStr.toUpperCase()} Schedule`);
                 }
             } catch (err) {
                 console.error("Schedule sync failed:", err);
-                if(ind) { ind.innerText = "Sync Status: ⚠ Offline (Using Local)"; ind.style.color = '#d9534f'; }
+                if(ind) { ind.innerText = "Sync Status: ⚠ Offline (Using Fallback)"; ind.style.color = '#d9534f'; }
                 
                 const modeDropdown = document.getElementById('scheduleMode');
                 if (predefinedSchedules['synced'] && predefinedSchedules['synced'].length > 0) {
@@ -1284,51 +1182,32 @@
         async function fetchAgenda(url, elementId) {
             const el = document.getElementById(elementId);
             if (!el) return;
-            
             let fetchUrlStr = url.trim();
-            if (fetchUrlStr.startsWith('webcal://')) {
-                fetchUrlStr = 'https://' + fetchUrlStr.substring(9);
-            }
+            if (fetchUrlStr.startsWith('webcal://')) { fetchUrlStr = 'https://' + fetchUrlStr.substring(9); }
 
             if (agendaCache[fetchUrlStr]) {
-                if (agendaCache[fetchUrlStr] !== 'empty') {
-                    el.innerHTML = agendaCache[fetchUrlStr];
-                    el.classList.add('has-data');
-                } else {
-                    el.innerHTML = "";
-                    el.classList.remove('has-data');
-                }
+                if (agendaCache[fetchUrlStr] !== 'empty') { el.innerHTML = agendaCache[fetchUrlStr]; el.classList.add('has-data'); } 
+                else { el.innerHTML = ""; el.classList.remove('has-data'); }
                 return;
             }
 
-            el.innerHTML = "<em>Fetching...</em>";
-            el.classList.add('has-data');
+            el.innerHTML = "<em>Fetching...</em>"; el.classList.add('has-data');
 
             try {
                 if (!agendaPromises[fetchUrlStr]) {
                     const fetchUrl = `${GOOGLE_CALENDAR_SCRIPT_URL}?icalUrl=${encodeURIComponent(fetchUrlStr)}`;
-                    
                     agendaPromises[fetchUrlStr] = fetch(fetchUrl).then(async (response) => {
                         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                         const icsData = await response.text();
-
-                        if (icsData.startsWith('Error:')) {
-                            return `<em class="agenda-error" title="${icsData}">Apps Script error</em>`;
-                        }
-
-                        if (!icsData || (!icsData.includes('BEGIN:VCALENDAR') && !icsData.includes('BEGIN:VEVENT'))) {
-                            return "<em class='agenda-error' title='Ensure you used the Secret iCal Address'>Invalid calendar data</em>";
-                        }
+                        if (icsData.startsWith('Error:')) { return `<em class="agenda-error" title="${icsData}">Apps Script error</em>`; }
+                        if (!icsData || (!icsData.includes('BEGIN:VCALENDAR') && !icsData.includes('BEGIN:VEVENT'))) { return "<em class='agenda-error'>Invalid data</em>"; }
 
                         const today = new Date();
                         const todayInt = parseInt(today.getFullYear() + String(today.getMonth() + 1).padStart(2, '0') + String(today.getDate()).padStart(2, '0'), 10);
-                        
-                        const events = icsData.split('BEGIN:VEVENT');
-                        let todaysEvents = [];
+                        const events = icsData.split('BEGIN:VEVENT'); let todaysEvents = [];
 
                         for (let i = 1; i < events.length; i++) {
                             const eventText = events[i];
-                            
                             const dtStartMatch = eventText.match(/DTSTART(?:;[^:]*)?:([0-9]{8})/); 
                             const dtEndMatch = eventText.match(/DTEND(?:;[^:]*)?:([0-9]{8})/); 
                             const isTimedMatch = eventText.match(/DTSTART(?:;[^:]*)?:[0-9]{8}T/);
@@ -1337,84 +1216,52 @@
                             if (dtStartMatch && summaryMatch) {
                                 const startInt = parseInt(dtStartMatch[1], 10);
                                 let isActive = false;
-
                                 if (dtEndMatch) {
                                     const endInt = parseInt(dtEndMatch[1], 10);
-                                    if (isTimedMatch) {
-                                        isActive = (todayInt >= startInt && todayInt <= endInt);
-                                    } else {
-                                        isActive = (todayInt >= startInt && todayInt < endInt);
-                                    }
-                                } else {
-                                    isActive = (startInt === todayInt);
-                                }
-
-                                if (isActive) {
-                                    todaysEvents.push(summaryMatch[1].trim());
-                                }
+                                    if (isTimedMatch) { isActive = (todayInt >= startInt && todayInt <= endInt); } 
+                                    else { isActive = (todayInt >= startInt && todayInt < endInt); }
+                                } else { isActive = (startInt === todayInt); }
+                                if (isActive) { todaysEvents.push(summaryMatch[1].trim()); }
                             }
                         }
-
-                        if (todaysEvents.length > 0) {
-                            return todaysEvents.join(' &nbsp;|&nbsp; ');
-                        } else {
-                            return "empty";
-                        }
+                        if (todaysEvents.length > 0) { return todaysEvents.join(' &nbsp;|&nbsp; '); } else { return "empty"; }
                     });
                 }
-
                 const resultHtml = await agendaPromises[fetchUrlStr];
                 agendaCache[fetchUrlStr] = resultHtml;
-
-                if (resultHtml !== 'empty') {
-                    el.innerHTML = resultHtml;
-                    el.classList.add('has-data');
-                } else {
-                    el.innerHTML = "";
-                    el.classList.remove('has-data');
-                }
-
+                if (resultHtml !== 'empty') { el.innerHTML = resultHtml; el.classList.add('has-data'); } 
+                else { el.innerHTML = ""; el.classList.remove('has-data'); }
             } catch (error) {
                 el.innerHTML = "<em class='agenda-error'>Error loading feed.</em>";
                 agendaCache[fetchUrlStr] = "<em class='agenda-error'>Error loading feed.</em>";
             }
         }
 
-        // --- LOCAL STORAGE (Safe Version) ---
         function saveLocalSettings() {
             try {
                 const data = {
                     mode: currentMode, vol: globalVolume, voice: globalVoicePref, testSound: currentTestSound,
-                    waffleClosed: isWaffleClosed, minimalView: isMinimalView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
-                    customSchedule: predefinedSchedules.custom, settings: classSettings, lunchDuties: lunchDuties,
+                    side: sidebarVisible, waffleClosed: isWaffleClosed, minimalView: isMinimalView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
+                    settings: classSettings, lunchDuties: lunchDuties,
                     savedVibes: savedVibes, vibe: currentVibeUrl, vibeVol: vibeVolume, muteB: muteBells,
                     mrBsJukebox: mrBsJukebox, jukeboxUrl: jukeboxUrl, isMainVibePlaying: isMainVibePlaying,
                     customReminders: customReminders, accordions: accordionStates, widgets: activeWidgets
                 };
-                localStorage.setItem('waltonBellStateV4', JSON.stringify(data));
+                localStorage.setItem('waltonOS_v5', JSON.stringify(data));
             } catch (e) {}
         }
 
         function loadLocalSettings() {
             try {
-                const saved = localStorage.getItem('waltonBellStateV4');
+                const saved = localStorage.getItem('waltonOS_v5');
                 if (saved) {
                     const p = JSON.parse(saved);
                     
-                    if (p.customSchedule) predefinedSchedules.custom = p.customSchedule;
                     if (p.settings) classSettings = p.settings;
                     if (p.lunchDuties) lunchDuties = p.lunchDuties;
                     if (p.customReminders) customReminders = p.customReminders;
                     
-                    let savedMode = p.mode || 'regular';
-                    if (savedMode === 'daily') savedMode = 'regular';
-                    currentMode = savedMode;
-                    
-                    const modeDropdown = document.getElementById('scheduleMode');
-                    if(modeDropdown) modeDropdown.value = currentMode;
-                    
-                    globalVoicePref = p.voice || '';
-                    if (p.vol !== undefined) { syncGlobalVolume(p.vol); } else { syncGlobalVolume(1.0); }
+                    if (p.vol !== undefined) { syncGlobalVolume(p.vol); }
                     if (p.vibeVol !== undefined) { syncVibeVolume(p.vibeVol); }
 
                     if (p.testSound) {
@@ -1426,7 +1273,7 @@
                         const pBtn = document.getElementById("playBtn");
                         if (labels[currentTestSound] && pBtn) pBtn.innerHTML = "▶ Play " + labels[currentTestSound];
                     }
-
+                    
                     if (p.waffleClosed !== undefined) { setWaffleState(p.waffleClosed, false); }
                     if (p.minimalView !== undefined) { setMinimalView(p.minimalView, false); }
                     
@@ -1435,29 +1282,12 @@
                         document.getElementById('darkModeToggle').checked = true; 
                         document.body.classList.add('dark-mode');
                     }
-                    if (p.zero === true) { 
-                        const zeroToggle = document.getElementById('showZeroPeriod');
-                        if(zeroToggle) zeroToggle.checked = true; 
-                        showZero = true; 
-                    }
-                    if (p.playGoodbyes === true) { 
-                        const pgToggle = document.getElementById('playGoodbyes');
-                        if(pgToggle) pgToggle.checked = true; 
-                        playGoodbyes = true; 
-                    }
-                    if (p.muteB === true) { 
-                        const mbToggle = document.getElementById('muteBellsToggle');
-                        if(mbToggle) mbToggle.checked = true; 
-                        muteBells = true; 
-                    }
+                    if (p.zero === true) { showZero = true; document.getElementById('showZeroPeriod').checked = true; }
+                    if (p.playGoodbyes === true) { playGoodbyes = true; document.getElementById('playGoodbyes').checked = true; }
+                    if (p.muteB === true) { muteBells = true; document.getElementById('muteBellsToggle').checked = true; }
                     
                     if (p.savedVibes) savedVibes = p.savedVibes;
-                    if (p.vibe && savedVibes.length === 0) {
-                        savedVibes.push({ url: p.vibe, title: 'Saved Vibe' });
-                        currentVibeUrl = p.vibe;
-                    } else if (p.vibe) {
-                        currentVibeUrl = p.vibe;
-                    }
+                    if (p.vibe) currentVibeUrl = p.vibe;
 
                     if (p.mrBsJukebox !== undefined) mrBsJukebox = p.mrBsJukebox;
                     if (p.jukeboxUrl) jukeboxUrl = p.jukeboxUrl;
@@ -1466,18 +1296,13 @@
                     const jkToggle = document.getElementById('jukeboxToggle');
                     if(jkToggle) jkToggle.checked = mrBsJukebox;
                     const jkInput = document.getElementById('jukeboxUrlInput');
-                    if(jkInput && jukeboxUrl !== "https://www.youtube.com/watch?v=CLLpSmaof4E") {
-                        jkInput.value = jukeboxUrl;
-                    }
+                    if(jkInput && jukeboxUrl !== "https://www.youtube.com/watch?v=CLLpSmaof4E") { jkInput.value = jukeboxUrl; }
 
                     if (p.widgets) {
                         activeWidgets = p.widgets;
                         Object.keys(p.widgets).forEach(key => {
                             const tog = document.getElementById(`wm-tog-${key}`);
-                            if(tog) {
-                                tog.checked = p.widgets[key];
-                                toggleWidget(key, p.widgets[key], false); // Don't re-save while loading
-                            }
+                            if(tog) { tog.checked = p.widgets[key]; toggleWidget(key, p.widgets[key]); }
                         });
                     }
 
@@ -1492,6 +1317,15 @@
                             }
                         });
                     }
+                    
+                    let savedMode = p.mode || 'regular';
+                    if (savedMode === 'daily') savedMode = 'regular';
+                    currentMode = savedMode;
+                    const modeDropdown = document.getElementById('scheduleMode');
+                    if(modeDropdown) modeDropdown.value = currentMode;
+                    changeMode(false);
+                    
+                    if(p.voice) globalVoicePref = p.voice;
                 }
             } catch (e) {}
         }
@@ -1593,7 +1427,6 @@
                     btn.classList.remove('active-btn');
                 }
             }
-            
             updateQotdVisibility();
             if (shouldSave) saveLocalSettings();
         }
@@ -1602,19 +1435,14 @@
         function toggleJukebox() {
             const tog = document.getElementById('jukeboxToggle');
             if(tog) mrBsJukebox = tog.checked;
-            lastPeriodStatus = null; 
-            saveLocalSettings();
+            lastPeriodStatus = null; saveLocalSettings();
         }
 
         function updateJukeboxUrl() {
             const inp = document.getElementById('jukeboxUrlInput');
-            if(inp && inp.value.trim() !== '') {
-                jukeboxUrl = inp.value.trim();
-            } else {
-                jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
-            }
-            lastPeriodStatus = null; 
-            saveLocalSettings();
+            if(inp && inp.value.trim() !== '') { jukeboxUrl = inp.value.trim(); } 
+            else { jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; }
+            lastPeriodStatus = null; saveLocalSettings();
         }
 
         function toggleGoodbyes() { 
@@ -1691,8 +1519,7 @@
             }
         }
 
-        // --- SAFE INITIALIZATION LOOP FOR VOICES ---
-        function populateVoiceList() {
+        function safePopulateVoiceList() {
             try {
                 const voiceSelect = document.getElementById("voicePreference");
                 if(!voiceSelect) return;
@@ -1723,10 +1550,6 @@
                     voiceSelect.value = globalVoicePref;
                 }
             } catch(e) {}
-        }
-        
-        if (window.speechSynthesis) {
-            window.speechSynthesis.onvoiceschanged = populateVoiceList;
         }
 
         function changeVoicePref() { 
