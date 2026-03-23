@@ -27,13 +27,10 @@
             flex-direction: column;
             min-height: 100vh;
             box-sizing: border-box;
-            transition: background-color 0.5s ease, color 0.5s ease, padding-top 0.5s cubic-bezier(0.25, 1.2, 0.3, 1);
+            transition: background-color 0.5s ease, color 0.5s ease;
             overflow-x: hidden;
             position: relative; 
         }
-        
-        /* Dynamic push when QotD sub bar is visible */
-        body.qotd-sub-visible { padding-top: 150px; }
 
         /* --- Fullscreen YouTube Background --- */
         #vibe-bg {
@@ -46,50 +43,133 @@
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: none;
         }
 
-        /* =========================================================
-           MASTER GLASSMORPHISM & DARK MODE THEMING (BUG #1 FIX)
-           All overlapping backgrounds have been consolidated here.
-           ========================================================= */
-        .floating-header, .sidebar, .widget-panel-menu, .floating-player, .schedule-container, .widget-card {
-            background: rgba(255, 255, 255, 0.85) !important;
-            backdrop-filter: blur(15px) saturate(150%) !important;
-            -webkit-backdrop-filter: blur(15px) saturate(150%) !important;
-            border: 1px solid rgba(150, 150, 150, 0.2) !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+        /* --- Master Top Navigation Bar (Liquid Glass) --- */
+        .floating-header {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 75px;
+            display: grid; grid-template-columns: 240px 1fr auto; align-items: center; 
+            padding: 0 30px; box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px) saturate(150%);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-radius: 0 0 15px 15px;
+            z-index: 1100;
+            transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1);
         }
-        
-        .qotd-sub-bar {
-            background: rgba(255, 255, 255, 0.85) !important;
-            backdrop-filter: blur(15px) saturate(150%) !important;
-            -webkit-backdrop-filter: blur(15px) saturate(150%) !important;
-            border-bottom: 1px solid rgba(150, 150, 150, 0.2) !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08) !important;
-        }
+        body.dark-mode .floating-header { background: rgba(30, 30, 30, 0.85); box-shadow: 0 4px 20px rgba(0,0,0,0.5); border-bottom: 1px solid rgba(255,255,255,0.05); }
 
-        /* Bulletproof Dark Mode Overrides */
+        .header-left { display: flex; align-items: center; gap: 15px; justify-self: start; height: 75px;}
+        .header-right { display: flex; align-items: center; gap: 10px; justify-self: end; height: 75px;}
+        .header-center { justify-self: center; display: flex; align-items: center; justify-content: center; width: 100%; height: 75px; position: relative;}
+
+        .header-logo { height: 38px; width: auto; opacity: 0.6; transition: opacity 0.4s ease; display: block; }
+        .header-logo:hover { opacity: 1; }
+        
+        #clock { 
+            font-size: 2rem; font-weight: bold; color: #003366; background: transparent; 
+            box-shadow: none; padding: 0; margin: 0; transition: color 0.4s ease; 
+            text-align: right; white-space: nowrap; flex-shrink: 0; 
+        }
+        body.dark-mode #clock { color: #e0e0e0; }
+
+        /* --- Smart State Icon Buttons --- */
+        .header-icon-btn {
+            background: none; border: none; color: #aaa; cursor: pointer; padding: 6px 8px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; transition: all 0.3s cubic-bezier(0.25, 1.2, 0.3, 1);
+            font-size: 1.6rem; line-height: 1;
+        }
+        .header-icon-btn:hover { background-color: rgba(150,150,150,0.2); color: #888; transform: scale(1.05);}
+        .header-icon-btn.active-btn { color: #31b0d5; transform: scale(1.1);} 
+        
+        body.dark-mode .header-icon-btn { color: #666; }
+        body.dark-mode .header-icon-btn:hover { background-color: rgba(150,150,150,0.2); color: #aaa; }
+        body.dark-mode .header-icon-btn.active-btn { color: #90caf9; } 
+
+        /* --- Sidebar & Z-Index Fix --- */
+        .sidebar-wrapper {
+            position: fixed; top: 90px; left: 20px; z-index: 2000; pointer-events: none;
+        }
+        .sidebar {
+            width: 350px; padding: 15px 20px;
+            border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.5s cubic-bezier(0.25, 1.2, 0.3, 1);
+            opacity: 1; overflow: hidden; transform-origin: left top; pointer-events: auto;
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            max-height: 80vh; overflow-y: auto;
+        }
+        body.dark-mode .sidebar { background: rgba(30, 30, 30, 0.95); border: 1px solid rgba(255,255,255,0.05); }
+        .sidebar.collapsed { width: 0; padding: 0; opacity: 0; transform: scaleX(0); border: none; }
+
+        /* --- STATIC WIDGET MENU (+ BUTTON) --- */
+        #widget-menu-wrapper {
+            position: fixed; bottom: 20px; left: 20px; z-index: 1050;
+        }
+        .widget-panel-menu {
+            position: absolute; bottom: 60px; left: 0;
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border-radius: 15px; padding: 15px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: none; flex-direction: column; width: 220px;
+            border: 1px solid rgba(150,150,150,0.2);
+            animation: popUp 0.3s cubic-bezier(0.25, 1.2, 0.3, 1); transform-origin: bottom left;
+        }
+        @keyframes popUp { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        body.dark-mode .widget-panel-menu { background: rgba(30,30,30,0.95); border-color: rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.6); }
+
+        .float-btn {
+            background: #003366; color: white; border: none; border-radius: 50%;
+            width: 48px; height: 48px; font-size: 1.8rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: background 0.3s, transform 0.3s cubic-bezier(0.25, 1.2, 0.3, 1); flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .float-btn:hover { background: #002244; transform: scale(1.1); }
+        body.dark-mode .float-btn { background: #1976d2; }
+        body.dark-mode .float-btn:hover { background: #1565c0; }
+
+        /* --- Floating Player --- */
+        .floating-player {
+            position: fixed; bottom: 20px; right: 20px; top: auto; left: auto;
+            background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px; padding: 10px 15px 10px 10px;
+            display: flex; align-items: center; gap: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000; opacity: 0; pointer-events: none; 
+            transition: opacity 0.4s ease, transform 0.6s cubic-bezier(0.25, 1.2, 0.3, 1);
+            user-select: none; transform: translateY(20px);
+        }
+        .floating-player.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+        .floating-player.dragging { cursor: grabbing; transition: none !important; opacity: 0.95; transform: scale(1.02); z-index: 2000; }
+        body.dark-mode .floating-player { background: rgba(30,30,30,0.85); color: #e0e0e0; border: 1px solid #444; }
+        .drag-handle { color: #888; font-size: 1.2rem; cursor: grab; display: flex; align-items: center; padding-right: 2px;}
+        body.dark-mode .drag-handle { color: #aaa; }
+        .floating-player.dragging .drag-handle { cursor: grabbing; }
+
+        .float-content { display: flex; flex-direction: column; gap: 6px; }
+        .float-info { font-weight: bold; font-size: 0.85rem; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #003366; cursor: text;}
+        body.dark-mode .float-info { color: #90caf9; }
+        .float-volume { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
+        .float-volume span { cursor: pointer; transition: transform 0.2s; user-select: none; width: 18px; text-align: center; }
+        .float-volume span:hover { transform: scale(1.2); }
+        .float-volume input { width: 100px; cursor: pointer; height: 4px; margin: 0;}
+
+        /* --- Floating Footer --- */
+        .footer { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); font-size: 0.85rem; color: #555; text-align: center; width: 100%; transition: color 0.4s ease; z-index: 10; pointer-events: none; }
+        .footer p { margin: 0 0 5px 0; font-weight: bold; text-shadow: 0 0 8px rgba(255,255,255,0.9);}
+        .footer-logo { max-width: 160px; height: auto; display: inline-block; opacity: 0.7; }
+        body.dark-mode .footer p { text-shadow: 0 0 8px rgba(0,0,0,0.9); color: #aaa;}
+
+        /* --- Toast Notification --- */
+        #toast {
+            position: fixed; top: -60px; left: 50%; transform: translateX(-50%);
+            background-color: #5cb85c; color: white; padding: 12px 24px;
+            border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-weight: bold; font-size: 1.1rem; z-index: 9999; opacity: 0;
+            transition: top 0.6s cubic-bezier(0.25, 1.2, 0.3, 1), opacity 0.4s ease; pointer-events: none;
+        }
+        #toast.show { top: 90px; opacity: 1; }
+
+        /* --- Dark Mode Variables & Enforcement --- */
         body.dark-mode { background-color: #121212; color: #e0e0e0; }
-        
-        body.dark-mode .floating-header, 
-        body.dark-mode .sidebar, 
-        body.dark-mode .widget-panel-menu, 
-        body.dark-mode .floating-player, 
-        body.dark-mode .schedule-container, 
-        body.dark-mode .widget-card {
-            background: rgba(30, 30, 30, 0.85) !important;
-            border: 1px solid rgba(255, 255, 255, 0.05) !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.6) !important;
-        }
-
-        body.dark-mode .qotd-sub-bar {
-            background: rgba(30, 30, 30, 0.85) !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important;
-        }
-
-        /* Global Dark Mode Text & Accent Elements */
-        body.dark-mode h1, body.dark-mode h3, body.dark-mode .schedule-header, body.dark-mode .period-name, body.dark-mode .title, body.dark-mode .widget-title, body.dark-mode #clock, body.dark-mode .sub-qotd-text, body.dark-mode .float-info { color: #90caf9; border-color: #444; }
+        body.dark-mode h1, body.dark-mode h3, body.dark-mode .schedule-header, body.dark-mode .period-name, body.dark-mode .title, body.dark-mode .widget-title { color: #90caf9; border-color: #444; }
         body.dark-mode .control-group label.title { color: #90caf9; }
-        body.dark-mode .sub-label, body.dark-mode #darkModeLabel { color: #ccc !important; }
+        body.dark-mode .sub-label { color: #ccc !important; }
         body.dark-mode #schedule-list li { border-color: #444; }
         body.dark-mode #schedule-list li:nth-child(even) { background-color: rgba(255,255,255,0.03); }
         body.dark-mode select, body.dark-mode input[type="text"], body.dark-mode input[type="time"], body.dark-mode input[type="date"] { background: #333; color: #fff; border-color: #555; }
@@ -104,101 +184,14 @@
         body.dark-mode .btn:hover { background-color: #1565c0; }
         body.dark-mode .split-button-main { background-color: #0288d1; }
         body.dark-mode .split-button-caret { background-color: #0277bd; border-left: 1px solid #01579b; }
-        body.dark-mode .footer p { text-shadow: 0 0 8px rgba(0,0,0,0.9); color: #aaa;}
-        body.dark-mode .header-icon-btn { color: #666; }
-        body.dark-mode .header-icon-btn:hover { background-color: rgba(150,150,150,0.2); color: #aaa; }
-        body.dark-mode .header-icon-btn.active-btn { color: #90caf9; } 
-        body.dark-mode .drag-handle { color: #aaa; }
-        body.dark-mode .float-btn { background: #1976d2; }
-        body.dark-mode .float-btn:hover { background: #1565c0; }
 
-        /* --- Master Top Navigation Bar --- */
-        .floating-header {
-            position: fixed; top: 0; left: 0; width: 100%; height: 75px;
-            display: grid; grid-template-columns: auto 1fr auto; align-items: center; 
-            padding: 0 30px; box-sizing: border-box;
-            border-radius: 0 0 15px 15px; z-index: 1100; transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1);
-            overflow: visible; 
+        /* Unified Container CSS (Clean separation) */
+        .schedule-container, .widget-card { 
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
         }
-
-        .header-left { display: flex; align-items: center; gap: 15px; justify-self: start; height: 75px;}
-        .header-right { display: flex; align-items: center; gap: 10px; justify-self: end; height: 75px;}
-        .header-center { justify-self: center; display: flex; align-items: center; justify-content: center; width: 100%; height: 75px; position: relative;}
-        .header-logo { height: 38px; width: auto; opacity: 0.6; transition: opacity 0.4s ease; display: block; }
-        .header-logo:hover { opacity: 1; }
-        #clock { font-size: 2rem; font-weight: bold; color: #003366; background: transparent; text-align: right; white-space: nowrap; flex-shrink: 0; }
-
-        .header-icon-btn {
-            background: none; border: none; color: #aaa; cursor: pointer; padding: 6px 8px; border-radius: 8px;
-            display: flex; align-items: center; justify-content: center; transition: all 0.3s cubic-bezier(0.25, 1.2, 0.3, 1); font-size: 1.6rem; line-height: 1;
+        body.dark-mode .schedule-container, body.dark-mode .widget-card { 
+            background: rgba(30, 30, 30, 0.85); box-shadow: 0 4px 15px rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.05); 
         }
-        .header-icon-btn:hover { background-color: rgba(150,150,150,0.2); color: #888; transform: scale(1.05);}
-        .header-icon-btn.active-btn { color: #31b0d5; transform: scale(1.1);} 
-
-        /* --- THE FULL-WIDTH QOTD SUB-BAR (Normal Mode Only) --- */
-        .qotd-sub-bar {
-            position: fixed; top: 50px; left: 0; width: 100%; box-sizing: border-box;
-            border-radius: 0; display: flex; align-items: center; justify-content: center; gap: 20px;
-            padding: 8px 30px; z-index: 1090; opacity: 0; pointer-events: none;
-            transition: all 0.5s cubic-bezier(0.25, 1.2, 0.3, 1); white-space: nowrap;
-        }
-        .qotd-sub-bar.visible { opacity: 1; pointer-events: auto; top: 75px; }
-        .sub-qotd-text { font-size: 1.15rem; font-weight: bold; color: #003366; transition: all 0.3s ease;}
-        .sub-qotd-qr { 
-            width: 45px; height: 45px; border-radius: 5px; cursor: pointer; 
-            transition: transform 0.3s cubic-bezier(0.25, 1.2, 0.3, 1); transform-origin: top center; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2); margin-top: 2px;
-        }
-        .sub-qotd-qr:hover { transform: scale(3.5) translate(-10px, 15px); z-index: 2000; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
-
-        /* --- Floating Footer --- */
-        .footer { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); font-size: 0.85rem; color: #555; text-align: center; width: 100%; transition: color 0.4s ease; z-index: 10; pointer-events: none; }
-        .footer p { margin: 0 0 5px 0; font-weight: bold; text-shadow: 0 0 8px rgba(255,255,255,0.9);}
-        .footer-logo { max-width: 160px; height: auto; display: inline-block; opacity: 0.7; }
-
-        /* --- Toast Notification --- */
-        #toast {
-            position: fixed; top: -60px; left: 50%; transform: translateX(-50%); background-color: #5cb85c; color: white; padding: 12px 24px;
-            border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-weight: bold; font-size: 1.1rem; z-index: 9999; opacity: 0;
-            transition: top 0.6s cubic-bezier(0.25, 1.2, 0.3, 1), opacity 0.4s ease; pointer-events: none;
-        }
-        #toast.show { top: 150px; opacity: 1; } 
-
-        /* --- Draggable Floating Media Player --- */
-        .floating-player {
-            position: fixed; bottom: 20px; right: 20px; top: auto; left: auto;
-            border-radius: 20px; padding: 10px 15px 10px 10px;
-            display: flex; align-items: center; gap: 12px; z-index: 1000; opacity: 0; pointer-events: none; 
-            transition: opacity 0.4s ease, transform 0.6s cubic-bezier(0.25, 1.2, 0.3, 1);
-            user-select: none; transform: translateY(20px);
-        }
-        .floating-player.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
-        .floating-player.dragging { transition: none !important; opacity: 0.95; transform: scale(1.02); z-index: 2000; }
-        .drag-handle { color: #888; font-size: 1.2rem; cursor: grab; display: flex; align-items: center; padding-right: 2px;}
-        .floating-player.dragging .drag-handle { cursor: grabbing; }
-
-        /* --- STATIC WIDGET MENU (+ BUTTON) --- */
-        #widget-menu-wrapper { position: fixed; bottom: 20px; left: 20px; z-index: 1050; }
-        .widget-panel-menu {
-            position: absolute; bottom: 60px; left: 0;
-            border-radius: 15px; padding: 15px 20px; display: none; flex-direction: column; width: 220px;
-            animation: popUp 0.3s cubic-bezier(0.25, 1.2, 0.3, 1); transform-origin: bottom left;
-        }
-        @keyframes popUp { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-
-        .float-btn {
-            background: #003366; color: white; border: none; border-radius: 50%;
-            width: 48px; height: 48px; font-size: 1.8rem; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; transition: background 0.3s, transform 0.3s cubic-bezier(0.25, 1.2, 0.3, 1); flex-shrink: 0;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        .float-btn:hover { background: #002244; transform: scale(1.1); }
-        .float-content { display: flex; flex-direction: column; gap: 6px; }
-        .float-info { font-weight: bold; font-size: 0.85rem; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #003366; cursor: text;}
-        .float-volume { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
-        .float-volume span { cursor: pointer; transition: transform 0.2s; width: 18px; text-align: center; }
-        .float-volume span:hover { transform: scale(1.2); }
-        .float-volume input { width: 100px; cursor: pointer; height: 4px; margin: 0;}
 
         /* --- Custom Toggles --- */
         .switch-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; margin-top: 5px;}
@@ -215,7 +208,7 @@
         body.dark-mode .open-badge { background-color: #2e7d32; color: #e8f5e9; }
         .waffle-closed .open-badge, .docked-badge { font-size: 1rem; padding: 4px 10px; margin-left: 15px; transform: translateY(-2px); transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); }
 
-        /* --- Layout & Structure (3-COLUMN DOCKED GRID) --- */
+        /* --- Layout & Structure (3-COLUMN GRID) --- */
         .main-content-area {
             display: flex; justify-content: center; align-items: flex-start; gap: 20px;
             width: 100%; max-width: 1600px; margin: 0 auto;
@@ -231,16 +224,8 @@
         /* Center Column for Schedule */
         .schedule-column {
             flex-grow: 1; max-width: 900px; display: flex; flex-direction: column; align-items: center;
-            transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); overflow: hidden;
+            transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); overflow: hidden; width: 100%;
         }
-
-        .sidebar-wrapper { position: fixed; top: 90px; left: 20px; z-index: 2000; pointer-events: none; }
-        .sidebar {
-            width: 350px; padding: 15px 20px; border-radius: 10px; transition: all 0.5s cubic-bezier(0.25, 1.2, 0.3, 1);
-            opacity: 1; overflow: hidden; transform-origin: left top; pointer-events: auto;
-            max-height: 80vh; overflow-y: auto;
-        }
-        .sidebar.collapsed { width: 0; padding: 0; opacity: 0; transform: scaleX(0); }
 
         /* UI Controls & Accordions */
         .control-group { border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 10px; margin-bottom: 10px;}
@@ -276,7 +261,8 @@
 
         /* --- THE MASTER SCHEDULE CONTAINER --- */
         .schedule-container { 
-            padding: 15px 20px; border-radius: 10px; width: 100%; max-width: 900px; box-sizing: border-box; transform-origin: top center;
+            padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            width: 100%; box-sizing: border-box; transform-origin: top center;
             transition: all 0.6s cubic-bezier(0.34, 1.2, 0.64, 1), max-height 0.6s ease, padding 0.6s ease, opacity 0.4s ease;
             max-height: 2000px; opacity: 1; overflow: hidden; margin: 0 auto;
         }
@@ -289,7 +275,11 @@
             50% { opacity: 0.7; text-shadow: none; box-shadow: none; }
             100% { opacity: 1; text-shadow: 0 0 4px rgba(217, 83, 79, 0.4); box-shadow: 0 0 8px rgba(217, 83, 79, 0.2); }
         }
-        .dead-time-warning { color: #d9534f; font-weight: 900; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.5px; animation: pulseAlert 2s infinite; background: rgba(217, 83, 79, 0.15); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(217, 83, 79, 0.3); margin-left: 15px; display: none; }
+        .dead-time-warning {
+            color: #d9534f; font-weight: 900; font-size: 1.1rem; text-transform: uppercase;
+            letter-spacing: 0.5px; animation: pulseAlert 2s infinite; background: rgba(217, 83, 79, 0.15);
+            padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(217, 83, 79, 0.3); margin-left: 15px; display: none;
+        }
 
         .schedule-grid { display: grid; grid-template-columns: auto 1fr auto; gap: 15px; align-items: center; padding: 8px 10px; transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); }
         .schedule-header { font-size: 0.9rem; font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 6px; margin-bottom: 6px; transition: color 0.4s ease; }
@@ -342,9 +332,9 @@
         /* --- THE DOCKED WIDGETS --- */
         .widget-card {
             border-radius: 15px; padding: 15px; display: none; flex-direction: column; overflow: hidden; width: 100%; transition: opacity 0.4s ease;
+            border: 1px solid rgba(150,150,150,0.2);
         }
-        body:not(.minimal-active) .widget-card.active-widget { display: flex; animation: fadeWidgetIn 0.5s cubic-bezier(0.25, 1.2, 0.3, 1);}
-        body.minimal-active .widget-card.active-widget { display: flex; animation: fadeWidgetIn 0.5s cubic-bezier(0.25, 1.2, 0.3, 1);}
+        .widget-card.active-widget { display: flex; animation: fadeWidgetIn 0.5s cubic-bezier(0.25, 1.2, 0.3, 1);}
         @keyframes fadeWidgetIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
         .widget-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 8px; margin-bottom: 12px; pointer-events: none; }
@@ -354,7 +344,7 @@
 
         /* Weather Contrast Fix */
         #widget-weather { min-height: 250px; }
-        #weather-container-main { height: 100%; min-height: 200px; display: flex; align-items: center;}
+        #weather-container-main { height: 100%; min-height: 200px; display: block; width: 100%; overflow: hidden;}
         body.dark-mode #weather-container-main iframe { filter: invert(1) hue-rotate(180deg); }
 
         /* --- Timer Widget Styles (Modernized) --- */
@@ -372,14 +362,15 @@
         /* --- QotD Widget Styles --- */
         #widget-qotd { min-height: 450px; }
         .qotd-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; gap: 15px; position: relative; flex-grow: 1;}
-        .qotd-text { font-size: 1.2rem; font-weight: bold; color: #003366; }
+        .qotd-text { font-size: 1.2rem; font-weight: bold; color: #003366; margin-bottom: 10px;}
         body.dark-mode .qotd-text { color: #e0e0e0; }
-        .qotd-qr { width: 130px; height: 130px; background: white; padding: 10px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .qotd-qr { width: 150px; height: 150px; background: white; padding: 10px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 5px;}
         .qotd-bar-bg { width: 100%; background: rgba(0,0,0,0.1); border-radius: 10px; height: 24px; overflow: hidden; position: relative;}
         body.dark-mode .qotd-bar-bg { background: rgba(255,255,255,0.1); }
         .qotd-bar-fill { height: 100%; background: #31b0d5; width: 0%; transition: width 1s cubic-bezier(0.25, 1.2, 0.3, 1); }
         .qotd-bar-label { position: absolute; top: 0; left: 10px; line-height: 24px; font-size: 0.85rem; font-weight: bold; color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.5);}
-        .qotd-manual-unlock { margin-top: 10px; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s;}
+        
+        .qotd-manual-unlock { font-size: 1.5rem; cursor: pointer; transition: transform 0.2s; margin-top: 5px;}
         .qotd-manual-unlock:hover { transform: scale(1.1); }
 
         /* =========================================================
@@ -424,9 +415,6 @@
             .options-wrapper { grid-template-columns: repeat(3, 1fr); max-height: 80px; }
             .waffle-closed .options-wrapper { max-height: 0px; }
             
-            .qotd-sub-bar { display: none !important; }
-            body.qotd-sub-visible { padding-top: 85px; } 
-
             #floating-player { 
                 position: fixed !important; bottom: 0 !important; right: 0 !important; left: 0 !important; 
                 width: 100% !important; border-radius: 20px 20px 0 0 !important; 
@@ -471,13 +459,6 @@
             </button>
             <button id="fullScreenBtn" class="header-icon-btn" onclick="toggleFullScreen()" title="Full Screen">⛶</button>
             <div id="clock">00:00:00 AM</div>
-        </div>
-    </div>
-
-    <div id="qotd-sub-bar" class="qotd-sub-bar">
-        <span id="sub-qotd-question" class="sub-qotd-text">Loading question...</span>
-        <div style="position: relative; display: flex; align-items: center; justify-content: center;">
-            <img id="sub-qotd-qr" class="sub-qotd-qr" src="" alt="QR">
         </div>
     </div>
 
@@ -624,7 +605,7 @@
                     <label class="title">4. Schedule</label><span class="chevron" id="chev-sec-schedule">▼</span>
                 </div>
                 <div class="accordion-content" id="sec-schedule">
-                    <div id="autoIndicator" style="font-weight:bold; margin-bottom:10px; color:#888;">Sync Status: Fetching...</div>
+                    <div id="autoIndicator" style="font-weight:bold; margin-bottom:10px; color:#888;">Sync Status: Initializing...</div>
                     <button class="timer-btn-hollow" onclick="fetchDailySchedule()" style="width:100%; margin-bottom:10px;">Force Sync Schedule</button>
                     <select id="scheduleMode" onchange="changeMode()">
                         <option value="synced" id="syncedOption">Loading Google Sheet...</option>
@@ -644,7 +625,7 @@
         <div class="widget-column">
             <div class="widget-card" id="widget-weather">
                 <div class="widget-header-row"><h4 class="widget-title">Local Forecast</h4></div>
-                <div id="weather-container-main" style="flex-grow: 1; overflow-y: auto; overflow-x: hidden; height: 100%;"></div>
+                <div id="weather-container-main"></div>
             </div>
 
             <div class="widget-card" id="widget-timer">
@@ -750,6 +731,9 @@
             { q: "Would you rather accidentally call your teacher 'Mom/Dad', or walk into the wrong classroom and sit down?", a: "Call Teacher Mom", b: "Wrong Classroom" }
         ];
 
+        const playSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+        const pauseSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+
         let predefinedSchedules = {
             synced: [], 
             web: [
@@ -854,26 +838,18 @@
             const container1 = document.getElementById('weather-container-main');
             const color = isDarkMode ? '#ffffff' : '#333333';
             if(container1) container1.innerHTML = `<a class="weatherwidget-io" href="https://forecast7.com/en/33d98n84d43/east-cobb/" data-label_1="EAST COBB" data-theme="pure" data-basecolor="rgba(0,0,0,0)" data-textcolor="${color}">EAST COBB</a>`;
-            !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;}else{js=d.getElementById(id);js.remove();js=d.createElement(s);js.id=id;}js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}(document,'script','weatherwidget-io-js');
+            
+            if (window.__weatherwidget_init) {
+                window.__weatherwidget_init();
+            } else {
+                !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;}else{js=d.getElementById(id);js.remove();js=d.createElement(s);js.id=id;}js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}(document,'script','weatherwidget-io-js');
+            }
         }
 
         function toggleWidgetPanel(e) {
             if(e) e.stopPropagation();
             const p = document.getElementById('widget-panel-menu');
             p.style.display = p.style.display === 'none' ? 'flex' : 'none';
-        }
-
-        function updateQotdVisibility() {
-            const subBar = document.getElementById('qotd-sub-bar');
-            if(subBar) {
-                if(activeWidgets.qotd && !isMinimalView) {
-                    subBar.classList.add('visible');
-                    document.body.classList.add('qotd-sub-visible');
-                } else {
-                    subBar.classList.remove('visible');
-                    document.body.classList.remove('qotd-sub-visible');
-                }
-            }
         }
 
         function toggleWidget(id, isChecked) {
@@ -884,7 +860,6 @@
                 else card.classList.remove('active-widget');
             }
             if (id === 'weather' && isChecked) reloadWeatherWidget();
-            if (id === 'qotd') updateQotdVisibility();
             
             const floatTog = document.getElementById(`wm-tog-${id}`);
             if(floatTog) floatTog.checked = isChecked;
@@ -1010,21 +985,20 @@
         }
 
         function toggleVibePlay() {
+            const floatBtn = document.getElementById('float-play-btn');
             if (ytPlayer && typeof ytPlayer.getPlayerState === 'function') {
                 try {
                     let state = ytPlayer.getPlayerState();
                     if (state === YT.PlayerState.PLAYING) {
                         ytPlayer.pauseVideo();
-                        if (activePlayerUrl === currentVibeUrl) {
-                            isMainVibePlaying = false;
-                            saveLocalSettings();
-                        }
+                        if(floatBtn) floatBtn.innerHTML = playSVG;
+                        isMainVibePlaying = false;
+                        if (activePlayerUrl === currentVibeUrl) { saveLocalSettings(); }
                     } else {
                         ytPlayer.playVideo();
-                        if (activePlayerUrl === currentVibeUrl) {
-                            isMainVibePlaying = true;
-                            saveLocalSettings();
-                        }
+                        if(floatBtn) floatBtn.innerHTML = pauseSVG;
+                        isMainVibePlaying = true;
+                        if (activePlayerUrl === currentVibeUrl) { saveLocalSettings(); }
                     }
                 } catch(e) { console.error(e); }
             } else { startVibe(); }
@@ -1142,6 +1116,11 @@
             if(vc) syncGlobalVolume(vc.value); 
         }
 
+        function changeVibeVolume() { 
+            const ctrl = document.getElementById('vibeVolumeControl');
+            if(ctrl) syncVibeVolume(ctrl.value); 
+        }
+
         function showToast(message) {
             const toast = document.getElementById('toast');
             if(!toast) return;
@@ -1189,6 +1168,7 @@
             }
         }
 
+        // QotD Logic
         function getDailyQotd() {
             const now = new Date();
             const start = new Date(now.getFullYear(), 0, 0);
@@ -1209,6 +1189,7 @@
             const qObj = getDailyQotd();
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(QOTD_APPS_SCRIPT_URL)}`;
 
+            // Main Widget Updates
             document.getElementById('qotd-question').innerText = qObj.q;
             document.getElementById('qotd-idle-question').innerText = qObj.q;
             document.getElementById('qotd-results-question').innerText = qObj.q;
@@ -1225,10 +1206,12 @@
                 const currentMins = new Date().getHours() * 60 + new Date().getMinutes();
                 
                 if (currentMins >= p.startMins && currentMins < p.startMins + 5) {
+                    // FIRST 5 MINS (Open)
                     viewVoting.style.display = 'flex'; viewIdle.style.display = 'none'; viewResults.style.display = 'none';
                     qotdResultsFetched = false; 
                     qotdManualUnlock = false; 
                 } else if (currentMins >= p.endMins - 5 && currentMins < p.endMins) {
+                    // LAST 5 MINS (Results)
                     viewVoting.style.display = 'none'; viewIdle.style.display = 'none'; viewResults.style.display = 'flex';
                     qotdManualUnlock = false;
                     
@@ -1251,6 +1234,7 @@
                             }).catch(e => console.error("Error fetching QotD results:", e));
                     }
                 } else {
+                    // MID CLASS
                     if (qotdManualUnlock) {
                         viewVoting.style.display = 'flex'; viewIdle.style.display = 'none'; viewResults.style.display = 'none';
                     } else {
@@ -1258,6 +1242,7 @@
                     }
                 }
             } else {
+                // PASSING PERIOD
                 viewVoting.style.display = 'none'; viewIdle.style.display = 'flex'; viewResults.style.display = 'none';
                 qotdResultsFetched = false;
                 qotdManualUnlock = false;
