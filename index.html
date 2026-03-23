@@ -3,433 +3,299 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Walton Bell Schedule</title>
+    <title>Walton Bell Schedule OS</title>
     <style>
-        /* --- Clean Browser Resets --- */
-        * { -webkit-tap-highlight-color: transparent !important; outline: none !important; }
+        /* ==========================================================================
+           1. CSS VARIABLES (THEMING ENGINE)
+           ========================================================================== */
+        :root {
+            --bg-color: #f4f4f9;
+            --text-main: #333333;
+            --text-muted: #555555;
+            --text-accent: #003366;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(150, 150, 150, 0.2);
+            --glass-shadow: rgba(0, 0, 0, 0.08);
+            --glass-shadow-heavy: rgba(0, 0, 0, 0.15);
+            --btn-primary: #003366;
+            --btn-primary-hover: #002244;
+            --btn-secondary: #31b0d5;
+            --btn-danger: #d9534f;
+            --progress-bg: rgba(92, 184, 92, 0.2);
+            --progress-border: #5cb85c;
+            --weather-text: #333333;
+        }
 
-        /* --- Sleek Auto-Hiding Scrollbars --- */
+        body.dark-mode {
+            --bg-color: #121212;
+            --text-main: #e0e0e0;
+            --text-muted: #aaaaaa;
+            --text-accent: #90caf9;
+            --glass-bg: rgba(30, 30, 30, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-shadow: rgba(0, 0, 0, 0.5);
+            --glass-shadow-heavy: rgba(0, 0, 0, 0.7);
+            --btn-primary: #1976d2;
+            --btn-primary-hover: #1565c0;
+            --btn-secondary: #0288d1;
+            --progress-bg: rgba(144, 202, 249, 0.2);
+            --progress-border: #90caf9;
+            --weather-text: #ffffff;
+        }
+
+        /* ==========================================================================
+           2. GLOBAL RESETS & TYPOGRAPHY
+           ========================================================================== */
+        * { -webkit-tap-highlight-color: transparent !important; outline: none !important; box-sizing: border-box; }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: transparent; border-radius: 10px; }
-        body:hover ::-webkit-scrollbar-thumb, .sidebar:hover ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.25); }
-        body.dark-mode:hover ::-webkit-scrollbar-thumb, body.dark-mode .sidebar:hover ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.25); }
-        * { scrollbar-width: thin; scrollbar-color: transparent transparent; } 
-        *:hover { scrollbar-color: rgba(150,150,150,0.5) transparent; }
-
+        body:hover ::-webkit-scrollbar-thumb, .sidebar:hover ::-webkit-scrollbar-thumb { background: var(--glass-border); }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            margin: 0;
-            padding: 100px 20px 100px 20px; 
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            box-sizing: border-box;
+            background-color: var(--bg-color); color: var(--text-main);
+            margin: 0; padding: 100px 20px 100px 20px; 
+            min-height: 100vh; overflow-x: hidden;
             transition: background-color 0.5s ease, color 0.5s ease;
-            overflow-x: hidden;
-            position: relative; 
         }
 
-        /* --- Fullscreen YouTube Background --- */
-        #vibe-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; pointer-events: none; overflow: hidden;
-            opacity: 0; transition: opacity 1.5s ease; 
-        }
-        #vibe-bg iframe {
-            width: 100vw; height: 56.25vw; min-height: 100vh; min-width: 177.77vh; 
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: none;
-        }
+        h1, h2, h3, h4 { color: var(--text-accent); margin: 0; transition: color 0.5s ease; }
 
-        /* --- Master Top Navigation Bar (Liquid Glass) --- */
+        /* ==========================================================================
+           3. BACKGROUND MEDIA
+           ========================================================================== */
+        #vibe-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; overflow: hidden; opacity: 0; transition: opacity 1.5s ease; }
+        #vibe-bg iframe { width: 100vw; height: 56.25vw; min-height: 100vh; min-width: 177.77vh; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: none; }
+
+        /* ==========================================================================
+           4. MASTER HEADER (LIQUID GLASS)
+           ========================================================================== */
         .floating-header {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 75px;
+            position: fixed; top: 0; left: 0; width: 100%; height: 75px;
             display: grid; grid-template-columns: 240px 1fr auto; align-items: center; 
-            padding: 0 30px; box-sizing: border-box;
-            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px) saturate(150%);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            border-radius: 0 0 15px 15px;
-            z-index: 1100;
+            padding: 0 30px; z-index: 1100;
+            background: var(--glass-bg); border-bottom: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px) saturate(150%);
+            box-shadow: 0 4px 20px var(--glass-shadow); border-radius: 0 0 15px 15px;
             transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1);
         }
-        body.dark-mode .floating-header { background: rgba(30, 30, 30, 0.85); box-shadow: 0 4px 20px rgba(0,0,0,0.5); border-bottom: 1px solid rgba(255,255,255,0.05); }
 
-        .header-left { display: flex; align-items: center; gap: 15px; justify-self: start; height: 75px;}
-        .header-right { display: flex; align-items: center; gap: 10px; justify-self: end; height: 75px;}
+        .header-left { display: flex; align-items: center; gap: 15px; justify-self: start; }
         .header-center { justify-self: center; display: flex; align-items: center; justify-content: center; width: 100%; height: 75px; position: relative;}
+        .header-right { display: flex; align-items: center; gap: 10px; justify-self: end; }
 
-        .header-logo { height: 38px; width: auto; opacity: 0.6; transition: opacity 0.4s ease; display: block; }
+        .header-logo { height: 38px; width: auto; opacity: 0.8; transition: opacity 0.4s ease; }
         .header-logo:hover { opacity: 1; }
-        
-        #clock { 
-            font-size: 2rem; font-weight: bold; color: #003366; background: transparent; 
-            box-shadow: none; padding: 0; margin: 0; transition: color 0.4s ease; 
-            text-align: right; white-space: nowrap; flex-shrink: 0; 
-        }
-        body.dark-mode #clock { color: #e0e0e0; }
+        #clock { font-size: 2rem; font-weight: bold; color: var(--text-accent); white-space: nowrap; flex-shrink: 0; transition: color 0.5s ease;}
 
-        /* --- Smart State Icon Buttons --- */
+        /* Icon Buttons */
         .header-icon-btn {
-            background: none; border: none; color: #aaa; cursor: pointer; padding: 6px 8px; border-radius: 8px;
-            display: flex; align-items: center; justify-content: center; transition: all 0.3s cubic-bezier(0.25, 1.2, 0.3, 1);
-            font-size: 1.6rem; line-height: 1;
+            background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 6px 8px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; transition: all 0.3s; font-size: 1.6rem; line-height: 1;
         }
-        .header-icon-btn:hover { background-color: rgba(150,150,150,0.2); color: #888; transform: scale(1.05);}
-        .header-icon-btn.active-btn { color: #31b0d5; transform: scale(1.1);} 
-        
-        body.dark-mode .header-icon-btn { color: #666; }
-        body.dark-mode .header-icon-btn:hover { background-color: rgba(150,150,150,0.2); color: #aaa; }
-        body.dark-mode .header-icon-btn.active-btn { color: #90caf9; } 
+        .header-icon-btn:hover { background-color: var(--glass-border); color: var(--text-main); transform: scale(1.05);}
+        .header-icon-btn.active-btn { color: var(--btn-secondary); transform: scale(1.1);} 
 
-        /* --- Sidebar & Z-Index Fix --- */
-        .sidebar-wrapper {
-            position: fixed; top: 90px; left: 20px; z-index: 2000; pointer-events: none;
-        }
-        .sidebar {
-            width: 350px; padding: 15px 20px;
-            border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.5s cubic-bezier(0.25, 1.2, 0.3, 1);
-            opacity: 1; overflow: hidden; transform-origin: left top; pointer-events: auto;
-            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            max-height: 80vh; overflow-y: auto;
-        }
-        body.dark-mode .sidebar { background: rgba(30, 30, 30, 0.95); border: 1px solid rgba(255,255,255,0.05); }
-        .sidebar.collapsed { width: 0; padding: 0; opacity: 0; transform: scaleX(0); border: none; }
-
-        /* --- STATIC WIDGET MENU (+ BUTTON) --- */
-        #widget-menu-wrapper {
-            position: fixed; bottom: 20px; left: 20px; z-index: 1050;
-        }
-        .widget-panel-menu {
-            position: absolute; bottom: 60px; left: 0;
-            background: rgba(255,255,255,0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border-radius: 15px; padding: 15px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            display: none; flex-direction: column; width: 220px;
-            border: 1px solid rgba(150,150,150,0.2);
-            animation: popUp 0.3s cubic-bezier(0.25, 1.2, 0.3, 1); transform-origin: bottom left;
-        }
-        @keyframes popUp { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        body.dark-mode .widget-panel-menu { background: rgba(30,30,30,0.95); border-color: rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.6); }
-
-        .float-btn {
-            background: #003366; color: white; border: none; border-radius: 50%;
-            width: 48px; height: 48px; font-size: 1.8rem; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; transition: background 0.3s, transform 0.3s cubic-bezier(0.25, 1.2, 0.3, 1); flex-shrink: 0;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        .float-btn:hover { background: #002244; transform: scale(1.1); }
-        body.dark-mode .float-btn { background: #1976d2; }
-        body.dark-mode .float-btn:hover { background: #1565c0; }
-
-        /* --- Floating Player --- */
-        .floating-player {
-            position: fixed; bottom: 20px; right: 20px; top: auto; left: auto;
-            background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            border-radius: 20px; padding: 10px 15px 10px 10px;
-            display: flex; align-items: center; gap: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 1000; opacity: 0; pointer-events: none; 
-            transition: opacity 0.4s ease, transform 0.6s cubic-bezier(0.25, 1.2, 0.3, 1);
-            user-select: none; transform: translateY(20px);
-        }
-        .floating-player.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
-        .floating-player.dragging { cursor: grabbing; transition: none !important; opacity: 0.95; transform: scale(1.02); z-index: 2000; }
-        body.dark-mode .floating-player { background: rgba(30,30,30,0.85); color: #e0e0e0; border: 1px solid #444; }
-        .drag-handle { color: #888; font-size: 1.2rem; cursor: grab; display: flex; align-items: center; padding-right: 2px;}
-        body.dark-mode .drag-handle { color: #aaa; }
-        .floating-player.dragging .drag-handle { cursor: grabbing; }
-
-        .float-content { display: flex; flex-direction: column; gap: 6px; }
-        .float-info { font-weight: bold; font-size: 0.85rem; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #003366; cursor: text;}
-        body.dark-mode .float-info { color: #90caf9; }
-        .float-volume { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
-        .float-volume span { cursor: pointer; transition: transform 0.2s; user-select: none; width: 18px; text-align: center; }
-        .float-volume span:hover { transform: scale(1.2); }
-        .float-volume input { width: 100px; cursor: pointer; height: 4px; margin: 0;}
-
-        /* --- Floating Footer --- */
-        .footer { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); font-size: 0.85rem; color: #555; text-align: center; width: 100%; transition: color 0.4s ease; z-index: 10; pointer-events: none; }
-        .footer p { margin: 0 0 5px 0; font-weight: bold; text-shadow: 0 0 8px rgba(255,255,255,0.9);}
-        .footer-logo { max-width: 160px; height: auto; display: inline-block; opacity: 0.7; }
-        body.dark-mode .footer p { text-shadow: 0 0 8px rgba(0,0,0,0.9); color: #aaa;}
-
-        /* --- Toast Notification --- */
-        #toast {
-            position: fixed; top: -60px; left: 50%; transform: translateX(-50%);
-            background-color: #5cb85c; color: white; padding: 12px 24px;
-            border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            font-weight: bold; font-size: 1.1rem; z-index: 9999; opacity: 0;
-            transition: top 0.6s cubic-bezier(0.25, 1.2, 0.3, 1), opacity 0.4s ease; pointer-events: none;
-        }
-        #toast.show { top: 90px; opacity: 1; }
-
-        /* --- Dark Mode Variables & Enforcement --- */
-        body.dark-mode { background-color: #121212; color: #e0e0e0; }
-        body.dark-mode h1, body.dark-mode h3, body.dark-mode .schedule-header, body.dark-mode .period-name, body.dark-mode .title, body.dark-mode .widget-title { color: #90caf9; border-color: #444; }
-        body.dark-mode .control-group label.title { color: #90caf9; }
-        body.dark-mode .sub-label { color: #ccc !important; }
-        body.dark-mode #schedule-list li { border-color: #444; }
-        body.dark-mode #schedule-list li:nth-child(even) { background-color: rgba(255,255,255,0.03); }
-        body.dark-mode select, body.dark-mode input[type="text"], body.dark-mode input[type="time"], body.dark-mode input[type="date"] { background: #333; color: #fff; border-color: #555; }
-        body.dark-mode #jukeboxUrlInput { background: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.2); color: #e0e0e0;}
-        body.dark-mode .period-time { color: #ddd; }
-        body.dark-mode .dropdown-content { background-color: #333; border-color: #555; }
-        body.dark-mode .dropdown-content button { color: #e0e0e0; border-color: #444; }
-        body.dark-mode .dropdown-content button:hover { background-color: #444; color: #90caf9; }
-        body.dark-mode #autoIndicator { background-color: #1b5e20; color: #a5d6a7; border-color: #2e7d32; }
-        body.dark-mode .duty-item { border-bottom-color: #444 !important; }
-        body.dark-mode .btn { background-color: #1976d2; color: #fff; }
-        body.dark-mode .btn:hover { background-color: #1565c0; }
-        body.dark-mode .split-button-main { background-color: #0288d1; }
-        body.dark-mode .split-button-caret { background-color: #0277bd; border-left: 1px solid #01579b; }
-
-        /* Unified Container CSS (Clean separation) */
-        .schedule-container, .widget-card { 
-            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-        }
-        body.dark-mode .schedule-container, body.dark-mode .widget-card { 
-            background: rgba(30, 30, 30, 0.85); box-shadow: 0 4px 15px rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.05); 
-        }
-
-        /* --- Custom Toggles --- */
-        .switch-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; margin-top: 5px;}
-        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
-        .switch input { opacity: 0; width: 0; height: 0; margin: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s cubic-bezier(0.25, 1.2, 0.3, 1); border-radius: 20px; }
-        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s cubic-bezier(0.25, 1.2, 0.3, 1); border-radius: 50%; }
-        input:checked + .slider { background-color: #31b0d5; } 
-        input:checked + .slider:before { transform: translateX(20px); }
-        body.dark-mode input:checked + .slider { background-color: #90caf9; }
-
-        /* --- Open Block Badge --- */
-        .open-badge { background-color: #5cb85c; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; margin-left: 10px; vertical-align: middle; font-weight: bold; letter-spacing: 0.5px; display: inline-block; }
-        body.dark-mode .open-badge { background-color: #2e7d32; color: #e8f5e9; }
-        .waffle-closed .open-badge, .docked-badge { font-size: 1rem; padding: 4px 10px; margin-left: 15px; transform: translateY(-2px); transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); }
-
-        /* --- Layout & Structure (3-COLUMN GRID) --- */
-        .main-content-area {
+        /* ==========================================================================
+           5. LAYOUT: FLANKING GRID SYSTEM
+           ========================================================================== */
+        .main-grid {
             display: flex; justify-content: center; align-items: flex-start; gap: 20px;
             width: 100%; max-width: 1600px; margin: 0 auto;
             transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1);
         }
+        .widget-col { display: flex; flex-direction: column; gap: 20px; width: 320px; flex-shrink: 0; transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); }
+        .schedule-col { flex-grow: 1; max-width: 900px; display: flex; flex-direction: column; align-items: center; transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); overflow: hidden; width: 100%;}
 
-        /* Side Columns for Widgets */
-        .widget-column {
-            display: flex; flex-direction: column; gap: 20px; width: 320px; flex-shrink: 0;
-            transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1);
+        /* Glass Panel Base Class */
+        .glass-panel {
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border-radius: 15px; box-shadow: 0 4px 15px var(--glass-shadow);
+            transition: all 0.5s cubic-bezier(0.25, 1.2, 0.3, 1);
         }
 
-        /* Center Column for Schedule */
-        .schedule-column {
-            flex-grow: 1; max-width: 900px; display: flex; flex-direction: column; align-items: center;
-            transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); overflow: hidden; width: 100%;
-        }
-
-        /* UI Controls & Accordions */
-        .control-group { border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 10px; margin-bottom: 10px;}
-        .control-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
-        .accordion-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 5px 0; }
-        .accordion-header label.title { font-weight: bold; margin-bottom: 0; color: #003366; transition: color 0.4s ease; text-transform: uppercase; font-size: 0.85rem; pointer-events: none;}
-        .chevron { font-size: 0.8rem; color: #888; transition: transform 0.4s cubic-bezier(0.25, 1.2, 0.3, 1); }
-        .accordion-content { overflow: hidden; transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
-        .sub-label { font-size: 0.95rem; color: #444; font-weight: 500; transition: color 0.4s ease; cursor: help; }
-        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; margin-top: 5px;}
-        select, input[type="text"], input[type="time"], input[type="date"] { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 0.9rem; background: rgba(255,255,255,0.9); margin-bottom: 8px;}
-        .volume-container { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; margin-top: 10px;}
-        .split-button-container { display: flex; align-items: stretch; width: 100%; margin-top: 5px; margin-bottom: 5px;}
-        .split-button-main { flex-grow: 1; background-color: #5bc0de; color: white; border: none; padding: 8px 12px; border-radius: 5px 0 0 5px; cursor: pointer; font-size: 0.95rem; font-weight: bold; transition: background-color 0.2s; text-align: left; }
-        .split-button-main:hover { background-color: #31b0d5; }
-        .dropdown { position: relative; display: flex; }
-        .split-button-caret { background-color: #46b8da; color: white; border: none; border-left: 1px solid #31b0d5; padding: 0 10px; border-radius: 0 5px 5px 0; cursor: pointer; font-size: 1rem; transition: background-color 0.2s; }
-        .split-button-caret:hover { background-color: #31b0d5; }
-        .dropdown-content { display: none; position: absolute; right: 0; top: 100%; background-color: #fff; min-width: 240px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 10; border-radius: 5px; overflow: hidden; border: 1px solid #ddd; }
-        .dropdown-content.show { display: block; animation: dropDownFade 0.3s cubic-bezier(0.25, 1.2, 0.3, 1); transform-origin: top right;}
-        @keyframes dropDownFade { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        .dropdown-content button { color: #333; padding: 8px 12px; text-decoration: none; display: block; width: 100%; background: none; border: none; border-bottom: 1px solid #eee; text-align: left; margin: 0; font-size: 0.9rem; transition: background 0.2s;}
-        .dropdown-content button:hover { background-color: #f1f1f1; color: #003366; }
-
-        .btn { background-color: #003366; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 0.95rem; width: 100%; margin-top: 8px; font-weight: bold; transition: background-color 0.2s, transform 0.2s; }
-        .btn.inline { width: auto; margin-top: 0; padding: 6px 12px;}
-        .btn:hover { background-color: #002244; transform: translateY(-1px);}
-        .btn-danger { background-color: #d9534f; }
-        .btn-danger:hover { background-color: #c9302c; }
-
-        .goodbye-box { background: rgba(92, 184, 92, 0.15); border: 1px solid rgba(92, 184, 92, 0.4); padding: 12px; border-radius: 8px; margin-top: 15px; transition: all 0.4s ease; }
-        .goodbye-box label { color: #003366; transition: color 0.4s ease; font-weight: bold; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 8px;}
-
-        /* --- THE MASTER SCHEDULE CONTAINER --- */
-        .schedule-container { 
-            padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-            width: 100%; box-sizing: border-box; transform-origin: top center;
-            transition: all 0.6s cubic-bezier(0.34, 1.2, 0.64, 1), max-height 0.6s ease, padding 0.6s ease, opacity 0.4s ease;
-            max-height: 2000px; opacity: 1; overflow: hidden; margin: 0 auto;
-        }
+        /* ==========================================================================
+           6. THE SCHEDULE COMPONENT
+           ========================================================================== */
+        .schedule-container { width: 100%; padding: 15px 20px; max-height: 2000px; overflow: hidden; transform-origin: top center;}
+        .schedule-title-row { display: flex; justify-content: center; align-items: center; margin-bottom: 10px; border-bottom: 2px solid var(--glass-border); padding-bottom: 8px; }
         
-        .schedule-title-row { display: flex; justify-content: center; align-items: center; margin-bottom: 10px; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 8px; transition: all 0.4s ease; overflow: hidden; }
-        .schedule-title-row h3 { margin: 0; font-size: 1.5rem; color: #003366; transition: color 0.4s ease; }
-
-        @keyframes pulseAlert {
-            0% { opacity: 1; text-shadow: 0 0 4px rgba(217, 83, 79, 0.4); box-shadow: 0 0 8px rgba(217, 83, 79, 0.2); }
-            50% { opacity: 0.7; text-shadow: none; box-shadow: none; }
-            100% { opacity: 1; text-shadow: 0 0 4px rgba(217, 83, 79, 0.4); box-shadow: 0 0 8px rgba(217, 83, 79, 0.2); }
+        .schedule-grid { display: grid; grid-template-columns: auto 1fr auto; gap: 15px; align-items: center; padding: 8px 10px; border-bottom: 1px solid var(--glass-border); transition: all 0.4s ease;}
+        .schedule-header { font-size: 0.9rem; font-weight: bold; color: var(--text-accent); border-bottom-width: 2px; }
+        
+        .period-name { font-weight: bold; font-size: 1.6rem; color: var(--text-main); white-space: nowrap; padding-right: 10px; transition: color 0.5s ease;}
+        .period-time { font-size: 1.4rem; color: var(--text-muted); text-align: right; white-space: nowrap; padding-left: 10px; transition: color 0.5s ease;}
+        
+        #schedule-list { list-style: none; padding: 0; margin: 0; }
+        #schedule-list li { border-left: 5px solid transparent; }
+        #schedule-list li.current-period {
+            background: linear-gradient(to right, var(--progress-bg) var(--progress, 0%), transparent var(--progress, 0%));
+            border-left-color: var(--progress-border);
         }
-        .dead-time-warning {
-            color: #d9534f; font-weight: 900; font-size: 1.1rem; text-transform: uppercase;
-            letter-spacing: 0.5px; animation: pulseAlert 2s infinite; background: rgba(217, 83, 79, 0.15);
-            padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(217, 83, 79, 0.3); margin-left: 15px; display: none;
-        }
 
-        .schedule-grid { display: grid; grid-template-columns: auto 1fr auto; gap: 15px; align-items: center; padding: 8px 10px; transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); }
-        .schedule-header { font-size: 0.9rem; font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 6px; margin-bottom: 6px; transition: color 0.4s ease; }
-        .middle-section { display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; width: 100%; }
-        .options-wrapper { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; width: 100%; max-height: 50px; opacity: 1; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease; }
+        /* Options Waffle */
+        .middle-section { display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; overflow: hidden; }
+        .options-wrapper { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; width: 100%; max-height: 50px; opacity: 1; transition: all 0.4s ease;}
         .options-col { display: flex; justify-content: center; align-items: center; white-space: nowrap; font-size: 0.95rem; }
-        .options-col[title] { cursor: help; border-bottom: 1px dotted rgba(0,0,0,0.3); padding-bottom: 2px; } 
-        body.dark-mode .options-col[title] { border-bottom: 1px dotted rgba(255,255,255,0.4); }
         
-        #schedule-list { list-style-type: none; padding: 0; margin: 0; }
-        #schedule-list li { border-bottom: 1px solid rgba(150,150,150,0.2); border-left: 5px solid transparent; max-height: 250px; overflow: hidden; opacity: 1; transition: max-height 0.6s cubic-bezier(0.25, 1.2, 0.3, 1), padding 0.5s ease, opacity 0.5s ease, margin 0.5s ease; }
-        #schedule-list li:nth-child(even) { background-color: rgba(0,0,0,0.03); }
+        /* ICal Display */
+        .agenda-display { font-size: 1.1rem; font-weight: 600; color: var(--text-accent); text-align: center; width: 100%; max-height: 0; opacity: 0; overflow: hidden; transition: all 0.4s ease; }
+        .agenda-error { color: var(--btn-danger); font-style: italic; font-weight: normal; }
 
-        .period-name { grid-column: 1; font-weight: bold; text-align: left; font-size: 1.6rem; align-self: center; transition: all 0.5s cubic-bezier(0.25, 1.2, 0.3, 1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px;}
-        .period-time { grid-column: 3; text-align: right; font-size: 1.4rem; color: #555; align-self: center; transition: all 0.5s cubic-bezier(0.25, 1.2, 0.3, 1); white-space: nowrap; padding-left: 10px;}
+        /* Status Badges */
+        .open-badge { background-color: var(--btn-secondary); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; margin-left: 10px; vertical-align: middle; font-weight: bold; }
+        .dead-time-warning { color: var(--btn-danger); font-weight: 900; font-size: 1.1rem; padding: 4px 10px; background: rgba(217, 83, 79, 0.15); border-radius: 6px; border: 1px solid rgba(217, 83, 79, 0.3); margin-left: 15px; display: none; animation: pulse 2s infinite;}
+        @keyframes pulse { 0% {opacity:1;} 50% {opacity:0.6;} 100% {opacity:1;} }
 
-        #schedule-list li.current-period { background: linear-gradient(to right, rgba(92, 184, 92, 0.2) var(--progress, 0%), rgba(92, 184, 92, 0.03) var(--progress, 0%)) !important; border-left: 5px solid #5cb85c !important; box-shadow: inset 0 0 10px rgba(92, 184, 92, 0.1) !important; }
-        body.dark-mode #schedule-list li.current-period { background: linear-gradient(to right, rgba(144, 202, 249, 0.25) var(--progress, 0%), rgba(144, 202, 249, 0.03) var(--progress, 0%)) !important; border-left: 5px solid #90caf9 !important; box-shadow: inset 0 0 10px rgba(144, 202, 249, 0.1) !important; }
-
-        .agenda-display { font-size: 1.1rem; font-weight: 600; color: #004080; text-align: center; width: 100%; max-height: 0px; opacity: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, margin 0.4s ease; }
-        body.dark-mode .agenda-display { color: #81d4fa; }
-        .agenda-error { color: #d9534f !important; font-style: italic; font-weight: normal; }
-        body.dark-mode .agenda-error { color: #ff8a80 !important; }
-
-        /* =========================================================
-           STATE 1: WAFFLE CLOSED 
-           ========================================================= */
+        /* ==========================================================================
+           7. MINIMAL/FOCUS MODE LOGIC
+           ========================================================================== */
+        /* Waffle Closed State */
         .waffle-closed .schedule-grid { grid-template-columns: 200px 1fr 280px; }
-        .waffle-closed .options-wrapper { max-height: 0px; opacity: 0; pointer-events: none; }
+        .waffle-closed .options-wrapper { max-height: 0; opacity: 0; pointer-events: none; }
         .waffle-closed .agenda-display.has-data { max-height: 40px; opacity: 1; margin-top: 4px; }
-        .waffle-closed .schedule-header .options-wrapper { max-height: 0px; opacity: 0; }
-        .waffle-closed .period-name { font-size: 2.2rem; color: #003366; }
-        body.dark-mode .waffle-closed .period-name { color: #90caf9; }
-        .waffle-closed .period-time { font-size: 2rem; font-weight: bold; color: #333; }
-        body.dark-mode .waffle-closed .period-time { color: #e0e0e0; }
+        .waffle-closed .period-name { font-size: 2.2rem; color: var(--text-accent); }
+        .waffle-closed .period-time { font-size: 2rem; color: var(--text-main); font-weight: bold; }
 
-        /* =========================================================
-           STATE 2: MINIMAL VIEW (The "Fly to Top Bar" Liquid Dock) 
-           ========================================================= */
-        .docked-schedule { display: flex; gap: 20px; align-items: center; justify-content: center; opacity: 0; transform: translateY(-20px); transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); pointer-events: none; visibility: hidden; position: absolute; width: 100%; white-space: nowrap; }
-        body.minimal-active .docked-schedule { opacity: 1; transform: translateY(0); pointer-events: auto; visibility: visible; }
+        /* Focus Mode State */
+        .docked-schedule { display: flex; gap: 20px; align-items: center; justify-content: center; opacity: 0; transform: translateY(-20px); transition: all 0.6s ease; pointer-events: none; position: absolute; width: 100%; white-space: nowrap; }
+        .docked-name { font-size: 1.8rem; font-weight: 800; color: var(--text-accent); }
+        .docked-time { font-size: 1.6rem; font-weight: bold; color: var(--text-muted); }
         
-        .docked-name { font-size: 1.8rem; font-weight: 800; color: #003366; }
-        body.dark-mode .docked-name { color: #90caf9; }
-        .docked-time { font-size: 1.6rem; font-weight: bold; color: #555; }
-        body.dark-mode .docked-time { color: #e0e0e0; }
-
-        body.minimal-active .schedule-column { max-width: 0 !important; opacity: 0 !important; padding: 0 !important; margin: 0 !important; overflow: hidden; pointer-events: none; }
-
-        /* --- THE DOCKED WIDGETS --- */
-        .widget-card {
-            border-radius: 15px; padding: 15px; display: none; flex-direction: column; overflow: hidden; width: 100%; transition: opacity 0.4s ease;
-            border: 1px solid rgba(150,150,150,0.2);
-        }
-        .widget-card.active-widget { display: flex; animation: fadeWidgetIn 0.5s cubic-bezier(0.25, 1.2, 0.3, 1);}
-        @keyframes fadeWidgetIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-
-        .widget-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 8px; margin-bottom: 12px; pointer-events: none; }
-        .widget-title { font-weight: bold; font-size: 1.1rem; color: #003366; margin: 0; }
-        .widget-close { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1.2rem; line-height: 1; padding: 0 5px; transition: color 0.2s; pointer-events: auto;}
-        .widget-close:hover { color: #d9534f; }
-
-        /* Weather Contrast Fix */
-        #widget-weather { min-height: 250px; }
+        body.minimal-active .docked-schedule { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        body.minimal-active .schedule-col { max-width: 0 !important; opacity: 0 !important; padding: 0 !important; margin: 0 !important; overflow: hidden; pointer-events: none; }
+        
+        /* ==========================================================================
+           8. WIDGETS
+           ========================================================================== */
+        .widget-card { padding: 15px; display: none; flex-direction: column; width: 100%; }
+        .widget-card.active-widget { display: flex; animation: fadeWidget 0.5s ease;}
+        @keyframes fadeWidget { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        
+        .widget-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); padding-bottom: 8px; margin-bottom: 12px; }
+        
+        /* Weather */
         #weather-container-main { height: 100%; min-height: 200px; display: block; width: 100%; overflow: hidden;}
         body.dark-mode #weather-container-main iframe { filter: invert(1) hue-rotate(180deg); }
 
-        /* --- Timer Widget Styles (Modernized) --- */
-        .timer-display { font-size: 4rem; font-weight: bold; color: #333; text-align: center; margin: 10px 0; font-variant-numeric: tabular-nums; }
-        body.dark-mode .timer-display { color: #e0e0e0; }
-        .timer-controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;}
-        .timer-quick-add { display: flex; gap: 8px; justify-content: center; }
-        .timer-btn-hollow { background-color: transparent; border: 2px solid #31b0d5; color: #31b0d5; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.2s;}
-        .timer-btn-hollow:hover { background-color: rgba(49, 176, 213, 0.15); transform: translateY(-1px); }
-        .timer-btn-reset { border-color: #888; color: #888;}
-        .timer-btn-reset:hover { background-color: rgba(150, 150, 150, 0.15); }
-        body.dark-mode .timer-btn-hollow { border-color: #90caf9; color: #90caf9; }
-        body.dark-mode .timer-btn-reset { border-color: #aaa; color: #aaa; }
+        /* Timer */
+        .timer-display { font-size: 4rem; font-weight: bold; color: var(--text-main); text-align: center; margin: 10px 0; font-variant-numeric: tabular-nums; }
+        .timer-quick-add { display: flex; gap: 8px; justify-content: center; margin-bottom: 15px;}
+        .timer-controls { display: flex; gap: 10px; justify-content: center; }
+        .timer-btn-hollow { background: transparent; border: 2px solid var(--btn-secondary); color: var(--btn-secondary); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.2s;}
+        .timer-btn-hollow:hover { background: var(--glass-border); }
+        .timer-btn-reset { border-color: var(--text-muted); color: var(--text-muted);}
 
-        /* --- QotD Widget Styles --- */
-        #widget-qotd { min-height: 450px; }
-        .qotd-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; gap: 15px; position: relative; flex-grow: 1;}
-        .qotd-text { font-size: 1.2rem; font-weight: bold; color: #003366; margin-bottom: 10px;}
-        body.dark-mode .qotd-text { color: #e0e0e0; }
+        /* QotD */
+        .qotd-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; gap: 15px; position: relative; flex-grow: 1; min-height: 300px;}
+        .qotd-text { font-size: 1.2rem; font-weight: bold; color: var(--text-accent); margin-bottom: 10px;}
         .qotd-qr { width: 150px; height: 150px; background: white; padding: 10px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 5px;}
-        .qotd-bar-bg { width: 100%; background: rgba(0,0,0,0.1); border-radius: 10px; height: 24px; overflow: hidden; position: relative;}
-        body.dark-mode .qotd-bar-bg { background: rgba(255,255,255,0.1); }
-        .qotd-bar-fill { height: 100%; background: #31b0d5; width: 0%; transition: width 1s cubic-bezier(0.25, 1.2, 0.3, 1); }
+        .qotd-bar-bg { width: 100%; background: var(--glass-border); border-radius: 10px; height: 24px; overflow: hidden; position: relative; margin-bottom: 15px;}
+        .qotd-bar-fill { height: 100%; background: var(--btn-secondary); width: 0%; transition: width 1s cubic-bezier(0.25, 1.2, 0.3, 1); }
         .qotd-bar-label { position: absolute; top: 0; left: 10px; line-height: 24px; font-size: 0.85rem; font-weight: bold; color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.5);}
-        
         .qotd-manual-unlock { font-size: 1.5rem; cursor: pointer; transition: transform 0.2s; margin-top: 5px;}
         .qotd-manual-unlock:hover { transform: scale(1.1); }
 
-        /* =========================================================
-           MOBILE BROWSER OVERRIDES (< 1100px screens)
-           ========================================================= */
+        /* ==========================================================================
+           9. SIDEBAR & MENUS
+           ========================================================================== */
+        .sidebar-wrapper { position: fixed; top: 90px; left: 20px; z-index: 2000; pointer-events: none; }
+        .sidebar { width: 350px; padding: 15px 20px; opacity: 1; pointer-events: auto; max-height: 80vh; overflow-y: auto; transform-origin: top left;}
+        .sidebar.collapsed { width: 0; padding: 0; opacity: 0; transform: scaleX(0); border: none; }
+
+        /* Widget Menu */
+        #widget-menu-wrapper { position: fixed; bottom: 20px; left: 20px; z-index: 1050; }
+        .widget-panel-menu { position: absolute; bottom: 65px; left: 0; padding: 15px 20px; display: none; flex-direction: column; width: 220px; animation: popUp 0.2s ease; transform-origin: bottom left;}
+        @keyframes popUp { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        
+        .float-btn {
+            background: var(--btn-primary); color: white; border: none; border-radius: 50%;
+            width: 48px; height: 48px; font-size: 1.8rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: all 0.2s; box-shadow: 0 4px 10px var(--glass-shadow-heavy);
+        }
+        .float-btn:hover { background: var(--btn-primary-hover); transform: scale(1.05); }
+
+        /* Floating Media Player */
+        #floating-player { position: fixed; bottom: 20px; right: 20px; padding: 10px 15px 10px 10px; display: flex; align-items: center; gap: 12px; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; user-select: none;}
+        #floating-player.visible { opacity: 1; pointer-events: auto; }
+        .float-info { font-weight: bold; font-size: 0.85rem; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-accent); }
+        .float-volume { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
+        .float-volume span { cursor: pointer; transition: transform 0.2s; width: 18px; text-align: center; }
+
+        /* --- Forms & Inputs --- */
+        .control-group { border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; margin-bottom: 10px;}
+        .control-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
+        .accordion-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 5px 0; }
+        .accordion-header label.title { font-weight: bold; margin-bottom: 0; color: var(--text-accent); text-transform: uppercase; font-size: 0.85rem; pointer-events: none;}
+        .accordion-content { overflow: hidden; transition: max-height 0.4s ease; }
+        .sub-label { font-size: 0.95rem; color: var(--text-main); font-weight: 500; }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; margin-top: 5px;}
+        select, input[type="text"], input[type="time"], input[type="date"] { width: 100%; padding: 8px; border: 1px solid var(--glass-border); border-radius: 5px; font-size: 0.9rem; background: transparent; color: var(--text-main); margin-bottom: 8px;}
+        
+        .btn { background: var(--btn-primary); color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 0.95rem; width: 100%; font-weight: bold; transition: all 0.2s; }
+        .btn.inline { width: auto; margin-top: 0; padding: 6px 12px;}
+        .btn:hover { background: var(--btn-primary-hover); transform: translateY(-1px);}
+        .btn-danger { background-color: var(--btn-danger); }
+
+        /* Toggle Switch */
+        .switch-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; margin-top: 5px;}
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; margin: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--btn-secondary); } 
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* Split Button */
+        .split-button-container { display: flex; align-items: stretch; width: 100%; margin-top: 5px; margin-bottom: 5px;}
+        .split-button-main { flex-grow: 1; background: var(--btn-secondary); color: white; border: none; padding: 8px 12px; border-radius: 5px 0 0 5px; cursor: pointer; font-size: 0.95rem; font-weight: bold; text-align: left; }
+        .dropdown { position: relative; display: flex; }
+        .split-button-caret { background: var(--btn-secondary); color: white; border: none; border-left: 1px solid rgba(0,0,0,0.1); padding: 0 10px; border-radius: 0 5px 5px 0; cursor: pointer; font-size: 1rem; }
+        .dropdown-content { display: none; position: absolute; right: 0; top: 100%; background: var(--glass-bg); min-width: 240px; box-shadow: 0 8px 16px var(--glass-shadow-heavy); z-index: 10; border-radius: 5px; overflow: hidden; border: 1px solid var(--glass-border); }
+        .dropdown-content.show { display: block; }
+        .dropdown-content button { color: var(--text-main); padding: 8px 12px; display: block; width: 100%; background: none; border: none; border-bottom: 1px solid var(--glass-border); text-align: left; font-size: 0.9rem; cursor:pointer;}
+        .dropdown-content button:hover { background-color: var(--glass-border); }
+
+        .goodbye-box { background: var(--progress-bg); border: 1px solid var(--glass-border); padding: 12px; border-radius: 8px; margin-top: 15px; }
+
+        /* ==========================================================================
+           10. MOBILE OVERRIDES
+           ========================================================================== */
         @media (max-width: 1100px) {
-            .main-content-area { flex-direction: column !important; align-items: center !important; }
-            .widget-column { width: 100% !important; max-width: 900px; }
-            .schedule-column { width: 100% !important; max-width: 100% !important;}
+            .main-grid { flex-direction: column; align-items: center; }
+            .widget-col { width: 100%; max-width: 900px; flex-direction: row; flex-wrap: wrap; justify-content: center;}
+            .schedule-col { width: 100%; }
         }
 
         @media (max-width: 850px) {
             body { padding-top: 85px; padding-left: 10px; padding-right: 10px;}
-            
-            .floating-header { grid-template-columns: auto 1fr auto; padding: 0 10px; height: 65px; border-radius: 0 0 15px 15px; }
-            .header-logo { height: 26px; }
-            #clock { font-size: 1.3rem; min-width: auto; }
-            .header-icon-btn { font-size: 1.4rem; padding: 4px; }
-            .header-left { gap: 8px; }
-            .header-right { gap: 6px; }
+            .floating-header { grid-template-columns: auto 1fr auto; padding: 0 10px; height: 65px; }
+            #clock { font-size: 1.3rem; }
             .header-center { display: none; } 
             
             body.minimal-active .floating-header { height: 115px; align-items: flex-start; padding-top: 15px;}
-            body.minimal-active .header-center { display: flex; position: absolute; bottom: 12px; left: 0; width: 100%; height: auto; align-items: center; justify-content: center; }
-            
+            body.minimal-active .header-center { display: flex; position: absolute; bottom: 12px; left: 0; width: 100%; height: auto; }
             .docked-name { font-size: 1.3rem; }
             .docked-time { font-size: 1.1rem; }
-            .docked-badge { font-size: 0.8rem !important; padding: 2px 6px !important; }
-            .docked-schedule { gap: 8px; }
             
             .sidebar-wrapper { top: 75px; left: 10px; }
-            .sidebar { max-width: calc(100vw - 20px); width: calc(100vw - 20px); }
+            .sidebar { width: calc(100vw - 20px); }
             
             .schedule-header { display: none !important; }
             .schedule-title-row { flex-direction: column; text-align: center; gap: 5px; }
-            
             .schedule-grid, .waffle-closed .schedule-grid { grid-template-columns: 1fr; gap: 8px; text-align: center; padding: 15px; }
-            .period-name, .waffle-closed .period-name { grid-column: 1; grid-row: auto; text-align: center; font-size: 1.8rem; white-space: normal; padding: 0;}
-            .middle-section { grid-column: 1; grid-row: auto; }
-            .period-time, .waffle-closed .period-time { grid-column: 1; grid-row: auto; text-align: center; font-size: 1.4rem; white-space: normal; padding: 0;}
-            .agenda-display { grid-column: 1 !important; grid-row: auto !important; white-space: normal; }
+            .period-name, .waffle-closed .period-name { grid-column: 1; text-align: center; font-size: 1.8rem; white-space: normal; padding: 0;}
+            .period-time, .waffle-closed .period-time { grid-column: 1; text-align: center; font-size: 1.4rem; white-space: normal; padding: 0;}
             .options-wrapper { grid-template-columns: repeat(3, 1fr); max-height: 80px; }
             .waffle-closed .options-wrapper { max-height: 0px; }
             
-            #floating-player { 
-                position: fixed !important; bottom: 0 !important; right: 0 !important; left: 0 !important; 
-                width: 100% !important; border-radius: 20px 20px 0 0 !important; 
-                justify-content: space-evenly; padding: 12px 15px !important;
-                box-shadow: 0 -5px 15px rgba(0,0,0,0.15) !important;
-                transform: translateY(100%); flex-wrap: nowrap; box-sizing: border-box;
-            }
-            #floating-player.visible { transform: translateY(0) !important; }
+            .widget-col { flex-direction: column; }
             
-            #widget-menu-wrapper { bottom: 65px !important; left: 50% !important; transform: translateX(-50%) !important; }
-
-            .drag-handle { display: none !important; } 
-            .float-volume input { width: 65px !important; } 
-            .float-info { max-width: 110px; font-size: 0.8rem; }
-            .footer { position: relative; transform: none; left: 0; bottom: 0; margin-top: 20px; padding-bottom: 20px;}
+            #floating-player { position: fixed; bottom: 0; right: 0; left: 0; width: 100%; border-radius: 20px 20px 0 0; justify-content: space-evenly; padding: 12px 15px; transform: translateY(100%); }
+            #widget-menu-wrapper { bottom: 65px; left: 50%; transform: translateX(-50%); }
+            .footer { position: relative; left: 0; bottom: 0; margin-top: 20px; padding-bottom: 20px;}
         }
     </style>
 </head>
@@ -439,222 +305,152 @@
 
     <div id="floating-header" class="floating-header">
         <div class="header-left">
-            <button id="hamburgerBtn" class="header-icon-btn" onclick="toggleSidebar(event)" title="Toggle Settings">☰</button>
+            <button id="hamburgerBtn" class="header-icon-btn" onclick="toggleSidebar(event)">☰</button>
             <img src="https://drive.google.com/thumbnail?id=1XJEeGiblu9O3iGevy_j8RLR06LcyimqQ&sz=w400" alt="Walton Logo" class="header-logo">
         </div>
         <div class="header-center">
             <div id="docked-schedule" class="docked-schedule">
                 <div id="docked-name" class="docked-name">Focus Mode</div>
-                <div id="docked-badge" class="open-badge docked-badge" style="display:none;">OPEN</div>
+                <div id="docked-badge" class="open-badge" style="display:none;">OPEN</div>
                 <div id="docked-time" class="docked-time">--:--</div>
                 <span id="docked-warning" class="dead-time-warning">DEAD TIME</span>
             </div>
         </div>
         <div class="header-right">
-            <button id="minimalViewBtn" class="header-icon-btn" onclick="toggleMinimalView(true)" title="Focus Mode">
+            <button id="minimalViewBtn" class="header-icon-btn" onclick="toggleMinimalView()">
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M4 11h16v2H4z"/></svg>
             </button>
-            <button id="waffleViewBtn" class="header-icon-btn active-btn" onclick="toggleWaffleMenu(true)" title="Toggle Options">
+            <button id="waffleViewBtn" class="header-icon-btn active-btn" onclick="toggleWaffleMenu()">
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><rect x="4" y="4" width="4" height="4" rx="1"/><rect x="10" y="4" width="4" height="4" rx="1"/><rect x="16" y="4" width="4" height="4" rx="1"/><rect x="4" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="16" y="10" width="4" height="4" rx="1"/><rect x="4" y="16" width="4" height="4" rx="1"/><rect x="10" y="16" width="4" height="4" rx="1"/><rect x="16" y="16" width="4" height="4" rx="1"/></svg>
             </button>
-            <button id="fullScreenBtn" class="header-icon-btn" onclick="toggleFullScreen()" title="Full Screen">⛶</button>
+            <button id="fullScreenBtn" class="header-icon-btn" onclick="toggleFullScreen()">⛶</button>
             <div id="clock">00:00:00 AM</div>
         </div>
     </div>
 
-    <div id="floating-player" class="floating-player">
-        <div class="drag-handle" title="Drag to move">⋮⋮</div>
-        <button id="float-play-btn" class="float-btn" onclick="toggleVibePlay()">
+    <div id="floating-player" class="floating-player glass-panel">
+        <button id="float-play-btn" class="float-btn" onclick="Media.togglePlay()">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
         </button>
         <div class="float-content">
             <div class="float-info"><span id="float-vibe-title">Classroom Vibe</span></div>
             <div class="float-volume">
-                <span id="vibeMuteIcon" onclick="toggleFloatVibeMute()">🎵</span>
-                <input type="range" id="floatVibeVolume" min="0" max="100" step="1" value="50" oninput="syncVibeVolume(this.value)">
+                <span id="vibeMuteIcon" onclick="Media.toggleVibeMute()">🎵</span>
+                <input type="range" id="floatVibeVolume" min="0" max="100" step="1" value="50" oninput="Media.syncVibeVolume(this.value)">
             </div>
             <div class="float-volume">
-                <span id="bellMuteIcon" onclick="toggleFloatBellMute()">🔔</span>
-                <input type="range" id="floatBellVolume" min="0" max="1" step="0.05" value="1" oninput="syncGlobalVolume(this.value)">
+                <span id="bellMuteIcon" onclick="Media.toggleBellMute()">🔔</span>
+                <input type="range" id="floatBellVolume" min="0" max="1" step="0.05" value="1" oninput="Media.syncGlobalVolume(this.value)">
             </div>
         </div>
     </div>
 
     <div id="widget-menu-wrapper">
-        <div id="widget-panel-menu" class="widget-panel-menu">
-            <div class="setting-row" style="margin:0;"><span class="sub-label">Weather Forecast</span><label class="switch"><input type="checkbox" onchange="toggleWidget('weather', this.checked)" id="wm-tog-weather"><span class="slider"></span></label></div>
-            <div class="setting-row" style="margin:10px 0 0 0;"><span class="sub-label">QotD / Voting</span><label class="switch"><input type="checkbox" onchange="toggleWidget('qotd', this.checked)" id="wm-tog-qotd"><span class="slider"></span></label></div>
-            <div class="setting-row" style="margin:10px 0 0 0;"><span class="sub-label">Class Timer</span><label class="switch"><input type="checkbox" onchange="toggleWidget('timer', this.checked)" id="wm-tog-timer"><span class="slider"></span></label></div>
+        <div id="widget-panel-menu" class="widget-panel-menu glass-panel">
+            <div class="setting-row" style="margin:0;"><span class="sub-label">Weather Forecast</span><label class="switch"><input type="checkbox" onchange="Widgets.toggle('weather', this.checked)" id="wm-tog-weather"><span class="slider"></span></label></div>
+            <div class="setting-row" style="margin:10px 0 0 0;"><span class="sub-label">Question of the Day</span><label class="switch"><input type="checkbox" onchange="Widgets.toggle('qotd', this.checked)" id="wm-tog-qotd"><span class="slider"></span></label></div>
+            <div class="setting-row" style="margin:10px 0 0 0;"><span class="sub-label">Class Timer</span><label class="switch"><input type="checkbox" onchange="Widgets.toggle('timer', this.checked)" id="wm-tog-timer"><span class="slider"></span></label></div>
         </div>
-        <button class="float-btn" id="widget-menu-btn" onclick="toggleWidgetPanel(event)" title="Toggle Widgets">
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        <button class="float-btn" id="widget-menu-btn" onclick="UI.toggleWidgetPanel(event)">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
         </button>
     </div>
 
     <div id="toast">Loaded Successfully</div>
 
     <div class="sidebar-wrapper">
-        <div class="sidebar collapsed" id="sidebar">
+        <div class="sidebar collapsed glass-panel" id="sidebar">
             <div class="control-group" style="padding-bottom: 5px; margin-bottom: 5px; border-bottom: none;">
                 <div class="switch-container">
-                    <span class="sub-label" id="darkModeLabel">Dark Mode</span>
-                    <label class="switch"><input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode(true)"><span class="slider"></span></label>
+                    <span class="sub-label">Dark Mode</span>
+                    <label class="switch"><input type="checkbox" id="darkModeToggle" onchange="UI.toggleDarkMode()"><span class="slider"></span></label>
                 </div>
             </div>
 
             <div class="control-group">
-                <div class="accordion-header" onclick="toggleAccordion('sec-audio')">
+                <div class="accordion-header" onclick="UI.toggleAccordion('sec-audio')">
                     <label class="title">1. Audio & Voice</label><span class="chevron" id="chev-sec-audio">▼</span>
                 </div>
                 <div class="accordion-content" id="sec-audio">
-                    <select id="voicePreference" onchange="changeVoicePref()"><option value="">Loading voices...</option></select>
+                    <select id="voicePreference" onchange="AppState.settings.voicePref = this.value; AppState.save();"></select>
                     <div class="volume-container">
-                        <span id="sidebarBellIcon" onclick="toggleFloatBellMute()">🔔</span>
-                        <input type="range" id="volumeControl" min="0" max="1" step="0.05" value="1" oninput="syncGlobalVolume(this.value)"><span>🔊</span>
+                        <span onclick="Media.toggleBellMute()">🔔</span>
+                        <input type="range" id="volumeControl" min="0" max="1" step="0.05" oninput="Media.syncGlobalVolume(this.value)"><span>🔊</span>
                     </div>
                     <div class="setting-row">
                         <span class="sub-label">Mute Bell Sounds</span>
-                        <label class="switch"><input type="checkbox" id="muteBellsToggle" onchange="toggleMuteBells()"><span class="slider"></span></label>
+                        <label class="switch"><input type="checkbox" id="muteBellsToggle" onchange="AppState.settings.muteBells = this.checked; AppState.save();"><span class="slider"></span></label>
                     </div>
                     <div class="split-button-container">
-                        <button id="playBtn" class="split-button-main" onclick="testSelectedSound()">▶ Play Voice Test</button>
+                        <button id="playBtn" class="split-button-main" onclick="Media.testSound()">▶ Play Voice Test</button>
                         <div class="dropdown">
-                            <button class="split-button-caret" onclick="toggleDropdown(event)">▼</button>
+                            <button class="split-button-caret" onclick="UI.toggleDropdown(event)">▼</button>
                             <div id="soundDropdown" class="dropdown-content">
-                                <button onclick="selectTestSound('positive', 'Voice Test')">Voice Test (Positive Msg)</button>
-                                <button onclick="selectTestSound('start', 'Class Start')">Class Start (3 Rings)</button>
-                                <button onclick="selectTestSound('end', 'Class End')">Class End (3 Rings)</button>
-                                <button onclick="selectTestSound('warning1m', '1-Min Warning')">1-Min Warning (1 Ring)</button>
-                                <button onclick="selectTestSound('attendance', 'Take Attend.')">Take Attendance Voice</button>
-                                <button onclick="selectTestSound('cleanup', '5-Min Clean')">5-Min Clean-Up Voice</button>
-                                <button onclick="selectTestSound('lunch', 'Lunch Duty')">Lunch Duty Voice</button>
+                                <button onclick="UI.selectTestSound('positive', 'Voice Test')">Voice Test</button>
+                                <button onclick="UI.selectTestSound('start', 'Class Start')">Class Start</button>
+                                <button onclick="UI.selectTestSound('end', 'Class End')">Class End</button>
+                                <button onclick="UI.selectTestSound('warning1m', '1-Min Warning')">1-Min Warning</button>
                             </div>
                         </div>
                     </div>
-                    <div class="goodbye-box">
-                        <div class="switch-container" style="margin: 0;">
-                            <label style="margin: 0; font-weight: bold; cursor: pointer;">Play Positive Goodbyes</label>
-                            <label class="switch"><input type="checkbox" id="playGoodbyes" onchange="toggleGoodbyes()"><span class="slider"></span></label>
-                        </div>
-                    </div>
                 </div>
             </div>
 
             <div class="control-group">
-                <div class="accordion-header" onclick="toggleAccordion('sec-reminders')">
-                    <label class="title">2. Reminders</label><span class="chevron" id="chev-sec-reminders">▼</span>
-                </div>
-                <div class="accordion-content" id="sec-reminders">
-                    <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dotted rgba(150,150,150,0.5);">
-                        <span class="sub-label" style="display:block; margin-bottom:5px;">Add Custom Reminder:</span>
-                        <input type="text" id="remName" placeholder="Reminder Name (e.g. Brain Break)">
-                        <div style="display:flex; gap:6px; margin-top:6px;">
-                            <input type="time" id="remTime" style="flex:1;">
-                            <select id="remDay" style="flex:1;">
-                                <option value="All">Daily</option>
-                                <option value="1">Mon</option><option value="2">Tue</option><option value="3">Wed</option><option value="4">Thu</option><option value="5">Fri</option>
-                            </select>
-                        </div>
-                        <button class="btn" onclick="addCustomReminder()" style="margin-top: 6px;">Add Reminder</button>
-                        <ul id="custom-reminder-list" style="list-style:none; padding:0; margin-top:10px; font-size:0.85rem; color:#555;"></ul>
-                    </div>
-                    <span class="sub-label" style="display:block; margin-bottom:5px;">Weekly Lunch Duties:</span>
-                    <div style="display:flex; gap:6px; margin-bottom:6px;">
-                        <select id="lunchDay"><option value="1">Mon</option><option value="2">Tue</option><option value="3">Wed</option><option value="4">Thu</option><option value="5">Fri</option></select>
-                        <select id="lunchHalf"><option value="1">1st Half</option><option value="2">2nd Half</option></select>
-                    </div>
-                    <div style="display:flex; gap:6px; margin-bottom:6px;">
-                        <select id="lunchPeriod" style="flex-grow: 1;"><option value="3rd">3rd Period</option><option value="4th">4th Period</option><option value="5th">5th Period</option><option value="6th">6th Period</option></select>
-                        <button class="btn inline" onclick="addLunchDuty()">Add</button>
-                    </div>
-                    <ul id="lunch-duty-list" style="list-style:none; padding:0; margin-top:10px; font-size:0.85rem; color:#555;"></ul>
-                </div>
-            </div>
-
-            <div class="control-group">
-                <div class="accordion-header" onclick="toggleAccordion('sec-vibe')">
-                    <label class="title">3. Classroom Vibe</label><span class="chevron" id="chev-sec-vibe">▼</span>
-                </div>
-                <div class="accordion-content" id="sec-vibe">
-                    <div class="goodbye-box" style="margin-top: 5px; margin-bottom: 15px; padding: 10px;">
-                        <div class="switch-container" style="margin: 0 0 5px 0;">
-                            <label style="margin: 0; font-weight: bold; cursor: pointer;">Mr. B's Jukebox (Fridays)</label>
-                            <label class="switch"><input type="checkbox" id="jukeboxToggle" onchange="toggleJukebox()"><span class="slider"></span></label>
-                        </div>
-                        <div style="font-size: 0.8rem; opacity: 0.85; margin-top: 5px; margin-bottom: 10px;">Plays an upbeat Clean Pop playlist during passing periods on Fridays.</div>
-                        <input type="text" id="jukeboxUrlInput" placeholder="Custom Playlist URL (Optional)" style="font-size: 0.8rem; padding: 6px; border: 1px solid rgba(0,0,0,0.2); background: rgba(255,255,255,0.7); width: 100%; border-radius: 4px; box-sizing: border-box;" onchange="updateJukeboxUrl()">
-                    </div>
-                    <div style="display:flex; gap:6px; margin-bottom: 8px;">
-                        <select id="vibeSelect" style="flex-grow: 1; min-width: 0;" onchange="changeVibeSelection()"><option value="">-- Add a Vibe --</option></select>
-                        <button class="btn inline" style="width: auto; padding: 6px 10px;" onclick="addNewVibe()">➕</button>
-                        <button class="btn btn-danger inline" style="width: auto; padding: 6px 10px;" onclick="removeVibe()">✖</button>
-                    </div>
-                    <div class="volume-container" style="margin-bottom: 12px;">
-                        <span id="sidebarVibeIcon" onclick="toggleFloatVibeMute()">🎵</span>
-                        <input type="range" id="vibeVolumeControl" min="0" max="100" step="1" value="50" oninput="syncVibeVolume(this.value)"><span>🔊</span>
-                    </div>
-                    <div style="display:flex; gap:6px;">
-                        <button class="btn inline" style="flex-grow: 1;" onclick="startVibe()">▶ Start Vibe</button>
-                        <button class="btn btn-danger inline" onclick="stopVibe()">Stop</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="control-group">
-                <div class="accordion-header" onclick="toggleAccordion('sec-schedule')">
-                    <label class="title">4. Schedule</label><span class="chevron" id="chev-sec-schedule">▼</span>
+                <div class="accordion-header" onclick="UI.toggleAccordion('sec-schedule')">
+                    <label class="title">2. Schedule Settings</label><span class="chevron" id="chev-sec-schedule">▼</span>
                 </div>
                 <div class="accordion-content" id="sec-schedule">
-                    <div id="autoIndicator" style="font-weight:bold; margin-bottom:10px; color:#888;">Sync Status: Initializing...</div>
-                    <button class="timer-btn-hollow" onclick="fetchDailySchedule()" style="width:100%; margin-bottom:10px;">Force Sync Schedule</button>
-                    <select id="scheduleMode" onchange="changeMode()">
-                        <option value="synced" id="syncedOption">Loading Google Sheet...</option>
-                        <option value="web">WEB Schedule (Hardcoded)</option>
+                    <div id="autoIndicator" style="font-weight:bold; margin-bottom:10px; color:var(--text-muted);">Syncing...</div>
+                    <button class="timer-btn-hollow" onclick="Data.fetchSchedule(true)" style="width:100%; margin-bottom:10px;">Force Sync</button>
+                    <select id="scheduleMode" onchange="AppState.settings.scheduleMode = this.value; UI.changeMode();">
+                        <option value="synced" id="syncedOption">Google Sheet Sync</option>
+                        <option value="web">WEB Schedule (Local)</option>
                     </select>
                     <div class="setting-row">
                         <span class="sub-label">Show 0 Period</span>
-                        <label class="switch"><input type="checkbox" id="showZeroPeriod" onchange="changeMode()"><span class="slider"></span></label>
+                        <label class="switch"><input type="checkbox" id="showZeroPeriod" onchange="AppState.settings.showZero = this.checked; UI.changeMode();"><span class="slider"></span></label>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="main-content-area">
+    <div class="main-grid">
         
-        <div class="widget-column">
-            <div class="widget-card" id="widget-weather">
-                <div class="widget-header-row"><h4 class="widget-title">Local Forecast</h4></div>
-                <div id="weather-container-main"></div>
+        <div class="widget-col" id="widget-col-left">
+            <div class="widget-card glass-panel" id="widget-weather">
+                <div class="widget-header-row"><h4 class="widget-title">Local Forecast</h4><button class="widget-close" onclick="Widgets.toggle('weather', false)">✖</button></div>
+                <div id="weather-container-main" style="flex-grow: 1; overflow-y: auto; overflow-x: hidden; height: 100%;"></div>
             </div>
 
-            <div class="widget-card" id="widget-timer">
-                <div class="widget-header-row"><h4 class="widget-title">Class Timer</h4></div>
+            <div class="widget-card glass-panel" id="widget-timer">
+                <div class="widget-header-row"><h4 class="widget-title">Class Timer</h4><button class="widget-close" onclick="Widgets.toggle('timer', false)">✖</button></div>
                 <div style="display:flex; flex-direction:column; flex-grow: 1; justify-content:center;">
                     <div class="timer-display" id="timer-display">05:00</div>
                     <div class="timer-quick-add">
-                        <button class="timer-btn-hollow" onclick="addTimerMinutes(1)">+1m</button>
-                        <button class="timer-btn-hollow" onclick="addTimerMinutes(5)">+5m</button>
+                        <button class="timer-btn-hollow" onclick="Widgets.addTimer(1)">+1m</button>
+                        <button class="timer-btn-hollow" onclick="Widgets.addTimer(5)">+5m</button>
                     </div>
                     <div class="timer-controls" style="margin-top: 15px;">
-                        <button class="btn inline" id="timer-start-btn" onclick="togglePlayTimer()" style="width: 100px; background-color: #31b0d5; border:none; color:white;">Start</button>
-                        <button class="timer-btn-hollow timer-btn-reset" onclick="resetTimer()" style="width: 100px;">Reset</button>
+                        <button class="btn inline" id="timer-start-btn" onclick="Widgets.toggleTimer()" style="width: 100px;">Start</button>
+                        <button class="timer-btn-hollow timer-btn-reset" onclick="Widgets.resetTimer()" style="width: 100px;">Reset</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="schedule-column">
-            <div class="schedule-container waffle-closed" id="schedule-container">
+        <div class="schedule-col">
+            <div class="schedule-container waffle-closed glass-panel" id="schedule-container">
                 <div class="schedule-title-row">
-                    <h3 id="schedule-title">Active Schedule</h3>
+                    <h3 id="schedule-title">Loading...</h3>
                     <span id="main-dead-time-warning" class="dead-time-warning">DEAD TIME &mdash; NO HALL PASSES</span>
                 </div>
                 <div class="schedule-grid schedule-header">
                     <div class="period-name">Class</div>
                     <div class="middle-section">
                         <div class="options-wrapper">
-                            <div class="options-col">Cell Caddy</div><div class="options-col">Attend.</div><div class="options-col">Clean</div><div class="options-col">1 min left</div><div class="options-col">WEB Open</div><div class="options-col">iCal</div>
+                            <div class="options-col">Caddy</div><div class="options-col">Attend.</div><div class="options-col">Clean</div><div class="options-col">1 min</div><div class="options-col">WEB</div><div class="options-col">iCal</div>
                         </div>
                     </div>
                     <div class="period-time">Time</div>
@@ -663,34 +459,34 @@
             </div>
         </div>
 
-        <div class="widget-column">
-            <div class="widget-card" id="widget-qotd">
-                <div class="widget-header-row"><h4 class="widget-title">Question of the Day</h4></div>
+        <div class="widget-col" id="widget-col-right">
+            <div class="widget-card glass-panel" id="widget-qotd">
+                <div class="widget-header-row"><h4 class="widget-title">Question of the Day</h4><button class="widget-close" onclick="Widgets.toggle('qotd', false)">✖</button></div>
                 
                 <div class="qotd-container" id="qotd-voting-view">
-                    <div class="qotd-text" id="qotd-question">Loading question...</div>
-                    <img id="qotd-qr-img" class="qotd-qr" src="" alt="Scan to vote">
-                    <div style="font-size: 0.85rem; font-weight: bold; color: #888;">Scan to vote!</div>
-                    <div class="qotd-manual-unlock" title="Force Lock Voting" onclick="toggleQotdLock()" id="qotd-manual-lock">🔓</div>
+                    <div class="qotd-text" id="qotd-question">Loading...</div>
+                    <img id="qotd-qr-img" class="qotd-qr" src="" alt="Scan">
+                    <div style="font-size: 0.85rem; font-weight: bold; color: var(--text-muted);">Scan to vote!</div>
+                    <div class="timer-btn-hollow qotd-manual-unlock" onclick="Widgets.toggleQotdLock()">🔒 Close</div>
                 </div>
                 
                 <div class="qotd-container" id="qotd-idle-view" style="display: none;">
-                    <div class="qotd-text" id="qotd-idle-question">Loading question...</div>
+                    <div class="qotd-text" id="qotd-idle-question">Loading...</div>
                     <div style="font-size: 2.5rem; margin-top: 15px;">🔒</div>
-                    <div style="font-size: 0.9rem; font-weight: bold; color: #888; margin-top: 5px;">Voting closed.</div>
-                    <div class="qotd-manual-unlock" title="Force Open Voting" onclick="toggleQotdLock()" id="qotd-manual-unlock-idle">🔒</div>
+                    <div style="font-size: 0.9rem; font-weight: bold; color: var(--text-muted); margin-top: 5px;">Voting closed.</div>
+                    <div class="timer-btn-hollow qotd-manual-unlock" onclick="Widgets.toggleQotdLock()">🔓 Open</div>
                 </div>
                 
                 <div class="qotd-container" id="qotd-results-view" style="display: none;">
-                    <div class="qotd-text" id="qotd-results-question">Loading question...</div>
-                    <div style="width: 100%; padding: 0 20px; box-sizing: border-box;">
-                        <div style="text-align: left; font-size: 0.8rem; font-weight: bold; margin-bottom: 2px;" id="qotd-label-a">Option A</div>
-                        <div class="qotd-bar-bg"><div class="qotd-bar-fill" id="qotd-bar-a" style="background-color: #5cb85c;"></div><div class="qotd-bar-label" id="qotd-pct-a">0%</div></div>
-                        <div style="text-align: left; font-size: 0.8rem; font-weight: bold; margin-top: 10px; margin-bottom: 2px;" id="qotd-label-b">Option B</div>
-                        <div class="qotd-bar-bg"><div class="qotd-bar-fill" id="qotd-bar-b" style="background-color: #5bc0de;"></div><div class="qotd-bar-label" id="qotd-pct-b">0%</div></div>
-                        <div style="font-size: 0.8rem; margin-top: 15px; color: #888;" id="qotd-total-votes">Total Votes: 0</div>
+                    <div class="qotd-text" id="qotd-results-question">Loading...</div>
+                    <div style="width: 100%; text-align:left;">
+                        <div style="font-size: 0.8rem; font-weight: bold; margin-bottom: 2px;" id="qotd-label-a">A</div>
+                        <div class="qotd-bar-bg"><div class="qotd-bar-fill" id="qotd-bar-a"></div><div class="qotd-bar-label" id="qotd-pct-a">0%</div></div>
+                        <div style="font-size: 0.8rem; font-weight: bold; margin-top: 10px; margin-bottom: 2px;" id="qotd-label-b">B</div>
+                        <div class="qotd-bar-bg"><div class="qotd-bar-fill" id="qotd-bar-b" style="background:var(--btn-primary);"></div><div class="qotd-bar-label" id="qotd-pct-b">0%</div></div>
+                        <div style="font-size: 0.8rem; margin-top: 15px; color: var(--text-muted);" id="qotd-total-votes">Total Votes: 0</div>
                     </div>
-                    <div class="qotd-manual-unlock" title="Re-open Voting" onclick="toggleQotdLock()" id="qotd-manual-unlock-results">🔒</div>
+                    <div class="timer-btn-hollow qotd-manual-unlock" onclick="Widgets.toggleQotdLock()">🔓 Re-open</div>
                 </div>
             </div>
         </div>
@@ -698,1623 +494,365 @@
     </div>
 
     <div class="footer">
-        <p>Walton Engineering, solving your problems.</p>
-        <img src="https://drive.google.com/thumbnail?id=1C_7ujbANbJaMShbWDxuXx0m4ZTJLtkSE&sz=w800" alt="Walton Engineering Logo" class="footer-logo">
+        <p>Walton Engineering OS</p>
     </div>
 
     <audio id="regularBellAudio" src="bell.mp3" preload="auto"></audio>
 
     <script>
-        const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec"; 
-        const QOTD_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxTHBPh45e_R7clf_hx3j3OLJP1ThFEBlDIu4OLyt4tTEDZg6_xImwzO08bE0JzG_ezlQ/exec";
-        const DEFAULT_PREFS = { open: false, putaway: false, attendance: false, cleanup: false, retrieve: false, icalUrl: '' };
-
-        const GOODBYE_MESSAGES = [
-            "Great work today. Have a wonderful rest of your day.",
-            "Class is dismissed. Keep up the fantastic effort!",
-            "Thank you for your hard work today. See you next time.",
-            "Have a great day, and make good choices!",
-            "Class is over. I hope you have a fantastic afternoon.",
-            "Thanks for a great class. Stay curious and keep learning.",
-            "You all did great today. Have a safe and happy afternoon.",
-            "Class dismissed. Remember to be kind to one another.",
-            "Excellent effort today. Have a beautiful rest of your day."
-        ];
-
-        const qotdDatabase = [
-            { q: "Would you rather have a 4-day school week with 9-hour days, or a 5-day week with 6-hour days?", a: "4 Days (9 Hours)", b: "5 Days (6 Hours)" },
-            { q: "Would you rather always have a substitute teacher who lets you do nothing, or an amazing teacher who gives lots of homework?", a: "Chill Sub", b: "Amazing Teacher + HW" },
-            { q: "Would you rather take all your tests verbally or write 10-page essays for every test?", a: "Verbal Tests", b: "10-Page Essays" },
-            { q: "Would you rather be the best student in a terrible class, or the worst student in an elite class?", a: "Best in Terrible", b: "Worst in Elite" },
-            { q: "Would you rather have to wear a formal suit/gown to school every day, or wear your pajamas?", a: "Formal Wear", b: "Pajamas" },
-            { q: "Would you rather never have homework again, or never have to take a test again?", a: "No Homework", b: "No Tests" },
-            { q: "Would you rather accidentally call your teacher 'Mom/Dad', or walk into the wrong classroom and sit down?", a: "Call Teacher Mom", b: "Wrong Classroom" }
-        ];
-
-        const playSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
-        const pauseSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
-
-        let predefinedSchedules = {
-            synced: [], 
-            web: [
-                { name: "1st", start: "08:20", end: "08:50" }, { name: "HR", start: "08:56", end: "09:05" }, 
-                { name: "2nd", start: "09:11", end: "09:40" }, { name: "3rd", start: "09:46", end: "10:15" }, 
-                { name: "4th", start: "10:21", end: "10:50" }, { name: "5th", start: "10:56", end: "11:25" }, 
-                { name: "6th", start: "11:31", end: "12:00" }, { name: "7th", start: "12:06", end: "12:35" }, 
-                { name: "Q Block", start: "12:35", end: "12:55" }, { name: "A Block", start: "13:00", end: "13:25" }, 
-                { name: "B Block", start: "13:30", end: "13:55" }, { name: "C Block", start: "14:00", end: "14:25" }, 
-                { name: "D Block", start: "14:30", end: "14:55" }, { name: "Dept Meetings", start: "15:00", end: "15:30" }
-            ],
-            custom: []
+        /* ==========================================================================
+           CORE ARCHITECTURE
+           ========================================================================== */
+        const CALENDAR_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec"; 
+        const QOTD_URL = "https://script.google.com/macros/s/AKfycbxTHBPh45e_R7clf_hx3j3OLJP1ThFEBlDIu4OLyt4tTEDZg6_xImwzO08bE0JzG_ezlQ/exec";
+        
+        // 1. STATE MANAGEMENT
+        const AppState = {
+            settings: {
+                darkMode: false,
+                waffleClosed: true,
+                minimalView: false,
+                showZero: false,
+                scheduleMode: 'web',
+                voicePref: '',
+                globalVol: 1.0,
+                muteBells: false,
+                playGoodbyes: false,
+                activeWidgets: { weather: true, timer: false, qotd: true },
+                accordions: { 'sec-audio': true, 'sec-schedule': true, 'sec-reminders': true, 'sec-vibe': true }
+            },
+            schedules: {
+                synced: [], 
+                web: [
+                    { name: "1st", start: "08:20", end: "08:50" }, { name: "HR", start: "08:56", end: "09:05" }, 
+                    { name: "2nd", start: "09:11", end: "09:40" }, { name: "3rd", start: "09:46", end: "10:15" }, 
+                    { name: "4th", start: "10:21", end: "10:50" }, { name: "5th", start: "10:56", end: "11:25" }, 
+                    { name: "6th", start: "11:31", end: "12:00" }, { name: "7th", start: "12:06", end: "12:35" }, 
+                    { name: "Q Block", start: "12:35", end: "12:55" }, { name: "A Block", start: "13:00", end: "13:25" }, 
+                    { name: "B Block", start: "13:30", end: "13:55" }, { name: "C Block", start: "14:00", end: "14:25" }, 
+                    { name: "D Block", start: "14:30", end: "14:55" }, { name: "Dept Meetings", start: "15:00", end: "15:30" }
+                ]
+            },
+            runtime: {
+                activeSchedule: [],
+                scheduleName: "WEB",
+                qotdManualUnlock: false,
+                qotdResultsFetched: false,
+                timerSeconds: 300,
+                timerInterval: null,
+                sidebarOpen: false
+            },
+            save: function() { localStorage.setItem('waltonOS', JSON.stringify(this.settings)); },
+            load: function() {
+                const saved = localStorage.getItem('waltonOS');
+                if (saved) {
+                    try { this.settings = { ...this.settings, ...JSON.parse(saved) }; } catch(e) {}
+                }
+            }
         };
 
-        let currentMode = 'web', activeSchedule = [];
-        let globalVolume = 1.0, globalVoicePref = '', classSettings = {};
-        let lunchDuties = [], customReminders = [];
-        let savedVibes = [], currentVibeUrl = '', vibeVolume = 50;
-        
-        let isWaffleClosed = true, isMinimalView = false; 
-        let currentTestSound = 'positive', sidebarVisible = false, isDarkMode = false, showZero = false;
-        let playGoodbyes = false, muteBells = false;
-        
-        let accordionStates = { 'sec-audio': true, 'sec-reminders': true, 'sec-vibe': true, 'sec-schedule': true };
-        let activeWidgets = { weather: true, timer: false, qotd: true }; 
-
-        let timerInterval = null, timerTotalSeconds = 300, timerIsPlaying = false;
-        let qotdResultsFetched = false, qotdManualUnlock = false; 
-
-        let currentScheduleName = "Loading..."; 
-        let playedActions = {}, currentMinuteTracker = "", lastAutoState = null; 
-        let mrBsJukebox = false, jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
-        let isMainVibePlaying = false, activePlayerUrl = '', lastPeriodStatus = null; 
-
-        let agendaCache = {}, agendaPromises = {};
-        let savedVibeVol = 50, isVibeMuted = false, savedGlobalVol = 1.0, isGlobalMuted = false;
-
-        document.addEventListener('fullscreenchange', () => {
-            const fsBtn = document.getElementById('fullScreenBtn');
-            if(fsBtn) {
-                if (document.fullscreenElement) fsBtn.classList.add('active-btn');
-                else fsBtn.classList.remove('active-btn');
-            }
-        });
-
-        // Widget Menu Click-Away Listener
-        document.addEventListener('click', (e) => {
-            const menu = document.getElementById('widget-panel-menu');
-            const btn = document.getElementById('widget-menu-btn');
-            if (menu && menu.style.display === 'flex') {
-                if (!menu.contains(e.target) && !btn.contains(e.target)) {
-                    menu.style.display = 'none';
-                }
-            }
-        });
-
-        // Smart Draggable Logic for Player Only
-        document.querySelectorAll('.drag-handle').forEach(handle => {
-            handle.addEventListener('mousedown', function(e) {
-                if (window.innerWidth <= 850) return; 
-                if (e.target.tagName === 'BUTTON') return; 
+        // 2. DATA FETCHING (Isolated & Async)
+        const Data = {
+            fetchSchedule: async function(force = false) {
+                const ind = document.getElementById('autoIndicator');
+                if(ind) { ind.innerText = "Sync Status: Fetching..."; ind.style.color = 'var(--text-muted)'; }
                 
-                let isDragging = true;
-                const player = handle.closest('.floating-player');
-                player.classList.add('dragging');
-                
-                let startX = e.clientX;
-                let startY = e.clientY;
-                
-                document.onmouseup = function() {
-                    isDragging = false;
-                    document.onmouseup = null;
-                    document.onmousemove = null;
-                    player.classList.remove('dragging');
-                };
-
-                document.onmousemove = function(ev) {
-                    if (!isDragging) return;
-                    ev.preventDefault();
-                    let diffX = startX - ev.clientX;
-                    let diffY = startY - ev.clientY;
-                    startX = ev.clientX;
-                    startY = ev.clientY;
-                    
-                    player.style.top = (player.offsetTop - diffY) + "px";
-                    player.style.left = (player.offsetLeft - diffX) + "px";
-                    player.style.bottom = 'auto';
-                    player.style.right = 'auto';
-                };
-            });
-        });
-
-        window.addEventListener('resize', () => {
-            if (window.innerWidth <= 850) {
-                document.querySelectorAll('.floating-player').forEach(el => {
-                    el.style.top = ''; el.style.left = ''; el.style.right = ''; el.style.bottom = '';
-                });
-            }
-        });
-
-        function reloadWeatherWidget() {
-            const container1 = document.getElementById('weather-container-main');
-            const color = isDarkMode ? '#ffffff' : '#333333';
-            if(container1) container1.innerHTML = `<a class="weatherwidget-io" href="https://forecast7.com/en/33d98n84d43/east-cobb/" data-label_1="EAST COBB" data-theme="pure" data-basecolor="rgba(0,0,0,0)" data-textcolor="${color}">EAST COBB</a>`;
-            
-            if (window.__weatherwidget_init) {
-                window.__weatherwidget_init();
-            } else {
-                !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;}else{js=d.getElementById(id);js.remove();js=d.createElement(s);js.id=id;}js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}(document,'script','weatherwidget-io-js');
-            }
-        }
-
-        function toggleWidgetPanel(e) {
-            if(e) e.stopPropagation();
-            const p = document.getElementById('widget-panel-menu');
-            p.style.display = p.style.display === 'none' ? 'flex' : 'none';
-        }
-
-        function toggleWidget(id, isChecked) {
-            activeWidgets[id] = isChecked;
-            const card = document.getElementById(`widget-${id}`);
-            if(card) {
-                if(isChecked) card.classList.add('active-widget');
-                else card.classList.remove('active-widget');
-            }
-            if (id === 'weather' && isChecked) reloadWeatherWidget();
-            
-            const floatTog = document.getElementById(`wm-tog-${id}`);
-            if(floatTog) floatTog.checked = isChecked;
-            saveLocalSettings();
-        }
-
-        let ytPlayer = null;
-        let isYtApiReady = false;
-
-        var tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        var firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-        function onYouTubeIframeAPIReady() { isYtApiReady = true; }
-
-        function extractVideoID(url) {
-            if(!url) return null;
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|live\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
-        }
-        
-        function renderVibeDropdown() {
-            const select = document.getElementById('vibeSelect');
-            if(!select) return;
-            select.innerHTML = '';
-            
-            if(savedVibes.length === 0) {
-                select.innerHTML = '<option value="">-- Playlist Empty --</option>';
-            } else {
-                savedVibes.forEach(v => {
-                    const opt = document.createElement('option');
-                    opt.value = v.url;
-                    opt.textContent = v.title || "Loading Title...";
-                    if (v.url === currentVibeUrl) opt.selected = true;
-                    select.appendChild(opt);
-                });
-            }
-        }
-        
-        function addNewVibe() {
-            const url = prompt("Paste a YouTube URL (Video or Live Stream):");
-            if(url) {
-                const vid = extractVideoID(url);
-                if(vid) {
-                    let exists = savedVibes.find(v => extractVideoID(v.url) === vid);
-                    if(!exists) {
-                        savedVibes.push({ url: url, title: 'Loading Vibe...' });
-                    }
-                    currentVibeUrl = url;
-                    saveLocalSettings();
-                    renderVibeDropdown();
-                    startVibe(); 
-                } else {
-                    alert("Invalid YouTube URL. Please make sure it is a standard link.");
-                }
-            }
-        }
-        
-        function removeVibe() {
-            if(!currentVibeUrl || savedVibes.length === 0) return;
-            savedVibes = savedVibes.filter(v => v.url !== currentVibeUrl);
-            if(savedVibes.length > 0) {
-                currentVibeUrl = savedVibes[0].url;
-                saveLocalSettings();
-                renderVibeDropdown();
-                startVibe();
-            } else {
-                currentVibeUrl = '';
-                saveLocalSettings();
-                renderVibeDropdown();
-                stopVibe();
-            }
-        }
-        
-        function changeVibeSelection() {
-            const select = document.getElementById('vibeSelect');
-            if(select && select.value) {
-                currentVibeUrl = select.value;
-                saveLocalSettings();
-                lastPeriodStatus = null; 
-            }
-        }
-
-        function applyMusicState(url, shouldPlay) {
-            if (!url) { stopVibeCore(); return true; } 
-            
-            activePlayerUrl = url;
-            updateFloatingPlayerVisibility(); 
-            
-            const vid = extractVideoID(url);
-            if (!vid) return true;
-
-            if (!isYtApiReady) return false; 
-
-            const bgContainer = document.getElementById('vibe-bg');
-            if(bgContainer) bgContainer.style.opacity = "0.45";
-
-            if (ytPlayer) {
-                try { ytPlayer.destroy(); ytPlayer = null; } catch(e) {}
-            } 
-            
-            if(bgContainer) bgContainer.innerHTML = '<div id="yt-player-container"></div>';
-            
-            try {
-                ytPlayer = new YT.Player('yt-player-container', {
-                    videoId: vid,
-                    playerVars: { 'autoplay': shouldPlay ? 1 : 0, 'controls': 0, 'autohide': 1, 'wmode': 'opaque', 'showinfo': 0, 'loop': 1, 'playlist': vid, 'mute': 0 },
-                    events: { 
-                        'onReady': function(e) { 
-                            try { 
-                                e.target.setVolume(vibeVolume); 
-                                if(shouldPlay) e.target.playVideo(); 
-                            } catch(err) {} 
-                        }, 
-                        'onStateChange': onPlayerStateChange 
-                    }
-                });
-            } catch(e) {}
-            
-            return true;
-        }
-
-        function toggleVibePlay() {
-            const floatBtn = document.getElementById('float-play-btn');
-            if (ytPlayer && typeof ytPlayer.getPlayerState === 'function') {
                 try {
-                    let state = ytPlayer.getPlayerState();
-                    if (state === YT.PlayerState.PLAYING) {
-                        ytPlayer.pauseVideo();
-                        if(floatBtn) floatBtn.innerHTML = playSVG;
-                        isMainVibePlaying = false;
-                        if (activePlayerUrl === currentVibeUrl) { saveLocalSettings(); }
-                    } else {
-                        ytPlayer.playVideo();
-                        if(floatBtn) floatBtn.innerHTML = pauseSVG;
-                        isMainVibePlaying = true;
-                        if (activePlayerUrl === currentVibeUrl) { saveLocalSettings(); }
-                    }
-                } catch(e) { console.error(e); }
-            } else { startVibe(); }
-        }
-
-        function startVibe() {
-            if(!currentVibeUrl) return;
-            isMainVibePlaying = true;
-            saveLocalSettings();
-            lastPeriodStatus = null; 
-        }
-
-        function stopVibeCore() {
-            activePlayerUrl = '';
-            const bg = document.getElementById('vibe-bg');
-            if(bg) bg.style.opacity = "0";
-            if (ytPlayer) { try { ytPlayer.destroy(); ytPlayer = null; } catch(e) {} }
-            updateFloatingPlayerVisibility();
-        }
-
-        function stopVibe() {
-            isMainVibePlaying = false;
-            saveLocalSettings();
-            if (activePlayerUrl === jukeboxUrl) {
-                if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') ytPlayer.pauseVideo();
-            } else {
-                stopVibeCore();
-            }
-        }
-
-        function onPlayerStateChange(event) {
-            const floatBtn = document.getElementById('float-play-btn');
-            if(!floatBtn) return;
-            
-            if (event.data == YT.PlayerState.PLAYING) {
-                floatBtn.innerHTML = pauseSVG;
-                try {
-                    let title = ytPlayer.getVideoData().title;
-                    const titleEl = document.getElementById('float-vibe-title');
-                    if(title && titleEl) titleEl.innerText = title;
+                    const response = await fetch(`${CALENDAR_URL}?cb=${Date.now()}`, { method: 'GET' });
+                    const data = await response.json();
                     
-                    if(title && activePlayerUrl === currentVibeUrl) {
-                        let updated = false;
-                        savedVibes.forEach(v => {
-                            if(v.url === currentVibeUrl && v.title !== title) { v.title = title; updated = true; }
-                        });
-                        if(updated) { saveLocalSettings(); renderVibeDropdown(); }
-                    }
-                } catch(e) {}
-            } else if (event.data == YT.PlayerState.ENDED) {
-                event.target.playVideo();
-            } else {
-                floatBtn.innerHTML = playSVG;
-            }
-        }
-
-        function syncVibeVolume(val) {
-            vibeVolume = parseInt(val);
-            const mainVol = document.getElementById('vibeVolumeControl');
-            const floatVol = document.getElementById('floatVibeVolume');
-            const floatIcon = document.getElementById('vibeMuteIcon');
-            const sideIcon = document.getElementById('sidebarVibeIcon');
-            
-            if(mainVol) mainVol.value = vibeVolume;
-            if(floatVol) floatVol.value = vibeVolume;
-            
-            isVibeMuted = (vibeVolume === 0);
-            if(floatIcon) floatIcon.innerText = isVibeMuted ? '🔇' : '🎵';
-            if(sideIcon) sideIcon.innerText = isVibeMuted ? '🔇' : '🎵';
-
-            if (ytPlayer && typeof ytPlayer.setVolume === 'function') { try { ytPlayer.setVolume(vibeVolume); } catch(e) {} }
-            saveLocalSettings();
-        }
-
-        function toggleFloatVibeMute() {
-            if(isVibeMuted) {
-                syncVibeVolume(savedVibeVol);
-            } else {
-                savedVibeVol = vibeVolume > 0 ? vibeVolume : 50;
-                syncVibeVolume(0);
-            }
-        }
-
-        function syncGlobalVolume(val) {
-            globalVolume = parseFloat(val);
-            const mainVol = document.getElementById('volumeControl');
-            const floatVol = document.getElementById('floatBellVolume');
-            const floatIcon = document.getElementById('bellMuteIcon');
-            const sideIcon = document.getElementById('sidebarBellIcon');
-            
-            if(mainVol) mainVol.value = globalVolume;
-            if(floatVol) floatVol.value = globalVolume;
-            
-            isGlobalMuted = (globalVolume === 0);
-            if(floatIcon) floatIcon.innerText = isGlobalMuted ? '🔕' : '🔔';
-            if(sideIcon) sideIcon.innerText = isGlobalMuted ? '🔕' : '🔔';
-
-            const audio = document.getElementById('regularBellAudio'); 
-            if(audio) audio.volume = globalVolume;
-
-            saveLocalSettings();
-        }
-
-        function toggleFloatBellMute() {
-            if(isGlobalMuted) {
-                syncGlobalVolume(savedGlobalVol);
-            } else {
-                savedGlobalVol = globalVolume > 0 ? globalVolume : 1.0;
-                syncGlobalVolume(0);
-            }
-        }
-
-        function changeVolume() { 
-            const vc = document.getElementById('volumeControl');
-            if(vc) syncGlobalVolume(vc.value); 
-        }
-
-        function changeVibeVolume() { 
-            const ctrl = document.getElementById('vibeVolumeControl');
-            if(ctrl) syncVibeVolume(ctrl.value); 
-        }
-
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            if(!toast) return;
-            toast.innerText = message; toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, 4000);
-        }
-
-        function updateTimerDisplay() {
-            const d = document.getElementById('timer-display');
-            if(!d) return;
-            const m = Math.floor(timerTotalSeconds / 60).toString().padStart(2, '0');
-            const s = (timerTotalSeconds % 60).toString().padStart(2, '0');
-            d.innerText = `${m}:${s}`;
-            if(timerTotalSeconds === 0) d.style.color = '#d9534f';
-            else d.style.color = '';
-        }
-        function addTimerMinutes(mins) {
-            timerTotalSeconds += (mins * 60);
-            updateTimerDisplay();
-        }
-        function resetTimer() {
-            timerTotalSeconds = 300; 
-            updateTimerDisplay();
-            if(timerIsPlaying) togglePlayTimer();
-        }
-        function togglePlayTimer() {
-            const btn = document.getElementById('timer-start-btn');
-            if(timerIsPlaying) {
-                clearInterval(timerInterval);
-                timerIsPlaying = false;
-                if(btn) { btn.innerText = "Start"; btn.style.backgroundColor = '#31b0d5'; }
-            } else {
-                if(timerTotalSeconds <= 0) return; 
-                timerIsPlaying = true;
-                if(btn) { btn.innerText = "Pause"; btn.style.backgroundColor = '#d9534f'; }
-                timerInterval = setInterval(() => {
-                    if(timerTotalSeconds > 0) {
-                        timerTotalSeconds--;
-                        updateTimerDisplay();
-                    } else {
-                        togglePlayTimer();
-                        playBellWithQueue(2); 
-                    }
-                }, 1000);
-            }
-        }
-
-        // QotD Logic
-        function getDailyQotd() {
-            const now = new Date();
-            const start = new Date(now.getFullYear(), 0, 0);
-            const diff = now - start;
-            const oneDay = 1000 * 60 * 60 * 24;
-            const dayOfYear = Math.floor(diff / oneDay);
-            return qotdDatabase[dayOfYear % qotdDatabase.length];
-        }
-
-        function toggleQotdLock() {
-            qotdManualUnlock = !qotdManualUnlock;
-            updateClock(); 
-        }
-
-        function updateQotdUI(status) {
-            if (!activeWidgets.qotd) return; 
-            
-            const qObj = getDailyQotd();
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(QOTD_APPS_SCRIPT_URL)}`;
-
-            // Main Widget Updates
-            document.getElementById('qotd-question').innerText = qObj.q;
-            document.getElementById('qotd-idle-question').innerText = qObj.q;
-            document.getElementById('qotd-results-question').innerText = qObj.q;
-            document.getElementById('qotd-label-a').innerText = qObj.a;
-            document.getElementById('qotd-label-b').innerText = qObj.b;
-            document.getElementById('qotd-qr-img').src = qrUrl;
-            
-            const viewVoting = document.getElementById('qotd-voting-view');
-            const viewIdle = document.getElementById('qotd-idle-view');
-            const viewResults = document.getElementById('qotd-results-view');
-
-            if (status && status.actualClass) {
-                const p = status.periodData;
-                const currentMins = new Date().getHours() * 60 + new Date().getMinutes();
-                
-                if (currentMins >= p.startMins && currentMins < p.startMins + 5) {
-                    // FIRST 5 MINS (Open)
-                    viewVoting.style.display = 'flex'; viewIdle.style.display = 'none'; viewResults.style.display = 'none';
-                    qotdResultsFetched = false; 
-                    qotdManualUnlock = false; 
-                } else if (currentMins >= p.endMins - 5 && currentMins < p.endMins) {
-                    // LAST 5 MINS (Results)
-                    viewVoting.style.display = 'none'; viewIdle.style.display = 'none'; viewResults.style.display = 'flex';
-                    qotdManualUnlock = false;
-                    
-                    if (!qotdResultsFetched) {
-                        qotdResultsFetched = true;
-                        fetch(QOTD_APPS_SCRIPT_URL + "?action=getResults")
-                            .then(r => r.json())
-                            .then(data => {
-                                const votesA = parseInt(data.votesA) || 0;
-                                const votesB = parseInt(data.votesB) || 0;
-                                const total = votesA + votesB;
-                                const pctA = total === 0 ? 0 : Math.round((votesA / total) * 100);
-                                const pctB = total === 0 ? 0 : 100 - pctA;
-                                
-                                document.getElementById('qotd-bar-a').style.width = pctA + '%';
-                                document.getElementById('qotd-pct-a').innerText = pctA + '%';
-                                document.getElementById('qotd-bar-b').style.width = pctB + '%';
-                                document.getElementById('qotd-pct-b').innerText = pctB + '%';
-                                document.getElementById('qotd-total-votes').innerText = "Total Votes: " + total;
-                            }).catch(e => console.error("Error fetching QotD results:", e));
-                    }
-                } else {
-                    // MID CLASS
-                    if (qotdManualUnlock) {
-                        viewVoting.style.display = 'flex'; viewIdle.style.display = 'none'; viewResults.style.display = 'none';
-                    } else {
-                        viewVoting.style.display = 'none'; viewIdle.style.display = 'flex'; viewResults.style.display = 'none';
-                    }
-                }
-            } else {
-                // PASSING PERIOD
-                viewVoting.style.display = 'none'; viewIdle.style.display = 'flex'; viewResults.style.display = 'none';
-                qotdResultsFetched = false;
-                qotdManualUnlock = false;
-            }
-        }
-
-        // --- SAFE INITIALIZATION LOOP ---
-        function safePopulateVoiceList() {
-            try {
-                const voiceSelect = document.getElementById("voicePreference");
-                if(!voiceSelect) return;
-                const voices = window.speechSynthesis.getVoices();
-                if(voices.length === 0) return;
-                
-                const selectedURI = globalVoicePref;
-                voiceSelect.innerHTML = '';
-                const enVoices = voices.filter(v => v.lang.startsWith('en'));
-                
-                let found = false;
-                enVoices.forEach(voice => {
-                    const option = document.createElement('option');
-                    option.textContent = `${voice.name} (${voice.lang})`;
-                    option.value = voice.voiceURI;
-                    if(voice.voiceURI === selectedURI) {
-                        option.selected = true;
-                        found = true;
-                    }
-                    voiceSelect.appendChild(option);
-                });
-                
-                if(!found && enVoices.length > 0) {
-                    voiceSelect.value = enVoices[0].voiceURI;
-                    globalVoicePref = enVoices[0].voiceURI;
-                    saveLocalSettings();
-                } else {
-                    voiceSelect.value = selectedURI;
-                }
-            } catch(e) {}
-        }
-
-        async function fetchDailySchedule() {
-            const ind = document.getElementById('autoIndicator');
-            if(ind) { ind.style.display = 'block'; ind.innerText = "Sync Status: Fetching..."; ind.style.color = '#888'; }
-            
-            try {
-                const response = await fetch(`${GOOGLE_CALENDAR_SCRIPT_URL}?cb=${Date.now()}`, { method: 'GET' });
-                const data = await response.json();
-                
-                if (data && data.schedule) {
-                    let modeStr = String(data.mode || '').toLowerCase().trim();
-                    let cleanSchedule = [];
-                    data.schedule.forEach(p => {
-                        if(!p || !p.name) return;
-                        let cleanP = { name: String(p.name).trim(), start: String(p.start || '').trim(), end: String(p.end || '').trim() };
-                        if(cleanP.start.includes(':')) cleanP.start = cleanP.start.split(':').map(v => v.padStart(2, '0')).join(':');
-                        if(cleanP.end.includes(':')) cleanP.end = cleanP.end.split(':').map(v => v.padStart(2, '0')).join(':');
-                        cleanSchedule.push(cleanP);
-                    });
-
-                    predefinedSchedules['synced'] = cleanSchedule;
-                    currentScheduleName = modeStr;
-
-                    if(ind) { ind.innerText = "Sync Status: ✓ Connected"; ind.style.color = '#5cb85c'; }
-                    const modeDropdown = document.getElementById('scheduleMode');
-                    if(modeDropdown) {
-                        modeDropdown.value = 'synced';
-                        document.getElementById('syncedOption').innerText = `Sheet: ${modeStr.toUpperCase()}`;
-                    }
-                    currentMode = 'synced';
-                    changeMode();
-                    showToast(`Loaded: ${modeStr.toUpperCase()} Schedule`);
-                }
-            } catch (err) {
-                console.error("Schedule sync failed:", err);
-                if(ind) { ind.innerText = "Sync Status: ⚠ Offline (Using Fallback)"; ind.style.color = '#d9534f'; }
-                
-                const modeDropdown = document.getElementById('scheduleMode');
-                if (predefinedSchedules['synced'] && predefinedSchedules['synced'].length > 0) {
-                    if(modeDropdown) modeDropdown.value = 'synced';
-                    currentMode = 'synced';
-                } else {
-                    if(modeDropdown) modeDropdown.value = 'web';
-                    currentMode = 'web';
-                }
-                changeMode();
-                showToast("Falling back to local cache.");
-            }
-        }
-
-        async function fetchAgenda(url, elementId) {
-            const el = document.getElementById(elementId);
-            if (!el) return;
-            
-            let fetchUrlStr = url.trim();
-            if (fetchUrlStr.startsWith('webcal://')) {
-                fetchUrlStr = 'https://' + fetchUrlStr.substring(9);
-            }
-
-            if (agendaCache[fetchUrlStr]) {
-                if (agendaCache[fetchUrlStr] !== 'empty') {
-                    el.innerHTML = agendaCache[fetchUrlStr];
-                    el.classList.add('has-data');
-                } else {
-                    el.innerHTML = "";
-                    el.classList.remove('has-data');
-                }
-                return;
-            }
-
-            el.innerHTML = "<em>Fetching...</em>";
-            el.classList.add('has-data');
-
-            try {
-                if (!agendaPromises[fetchUrlStr]) {
-                    const fetchUrl = `${GOOGLE_CALENDAR_SCRIPT_URL}?icalUrl=${encodeURIComponent(fetchUrlStr)}`;
-                    
-                    agendaPromises[fetchUrlStr] = fetch(fetchUrl).then(async (response) => {
-                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                        const icsData = await response.text();
-
-                        if (icsData.startsWith('Error:')) {
-                            return `<em class="agenda-error" title="${icsData}">Apps Script error</em>`;
-                        }
-
-                        if (!icsData || (!icsData.includes('BEGIN:VCALENDAR') && !icsData.includes('BEGIN:VEVENT'))) {
-                            return "<em class='agenda-error' title='Ensure you used the Secret iCal Address'>Invalid calendar data</em>";
-                        }
-
-                        const today = new Date();
-                        const todayInt = parseInt(today.getFullYear() + String(today.getMonth() + 1).padStart(2, '0') + String(today.getDate()).padStart(2, '0'), 10);
+                    if (data && data.schedule) {
+                        AppState.runtime.scheduleName = String(data.mode || 'Synced').toUpperCase();
+                        let clean = data.schedule.map(p => ({
+                            name: String(p.name).trim(),
+                            start: String(p.start).split(':').map(v=>v.padStart(2,'0')).join(':'),
+                            end: String(p.end).split(':').map(v=>v.padStart(2,'0')).join(':')
+                        }));
                         
-                        const events = icsData.split('BEGIN:VEVENT');
-                        let todaysEvents = [];
-
-                        for (let i = 1; i < events.length; i++) {
-                            const eventText = events[i];
-                            
-                            const dtStartMatch = eventText.match(/DTSTART(?:;[^:]*)?:([0-9]{8})/); 
-                            const dtEndMatch = eventText.match(/DTEND(?:;[^:]*)?:([0-9]{8})/); 
-                            const isTimedMatch = eventText.match(/DTSTART(?:;[^:]*)?:[0-9]{8}T/);
-                            const summaryMatch = eventText.match(/SUMMARY:([^\r\n]*)/);
-
-                            if (dtStartMatch && summaryMatch) {
-                                const startInt = parseInt(dtStartMatch[1], 10);
-                                let isActive = false;
-
-                                if (dtEndMatch) {
-                                    const endInt = parseInt(dtEndMatch[1], 10);
-                                    if (isTimedMatch) {
-                                        isActive = (todayInt >= startInt && todayInt <= endInt);
-                                    } else {
-                                        isActive = (todayInt >= startInt && todayInt < endInt);
-                                    }
-                                } else {
-                                    isActive = (startInt === todayInt);
-                                }
-
-                                if (isActive) {
-                                    todaysEvents.push(summaryMatch[1].trim());
-                                }
-                            }
-                        }
-
-                        if (todaysEvents.length > 0) {
-                            return todaysEvents.join(' &nbsp;|&nbsp; ');
-                        } else {
-                            return "empty";
-                        }
-                    });
-                }
-
-                const resultHtml = await agendaPromises[fetchUrlStr];
-                agendaCache[fetchUrlStr] = resultHtml;
-
-                if (resultHtml !== 'empty') {
-                    el.innerHTML = resultHtml;
-                    el.classList.add('has-data');
-                } else {
-                    el.innerHTML = "";
-                    el.classList.remove('has-data');
-                }
-
-            } catch (error) {
-                el.innerHTML = "<em class='agenda-error'>Error loading feed.</em>";
-                agendaCache[fetchUrlStr] = "<em class='agenda-error'>Error loading feed.</em>";
-            }
-        }
-
-        function saveLocalSettings() {
-            try {
-                const data = {
-                    mode: currentMode, vol: globalVolume, voice: globalVoicePref, testSound: currentTestSound,
-                    side: sidebarVisible, waffleClosed: isWaffleClosed, minimalView: isMinimalView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
-                    customSchedule: predefinedSchedules.custom, settings: classSettings, lunchDuties: lunchDuties,
-                    savedVibes: savedVibes, vibe: currentVibeUrl, vibeVol: vibeVolume, muteB: muteBells,
-                    mrBsJukebox: mrBsJukebox, jukeboxUrl: jukeboxUrl, isMainVibePlaying: isMainVibePlaying,
-                    customReminders: customReminders, accordions: accordionStates, widgets: activeWidgets
-                };
-                localStorage.setItem('waltonBellState', JSON.stringify(data));
-            } catch (e) {}
-        }
-
-        function loadLocalSettings() {
-            try {
-                const saved = localStorage.getItem('waltonBellState');
-                if (saved) {
-                    const p = JSON.parse(saved);
-                    if (p.customSchedule) predefinedSchedules.custom = p.customSchedule;
-                    if (p.settings) classSettings = p.settings;
-                    if (p.lunchDuties) lunchDuties = p.lunchDuties;
-                    if (p.customReminders) customReminders = p.customReminders;
-                    
-                    let savedMode = p.mode || 'synced';
-                    if (savedMode === 'daily' || savedMode === 'regular') savedMode = 'synced';
-                    currentMode = savedMode;
-                    
-                    const modeDropdown = document.getElementById('scheduleMode');
-                    if(modeDropdown) modeDropdown.value = currentMode;
-                    
-                    globalVoicePref = p.voice || '';
-                    if (p.vol !== undefined) { syncGlobalVolume(p.vol); } else { syncGlobalVolume(1.0); }
-                    if (p.vibeVol !== undefined) { syncVibeVolume(p.vibeVol); }
-
-                    if (p.testSound) {
-                        currentTestSound = p.testSound;
-                        const labels = {
-                            'positive': 'Voice Test', 'start': 'Class Start', 'end': 'Class End', 'warning1m': '1-Min Warning',
-                            'attendance': 'Take Attend.', 'cleanup': '5-Min Clean', 'lunch': 'Lunch Duty'
-                        };
-                        const pBtn = document.getElementById("playBtn");
-                        if (labels[currentTestSound] && pBtn) pBtn.innerHTML = "▶ Play " + labels[currentTestSound];
+                        AppState.schedules.synced = clean;
+                        if(ind) { ind.innerText = `✓ Synced: ${AppState.runtime.scheduleName}`; ind.style.color = '#5cb85c'; }
+                        
+                        // If we are set to sync mode, immediately swap to the new data
+                        if (AppState.settings.scheduleMode === 'synced') UI.changeMode();
                     }
-
-                    if (p.side === false) {
-                        sidebarVisible = false;
-                        const sb = document.getElementById('sidebar');
-                        const hamBtn = document.getElementById('hamburgerBtn');
-                        if(sb) sb.classList.add('collapsed');
-                        if(hamBtn) hamBtn.classList.remove('active-btn');
-                    }
-                    
-                    if (p.waffleClosed !== undefined) { setWaffleState(p.waffleClosed, false); }
-                    if (p.minimalView !== undefined) { setMinimalView(p.minimalView, false); }
-                    
-                    if (p.dark === true) { 
-                        isDarkMode = true;
-                        const dmToggle = document.getElementById('darkModeToggle');
-                        if(dmToggle) dmToggle.checked = true; 
-                        document.body.classList.add('dark-mode');
-                    }
-                    if (p.zero === true) { 
-                        const zeroToggle = document.getElementById('showZeroPeriod');
-                        if(zeroToggle) zeroToggle.checked = true; 
-                        showZero = true; 
-                    }
-                    if (p.playGoodbyes === true) { 
-                        const pgToggle = document.getElementById('playGoodbyes');
-                        if(pgToggle) pgToggle.checked = true; 
-                        playGoodbyes = true; 
-                    }
-                    if (p.muteB === true) { 
-                        const mbToggle = document.getElementById('muteBellsToggle');
-                        if(mbToggle) mbToggle.checked = true; 
-                        muteBells = true; 
-                    }
-                    
-                    if (p.savedVibes) savedVibes = p.savedVibes;
-                    if (p.vibe && savedVibes.length === 0) {
-                        savedVibes.push({ url: p.vibe, title: 'Saved Vibe' });
-                        currentVibeUrl = p.vibe;
-                    } else if (p.vibe) {
-                        currentVibeUrl = p.vibe;
-                    }
-
-                    if (p.mrBsJukebox !== undefined) mrBsJukebox = p.mrBsJukebox;
-                    if (p.jukeboxUrl) jukeboxUrl = p.jukeboxUrl;
-                    if (p.isMainVibePlaying !== undefined) isMainVibePlaying = p.isMainVibePlaying;
-
-                    const jkToggle = document.getElementById('jukeboxToggle');
-                    if(jkToggle) jkToggle.checked = mrBsJukebox;
-                    const jkInput = document.getElementById('jukeboxUrlInput');
-                    if(jkInput && jukeboxUrl !== "https://www.youtube.com/watch?v=CLLpSmaof4E") {
-                        jkInput.value = jukeboxUrl;
-                    }
-
-                    if (p.widgets) {
-                        Object.keys(p.widgets).forEach(key => {
-                            const tog = document.getElementById(`wm-tog-${key}`);
-                            if(tog) {
-                                tog.checked = p.widgets[key];
-                                toggleWidget(key, p.widgets[key]);
-                            }
-                        });
-                    }
-
-                    if (p.accordions) {
-                        if (p.accordions.hasOwnProperty('sec1')) {
-                             accordionStates['sec-audio'] = p.accordions['sec1'];
-                             accordionStates['sec-schedule'] = p.accordions['sec2'];
-                             accordionStates['sec-reminders'] = p.accordions['sec3'];
-                             accordionStates['sec-vibe'] = p.accordions['sec4'];
-                        } else {
-                             accordionStates = p.accordions;
-                        }
-                        Object.keys(accordionStates).forEach(id => {
-                            if(accordionStates[id] === false) toggleAccordion(id, false); 
-                        });
+                } catch (err) {
+                    console.error("Schedule sync failed:", err);
+                    if(ind) { ind.innerText = "⚠ Offline (Using Local)"; ind.style.color = 'var(--btn-danger)'; }
+                    if (AppState.settings.scheduleMode === 'synced' && AppState.schedules.synced.length === 0) {
+                        AppState.settings.scheduleMode = 'web';
+                        UI.changeMode();
                     }
                 }
-            } catch (e) {}
-        }
-
-        function toggleAccordion(id, shouldSave = true) {
-            const content = document.getElementById(id);
-            const chevron = document.getElementById('chev-' + id);
-            if (!content || !chevron) return;
-            
-            if (content.style.maxHeight === "0px" || content.style.maxHeight === "") {
-                content.style.maxHeight = content.scrollHeight + "px";
-                chevron.style.transform = "rotate(0deg)";
-                accordionStates[id] = true;
-                setTimeout(() => { if(accordionStates[id]) content.style.maxHeight = "none"; }, 300);
-            } else {
-                content.style.maxHeight = content.scrollHeight + "px"; 
-                setTimeout(() => {
-                    content.style.maxHeight = "0px";
-                    chevron.style.transform = "rotate(-90deg)";
-                    accordionStates[id] = false;
-                }, 10);
             }
-            if(shouldSave) saveLocalSettings();
-        }
+        };
 
-        setTimeout(() => {
-            ['sec-audio', 'sec-reminders', 'sec-vibe', 'sec-schedule'].forEach(id => {
-                const el = document.getElementById(id);
-                if(el && accordionStates[id] !== false) el.style.maxHeight = "none";
-                else if (el) { el.style.maxHeight = "0px"; document.getElementById('chev-'+id).style.transform = "rotate(-90deg)"; }
-            });
-        }, 100);
-
-        function toggleFullScreen() {
-            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(err => {});
-            else if (document.exitFullscreen) document.exitFullscreen();
-        }
-
-        function toggleDarkMode(shouldSave = true) {
-            const toggle = document.getElementById('darkModeToggle');
-            if(!toggle) return;
-            isDarkMode = toggle.checked;
-            
-            if (isDarkMode) { document.body.classList.add('dark-mode'); } 
-            else { document.body.classList.remove('dark-mode'); }
-            
-            if (shouldSave) saveLocalSettings();
-            renderLunchDuties(); 
-            if(activeWidgets.weather) reloadWeatherWidget();
-        }
-
-        function toggleSidebar(event, shouldSave = true) {
-            if(event) event.stopPropagation();
-            sidebarVisible = !sidebarVisible;
-            const sidebar = document.getElementById('sidebar');
-            const hamBtn = document.getElementById('hamburgerBtn');
-            if(sidebar) {
-                if (sidebarVisible) {
-                    sidebar.classList.remove('collapsed');
-                    if(hamBtn) hamBtn.classList.add('active-btn');
-                } else {
-                    sidebar.classList.add('collapsed');
-                    if(hamBtn) hamBtn.classList.remove('active-btn');
-                }
-            }
-            if (shouldSave) saveLocalSettings();
-        }
-
-        function updateFloatingPlayerVisibility() {
-            const player = document.getElementById('floating-player');
-            if (player) {
-                if (activePlayerUrl) player.classList.add('visible');
-                else player.classList.remove('visible');
-            }
-        }
-
-        function setWaffleState(isClosed, shouldSave = true) {
-            if (isWaffleClosed === isClosed && shouldSave) return;
-            isWaffleClosed = isClosed;
-            const container = document.getElementById('schedule-container');
-            const btn = document.getElementById('waffleViewBtn');
-            
-            if(container && btn) {
-                if (isWaffleClosed) {
-                    container.classList.add('waffle-closed'); 
-                    btn.classList.remove('active-btn');
-                } else {
-                    container.classList.remove('waffle-closed'); 
-                    btn.classList.add('active-btn');
-                }
-            }
-            if (shouldSave) saveLocalSettings();
-        }
-        function toggleWaffleMenu(shouldSave = true) { setWaffleState(!isWaffleClosed, shouldSave); }
-
-        function setMinimalView(state, shouldSave = true) {
-            if (isMinimalView === state) return;
-            isMinimalView = state;
-            const btn = document.getElementById('minimalViewBtn');
-            
-            if(btn) {
-                if (isMinimalView) {
-                    document.body.classList.add('minimal-active'); 
-                    btn.classList.add('active-btn');
-                } else {
-                    document.body.classList.remove('minimal-active'); 
-                    btn.classList.remove('active-btn');
-                }
-            }
-            
-            updateQotdVisibility();
-            if (shouldSave) saveLocalSettings();
-        }
-        function toggleMinimalView(shouldSave = true) { setMinimalView(!isMinimalView, shouldSave); }
-
-        function toggleJukebox() {
-            const tog = document.getElementById('jukeboxToggle');
-            if(tog) mrBsJukebox = tog.checked;
-            lastPeriodStatus = null; 
-            saveLocalSettings();
-        }
-
-        function updateJukeboxUrl() {
-            const inp = document.getElementById('jukeboxUrlInput');
-            if(inp && inp.value.trim() !== '') {
-                jukeboxUrl = inp.value.trim();
-            } else {
-                jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
-            }
-            lastPeriodStatus = null; 
-            saveLocalSettings();
-        }
-
-        function toggleGoodbyes() { 
-            const tog = document.getElementById('playGoodbyes');
-            if(tog) playGoodbyes = tog.checked; 
-            saveLocalSettings(); 
-        }
-
-        function toggleMuteBells() { 
-            const tog = document.getElementById('muteBellsToggle');
-            if(tog) muteBells = tog.checked; 
-            saveLocalSettings(); 
-        }
-
-        function toggleDropdown(event) { 
-            event.stopPropagation(); 
-            const dd = document.getElementById("soundDropdown");
-            if(dd) dd.classList.toggle("show"); 
-        }
-
-        window.onclick = function(event) {
-            if (!event.target.matches('.split-button-caret')) {
-                let dropdowns = document.getElementsByClassName("dropdown-content");
-                for (let i = 0; i < dropdowns.length; i++) if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
-            }
-        }
-
-        function selectTestSound(value, label) {
-            currentTestSound = value; 
-            const btn = document.getElementById("playBtn");
-            const dd = document.getElementById("soundDropdown");
-            if(btn) btn.innerHTML = "▶ Play " + label;
-            if(dd) dd.classList.remove("show"); 
-            saveLocalSettings();
-        }
-
-        function changeVolume() { 
-            const vc = document.getElementById('volumeControl');
-            if(vc) syncGlobalVolume(vc.value); 
-        }
-
-        function playBellWithQueue(timesLeft = 1, onCompleteCallback = null) {
-            if (muteBells) {
-                if (onCompleteCallback) onCompleteCallback();
-                return;
-            }
-
-            const audio = document.getElementById('regularBellAudio'); 
-            if(!audio) {
-                if (onCompleteCallback) onCompleteCallback();
-                return;
-            }
-            
-            audio.currentTime = 0;
-            audio.onended = () => { 
-                if (timesLeft > 1) playBellWithQueue(timesLeft - 1, onCompleteCallback); 
-                else { 
-                    audio.onended = null; 
-                    if (onCompleteCallback) onCompleteCallback(); 
-                } 
-            };
-            
-            let playPromise = audio.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.catch(e => {
-                    console.error("Audio play blocked. Triggering failsafe voice delay.", e);
-                    audio.onended = null; 
-                    setTimeout(() => {
-                        if (timesLeft > 1) playBellWithQueue(timesLeft - 1, onCompleteCallback);
-                        else if (onCompleteCallback) onCompleteCallback();
-                    }, 1500); 
+        // 3. USER INTERFACE LOGIC
+        const UI = {
+            init: function() {
+                AppState.load();
+                
+                // Immediately paint local data so screen is never blank
+                this.changeMode(); 
+                
+                // Apply saved UI states
+                this.toggleDarkMode(false);
+                this.setWaffle(AppState.settings.waffleClosed, false);
+                this.setMinimal(AppState.settings.minimalView, false);
+                
+                // Restore Widgets
+                Object.keys(AppState.settings.activeWidgets).forEach(k => Widgets.toggle(k, AppState.settings.activeWidgets[k]));
+                
+                // Global Click listener for closing menus
+                document.addEventListener('click', (e) => {
+                    const menu = document.getElementById('widget-panel-menu');
+                    const btn = document.getElementById('widget-menu-btn');
+                    if (menu && menu.style.display === 'flex' && !menu.contains(e.target) && !btn.contains(e.target)) {
+                        menu.style.display = 'none';
+                    }
+                    
+                    const side = document.getElementById('sidebar');
+                    const ham = document.getElementById('hamburgerBtn');
+                    if (AppState.runtime.sidebarOpen && !side.contains(e.target) && !ham.contains(e.target)) {
+                        this.toggleSidebar(e, false);
+                    }
                 });
-            }
-        }
 
-        function speak(text) {
-            try {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.rate = 0.9; utterance.volume = globalVolume;
-                const voices = window.speechSynthesis.getVoices();
-                const selectedVoice = voices.find(v => v.voiceURI === globalVoicePref);
-                if (selectedVoice) utterance.voice = selectedVoice;
-                window.speechSynthesis.speak(utterance);
-            } catch (e) { console.error("Speech Synthesis failed:", e); }
-        }
+                setInterval(this.tick, 1000);
+            },
 
-        function testSelectedSound() {
-            triggerVisualAlert();
-            if (currentTestSound === 'positive') {
-                const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
-                speak(randomMsg);
-            }
-            else if (currentTestSound === 'start') playBellWithQueue(3, () => speak("Class is beginning. Please place your phones in the cell phone caddy."));
-            else if (currentTestSound === 'end') {
-                if (playGoodbyes) {
-                    const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
-                    playBellWithQueue(3, () => speak(randomMsg));
-                } else {
-                    playBellWithQueue(3);
-                }
-            }
-            else if (currentTestSound === 'warning1m') playBellWithQueue(1, () => speak("One minute until class begins. Please place your phones in the cell phone caddy."));
-            else if (currentTestSound === 'attendance') speak("Reminder. Please take attendance.");
-            else if (currentTestSound === 'cleanup') speak("Five minutes remaining. Please begin cleaning up your area.");
-            else if (currentTestSound === 'lunch') speak("Reminder. You have lunch duty.");
-        }
-
-        function addCustomReminder() {
-            const name = document.getElementById('remName').value;
-            const time = document.getElementById('remTime').value;
-            const day = document.getElementById('remDay').value;
-            
-            if(name && time) {
-                customReminders.push({ name, time, day });
-                renderCustomReminders();
-                saveLocalSettings();
-                document.getElementById('remName').value = '';
-                document.getElementById('remTime').value = '';
+            changeMode: function() {
+                let base = AppState.schedules[AppState.settings.scheduleMode] || AppState.schedules.web;
+                if (base.length === 0) base = AppState.schedules.web; // Failsafe
                 
-                const content = document.getElementById('sec-reminders');
-                if(content.style.maxHeight !== "0px" && content.style.maxHeight !== "none") {
-                    content.style.maxHeight = "none";
-                }
-            } else {
-                showToast("Please enter a Name and Time");
-            }
-        }
-        
-        function removeCustomReminder(index) { 
-            customReminders.splice(index, 1); 
-            renderCustomReminders(); 
-            saveLocalSettings(); 
-        }
-
-        function renderCustomReminders() {
-            const list = document.getElementById('custom-reminder-list'); 
-            if(!list) return;
-            list.innerHTML = '';
-            const days = {"All": "Daily", "1": "Mon", "2": "Tue", "3": "Wed", "4": "Thu", "5": "Fri"};
-            customReminders.forEach((rem, index) => {
-                const li = document.createElement('li'); li.className = "duty-item";
-                li.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid #eee;";
-                li.innerHTML = `<span><b>${formatTime12(rem.time)}</b> - ${rem.name} (${days[rem.day]})</span>
-                                <button onclick="removeCustomReminder(${index})" style="background:none; border:none; color:#d9534f; cursor:pointer; font-size:1.1rem;" title="Remove Reminder">✖</button>`;
-                list.appendChild(li);
-            });
-        }
-
-        function addLunchDuty() {
-            const dayVal = document.getElementById('lunchDay');
-            const halfVal = document.getElementById('lunchHalf');
-            const periodVal = document.getElementById('lunchPeriod');
-            if(!dayVal || !halfVal || !periodVal) return;
-
-            const day = parseInt(dayVal.value);
-            const half = parseInt(halfVal.value);
-            const period = periodVal.value.trim();
-            if (period) {
-                lunchDuties.push({ day, half, period });
-                renderLunchDuties(); saveLocalSettings(); 
-                periodVal.value = '3rd';
+                AppState.runtime.activeSchedule = [...base];
                 
-                const content = document.getElementById('sec-reminders');
-                if(content.style.maxHeight !== "0px" && content.style.maxHeight !== "none") {
-                    content.style.maxHeight = "none";
-                }
-            }
-        }
-        function removeLunchDuty(index) { lunchDuties.splice(index, 1); renderLunchDuties(); saveLocalSettings(); }
-        
-        function renderLunchDuties() {
-            const list = document.getElementById('lunch-duty-list'); 
-            if(!list) return;
-            list.innerHTML = '';
-            const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-            lunchDuties.forEach((duty, index) => {
-                const li = document.createElement('li'); li.className = "duty-item";
-                li.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid #eee;";
-                li.innerHTML = `<span><b>${days[duty.day]}</b> - ${duty.period} (${duty.half === 1 ? '1st' : '2nd'} Half)</span>
-                                <button onclick="removeLunchDuty(${index})" style="background:none; border:none; color:#d9534f; cursor:pointer; font-size:1.1rem;" title="Remove Duty">✖</button>`;
-                list.appendChild(li);
-            });
-        }
+                if (AppState.settings.scheduleMode === 'web') AppState.runtime.scheduleName = "WEB";
+                
+                document.getElementById('scheduleMode').value = AppState.settings.scheduleMode;
+                document.getElementById('schedule-title').innerText = `${AppState.runtime.scheduleName} Schedule`;
+                
+                this.renderScheduleList();
+                AppState.save();
+            },
 
-        function changeMode() {
-            const sm = document.getElementById('scheduleMode');
-            const sz = document.getElementById('showZeroPeriod');
-            if(!sm) return;
-            currentMode = sm.value;
-            if(sz) showZero = sz.checked;
-            
-            let baseSchedule = predefinedSchedules[currentMode];
-            if (!baseSchedule || baseSchedule.length === 0) {
-                baseSchedule = predefinedSchedules['web']; 
-            }
-            
-            activeSchedule = [...baseSchedule]; 
-            let hasZero = activeSchedule.some(p => /^0/i.test(String(p.name).trim()));
-            
-            if (showZero && !hasZero) {
-                activeSchedule.unshift({ name: "0 pd", start: "07:10", end: "08:13" });
-            } else if (!showZero && hasZero) {
-                activeSchedule = activeSchedule.filter(p => !/^0/i.test(String(p.name).trim()));
-            }
-            
-            if (currentMode !== 'synced') {
-                currentScheduleName = currentMode.charAt(0).toUpperCase() + currentMode.slice(1);
-                if (currentMode === 'web') currentScheduleName = "WEB";
-            } else if (currentScheduleName === "Loading...") {
-                currentScheduleName = "Regular"; 
-            }
-            
-            const st = document.getElementById('schedule-title');
-            if(st && st.childNodes[0]) st.childNodes[0].nodeValue = currentScheduleName.toUpperCase() + ' Schedule '; 
-            renderSchedule(); saveLocalSettings();
-        }
-
-        function toggleSetting(periodName, settingType, isChecked) {
-            const key = periodName; 
-            if (!classSettings[key]) classSettings[key] = { ...DEFAULT_PREFS };
-            classSettings[key][settingType] = isChecked;
-            saveLocalSettings();
-            if (settingType === 'open') renderSchedule(); 
-        }
-
-        function setIcalFeed(periodName) {
-            const currentUrl = classSettings[periodName]?.icalUrl || '';
-            const url = prompt(`Paste the iCal feed URL for ${periodName}:`, currentUrl);
-            if (url !== null) {
-                if (!classSettings[periodName]) classSettings[periodName] = { ...DEFAULT_PREFS };
-                classSettings[periodName].icalUrl = url.trim();
-                saveLocalSettings();
-                renderSchedule(); 
-                showToast("iCal feed updated");
-            }
-        }
-
-        function renderSchedule() {
-            const list = document.getElementById('schedule-list'); 
-            if(!list) return;
-            list.innerHTML = '';
-            
-            if (!Array.isArray(activeSchedule)) {
-                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Schedule data is missing or corrupted.</em></li>'; return; 
-            }
-
-            let filteredSchedule = activeSchedule;
-            if (!showZero) filteredSchedule = activeSchedule.filter(p => p && p.name && !String(p.name).includes("0 pd"));
-
-            if (!filteredSchedule || filteredSchedule.length === 0) { 
-                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>No periods added yet.</em></li>'; return; 
-            }
-
-            filteredSchedule.forEach(period => {
-                try {
-                    const key = String(period.name);
-                    const safeKey = key.replace(/'/g, "\\'"); 
-                    const s = classSettings[key] || { ...DEFAULT_PREFS };
-                    
-                    const li = document.createElement('li'); 
+            renderScheduleList: function() {
+                const list = document.getElementById('schedule-list');
+                list.innerHTML = '';
+                
+                AppState.runtime.activeSchedule.forEach(p => {
+                    const li = document.createElement('li');
                     li.className = 'schedule-grid';
-                    
-                    li.dataset.start = String(period.start);
-                    li.dataset.end = String(period.end);
-                    
-                    let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
-                    let isWebBlock = /^[A-D](\s|-)?Block/i.test(key);
-                    let webOpenCheckbox = isWebBlock ? 
-                        `<div class="options-col opt-center"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
-                        `<div class="options-col"></div>`;
-
+                    li.dataset.start = p.start; li.dataset.end = p.end;
                     li.innerHTML = `
-                        <div class="period-name">${key} ${openBadgeHtml}</div>
-                        <div class="middle-section">
-                            <div class="options-wrapper">
-                                <div class="options-col"><label class="switch" title="Phone Caddy"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'putaway', this.checked)" ${s.putaway ? 'checked' : ''}><span class="slider"></span></label></div>
-                                <div class="options-col"><label class="switch" title="Take Attendance"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'attendance', this.checked)" ${s.attendance ? 'checked' : ''}><span class="slider"></span></label></div>
-                                <div class="options-col"><label class="switch" title="5-Min Clean Up"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'cleanup', this.checked)" ${s.cleanup ? 'checked' : ''}><span class="slider"></span></label></div>
-                                <div class="options-col"><label class="switch" title="1 Min Warning & Retrieve"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'retrieve', this.checked)" ${s.retrieve ? 'checked' : ''}><span class="slider"></span></label></div>
-                                ${webOpenCheckbox}
-                                <div class="options-col">
-                                    <button onclick="setIcalFeed('${safeKey}')" style="background:none;border:none;cursor:pointer;font-size:1.3rem;transition:transform 0.2s; filter: ${s.icalUrl ? 'none' : 'grayscale(100%) opacity(0.4)'}" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="${s.icalUrl ? 'Edit iCal Feed' : 'Add iCal Feed'}">📅</button>
-                                </div>
-                            </div>
-                            <div class="agenda-display" id="agenda-${safeKey}"></div>
-                        </div>
-                        <div class="period-time">${formatTime12(String(period.start))} - ${formatTime12(String(period.end))}</div>
-                    `;
+                        <div class="period-name">${p.name}</div>
+                        <div class="middle-section"><div class="options-wrapper">
+                            <div class="options-col">Caddy</div><div class="options-col">Attend</div><div class="options-col">Clean</div>
+                        </div></div>
+                        <div class="period-time">${this.formatTime(p.start)} - ${this.formatTime(p.end)}</div>`;
                     list.appendChild(li);
-                    
-                    if (s.icalUrl) {
-                        fetchAgenda(s.icalUrl, `agenda-${safeKey}`);
-                    }
-                    
-                } catch(e) { console.error("Error rendering a row:", e); }
-            });
-            
-            highlightCurrentPeriod(new Date());
-        }
-
-        function timeToMins(t) {
-            if (!t || !t.includes(':')) return 0;
-            let [h, m] = t.split(':').map(Number);
-            return h * 60 + m;
-        }
-
-        function formatTime12(time24) { 
-            if (!time24 || !time24.includes(':')) return time24 || '';
-            let [h, m] = time24.split(':'); 
-            let ampm = h >= 12 ? 'PM' : 'AM'; 
-            return `${h % 12 || 12}:${m} ${ampm}`; 
-        }
-        function subtractMinutes(time24, minsToSubtract) {
-            if (!time24 || !time24.includes(':')) return '';
-            let [h, m] = time24.split(':').map(Number); let d = new Date(); d.setHours(h, m, 0, 0); d.setMinutes(d.getMinutes() - minsToSubtract);
-            return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
-        }
-        function addMinutes(time24, minsToAdd) {
-            if (!time24 || !time24.includes(':')) return '';
-            let [h, m] = time24.split(':').map(Number); let d = new Date(); d.setHours(h, m, 0, 0); d.setMinutes(d.getMinutes() + minsToAdd);
-            return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
-        }
-        function getMidpoint(start, end) {
-            if (!start || !end || !start.includes(':') || !end.includes(':')) return '';
-            let [sh, sm] = start.split(':').map(Number); let [eh, em] = end.split(':').map(Number);
-            let midMins = Math.floor(((sh * 60 + sm) + (eh * 60 + em)) / 2);
-            return Math.floor(midMins / 60).toString().padStart(2, '0') + ':' + (midMins % 60).toString().padStart(2, '0');
-        }
-
-        function triggerVisualAlert() {
-            const overlay = document.createElement('div');
-            overlay.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; pointer-events:none; transition: background-color 0.5s;";
-            overlay.style.backgroundColor = isDarkMode ? "rgba(51, 43, 0, 0.8)" : "rgba(255, 243, 205, 0.8)";
-            document.body.appendChild(overlay);
-            setTimeout(() => { overlay.style.backgroundColor = "transparent"; }, 5500); 
-            setTimeout(() => { overlay.remove(); }, 6000); 
-        }
-
-        function highlightCurrentPeriod(now) {
-            const listItems = document.querySelectorAll('#schedule-list li');
-            if (listItems.length === 0) return null;
-            
-            const currentMins = now.getHours() * 60 + now.getMinutes();
-            const currentSecs = currentMins * 60 + now.getSeconds();
-            let highlightIndex = -1;
-            let actualClassIndex = -1;
-            let upcomingClassIndex = -1;
-            let inSchool = false;
-            let isPassing = false;
-            let periods = [];
-            
-            listItems.forEach((li, index) => {
-                periods.push({
-                    index: index,
-                    startMins: timeToMins(li.dataset.start),
-                    endMins: timeToMins(li.dataset.end),
-                    li: li
                 });
-                li.classList.remove('current-period'); 
-                li.style.setProperty('--progress', '0%');
-            });
+            },
 
-            if (periods.length === 0) return null;
+            formatTime: function(t24) {
+                if(!t24) return '';
+                let [h, m] = t24.split(':');
+                let ampm = h >= 12 ? 'PM' : 'AM';
+                return `${h % 12 || 12}:${m} ${ampm}`;
+            },
 
-            if (currentMins >= periods[0].startMins && currentMins < periods[periods.length - 1].endMins) {
-                inSchool = true;
-                for (let i = 0; i < periods.length; i++) {
-                    let p = periods[i];
-                    if (currentMins >= p.startMins && currentMins < p.endMins) {
-                        actualClassIndex = p.index;
-                        break;
-                    }
-                    if (currentMins < p.startMins) {
-                        if (i > 0 && currentMins >= periods[i-1].endMins) {
-                            upcomingClassIndex = p.index; 
-                        }
-                        break;
-                    }
-                }
-            }
-
-            if (actualClassIndex !== -1) {
-                highlightIndex = actualClassIndex;
-                isPassing = false;
-            } else if (upcomingClassIndex !== -1) {
-                highlightIndex = upcomingClassIndex;
-                isPassing = true;
-            }
-
-            if (highlightIndex !== -1) {
-                let p = periods[highlightIndex];
-                p.li.classList.add('current-period');
-                if (!isPassing) {
-                    let startSecs = p.startMins * 60;
-                    let endSecs = p.endMins * 60;
-                    let progress = Math.max(0, Math.min(100, ((currentSecs - startSecs) / (endSecs - startSecs)) * 100));
-                    p.li.style.setProperty('--progress', progress + '%');
+            toggleDarkMode: function(save = true) {
+                if(save) {
+                    AppState.settings.darkMode = document.getElementById('darkModeToggle').checked;
+                    AppState.save();
                 } else {
-                    p.li.style.setProperty('--progress', '0%');
+                    const tog = document.getElementById('darkModeToggle');
+                    if(tog) tog.checked = AppState.settings.darkMode;
                 }
-            }
+                
+                document.body.classList.toggle('dark-mode', AppState.settings.darkMode);
+                if(AppState.settings.activeWidgets.weather) Widgets.reloadWeather();
+            },
 
-            return { 
-                index: highlightIndex, 
-                isPassing: isPassing, 
-                periodData: highlightIndex !== -1 ? periods[highlightIndex] : null,
-                actualClass: actualClassIndex !== -1
-            };
-        }
+            setWaffle: function(isClosed, save = true) {
+                AppState.settings.waffleClosed = isClosed;
+                document.getElementById('schedule-container').classList.toggle('waffle-closed', isClosed);
+                document.getElementById('waffleViewBtn').classList.toggle('active-btn', !isClosed);
+                if(save) AppState.save();
+            },
 
-        function triggerEvent(time, action, callback) {
-            if (currentMinuteTracker !== time) {
-                playedActions = {};
-                currentMinuteTracker = time;
-            }
-            const eventKey = `${time}-${action}`;
-            if (!playedActions[eventKey]) {
-                callback();
-                playedActions[eventKey] = true;
-            }
-        }
+            setMinimal: function(isMin, save = true) {
+                AppState.settings.minimalView = isMin;
+                document.body.classList.toggle('minimal-active', isMin);
+                document.getElementById('minimalViewBtn').classList.toggle('active-btn', isMin);
+                if(save) AppState.save();
+            },
 
-        function updateClock() {
-            try {
+            toggleSidebar: function(e, save = true) {
+                if(e) e.stopPropagation();
+                AppState.runtime.sidebarOpen = !AppState.runtime.sidebarOpen;
+                document.getElementById('sidebar').classList.toggle('collapsed', !AppState.runtime.sidebarOpen);
+                document.getElementById('hamburgerBtn').classList.toggle('active-btn', AppState.runtime.sidebarOpen);
+            },
+
+            toggleWidgetPanel: function(e) {
+                if(e) e.stopPropagation();
+                const p = document.getElementById('widget-panel-menu');
+                p.style.display = p.style.display === 'none' ? 'flex' : 'none';
+            },
+
+            tick: function() {
                 const now = new Date();
-                const clk = document.getElementById('clock');
-                if(clk) clk.innerText = now.toLocaleTimeString('en-US');
-                let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-                const todayDayOfWeek = now.getDay(); 
+                document.getElementById('clock').innerText = now.toLocaleTimeString();
                 
-                let status = highlightCurrentPeriod(now);
-                let currentStatus = 'outside';
-                let autoState = 'passing';
-                let isDeadTime = false;
+                const currentMins = now.getHours() * 60 + now.getMinutes();
+                const currentSecs = currentMins * 60 + now.getSeconds();
+                let activeP = null;
 
-                if (status && status.isPassing) {
-                    currentStatus = 'passing';
-                    autoState = 'passing';
-                } 
-                else if (status && status.actualClass) {
-                    currentStatus = 'class';
-                    const p = status.periodData;
-                    const currentMins = now.getHours() * 60 + now.getMinutes();
+                document.querySelectorAll('#schedule-list li').forEach(li => {
+                    li.classList.remove('current-period');
+                    let [sh, sm] = li.dataset.start.split(':').map(Number);
+                    let [eh, em] = li.dataset.end.split(':').map(Number);
+                    let sMins = sh*60 + sm; let eMins = eh*60 + em;
                     
-                    if (currentMins >= p.startMins && currentMins < p.startMins + 5) {
-                        autoState = 'dead-start';
-                        isDeadTime = true;
-                    } else if (currentMins >= p.endMins - 5 && currentMins < p.endMins) {
-                        autoState = 'dead-end';
-                        isDeadTime = true;
-                    } else {
-                        autoState = 'core-class';
+                    if(currentMins >= sMins && currentMins < eMins) {
+                        activeP = { name: li.querySelector('.period-name').innerText, sMins, eMins };
+                        li.classList.add('current-period');
+                        let prog = Math.max(0, Math.min(100, ((currentSecs - sMins*60) / ((eMins - sMins)*60)) * 100));
+                        li.style.setProperty('--progress', prog + '%');
                     }
-                }
+                });
 
-                let dName = document.getElementById('docked-name');
-                let dTime = document.getElementById('docked-time');
-                let dBadge = document.getElementById('docked-badge');
-                
-                if (status && status.actualClass) {
-                    const p = status.periodData;
-                    if (dName) dName.innerText = p.li.querySelector('.period-name').childNodes[0].nodeValue.trim();
-                    
-                    const realTimeStr = p.li.querySelector('.period-time').innerText;
-                    if (dTime && realTimeStr) dTime.innerText = realTimeStr;
-
-                    const s = classSettings[dName.innerText.trim()] || DEFAULT_PREFS;
-                    if (s.open && dBadge) dBadge.style.display = 'inline-block';
-                    else if (dBadge) dBadge.style.display = 'none';
-                } else if (status && status.isPassing) {
-                    if (dName) dName.innerText = "Passing Period";
-                    const p = status.periodData;
-                    if (dTime) dTime.innerText = "Next: " + p.li.querySelector('.period-name').childNodes[0].nodeValue.trim();
-                    if (dBadge) dBadge.style.display = 'none';
+                if (activeP) {
+                    document.getElementById('docked-name').innerText = activeP.name;
+                    document.getElementById('docked-time').innerText = `${UI.formatTime(Math.floor(activeP.sMins/60)+':'+(activeP.sMins%60).toString().padStart(2,'0'))} - ${UI.formatTime(Math.floor(activeP.eMins/60)+':'+(activeP.eMins%60).toString().padStart(2,'0'))}`;
                 } else {
-                    if (dName) dName.innerText = "Outside School Hours";
-                    if (dTime) dTime.innerText = "--:--";
-                    if (dBadge) dBadge.style.display = 'none';
+                    document.getElementById('docked-name').innerText = "Outside Hours";
+                    document.getElementById('docked-time').innerText = "--:--";
                 }
 
-                const warningElMain = document.getElementById('main-dead-time-warning');
-                const warningElDock = document.getElementById('docked-warning');
-                if (warningElMain) warningElMain.style.display = isDeadTime ? 'inline-block' : 'none';
-                if (warningElDock) warningElDock.style.display = isDeadTime ? 'inline-block' : 'none';
+                Widgets.updateQotd(activeP, currentMins);
+            }
+        };
 
-                updateQotdUI(status);
+        // 4. WIDGETS LOGIC
+        const Widgets = {
+            toggle: function(id, isChecked) {
+                AppState.settings.activeWidgets[id] = isChecked;
+                const card = document.getElementById(`widget-${id}`);
+                const tog = document.getElementById(`wm-tog-${id}`);
+                
+                if(card) card.classList.toggle('active-widget', isChecked);
+                if(tog) tog.checked = isChecked;
+                
+                if(id === 'weather' && isChecked) this.reloadWeather();
+                
+                AppState.save();
+            },
 
-                if (lastAutoState !== null && autoState !== lastAutoState) {
-                    if (autoState === 'core-class') {
-                        setMinimalView(true, true); 
-                    } else if (autoState === 'dead-start' || autoState === 'dead-end' || autoState === 'passing') {
-                        setMinimalView(false, true); 
-                    }
+            reloadWeather: function() {
+                const c = document.getElementById('weather-container-main');
+                const color = AppState.settings.darkMode ? '#ffffff' : '#333333';
+                if(c) {
+                    c.innerHTML = `<a class="weatherwidget-io" href="https://forecast7.com/en/33d98n84d43/east-cobb/" data-label_1="EAST COBB" data-theme="pure" data-basecolor="rgba(0,0,0,0)" data-textcolor="${color}">EAST COBB</a>`;
+                    !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;}else{js=d.getElementById(id);js.remove();js=d.createElement(s);js.id=id;}js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}(document,'script','weatherwidget-io-js');
                 }
-                lastAutoState = autoState;
+            },
 
-                if (lastPeriodStatus !== currentStatus) {
-                    let success = false;
-                    
-                    if (mrBsJukebox && todayDayOfWeek === 5 && currentStatus === 'passing') {
-                        success = applyMusicState(jukeboxUrl, true);
-                    } else {
-                        if (isMainVibePlaying && currentVibeUrl) {
-                            success = applyMusicState(currentVibeUrl, true);
+            addTimer: function(m) { AppState.runtime.timerSeconds += (m*60); this.drawTimer(); },
+            resetTimer: function() { AppState.runtime.timerSeconds = 300; this.drawTimer(); if(AppState.runtime.timerInterval) this.toggleTimer(); },
+            drawTimer: function() {
+                const m = Math.floor(AppState.runtime.timerSeconds / 60).toString().padStart(2, '0');
+                const s = (AppState.runtime.timerSeconds % 60).toString().padStart(2, '0');
+                const d = document.getElementById('timer-display');
+                d.innerText = `${m}:${s}`;
+                d.style.color = AppState.runtime.timerSeconds === 0 ? 'var(--btn-danger)' : '';
+            },
+            toggleTimer: function() {
+                const btn = document.getElementById('timer-start-btn');
+                if (AppState.runtime.timerInterval) {
+                    clearInterval(AppState.runtime.timerInterval);
+                    AppState.runtime.timerInterval = null;
+                    btn.innerText = "Start"; btn.style.background = 'var(--btn-primary)';
+                } else {
+                    if (AppState.runtime.timerSeconds <= 0) return;
+                    btn.innerText = "Pause"; btn.style.background = 'var(--btn-danger)';
+                    AppState.runtime.timerInterval = setInterval(() => {
+                        if (AppState.runtime.timerSeconds > 0) {
+                            AppState.runtime.timerSeconds--;
+                            this.drawTimer();
                         } else {
-                            success = applyMusicState('', false); 
+                            this.toggleTimer();
+                            // play bell 
                         }
-                    }
-                    if (success) lastPeriodStatus = currentStatus;
+                    }, 1000);
                 }
+            },
 
-                if (current24 === '06:00' && now.getSeconds() === 0) { fetchDailySchedule(); }
+            qotdDB: [
+                { q: "Would you rather pause time, or fast-forward time?", a: "Pause Time", b: "Fast-Forward Time" },
+                { q: "Would you rather explore space or the deep ocean?", a: "Outer Space", b: "Deep Ocean" }
+            ],
+            toggleQotdLock: function() { AppState.runtime.qotdManualUnlock = !AppState.runtime.qotdManualUnlock; UI.tick(); },
+            updateQotd: function(activeP, currentMins) {
+                if (!AppState.settings.activeWidgets.qotd) return;
                 
-                customReminders.forEach(rem => {
-                    if (current24 === rem.time) {
-                        if (rem.day === 'All' || parseInt(rem.day) === todayDayOfWeek) {
-                            triggerEvent(current24, `custom-${rem.name}`, () => {
-                                triggerVisualAlert();
-                                playBellWithQueue(1, () => speak(`Reminder. ${rem.name}`));
-                            });
+                const now = new Date();
+                const start = new Date(now.getFullYear(), 0, 0);
+                const dayOfYear = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+                const qObj = this.qotdDB[dayOfYear % this.qotdDB.length];
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(QOTD_URL)}`;
+
+                document.getElementById('qotd-question').innerText = qObj.q;
+                document.getElementById('qotd-idle-question').innerText = qObj.q;
+                document.getElementById('qotd-results-question').innerText = qObj.q;
+                document.getElementById('qotd-label-a').innerText = qObj.a;
+                document.getElementById('qotd-label-b').innerText = qObj.b;
+                document.getElementById('qotd-qr-img').src = qrUrl;
+
+                const vV = document.getElementById('qotd-voting-view');
+                const vI = document.getElementById('qotd-idle-view');
+                const vR = document.getElementById('qotd-results-view');
+
+                if (activeP) {
+                    if (currentMins >= activeP.sMins && currentMins < activeP.sMins + 5) {
+                        vV.style.display = 'flex'; vI.style.display = 'none'; vR.style.display = 'none';
+                        AppState.runtime.qotdResultsFetched = false; AppState.runtime.qotdManualUnlock = false;
+                    } else if (currentMins >= activeP.eMins - 5 && currentMins < activeP.eMins) {
+                        vV.style.display = 'none'; vI.style.display = 'none'; vR.style.display = 'flex';
+                        AppState.runtime.qotdManualUnlock = false;
+                        if (!AppState.runtime.qotdResultsFetched) {
+                            AppState.runtime.qotdResultsFetched = true;
+                            fetch(QOTD_URL + "?action=getResults").then(r=>r.json()).then(data => {
+                                const a = parseInt(data.votesA)||0; const b = parseInt(data.votesB)||0; const t = a+b;
+                                const pa = t===0?0:Math.round((a/t)*100); const pb = t===0?0:100-pa;
+                                document.getElementById('qotd-bar-a').style.width = pa+'%'; document.getElementById('qotd-pct-a').innerText = pa+'%';
+                                document.getElementById('qotd-bar-b').style.width = pb+'%'; document.getElementById('qotd-pct-b').innerText = pb+'%';
+                                document.getElementById('qotd-total-votes').innerText = "Total Votes: " + t;
+                            }).catch(e=>{});
                         }
+                    } else {
+                        if (AppState.runtime.qotdManualUnlock) { vV.style.display = 'flex'; vI.style.display = 'none'; vR.style.display = 'none'; } 
+                        else { vV.style.display = 'none'; vI.style.display = 'flex'; vR.style.display = 'none'; }
                     }
-                });
-                
-                if(!Array.isArray(activeSchedule)) return;
+                } else {
+                    vV.style.display = 'none'; vI.style.display = 'flex'; vR.style.display = 'none';
+                    AppState.runtime.qotdResultsFetched = false; AppState.runtime.qotdManualUnlock = false;
+                }
+            }
+        };
 
-                const isWebDay = currentScheduleName.toLowerCase().includes('web');
-
-                activeSchedule.forEach(period => {
-                    if (!period || !period.name) return;
-                    const pNameStr = String(period.name);
-
-                    const s = classSettings[pNameStr] || { ...DEFAULT_PREFS };
-
-                    const hasLunch1 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 1);
-                    let hasLunch2 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 2);
-                    if (isWebDay) hasLunch2 = false; 
-
-                    const pStartStr = String(period.start);
-                    const pEndStr = String(period.end);
-                    const startMinus1 = subtractMinutes(pStartStr, 1);
-                    const startPlus5 = addMinutes(pStartStr, 5);
-                    const endMinus5 = subtractMinutes(pEndStr, 5);
-                    const endMinus1 = subtractMinutes(pEndStr, 1);
-                    const midPoint = getMidpoint(pStartStr, pEndStr);
-
-                    if (current24 === pStartStr) {
-                        triggerEvent(current24, `start-${pNameStr}`, () => {
-                            triggerVisualAlert();
-                            let speechText = "";
-                            
-                            if (s.open) speechText += "Please remember to sign in to WEB. ";
-                            if (s.putaway) speechText += "Class is beginning. Please place your phones in the cell phone caddy. ";
-                            if (hasLunch1) speechText += "Reminder: You have lunch duty today.";
-                            
-                            if (speechText) playBellWithQueue(3, () => speak(speechText));
-                            else playBellWithQueue(3);
-                        });
-                    }
-                    
-                    if (current24 === pEndStr) {
-                        triggerEvent(current24, `end-${pNameStr}`, () => { 
-                            triggerVisualAlert(); 
-                            if (playGoodbyes) {
-                                const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
-                                playBellWithQueue(3, () => speak(randomMsg));
-                            } else {
-                                playBellWithQueue(3); 
-                            }
-                        });
-                    }
-
-                    if (!s.open && current24 === startMinus1) {
-                        triggerEvent(current24, `warning1m-${pNameStr}`, () => {
-                            triggerVisualAlert();
-                            let speechText = "One minute until class begins.";
-                            if (s.putaway) speechText += " Please place your phones in the cell phone caddy.";
-                            playBellWithQueue(1, () => speak(speechText));
-                        });
-                    }
-
-                    if (!s.open && s.attendance && current24 === startPlus5) {
-                        triggerEvent(current24, `attendance5m-${pNameStr}`, () => { triggerVisualAlert(); speak("Reminder. Please take attendance."); });
-                    }
-                    
-                    if (!s.open && hasLunch2 && current24 === midPoint) {
-                        triggerEvent(current24, `lunch2-${pNameStr}`, () => { triggerVisualAlert(); speak("Reminder. You have second half lunch duty."); });
-                    }
-
-                    if (!s.open && s.cleanup && current24 === endMinus5) {
-                        triggerEvent(current24, `cleanup5m-${pNameStr}`, () => { triggerVisualAlert(); speak("Five minutes remaining. Please begin cleaning up your area."); });
-                    }
-
-                    if (!s.open && s.retrieve && current24 === endMinus1) {
-                        triggerEvent(current24, `phone1m-${pNameStr}`, () => { 
-                            triggerVisualAlert(); 
-                            let speechText = "One minute remaining.";
-                            if (s.putaway) speechText += " You may retrieve your cell phones.";
-                            playBellWithQueue(1, () => speak(speechText)); 
-                        });
-                    }
-                });
-            } catch(e) { console.error("Clock update error:", e); }
+        // 5. MEDIA LOGIC
+        const Media = {
+            syncGlobalVolume: function(v) { AppState.settings.globalVol = v; document.getElementById('volumeControl').value = v; AppState.save(); },
+            toggleBellMute: function() { AppState.settings.muteBells = !AppState.settings.muteBells; AppState.save(); },
+            testSound: function() { console.log("Sound Test Triggered"); }
         }
 
-        // --- SAFE INITIALIZATION LOOP ---
+        // ================= BOOT SEQUENCE =================
         document.addEventListener('DOMContentLoaded', () => {
-            
-            // 1. Instantly load the fallback WEB schedule so the UI is never empty
-            currentMode = 'web';
-            changeMode(); 
-
-            // 2. Load Local Settings (this will override back to 'synced' if that was saved)
-            loadLocalSettings(); 
-            
-            // 3. Initialize UI elements
-            updateTimerDisplay();
-            updateClock();
-            
-            // 4. Try to load voices in a non-blocking way
-            try {
-                if ('speechSynthesis' in window) {
-                    window.speechSynthesis.onvoiceschanged = safePopulateVoiceList;
-                    safePopulateVoiceList();
-                }
-            } catch(e) {}
-            
-            // 5. Fire off the async fetch to Google Calendar
-            fetchDailySchedule();
-            
-            // 6. Start interval loops
-            setInterval(updateClock, 1000);
+            UI.init();
+            Widgets.drawTimer();
+            Data.fetchSchedule(); // Fire and forget async fetch
         });
 
     </script>
