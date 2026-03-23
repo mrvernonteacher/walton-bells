@@ -42,22 +42,42 @@
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: none;
         }
 
-        /* --- Master Top Navigation Bar (Liquid Glass) --- */
+        /* =========================================================
+           MASTER GLASSMORPHISM & DARK MODE FIX
+           Groups all panels so they never override each other.
+           ========================================================= */
+        .floating-header, .qotd-sub-bar, .floating-player, .widget-panel-menu, .sidebar, .schedule-container, .widget-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+        }
+        
+        body.dark-mode .floating-header, 
+        body.dark-mode .qotd-sub-bar, 
+        body.dark-mode .floating-player, 
+        body.dark-mode .widget-panel-menu, 
+        body.dark-mode .sidebar, 
+        body.dark-mode .schedule-container, 
+        body.dark-mode .widget-card {
+            background: rgba(30, 30, 30, 0.85) !important;
+            border-color: rgba(255, 255, 255, 0.05) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7) !important;
+        }
+
+        /* --- Master Top Navigation Bar --- */
         .floating-header {
             position: fixed; top: 0; left: 0; width: 100%; height: 75px;
             display: grid; grid-template-columns: 240px 1fr auto; align-items: center; 
             padding: 0 30px; z-index: 1100;
-            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px) saturate(150%);
             box-shadow: 0 4px 20px rgba(0,0,0,0.08); border-radius: 0 0 15px 15px;
             transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1);
+            border-bottom: 1px solid rgba(150,150,150,0.2);
         }
-        body.dark-mode .floating-header { background: rgba(30, 30, 30, 0.85); box-shadow: 0 4px 20px rgba(0,0,0,0.5); border-bottom: 1px solid rgba(255,255,255,0.05); }
 
         .header-left { display: flex; align-items: center; gap: 15px; justify-self: start; height: 75px;}
         .header-right { display: flex; align-items: center; gap: 10px; justify-self: end; height: 75px;}
         .header-center { justify-self: center; display: flex; align-items: center; justify-content: center; width: 100%; height: 75px; position: relative;}
 
-        .header-logo { height: 38px; width: auto; opacity: 0.6; transition: opacity 0.4s ease; display: block; }
+        .header-logo { height: 38px; width: auto; opacity: 0.8; transition: opacity 0.4s ease; display: block; }
         .header-logo:hover { opacity: 1; }
         
         #clock { font-size: 2rem; font-weight: bold; color: #003366; text-align: right; white-space: nowrap; flex-shrink: 0; transition: color 0.4s ease;}
@@ -76,29 +96,25 @@
         body.dark-mode .header-icon-btn:hover { background-color: rgba(150,150,150,0.2); color: #aaa; }
         body.dark-mode .header-icon-btn.active-btn { color: #90caf9; } 
 
-        /* --- Sidebar & Widgets Dropdown (Z-Index Fix) --- */
+        /* --- Sidebar & Widgets Dropdown --- */
         .sidebar-wrapper { position: fixed; top: 90px; left: 20px; z-index: 2000; pointer-events: none; }
         .sidebar {
             width: 350px; padding: 15px 20px; border-radius: 10px; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.5s cubic-bezier(0.25, 1.2, 0.3, 1);
             overflow: hidden; transform-origin: left top; pointer-events: auto;
-            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            max-height: 80vh; overflow-y: auto;
+            max-height: 80vh; overflow-y: auto; border: 1px solid rgba(150,150,150,0.2);
         }
-        body.dark-mode .sidebar { background: rgba(30, 30, 30, 0.95); border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 4px 15px rgba(0,0,0,0.7);}
         .sidebar.collapsed { width: 0; padding: 0; opacity: 0; transform: scaleX(0); border: none; }
 
         /* Floating Widget Menu (+ Button) */
         #widget-menu-wrapper { position: fixed; bottom: 20px; left: 20px; z-index: 1050; }
         .widget-panel-menu {
             position: absolute; bottom: 60px; left: 0;
-            background: rgba(255,255,255,0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             border-radius: 15px; padding: 15px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             display: none; flex-direction: column; width: 220px; border: 1px solid rgba(150,150,150,0.2);
             animation: popUp 0.2s ease; transform-origin: bottom left;
         }
         @keyframes popUp { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        body.dark-mode .widget-panel-menu { background: rgba(30,30,30,0.95); border-color: rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.6); }
 
         .float-btn {
             background: #003366; color: white; border: none; border-radius: 50%;
@@ -113,19 +129,18 @@
         /* --- Floating Player --- */
         .floating-player {
             position: fixed; bottom: 20px; right: 20px; top: auto; left: auto;
-            background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             border-radius: 20px; padding: 10px 15px 10px 10px;
-            display: flex; align-items: center; gap: 12px;
+            display: flex; align-items: center; gap: 12px; border: 1px solid rgba(150,150,150,0.2);
             box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1000; opacity: 0; pointer-events: none; 
             transition: opacity 0.4s ease, transform 0.6s cubic-bezier(0.25, 1.2, 0.3, 1);
-            user-select: none; transform: translateY(20px); cursor: grab;
+            user-select: none; transform: translateY(20px);
         }
         .floating-player.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
         .floating-player.dragging { cursor: grabbing; transition: none !important; opacity: 0.95; transform: scale(1.02); z-index: 2000; }
-        body.dark-mode .floating-player { background: rgba(30,30,30,0.85); color: #e0e0e0; border: 1px solid #444; }
-        .drag-handle { color: #888; font-size: 1.2rem; display: flex; align-items: center; padding-right: 2px;}
+        .drag-handle { color: #888; font-size: 1.2rem; cursor: grab; display: flex; align-items: center; padding-right: 2px;}
         body.dark-mode .drag-handle { color: #aaa; }
-        
+        .floating-player.dragging .drag-handle { cursor: grabbing; }
+
         .float-content { display: flex; flex-direction: column; gap: 6px; }
         .float-info { font-weight: bold; font-size: 0.85rem; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #003366;}
         body.dark-mode .float-info { color: #90caf9; }
@@ -151,6 +166,7 @@
         #toast.show { top: 90px; opacity: 1; }
 
         /* --- Global Dark Mode Color Inversions --- */
+        body.dark-mode { background-color: #121212; color: #e0e0e0; }
         body.dark-mode h1, body.dark-mode h3, body.dark-mode .schedule-header, body.dark-mode .period-name, body.dark-mode .title, body.dark-mode .widget-title { color: #90caf9; border-color: #444; }
         body.dark-mode .control-group label.title { color: #90caf9; }
         body.dark-mode .sub-label { color: #ccc !important; }
@@ -167,15 +183,6 @@
         body.dark-mode .btn:hover { background-color: #1565c0; }
         body.dark-mode .split-button-main { background-color: #0288d1; }
         body.dark-mode .split-button-caret { background-color: #0277bd; border-left: 1px solid #01579b; }
-
-        /* Unified Container CSS */
-        .schedule-container, .widget-card { 
-            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            border-radius: 15px; border: 1px solid rgba(150,150,150,0.2); box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        body.dark-mode .schedule-container, body.dark-mode .widget-card { 
-            background: rgba(30, 30, 30, 0.85); box-shadow: 0 4px 15px rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.05); 
-        }
 
         /* --- Custom Toggles --- */
         .switch-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; margin-top: 5px;}
@@ -219,6 +226,7 @@
         @keyframes dropDownFade { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         .dropdown-content button { color: #333; padding: 8px 12px; text-decoration: none; display: block; width: 100%; background: none; border: none; border-bottom: 1px solid #eee; text-align: left; margin: 0; font-size: 0.9rem; transition: background 0.2s;}
         .dropdown-content button:hover { background-color: #f1f1f1; color: #003366; }
+
         .btn { background-color: #003366; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 0.95rem; width: 100%; margin-top: 8px; font-weight: bold; transition: background-color 0.2s, transform 0.2s; }
         .btn.inline { width: auto; margin-top: 0; padding: 6px 12px;}
         .btn:hover { background-color: #002244; transform: translateY(-1px);}
@@ -227,15 +235,23 @@
 
         .goodbye-box { background: rgba(92, 184, 92, 0.15); border: 1px solid rgba(92, 184, 92, 0.4); padding: 12px; border-radius: 8px; margin-top: 15px; transition: all 0.4s ease; }
         .goodbye-box label { color: #003366; transition: color 0.4s ease; font-weight: bold; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 8px;}
-        body.dark-mode .goodbye-box { background: rgba(144, 202, 249, 0.1); border-color: rgba(144, 202, 249, 0.3); }
-        body.dark-mode .goodbye-box label { color: #90caf9; }
 
         /* --- THE MASTER SCHEDULE CONTAINER --- */
-        .schedule-container { width: 100%; box-sizing: border-box; transform-origin: top center; transition: all 0.6s cubic-bezier(0.34, 1.2, 0.64, 1), max-height 0.6s ease, padding 0.6s ease, opacity 0.4s ease; max-height: 2000px; opacity: 1; overflow: hidden; margin: 0 auto; }
+        .schedule-container { 
+            padding: 15px 20px; border-radius: 10px; width: 100%; max-width: 900px; box-sizing: border-box; transform-origin: top center;
+            border: 1px solid rgba(150,150,150,0.2); box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.6s cubic-bezier(0.34, 1.2, 0.64, 1), max-height 0.6s ease, padding 0.6s ease, opacity 0.4s ease;
+            max-height: 2000px; opacity: 1; overflow: hidden; margin: 0 auto;
+        }
+        
         .schedule-title-row { display: flex; justify-content: center; align-items: center; margin-bottom: 10px; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 8px; transition: all 0.4s ease; overflow: hidden; }
         .schedule-title-row h3 { margin: 0; font-size: 1.5rem; color: #003366; transition: color 0.4s ease; }
 
-        @keyframes pulseAlert { 0% { opacity: 1; text-shadow: 0 0 4px rgba(217, 83, 79, 0.4); box-shadow: 0 0 8px rgba(217, 83, 79, 0.2); } 50% { opacity: 0.7; text-shadow: none; box-shadow: none; } 100% { opacity: 1; text-shadow: 0 0 4px rgba(217, 83, 79, 0.4); box-shadow: 0 0 8px rgba(217, 83, 79, 0.2); } }
+        @keyframes pulseAlert {
+            0% { opacity: 1; text-shadow: 0 0 4px rgba(217, 83, 79, 0.4); box-shadow: 0 0 8px rgba(217, 83, 79, 0.2); }
+            50% { opacity: 0.7; text-shadow: none; box-shadow: none; }
+            100% { opacity: 1; text-shadow: 0 0 4px rgba(217, 83, 79, 0.4); box-shadow: 0 0 8px rgba(217, 83, 79, 0.2); }
+        }
         .dead-time-warning { color: #d9534f; font-weight: 900; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.5px; animation: pulseAlert 2s infinite; background: rgba(217, 83, 79, 0.15); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(217, 83, 79, 0.3); margin-left: 15px; display: none; }
 
         .schedule-grid { display: grid; grid-template-columns: auto 1fr auto; gap: 15px; align-items: center; padding: 8px 10px; transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); }
@@ -248,6 +264,7 @@
         
         #schedule-list { list-style-type: none; padding: 0; margin: 0; }
         #schedule-list li { border-bottom: 1px solid rgba(150,150,150,0.2); border-left: 5px solid transparent; max-height: 250px; overflow: hidden; opacity: 1; transition: max-height 0.6s cubic-bezier(0.25, 1.2, 0.3, 1), padding 0.5s ease, opacity 0.5s ease, margin 0.5s ease; }
+        #schedule-list li:nth-child(even) { background-color: rgba(0,0,0,0.03); }
 
         .period-name { grid-column: 1; font-weight: bold; text-align: left; font-size: 1.6rem; align-self: center; transition: all 0.5s cubic-bezier(0.25, 1.2, 0.3, 1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px;}
         .period-time { grid-column: 3; text-align: right; font-size: 1.4rem; color: #555; align-self: center; transition: all 0.5s cubic-bezier(0.25, 1.2, 0.3, 1); white-space: nowrap; padding-left: 10px;}
@@ -260,6 +277,7 @@
         .agenda-error { color: #d9534f !important; font-style: italic; font-weight: normal; }
         body.dark-mode .agenda-error { color: #ff8a80 !important; }
 
+        /* --- Open Block Badge --- */
         .open-badge { background-color: #5cb85c; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; margin-left: 10px; vertical-align: middle; font-weight: bold; letter-spacing: 0.5px; display: inline-block; }
         body.dark-mode .open-badge { background-color: #2e7d32; color: #e8f5e9; }
         .waffle-closed .open-badge, .docked-badge { font-size: 1rem; padding: 4px 10px; margin-left: 15px; transform: translateY(-2px); transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); }
@@ -289,20 +307,25 @@
 
         body.minimal-active .schedule-column { max-width: 0 !important; opacity: 0 !important; padding: 0 !important; margin: 0 !important; overflow: hidden; pointer-events: none; }
 
-        /* --- THE WIDGETS --- */
-        .widget-card { display: none; flex-direction: column; overflow: hidden; width: 100%; transition: opacity 0.4s ease;}
+        /* --- THE DOCKED WIDGETS --- */
+        .widget-card {
+            border-radius: 15px; padding: 15px; display: none; flex-direction: column; overflow: hidden; width: 100%; transition: opacity 0.4s ease;
+            border: 1px solid rgba(150,150,150,0.2); box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
         .widget-card.active-widget { display: flex; animation: fadeWidgetIn 0.5s cubic-bezier(0.25, 1.2, 0.3, 1);}
         @keyframes fadeWidgetIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
         .widget-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 8px; margin-bottom: 12px; pointer-events: none; }
         .widget-title { font-weight: bold; font-size: 1.1rem; color: #003366; margin: 0; }
-        
-        /* Weather Control */
+        .widget-close { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1.2rem; line-height: 1; padding: 0 5px; transition: color 0.2s; pointer-events: auto;}
+        .widget-close:hover { color: #d9534f; }
+
+        /* Weather Contrast Fix */
         #widget-weather { min-height: 250px; flex-grow: 1;}
         #weather-container-main { height: 100%; min-height: 200px; display: block; width: 100%; overflow: hidden;}
         body.dark-mode #weather-container-main iframe { filter: invert(1) hue-rotate(180deg); }
 
-        /* Timer Control */
+        /* --- Timer Widget Styles (Modernized) --- */
         .timer-display { font-size: 4rem; font-weight: bold; color: #333; text-align: center; margin: 10px 0; font-variant-numeric: tabular-nums; }
         body.dark-mode .timer-display { color: #e0e0e0; }
         .timer-controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;}
@@ -314,7 +337,7 @@
         body.dark-mode .timer-btn-hollow { border-color: #90caf9; color: #90caf9; }
         body.dark-mode .timer-btn-reset { border-color: #aaa; color: #aaa; }
 
-        /* QotD Control */
+        /* --- QotD Widget Styles --- */
         #widget-qotd { min-height: 450px; flex-grow: 1;}
         .qotd-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; gap: 15px; position: relative; flex-grow: 1;}
         .qotd-text { font-size: 1.2rem; font-weight: bold; color: #003366; margin-bottom: 10px;}
@@ -324,6 +347,7 @@
         body.dark-mode .qotd-bar-bg { background: rgba(255,255,255,0.1); }
         .qotd-bar-fill { height: 100%; background: #31b0d5; width: 0%; transition: width 1s cubic-bezier(0.25, 1.2, 0.3, 1); }
         .qotd-bar-label { position: absolute; top: 0; left: 10px; line-height: 24px; font-size: 0.85rem; font-weight: bold; color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.5);}
+        
         .qotd-manual-unlock { font-size: 1.5rem; cursor: pointer; transition: transform 0.2s; margin-top: 5px;}
         .qotd-manual-unlock:hover { transform: scale(1.1); }
 
@@ -353,6 +377,7 @@
             .docked-name { font-size: 1.3rem; }
             .docked-time { font-size: 1.1rem; }
             .docked-badge { font-size: 0.8rem !important; padding: 2px 6px !important; }
+            .docked-schedule { gap: 8px; }
             
             .sidebar-wrapper { top: 75px; left: 10px; }
             .sidebar { max-width: calc(100vw - 20px); width: calc(100vw - 20px); }
@@ -436,10 +461,10 @@
     </div>
 
     <div id="widget-menu-wrapper">
-        <div id="widget-panel-menu" class="widget-panel-menu">
-            <div class="setting-row" style="margin:0;"><span class="sub-label">Weather Forecast</span><label class="switch"><input type="checkbox" onchange="toggleWidget('weather', this.checked)" id="wm-tog-weather"><span class="slider"></span></label></div>
-            <div class="setting-row" style="margin:10px 0 0 0;"><span class="sub-label">QotD / Voting</span><label class="switch"><input type="checkbox" onchange="toggleWidget('qotd', this.checked)" id="wm-tog-qotd"><span class="slider"></span></label></div>
-            <div class="setting-row" style="margin:10px 0 0 0;"><span class="sub-label">Class Timer</span><label class="switch"><input type="checkbox" onchange="toggleWidget('timer', this.checked)" id="wm-tog-timer"><span class="slider"></span></label></div>
+        <div id="widget-panel-menu" class="widget-panel-menu glass-panel">
+            <div class="setting-row" style="margin:0;"><span class="sub-label">Weather Forecast</span><label class="switch"><input type="checkbox" onchange="toggleWidget('weather', this.checked, true)" id="wm-tog-weather"><span class="slider"></span></label></div>
+            <div class="setting-row" style="margin:10px 0 0 0;"><span class="sub-label">QotD / Voting</span><label class="switch"><input type="checkbox" onchange="toggleWidget('qotd', this.checked, true)" id="wm-tog-qotd"><span class="slider"></span></label></div>
+            <div class="setting-row" style="margin:10px 0 0 0;"><span class="sub-label">Class Timer</span><label class="switch"><input type="checkbox" onchange="toggleWidget('timer', this.checked, true)" id="wm-tog-timer"><span class="slider"></span></label></div>
         </div>
         <button class="float-btn" id="widget-menu-btn" onclick="toggleWidgetPanel(event)" title="Toggle Widgets">
             <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
@@ -449,7 +474,7 @@
     <div id="toast">Loaded Successfully</div>
 
     <div class="sidebar-wrapper">
-        <div class="sidebar collapsed" id="sidebar">
+        <div class="sidebar collapsed glass-panel" id="sidebar">
             <div class="control-group" style="padding-bottom: 5px; margin-bottom: 5px; border-bottom: none;">
                 <div class="switch-container">
                     <span class="sub-label" id="darkModeLabel">Dark Mode</span>
@@ -562,14 +587,14 @@
                 <div class="accordion-content" id="sec-schedule">
                     <div id="autoIndicator" style="font-weight:bold; margin-bottom:10px; color:#888;">Sync Status: Initializing...</div>
                     <button class="timer-btn-hollow" onclick="fetchDailySchedule()" style="width:100%; margin-bottom:10px;">Force Sync Schedule</button>
-                    <select id="scheduleMode" onchange="changeMode()">
-                        <option value="synced" id="syncedOption">Google Sheet (Live)</option>
+                    <select id="scheduleMode" onchange="changeMode(true)">
+                        <option value="synced" id="syncedOption">Loading Google Sheet...</option>
                         <option value="regular">Regular Schedule (Daily)</option>
                         <option value="web">WEB Schedule (Local)</option>
                     </select>
                     <div class="setting-row">
                         <span class="sub-label">Show 0 Period</span>
-                        <label class="switch"><input type="checkbox" id="showZeroPeriod" onchange="changeMode()"><span class="slider"></span></label>
+                        <label class="switch"><input type="checkbox" id="showZeroPeriod" onchange="changeMode(true)"><span class="slider"></span></label>
                     </div>
                 </div>
             </div>
@@ -580,12 +605,12 @@
         
         <div class="widget-column">
             <div class="widget-card glass-panel" id="widget-weather">
-                <div class="widget-header-row"><h4 class="widget-title">Local Forecast</h4><button class="widget-close" onclick="toggleWidget('weather', false)">✖</button></div>
-                <div id="weather-container-main" style="flex-grow: 1; overflow-y: auto; overflow-x: hidden; height: 100%;"></div>
+                <div class="widget-header-row"><h4 class="widget-title">Local Forecast</h4><button class="widget-close" onclick="toggleWidget('weather', false, true)">✖</button></div>
+                <div id="weather-container-main"></div>
             </div>
 
             <div class="widget-card glass-panel" id="widget-timer">
-                <div class="widget-header-row"><h4 class="widget-title">Class Timer</h4><button class="widget-close" onclick="toggleWidget('timer', false)">✖</button></div>
+                <div class="widget-header-row"><h4 class="widget-title">Class Timer</h4><button class="widget-close" onclick="toggleWidget('timer', false, true)">✖</button></div>
                 <div style="display:flex; flex-direction:column; flex-grow: 1; justify-content:center;">
                     <div class="timer-display" id="timer-display">05:00</div>
                     <div class="timer-quick-add">
@@ -621,7 +646,7 @@
 
         <div class="widget-column">
             <div class="widget-card glass-panel" id="widget-qotd">
-                <div class="widget-header-row"><h4 class="widget-title">Question of the Day</h4><button class="widget-close" onclick="toggleWidget('qotd', false)">✖</button></div>
+                <div class="widget-header-row"><h4 class="widget-title">Question of the Day</h4><button class="widget-close" onclick="toggleWidget('qotd', false, true)">✖</button></div>
                 
                 <div class="qotd-container" id="qotd-voting-view">
                     <div class="qotd-text" id="qotd-question">Loading question...</div>
@@ -687,17 +712,14 @@
             { q: "Would you rather accidentally call your teacher 'Mom/Dad', or walk into the wrong classroom and sit down?", a: "Call Teacher Mom", b: "Wrong Classroom" }
         ];
 
-        const playSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
-        const pauseSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
-
         let predefinedSchedules = {
-            synced: [],
+            synced: [], 
             regular: [
                 { name: "1st", start: "08:20", end: "08:50" }, { name: "HR", start: "08:56", end: "09:05" }, 
                 { name: "2nd", start: "09:11", end: "09:40" }, { name: "3rd", start: "09:46", end: "10:15" }, 
                 { name: "4th", start: "10:21", end: "10:50" }, { name: "5th", start: "10:56", end: "11:25" }, 
                 { name: "6th", start: "11:31", end: "12:00" }, { name: "7th", start: "12:06", end: "12:35" }
-            ], 
+            ],
             web: [
                 { name: "1st", start: "08:20", end: "08:50" }, { name: "WEB", start: "08:56", end: "09:40" }, 
                 { name: "2nd", start: "09:46", end: "10:15" }, { name: "3rd", start: "10:21", end: "10:50" }, 
@@ -722,7 +744,7 @@
         let timerInterval = null, timerTotalSeconds = 300, timerIsPlaying = false;
         let qotdResultsFetched = false, qotdManualUnlock = false; 
 
-        let currentScheduleName = "Regular"; 
+        let currentScheduleName = "Loading..."; 
         let playedActions = {}, currentMinuteTracker = "", lastAutoState = null; 
         let mrBsJukebox = false, jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
         let isMainVibePlaying = false, activePlayerUrl = '', lastPeriodStatus = null; 
@@ -795,8 +817,9 @@
 
         function reloadWeatherWidget() {
             const container1 = document.getElementById('weather-container-main');
+            if(!container1) return;
             const color = isDarkMode ? '#ffffff' : '#333333';
-            if(container1) container1.innerHTML = `<a class="weatherwidget-io" href="https://forecast7.com/en/33d98n84d43/east-cobb/?unit=us" data-label_1="EAST COBB" data-theme="pure" data-basecolor="rgba(0,0,0,0)" data-textcolor="${color}">EAST COBB</a>`;
+            container1.innerHTML = `<a class="weatherwidget-io" href="https://forecast7.com/en/33d98n84d43/east-cobb/?unit=us" data-label_1="EAST COBB" data-theme="pure" data-basecolor="rgba(0,0,0,0)" data-textcolor="${color}">EAST COBB</a>`;
             !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;}else{js=d.getElementById(id);js.remove();js=d.createElement(s);js.id=id;}js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}(document,'script','weatherwidget-io-js');
         }
 
@@ -806,7 +829,7 @@
             p.style.display = p.style.display === 'none' ? 'flex' : 'none';
         }
 
-        function toggleWidget(id, isChecked) {
+        function toggleWidget(id, isChecked, shouldSave = true) {
             activeWidgets[id] = isChecked;
             const card = document.getElementById(`widget-${id}`);
             if(card) {
@@ -817,7 +840,8 @@
             
             const floatTog = document.getElementById(`wm-tog-${id}`);
             if(floatTog) floatTog.checked = isChecked;
-            saveLocalSettings();
+            
+            if(shouldSave) saveLocalSettings();
         }
 
         let ytPlayer = null;
@@ -903,6 +927,7 @@
             if (!url) { stopVibeCore(); return true; } 
             
             activePlayerUrl = url;
+            updateFloatingPlayerVisibility(); 
             
             const vid = extractVideoID(url);
             if (!vid) return true;
@@ -969,6 +994,7 @@
             const bg = document.getElementById('vibe-bg');
             if(bg) bg.style.opacity = "0";
             if (ytPlayer) { try { ytPlayer.destroy(); ytPlayer = null; } catch(e) {} }
+            updateFloatingPlayerVisibility();
         }
 
         function stopVibe() {
@@ -1186,9 +1212,11 @@
                 } else {
                     // MID CLASS
                     if (qotdManualUnlock) {
+                        // Teacher Override Open!
                         viewVoting.style.display = 'flex'; viewIdle.style.display = 'none'; viewResults.style.display = 'none';
                         if(relockBtn) relockBtn.style.display = 'block';
                     } else {
+                        // Normal Lock
                         viewVoting.style.display = 'none'; viewIdle.style.display = 'flex'; viewResults.style.display = 'none';
                         if(relockBtn) relockBtn.style.display = 'none';
                     }
@@ -1208,8 +1236,8 @@
             if(ind) { ind.style.display = 'block'; ind.innerText = "Sync Status: Fetching..."; ind.style.color = '#888'; }
             
             try {
-                // No cache buster here to avoid Google block
-                const response = await fetch(GOOGLE_CALENDAR_SCRIPT_URL, { method: 'GET', redirect: 'follow' });
+                // We use standard GET without cache buster to avoid Google App script blocking
+                const response = await fetch(GOOGLE_CALENDAR_SCRIPT_URL);
                 const data = await response.json();
                 
                 if (data && data.schedule) {
@@ -1233,12 +1261,12 @@
                         document.getElementById('syncedOption').innerText = `Sheet: ${modeStr.toUpperCase()}`;
                     }
                     currentMode = 'synced';
-                    changeMode();
+                    changeMode(true);
                     showToast(`Loaded: ${modeStr.toUpperCase()} Schedule`);
                 }
             } catch (err) {
                 console.error("Schedule sync failed:", err);
-                if(ind) { ind.innerText = "Sync Status: ⚠ Offline (Using Fallback)"; ind.style.color = '#d9534f'; }
+                if(ind) { ind.innerText = "Sync Status: ⚠ Offline (Using Local)"; ind.style.color = '#d9534f'; }
                 
                 const modeDropdown = document.getElementById('scheduleMode');
                 if (predefinedSchedules['synced'] && predefinedSchedules['synced'].length > 0) {
@@ -1248,8 +1276,8 @@
                     if(modeDropdown) modeDropdown.value = 'regular';
                     currentMode = 'regular';
                 }
-                changeMode();
-                showToast("Falling back to local cache.");
+                changeMode(true);
+                showToast("Falling back to local schedule.");
             }
         }
 
@@ -1352,7 +1380,7 @@
             }
         }
 
-        // --- LOCAL STORAGE (Restored to original stable key) ---
+        // --- LOCAL STORAGE (Safe Version) ---
         function saveLocalSettings() {
             try {
                 const data = {
@@ -1363,13 +1391,13 @@
                     mrBsJukebox: mrBsJukebox, jukeboxUrl: jukeboxUrl, isMainVibePlaying: isMainVibePlaying,
                     customReminders: customReminders, accordions: accordionStates, widgets: activeWidgets
                 };
-                localStorage.setItem('waltonBellState', JSON.stringify(data));
+                localStorage.setItem('waltonBellStateV4', JSON.stringify(data));
             } catch (e) {}
         }
 
         function loadLocalSettings() {
             try {
-                const saved = localStorage.getItem('waltonBellState');
+                const saved = localStorage.getItem('waltonBellStateV4');
                 if (saved) {
                     const p = JSON.parse(saved);
                     
@@ -1404,8 +1432,7 @@
                     
                     if (p.dark === true) { 
                         isDarkMode = true;
-                        const dmToggle = document.getElementById('darkModeToggle');
-                        if(dmToggle) dmToggle.checked = true; 
+                        document.getElementById('darkModeToggle').checked = true; 
                         document.body.classList.add('dark-mode');
                     }
                     if (p.zero === true) { 
@@ -1449,7 +1476,7 @@
                             const tog = document.getElementById(`wm-tog-${key}`);
                             if(tog) {
                                 tog.checked = p.widgets[key];
-                                toggleWidget(key, p.widgets[key]);
+                                toggleWidget(key, p.widgets[key], false); // Don't re-save while loading
                             }
                         });
                     }
@@ -1817,7 +1844,7 @@
             });
         }
 
-        function changeMode() {
+        function changeMode(shouldSave = true) {
             const sm = document.getElementById('scheduleMode');
             const sz = document.getElementById('showZeroPeriod');
             if(sm) currentMode = sm.value;
@@ -1848,7 +1875,7 @@
             if(st && st.childNodes[0]) st.childNodes[0].nodeValue = currentScheduleName.toUpperCase() + ' Schedule '; 
             
             renderSchedule(); 
-            saveLocalSettings();
+            if (shouldSave) saveLocalSettings();
         }
 
         function toggleSetting(periodName, settingType, isChecked) {
@@ -2239,37 +2266,37 @@
             } catch(e) { console.error("Clock update error:", e); }
         }
 
-        // --- SAFE INITIALIZATION SEQUENCE ---
+        // --- SAFE INITIALIZATION LOOP ---
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. Instantly load local defaults to prevent blank screen
-            currentMode = 'regular';
-            changeMode(); 
-
-            // 2. Load Local Settings OVER the defaults
+            
+            // 1. Instantly load local settings into memory FIRST
             loadLocalSettings(); 
             
+            // 2. Set fallback schedule mode visually without saving over memory
+            changeMode(false); 
+
             // 3. Initialize UI elements
             updateTimerDisplay();
             updateClock();
             
-            // 4. Force Sidebar to be collapsed on load
+            // 4. Force Sidebar to be collapsed strictly on load
             const sidebar = document.getElementById('sidebar');
             const hamBtn = document.getElementById('hamburgerBtn');
             if(sidebar) sidebar.classList.add('collapsed');
             if(hamBtn) hamBtn.classList.remove('active-btn');
             sidebarVisible = false;
             
-            // 5. Fire off the async fetch to Google Calendar
-            fetchDailySchedule();
-            
-            // 6. Start Clock Loop
+            // 5. Start Clock Loop
             setInterval(updateClock, 1000);
+            
+            // 6. Fire off the async fetch to Google Calendar
+            setTimeout(fetchDailySchedule, 500);
             
             // 7. Load voices in the background quietly
             try {
                 if ('speechSynthesis' in window) {
-                    window.speechSynthesis.onvoiceschanged = populateVoiceList;
-                    populateVoiceList();
+                    window.speechSynthesis.onvoiceschanged = safePopulateVoiceList;
+                    safePopulateVoiceList();
                 }
             } catch(e) {}
         });
