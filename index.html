@@ -150,14 +150,14 @@
         /* --- Dark Mode & Glassmorphism UI --- */
         body.dark-mode { background-color: #121212; color: #e0e0e0; }
         
-        .schedule-container, .sidebar { 
+        .schedule-container, .sidebar, .widget-card { 
             background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
         }
-        body.dark-mode .schedule-container, body.dark-mode .sidebar { 
+        body.dark-mode .schedule-container, body.dark-mode .sidebar, body.dark-mode .widget-card { 
             background: rgba(30, 30, 30, 0.85); box-shadow: 0 4px 15px rgba(0,0,0,0.7); 
         }
 
-        body.dark-mode h1, body.dark-mode h3, body.dark-mode .schedule-header, body.dark-mode .period-name, body.dark-mode .title { color: #90caf9; border-color: #444; }
+        body.dark-mode h1, body.dark-mode h3, body.dark-mode .schedule-header, body.dark-mode .period-name, body.dark-mode .title, body.dark-mode .widget-title { color: #90caf9; border-color: #444; }
         body.dark-mode .control-group label.title { color: #90caf9; }
         body.dark-mode .sub-label, body.dark-mode #darkModeLabel { color: #ccc !important; }
         body.dark-mode #schedule-list li { border-color: #444; }
@@ -175,6 +175,20 @@
         body.dark-mode .btn:hover { background-color: #1565c0; }
         body.dark-mode .split-button-main { background-color: #0288d1; }
         body.dark-mode .split-button-caret { background-color: #0277bd; border-left: 1px solid #01579b; }
+
+        /* --- Custom Toggles --- */
+        .switch-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; margin-top: 5px;}
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+        .switch input { 
+            opacity: 0 !important; width: 0 !important; height: 0 !important; 
+            position: absolute !important; z-index: -1 !important; 
+            appearance: none !important; -webkit-appearance: none !important; 
+        }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s cubic-bezier(0.25, 1.2, 0.3, 1); border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s cubic-bezier(0.25, 1.2, 0.3, 1); border-radius: 50%; }
+        input:checked + .slider { background-color: #31b0d5; } 
+        input:checked + .slider:before { transform: translateX(20px); }
+        body.dark-mode input:checked + .slider { background-color: #90caf9; }
 
         /* --- Positive Goodbyes & Jukebox UI --- */
         .goodbye-box {
@@ -329,20 +343,6 @@
         .btn-danger { background-color: #d9534f; }
         .btn-danger:hover { background-color: #c9302c; }
 
-        /* Custom Toggles (FIXED for Reset Compatibility) */
-        .switch-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; margin-top: 5px;}
-        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
-        .switch input { 
-            opacity: 0 !important; width: 0 !important; height: 0 !important; 
-            position: absolute !important; z-index: -1 !important; 
-            appearance: none !important; -webkit-appearance: none !important; 
-        }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s cubic-bezier(0.25, 1.2, 0.3, 1); border-radius: 20px; }
-        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s cubic-bezier(0.25, 1.2, 0.3, 1); border-radius: 50%; }
-        input:checked + .slider { background-color: #31b0d5; } 
-        input:checked + .slider:before { transform: translateX(20px); }
-        body.dark-mode input:checked + .slider { background-color: #90caf9; }
-
         /* =========================================================
            STATE 1: WAFFLE CLOSED 
            ========================================================= */
@@ -356,11 +356,10 @@
         .waffle-closed .period-time { font-size: 2rem; font-weight: bold; color: #333; }
         body.dark-mode .waffle-closed .period-time { color: #e0e0e0; }
 
-
         /* =========================================================
-           STATE 2: MINIMAL VIEW (THE LIQUID DOCK)
+           STATE 2: MINIMAL VIEW (The "Fly to Top Bar" Liquid Dock) 
            ========================================================= */
-        
+           
         /* The Docked Hologram in the Header */
         .docked-schedule {
             display: flex; gap: 20px; align-items: center; justify-content: center;
@@ -389,6 +388,39 @@
             border: none !important; 
             box-shadow: none !important;
             pointer-events: none;
+        }
+
+        /* --- THE WIDGET BOARD ZONE --- */
+        .widget-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+            transition: all 0.7s cubic-bezier(0.34, 1.2, 0.64, 1);
+            width: 100%;
+            opacity: 1;
+        }
+        
+        .widget-card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 15px;
+            height: 480px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: all 0.5s ease;
+        }
+        
+        .widget-title {
+            font-weight: bold; font-size: 1.1rem; color: #003366; margin-bottom: 10px; 
+            border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 5px;
+        }
+
+        /* Glides up into the center when Focus Mode opens up space */
+        body.minimal-active .widget-board {
+            margin-top: 40px; 
+            transform: translateY(-20px);
         }
 
         /* =========================================================
@@ -446,6 +478,9 @@
             .options-wrapper { grid-template-columns: repeat(3, 1fr); max-height: 80px; }
             .waffle-closed .options-wrapper { max-height: 0px; }
             
+            /* Make sure the widget board doesn't glide up too high on mobile */
+            body.minimal-active .widget-board { margin-top: 60px; transform: none;}
+
             /* --- Mobile Fixed Bottom Player --- */
             .floating-player { 
                 position: fixed !important; bottom: 0 !important; right: 0 !important; left: 0 !important; 
@@ -523,6 +558,7 @@
     <div id="toast">Loaded Successfully</div>
 
     <div class="dashboard-wrapper">
+        
         <div class="sidebar" id="sidebar">
             
             <div class="control-group" style="padding-bottom: 5px; margin-bottom: 5px; border-bottom: none;">
@@ -536,11 +572,11 @@
             </div>
 
             <div class="control-group">
-                <div class="accordion-header" onclick="toggleAccordion('sec1')">
-                    <label class="title">1. Audio & Voice Settings</label>
-                    <span class="chevron" id="chev-sec1">▼</span>
+                <div class="accordion-header" onclick="toggleAccordion('sec-audio')">
+                    <label class="title">Audio & Voice</label>
+                    <span class="chevron" id="chev-sec-audio">▼</span>
                 </div>
-                <div class="accordion-content" id="sec1">
+                <div class="accordion-content" id="sec-audio">
                     <select id="voicePreference" onchange="changeVoicePref()" title="Select the computer voice used for automated announcements.">
                         <option value="">Loading voices...</option>
                     </select>
@@ -588,35 +624,11 @@
             </div>
 
             <div class="control-group">
-                <div class="accordion-header" onclick="toggleAccordion('sec2')">
-                    <label class="title">2. Schedule Settings</label>
-                    <span class="chevron" id="chev-sec2">▼</span>
+                <div class="accordion-header" onclick="toggleAccordion('sec-reminders')">
+                    <label class="title">Reminders</label>
+                    <span class="chevron" id="chev-sec-reminders">▼</span>
                 </div>
-                <div class="accordion-content" id="sec2">
-                    <div id="autoIndicator" title="The current schedule successfully loaded from the Google Sheet.">✓ Auto-Synced</div>
-
-                    <select id="scheduleMode" onchange="changeMode()" title="Override the auto-synced schedule with a manual selection.">
-                        <option value="synced" id="syncedOption">Loading Google Sheet...</option>
-                        <option value="web">WEB Schedule (Hardcoded)</option>
-                        <option value="custom">Custom Schedule</option>
-                    </select>
-                    
-                    <div class="setting-row" title="Adds or removes the 0 Period block from the active schedule view.">
-                        <span class="sub-label">Show 0 Period</span>
-                        <label class="switch">
-                            <input type="checkbox" id="showZeroPeriod" onchange="changeMode()">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="control-group">
-                <div class="accordion-header" onclick="toggleAccordion('sec3')">
-                    <label class="title">3. Custom Reminders</label>
-                    <span class="chevron" id="chev-sec3">▼</span>
-                </div>
-                <div class="accordion-content" id="sec3">
+                <div class="accordion-content" id="sec-reminders">
                     
                     <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px dotted rgba(150,150,150,0.5);">
                         <span class="sub-label" style="display:block; margin-bottom:5px;">Add Custom Reminder:</span>
@@ -656,11 +668,11 @@
             </div>
 
             <div class="control-group">
-                <div class="accordion-header" onclick="toggleAccordion('sec4')">
-                    <label class="title">4. Classroom Vibe Settings</label>
-                    <span class="chevron" id="chev-sec4">▼</span>
+                <div class="accordion-header" onclick="toggleAccordion('sec-vibe')">
+                    <label class="title">Classroom Vibe</label>
+                    <span class="chevron" id="chev-sec-vibe">▼</span>
                 </div>
-                <div class="accordion-content" id="sec4">
+                <div class="accordion-content" id="sec-vibe">
                     
                     <div class="goodbye-box" style="margin-top: 5px; margin-bottom: 15px; padding: 10px;">
                         <div class="switch-container" style="margin: 0 0 5px 0;">
@@ -696,6 +708,31 @@
                     </div>
                 </div>
             </div>
+
+            <div class="control-group">
+                <div class="accordion-header" onclick="toggleAccordion('sec-schedule')">
+                    <label class="title">Schedule</label>
+                    <span class="chevron" id="chev-sec-schedule">▼</span>
+                </div>
+                <div class="accordion-content" id="sec-schedule">
+                    <div id="autoIndicator" title="The current schedule successfully loaded from the Google Sheet.">✓ Auto-Synced</div>
+
+                    <select id="scheduleMode" onchange="changeMode()" title="Override the auto-synced schedule with a manual selection.">
+                        <option value="synced" id="syncedOption">Loading Google Sheet...</option>
+                        <option value="web">WEB Schedule (Hardcoded)</option>
+                        <option value="custom">Custom Schedule</option>
+                    </select>
+                    
+                    <div class="setting-row" title="Adds or removes the 0 Period block from the active schedule view.">
+                        <span class="sub-label">Show 0 Period</span>
+                        <label class="switch">
+                            <input type="checkbox" id="showZeroPeriod" onchange="changeMode()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <div class="main-content">
@@ -722,6 +759,28 @@
                 </div>
                 
                 <ul id="schedule-list"></ul>
+            </div>
+
+            <div class="widget-board" id="widget-board">
+                
+                <div class="widget-card">
+                    <div class="widget-title">Local Forecast</div>
+                    <div style="flex-grow: 1; overflow-y: auto; overflow-x: hidden;">
+                        <a class="weatherwidget-io" href="https://forecast7.com/en/33d98n84d43/east-cobb/" data-label_1="EAST COBB" data-label_2="WEATHER" data-theme="pure" >EAST COBB WEATHER</a>
+                        <script>
+                        !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
+                        </script>
+                    </div>
+                </div>
+
+                <div class="widget-card">
+                    <div class="widget-title">Walton Updates</div>
+                    <div style="flex-grow: 1; overflow-y: auto;">
+                        <a class="twitter-timeline" data-chrome="transparent nofooter noheader" href="https://twitter.com/WaltonHighSch?ref_src=twsrc%5Etfw">Tweets by WaltonHighSch</a> 
+                        <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -779,9 +838,11 @@
         
         let currentTestSound = 'positive', sidebarVisible = true, isDarkMode = false, showZero = false;
         let playGoodbyes = false, muteBells = false;
-        let accordionStates = { sec1: true, sec2: true, sec3: true, sec4: true };
-        let currentScheduleName = "Loading..."; 
         
+        // Updated Accordion State Keys
+        let accordionStates = { 'sec-audio': true, 'sec-reminders': true, 'sec-vibe': true, 'sec-schedule': true };
+        
+        let currentScheduleName = "Loading..."; 
         let playedActions = {};
         let currentMinuteTracker = "";
         let lastAutoState = null; 
@@ -1402,10 +1463,18 @@
                         jkInput.value = jukeboxUrl;
                     }
 
+                    // Smart Accordion State Migration
                     if (p.accordions) {
-                        accordionStates = p.accordions;
+                        if (p.accordions.hasOwnProperty('sec1')) {
+                             accordionStates['sec-audio'] = p.accordions['sec1'];
+                             accordionStates['sec-schedule'] = p.accordions['sec2'];
+                             accordionStates['sec-reminders'] = p.accordions['sec3'];
+                             accordionStates['sec-vibe'] = p.accordions['sec4'];
+                        } else {
+                             accordionStates = p.accordions;
+                        }
                         Object.keys(accordionStates).forEach(id => {
-                            if(!accordionStates[id]) toggleAccordion(id, false); 
+                            if(accordionStates[id] === false) toggleAccordion(id, false); 
                         });
                     }
                 }
@@ -1415,7 +1484,6 @@
             renderVibeDropdown();
             updateFloatingPlayerVisibility();
             
-            // Set initial play button SVG state based on playing variable
             const floatBtn = document.getElementById('float-play-btn');
             if (floatBtn) {
                 floatBtn.innerHTML = isMainVibePlaying ? pauseSVG : playSVG;
@@ -1444,7 +1512,7 @@
         }
 
         setTimeout(() => {
-            ['sec1', 'sec2', 'sec3', 'sec4'].forEach(id => {
+            ['sec-audio', 'sec-reminders', 'sec-vibe', 'sec-schedule'].forEach(id => {
                 const el = document.getElementById(id);
                 if(el && accordionStates[id] !== false) el.style.maxHeight = "none";
                 else if (el) { el.style.maxHeight = "0px"; document.getElementById('chev-'+id).style.transform = "rotate(-90deg)"; }
@@ -1460,11 +1528,17 @@
             const toggle = document.getElementById('darkModeToggle');
             if(!toggle) return;
             isDarkMode = toggle.checked;
+            const wBtn = document.getElementById('waffleViewBtn');
+            const mBtn = document.getElementById('minimalViewBtn');
             
             if (isDarkMode) { 
                 document.body.classList.add('dark-mode'); 
+                if(isWaffleClosed && wBtn) wBtn.style.color = '#90caf9';
+                if(isMinimalView && mBtn) mBtn.style.color = '#90caf9';
             } else { 
                 document.body.classList.remove('dark-mode'); 
+                if(isWaffleClosed && wBtn) wBtn.style.color = '#31b0d5';
+                if(isMinimalView && mBtn) mBtn.style.color = '#31b0d5';
             }
             if (shouldSave) saveLocalSettings();
             renderLunchDuties(); 
@@ -1504,9 +1578,13 @@
                 if (isWaffleClosed) {
                     container.classList.add('waffle-closed'); 
                     btn.classList.remove('active-btn');
+                    if(isDarkMode) btn.style.color = '#90caf9';
+                    else btn.style.color = '#31b0d5';
                 } else {
                     container.classList.remove('waffle-closed'); 
                     btn.classList.add('active-btn');
+                    if(isDarkMode) btn.style.color = '#666';
+                    else btn.style.color = '#aaa';
                 }
             }
             if (shouldSave) saveLocalSettings();
@@ -1522,9 +1600,13 @@
                 if (isMinimalView) {
                     document.body.classList.add('minimal-active'); 
                     btn.classList.add('active-btn');
+                    if(isDarkMode) btn.style.color = '#90caf9';
+                    else btn.style.color = '#31b0d5';
                 } else {
                     document.body.classList.remove('minimal-active'); 
                     btn.classList.remove('active-btn');
+                    if(isDarkMode) btn.style.color = '#666';
+                    else btn.style.color = '#aaa';
                 }
             }
             if (shouldSave) saveLocalSettings();
@@ -1820,7 +1902,7 @@
                     let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
                     let isWebBlock = /^[A-D](\s|-)?Block/i.test(key);
                     let webOpenCheckbox = isWebBlock ? 
-                        `<div class="options-col"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
+                        `<div class="options-col opt-center"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
                         `<div class="options-col"></div>`;
 
                     li.innerHTML = `
@@ -2015,9 +2097,7 @@
             if (status && status.actualClass) {
                 const p = status.periodData;
                 if (dName) dName.innerText = p.li.querySelector('.period-name').childNodes[0].nodeValue.trim();
-                if (dTime) dTime.innerText = formatTime12(p.startMins + ':00') + ' - ' + formatTime12(p.endMins + ':00'); // Fallback string rebuild
                 
-                // Get accurate time strings directly from original li
                 const realTimeStr = p.li.querySelector('.period-time').innerText;
                 if (dTime && realTimeStr) dTime.innerText = realTimeStr;
 
