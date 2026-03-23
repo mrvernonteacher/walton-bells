@@ -27,13 +27,10 @@
             flex-direction: column;
             min-height: 100vh;
             box-sizing: border-box;
-            transition: background-color 0.5s ease, color 0.5s ease, padding-top 0.5s cubic-bezier(0.25, 1.2, 0.3, 1);
+            transition: background-color 0.5s ease, color 0.5s ease;
             overflow-x: hidden;
             position: relative; 
         }
-        
-        /* Dynamic push when QotD sub bar is visible */
-        body.qotd-sub-visible { padding-top: 150px; }
 
         /* --- Fullscreen YouTube Background --- */
         #vibe-bg {
@@ -50,7 +47,7 @@
         .floating-header {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 75px;
-            display: grid; grid-template-columns: auto 1fr auto; align-items: center; 
+            display: grid; grid-template-columns: 240px 1fr auto; align-items: center; 
             padding: 0 30px; box-sizing: border-box;
             background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px) saturate(150%);
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
@@ -72,6 +69,7 @@
             box-shadow: none; padding: 0; margin: 0; transition: color 0.4s ease; 
             text-align: right; white-space: nowrap; flex-shrink: 0; 
         }
+        body.dark-mode #clock { color: #e0e0e0; }
 
         /* --- Smart State Icon Buttons --- */
         .header-icon-btn {
@@ -86,45 +84,47 @@
         body.dark-mode .header-icon-btn:hover { background-color: rgba(150,150,150,0.2); color: #aaa; }
         body.dark-mode .header-icon-btn.active-btn { color: #90caf9; } 
 
-        /* --- THE FULL-WIDTH QOTD SUB-BAR (Normal Mode Only) --- */
-        .qotd-sub-bar {
-            position: fixed; top: 50px; left: 0; width: 100%; box-sizing: border-box;
-            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08); border-radius: 0;
-            border-bottom: 1px solid rgba(150,150,150,0.2);
-            display: flex; align-items: center; justify-content: center; gap: 20px;
-            padding: 8px 30px; z-index: 1090; opacity: 0; pointer-events: none;
-            transition: all 0.5s cubic-bezier(0.25, 1.2, 0.3, 1); white-space: nowrap;
+        /* --- Sidebar & Z-Index Fix --- */
+        .sidebar-wrapper {
+            position: fixed; top: 90px; left: 20px; z-index: 2000; pointer-events: none;
         }
-        body.dark-mode .qotd-sub-bar { background: rgba(30, 30, 30, 0.85); box-shadow: 0 4px 15px rgba(0,0,0,0.5); border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .qotd-sub-bar.visible { opacity: 1; pointer-events: auto; top: 75px; }
-
-        .sub-qotd-text { font-size: 1.15rem; font-weight: bold; color: #003366; }
-        body.dark-mode .sub-qotd-text { color: #90caf9; }
-        .sub-qotd-qr { 
-            width: 45px; height: 45px; border-radius: 5px; cursor: pointer; 
-            transition: transform 0.3s cubic-bezier(0.25, 1.2, 0.3, 1); transform-origin: top center; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2); margin-top: 2px;
+        .sidebar {
+            width: 350px; padding: 15px 20px;
+            border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.5s cubic-bezier(0.25, 1.2, 0.3, 1);
+            opacity: 1; overflow: hidden; transform-origin: left top; pointer-events: auto;
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            max-height: 80vh; overflow-y: auto;
         }
-        .sub-qotd-qr:hover { transform: scale(3.5) translate(-10px, 15px); z-index: 2000; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        body.dark-mode .sidebar { background: rgba(30, 30, 30, 0.95); border: 1px solid rgba(255,255,255,0.05); }
+        .sidebar.collapsed { width: 0; padding: 0; opacity: 0; transform: scaleX(0); }
 
-        /* --- Floating Footer --- */
-        .footer { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); font-size: 0.85rem; color: #555; text-align: center; width: 100%; transition: color 0.4s ease; z-index: 10; pointer-events: none; }
-        .footer p { margin: 0 0 5px 0; font-weight: bold; text-shadow: 0 0 8px rgba(255,255,255,0.9);}
-        .footer-logo { max-width: 160px; height: auto; display: inline-block; opacity: 0.7; }
-
-        /* --- Toast Notification --- */
-        #toast {
-            position: fixed; top: -60px; left: 50%; transform: translateX(-50%);
-            background-color: #5cb85c; color: white; padding: 12px 24px;
-            border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            font-weight: bold; font-size: 1.1rem; z-index: 9999; opacity: 0;
-            transition: top 0.6s cubic-bezier(0.25, 1.2, 0.3, 1), opacity 0.4s ease; pointer-events: none;
+        /* --- STATIC WIDGET MENU (+ BUTTON) --- */
+        #widget-menu-wrapper {
+            position: fixed; bottom: 20px; left: 20px; z-index: 1050;
         }
-        #toast.show { top: 150px; opacity: 1; } 
+        .widget-panel-menu {
+            position: absolute; bottom: 60px; left: 0;
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border-radius: 15px; padding: 15px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: none; flex-direction: column; width: 220px;
+            border: 1px solid rgba(150,150,150,0.2);
+            animation: popUp 0.3s cubic-bezier(0.25, 1.2, 0.3, 1); transform-origin: bottom left;
+        }
+        @keyframes popUp { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        body.dark-mode .widget-panel-menu { background: rgba(30,30,30,0.95); border-color: rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.6); }
 
-        /* --- Draggable Floating Media Player --- */
-        #floating-player {
+        .float-btn {
+            background: #003366; color: white; border: none; border-radius: 50%;
+            width: 48px; height: 48px; font-size: 1.8rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: background 0.3s, transform 0.3s cubic-bezier(0.25, 1.2, 0.3, 1); flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .float-btn:hover { background: #002244; transform: scale(1.1); }
+        body.dark-mode .float-btn { background: #1976d2; }
+        body.dark-mode .float-btn:hover { background: #1565c0; }
+
+        /* --- Floating Player --- */
+        .floating-player {
             position: fixed; bottom: 20px; right: 20px; top: auto; left: auto;
             background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             border-radius: 20px; padding: 10px 15px 10px 10px;
@@ -134,64 +134,39 @@
             transition: opacity 0.4s ease, transform 0.6s cubic-bezier(0.25, 1.2, 0.3, 1);
             user-select: none; transform: translateY(20px);
         }
-        #floating-player.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
-        #floating-player.dragging { transition: none !important; opacity: 0.95; transform: scale(1.02); z-index: 2000; }
+        .floating-player.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+        .floating-player.dragging { cursor: grabbing; transition: none !important; opacity: 0.95; transform: scale(1.02); }
+        body.dark-mode .floating-player { background: rgba(30,30,30,0.85); color: #e0e0e0; border: 1px solid #444; }
         .drag-handle { color: #888; font-size: 1.2rem; cursor: grab; display: flex; align-items: center; padding-right: 2px;}
-        #floating-player.dragging .drag-handle { cursor: grabbing; }
-
-        /* --- WIDGET TOGGLE MENU (Bottom Left) --- */
-        #widget-menu-wrapper {
-            position: fixed; bottom: 20px; left: 20px; z-index: 1050;
-            display: flex; flex-direction: column-reverse; align-items: flex-start; gap: 10px;
-        }
-        .widget-panel-menu {
-            background: rgba(255,255,255,0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border-radius: 15px; padding: 15px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            display: none; flex-direction: column; gap: 10px; min-width: 160px;
-            border: 1px solid rgba(150,150,150,0.2);
-            animation: popUp 0.3s cubic-bezier(0.25, 1.2, 0.3, 1); transform-origin: bottom left;
-        }
-        @keyframes popUp { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        
-        .float-btn {
-            background: #003366; color: white; border: none; border-radius: 50%;
-            width: 46px; height: 46px; font-size: 1.6rem; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; transition: background 0.3s, transform 0.3s cubic-bezier(0.25, 1.2, 0.3, 1); flex-shrink: 0;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        .float-btn:hover { background: #002244; transform: scale(1.1); }
+        body.dark-mode .drag-handle { color: #aaa; }
         .float-content { display: flex; flex-direction: column; gap: 6px; }
-        .float-info { font-weight: bold; font-size: 0.85rem; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #003366; cursor: text; transition: color 0.4s;}
+        .float-info { font-weight: bold; font-size: 0.85rem; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #003366; cursor: text;}
+        body.dark-mode .float-info { color: #90caf9; }
         .float-volume { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
-        .float-volume span { cursor: pointer; transition: transform 0.2s; width: 18px; text-align: center; }
+        .float-volume span { cursor: pointer; transition: transform 0.2s; user-select: none; width: 18px; text-align: center; }
         .float-volume span:hover { transform: scale(1.2); }
         .float-volume input { width: 100px; cursor: pointer; height: 4px; margin: 0;}
 
-        /* --- Dark Mode Variables & Enforcement --- */
-        body.dark-mode { background-color: #121212; color: #e0e0e0; }
-        body.dark-mode #clock { color: #e0e0e0; }
+        /* --- Floating Footer --- */
+        .footer { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); font-size: 0.85rem; color: #555; text-align: center; width: 100%; transition: color 0.4s ease; z-index: 10; pointer-events: none; }
+        .footer p { margin: 0 0 5px 0; font-weight: bold; text-shadow: 0 0 8px rgba(255,255,255,0.9);}
+        .footer-logo { max-width: 160px; height: auto; display: inline-block; opacity: 0.7; }
         body.dark-mode .footer p { text-shadow: 0 0 8px rgba(0,0,0,0.9); color: #aaa;}
-        body.dark-mode .header-icon-btn { color: #666; }
-        body.dark-mode .header-icon-btn:hover { background-color: rgba(150,150,150,0.2); color: #aaa; }
-        body.dark-mode .header-icon-btn.active-btn { color: #90caf9; } 
-        body.dark-mode #floating-player { background: rgba(30,30,30,0.85); color: #e0e0e0; border: 1px solid #444; }
-        body.dark-mode .drag-handle { color: #aaa; }
-        body.dark-mode .widget-panel-menu { background: rgba(30,30,30,0.85); border-color: rgba(255,255,255,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.6); }
-        body.dark-mode .float-btn { background: #1976d2; }
-        body.dark-mode .float-btn:hover { background: #1565c0; }
-        body.dark-mode .float-info { color: #90caf9; }
 
-        /* Unified Container CSS (Clean separation) */
-        .schedule-container, .sidebar, .widget-card { 
-            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        /* --- Toast Notification --- */
+        #toast {
+            position: fixed; top: -60px; left: 50%; transform: translateX(-50%);
+            background-color: #5cb85c; color: white; padding: 12px 24px;
+            border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-weight: bold; font-size: 1.1rem; z-index: 9999; opacity: 0;
+            transition: top 0.6s cubic-bezier(0.25, 1.2, 0.3, 1), opacity 0.4s ease; pointer-events: none;
         }
-        body.dark-mode .schedule-container, body.dark-mode .sidebar, body.dark-mode .widget-card { 
-            background: rgba(30, 30, 30, 0.85); box-shadow: 0 4px 15px rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.05); 
-        }
+        #toast.show { top: 90px; opacity: 1; }
 
+        /* --- Dark Mode & Glassmorphism UI (Global Overrides) --- */
         body.dark-mode h1, body.dark-mode h3, body.dark-mode .schedule-header, body.dark-mode .period-name, body.dark-mode .title, body.dark-mode .widget-title { color: #90caf9; border-color: #444; }
         body.dark-mode .control-group label.title { color: #90caf9; }
-        body.dark-mode .sub-label, body.dark-mode #darkModeLabel { color: #ccc !important; }
+        body.dark-mode .sub-label { color: #ccc !important; }
         body.dark-mode #schedule-list li { border-color: #444; }
         body.dark-mode #schedule-list li:nth-child(even) { background-color: rgba(255,255,255,0.03); }
         body.dark-mode select, body.dark-mode input[type="text"], body.dark-mode input[type="time"], body.dark-mode input[type="date"] { background: #333; color: #fff; border-color: #555; }
@@ -217,35 +192,24 @@
         input:checked + .slider:before { transform: translateX(20px); }
         body.dark-mode input:checked + .slider { background-color: #90caf9; }
 
-        /* --- Open Block Badge --- */
-        .open-badge { background-color: #5cb85c; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; margin-left: 10px; vertical-align: middle; font-weight: bold; letter-spacing: 0.5px; display: inline-block; }
-        body.dark-mode .open-badge { background-color: #2e7d32; color: #e8f5e9; }
-        .waffle-closed .open-badge, .docked-badge { font-size: 1rem; padding: 4px 10px; margin-left: 15px; transform: translateY(-2px); transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); }
-
-        /* --- Layout & Structure (FLANKING GRID) --- */
-        .dashboard-wrapper { display: flex; position: absolute; top: 100px; left: 20px; z-index: 2000; } /* Sidebar wrapper */
-        
+        /* --- Layout & Structure (3-COLUMN DOCKED GRID) --- */
         .main-content-area {
             display: flex; justify-content: center; align-items: flex-start; gap: 20px;
             width: 100%; max-width: 1600px; margin: 0 auto;
-        }
-
-        .widget-column {
-            display: flex; flex-direction: column; gap: 20px; width: 320px; flex-shrink: 0;
-            transition: all 0.5s cubic-bezier(0.25, 1.2, 0.3, 1);
-        }
-
-        .schedule-column {
-            flex-grow: 1; max-width: 900px; display: flex; flex-direction: column; align-items: center;
             transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1);
         }
 
-        .sidebar {
-            min-width: 320px; max-width: 350px; padding: 15px 20px;
-            border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1);
-            opacity: 1; overflow: hidden; transform-origin: left center;
+        /* Side Columns for Widgets */
+        .widget-column {
+            display: flex; flex-direction: column; gap: 20px; width: 320px; flex-shrink: 0;
+            transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1);
         }
-        .sidebar.collapsed { min-width: 0; max-width: 0; padding: 0; margin-left: -15px; opacity: 0; transform: scaleX(0); border: none; max-height: 0; }
+
+        /* Center Column for Schedule */
+        .schedule-column {
+            flex-grow: 1; max-width: 900px; display: flex; flex-direction: column; align-items: center;
+            transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); overflow: hidden;
+        }
 
         /* UI Controls & Accordions */
         .control-group { border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 10px; margin-bottom: 10px;}
@@ -283,10 +247,12 @@
         .schedule-container { 
             padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
             width: 100%; box-sizing: border-box; transform-origin: top center;
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             transition: all 0.6s cubic-bezier(0.34, 1.2, 0.64, 1), max-height 0.6s ease, padding 0.6s ease, opacity 0.4s ease;
             max-height: 2000px; opacity: 1; overflow: hidden; margin: 0 auto;
         }
-        
+        body.dark-mode .schedule-container { background: rgba(30, 30, 30, 0.85); box-shadow: 0 4px 15px rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.05); }
+
         .schedule-title-row { 
             display: flex; justify-content: center; align-items: center; margin-bottom: 10px; 
             border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 8px; 
@@ -329,6 +295,11 @@
         .agenda-error { color: #d9534f !important; font-style: italic; font-weight: normal; }
         body.dark-mode .agenda-error { color: #ff8a80 !important; }
 
+        /* --- Open Block Badge --- */
+        .open-badge { background-color: #5cb85c; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; margin-left: 10px; vertical-align: middle; font-weight: bold; letter-spacing: 0.5px; display: inline-block; }
+        body.dark-mode .open-badge { background-color: #2e7d32; color: #e8f5e9; }
+        .waffle-closed .open-badge, .docked-badge { font-size: 1rem; padding: 4px 10px; margin-left: 15px; transform: translateY(-2px); transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); }
+
         /* =========================================================
            STATE 1: WAFFLE CLOSED 
            ========================================================= */
@@ -352,25 +323,26 @@
         .docked-time { font-size: 1.6rem; font-weight: bold; color: #555; }
         body.dark-mode .docked-time { color: #e0e0e0; }
 
-        body.minimal-active .schedule-column { max-width: 0 !important; opacity: 0 !important; padding: 0 !important; margin: 0 auto !important; overflow: hidden; pointer-events: none; }
+        body.minimal-active .schedule-column { max-width: 0 !important; opacity: 0 !important; padding: 0 !important; margin: 0 !important; overflow: hidden; pointer-events: none; }
 
-        /* --- THE NEW FLANKING WIDGETS --- */
+        /* --- THE DOCKED WIDGETS --- */
         .widget-card {
-            border-radius: 15px; padding: 15px; display: none; flex-direction: column; overflow: hidden; 
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); padding: 15px; 
+            display: none; flex-direction: column; overflow: hidden;
+            width: 100%; border: 1px solid rgba(150,150,150,0.2);
             transition: opacity 0.4s ease;
-            width: 100%; /* Fills the grid column naturally */
         }
-        body:not(.minimal-active) .widget-card.active-widget { display: flex; animation: fadeWidgetIn 0.5s ease;}
-        body.minimal-active .widget-card.active-widget { display: flex; animation: fadeWidgetIn 0.5s ease;}
+        body.dark-mode .widget-card { background: rgba(30, 30, 30, 0.85); border-color: rgba(255,255,255,0.05); box-shadow: 0 4px 15px rgba(0,0,0,0.7);}
+        .widget-card.active-widget { display: flex; animation: fadeWidgetIn 0.5s cubic-bezier(0.25, 1.2, 0.3, 1);}
         @keyframes fadeWidgetIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
-        .widget-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 8px; margin-bottom: 12px; pointer-events: none; }
+        .widget-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 8px; margin-bottom: 12px;}
         .widget-title { font-weight: bold; font-size: 1.1rem; color: #003366; margin: 0; }
-        .widget-close { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1.2rem; line-height: 1; padding: 0 5px; transition: color 0.2s; pointer-events: auto;}
-        .widget-close:hover { color: #d9534f; }
-
-        /* Weather Contrast Fix */
-        #weather-container-main { min-height: 150px; }
+        
+        /* Weather Widget Height Locks */
+        #widget-weather { min-height: 250px; }
+        #weather-container-main { height: 100%; min-height: 200px; display: flex; align-items: center;}
         body.dark-mode #weather-container-main iframe { filter: invert(1) hue-rotate(180deg); }
 
         /* --- Timer Widget Styles (Modernized) --- */
@@ -386,7 +358,8 @@
         body.dark-mode .timer-btn-reset { border-color: #aaa; color: #aaa; }
 
         /* --- QotD Widget Styles --- */
-        .qotd-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; gap: 15px; position: relative;}
+        #widget-qotd { min-height: 450px; }
+        .qotd-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; gap: 15px; position: relative; flex-grow: 1;}
         .qotd-text { font-size: 1.2rem; font-weight: bold; color: #003366; }
         body.dark-mode .qotd-text { color: #e0e0e0; }
         .qotd-qr { width: 130px; height: 130px; background: white; padding: 10px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
@@ -394,13 +367,16 @@
         body.dark-mode .qotd-bar-bg { background: rgba(255,255,255,0.1); }
         .qotd-bar-fill { height: 100%; background: #31b0d5; width: 0%; transition: width 1s cubic-bezier(0.25, 1.2, 0.3, 1); }
         .qotd-bar-label { position: absolute; top: 0; left: 10px; line-height: 24px; font-size: 0.85rem; font-weight: bold; color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.5);}
+        
+        .qotd-manual-unlock { margin-top: 10px; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s;}
+        .qotd-manual-unlock:hover { transform: scale(1.1); }
 
         /* =========================================================
            MOBILE BROWSER OVERRIDES (< 1100px screens)
            ========================================================= */
         @media (max-width: 1100px) {
             .main-content-area { flex-direction: column !important; align-items: center !important; }
-            .widget-column { width: 100% !important; max-width: 600px; }
+            .widget-column { width: 100% !important; max-width: 900px; }
             .schedule-column { width: 100% !important; max-width: 100% !important;}
         }
 
@@ -423,21 +399,20 @@
             .docked-badge { font-size: 0.8rem !important; padding: 2px 6px !important; }
             .docked-schedule { gap: 8px; }
             
-            .sidebar { max-width: 100%; width: 100%; margin-bottom: 20px; box-sizing: border-box;}
+            .sidebar-wrapper { top: 75px; left: 10px; }
+            .sidebar { max-width: calc(100vw - 20px); width: calc(100vw - 20px); }
+            
             .schedule-header { display: none !important; }
             .schedule-title-row { flex-direction: column; text-align: center; gap: 5px; }
             
             .schedule-grid, .waffle-closed .schedule-grid { grid-template-columns: 1fr; gap: 8px; text-align: center; padding: 15px; }
-            .period-name, .waffle-closed .period-name { grid-column: 1; grid-row: auto; text-align: center; font-size: 1.8rem; white-space: normal; }
+            .period-name, .waffle-closed .period-name { grid-column: 1; grid-row: auto; text-align: center; font-size: 1.8rem; white-space: normal; padding: 0;}
             .middle-section { grid-column: 1; grid-row: auto; }
-            .period-time, .waffle-closed .period-time { grid-column: 1; grid-row: auto; text-align: center; font-size: 1.4rem; white-space: normal; }
+            .period-time, .waffle-closed .period-time { grid-column: 1; grid-row: auto; text-align: center; font-size: 1.4rem; white-space: normal; padding: 0;}
             .agenda-display { grid-column: 1 !important; grid-row: auto !important; white-space: normal; }
             .options-wrapper { grid-template-columns: repeat(3, 1fr); max-height: 80px; }
             .waffle-closed .options-wrapper { max-height: 0px; }
             
-            .qotd-sub-bar { display: none !important; }
-            body.qotd-sub-visible { padding-top: 85px; } 
-
             #floating-player { 
                 position: fixed !important; bottom: 0 !important; right: 0 !important; left: 0 !important; 
                 width: 100% !important; border-radius: 20px 20px 0 0 !important; 
@@ -447,7 +422,7 @@
             }
             #floating-player.visible { transform: translateY(0) !important; }
             
-            #widget-menu-wrapper { bottom: 65px !important; left: 50% !important; transform: translateX(-50%) !important; }
+            #widget-menu-wrapper { bottom: 65px !important; left: 50% !important; transform: translateX(-50%) !important; flex-direction: column-reverse; }
 
             .drag-handle { display: none !important; } 
             .float-volume input { width: 65px !important; } 
@@ -462,7 +437,7 @@
 
     <div id="floating-header" class="floating-header">
         <div class="header-left">
-            <button id="hamburgerBtn" class="header-icon-btn active-btn" onclick="toggleSidebar(true)" title="Toggle Settings">☰</button>
+            <button id="hamburgerBtn" class="header-icon-btn" onclick="toggleSidebar(event)" title="Toggle Settings">☰</button>
             <img src="https://drive.google.com/thumbnail?id=1XJEeGiblu9O3iGevy_j8RLR06LcyimqQ&sz=w400" alt="Walton Logo" class="header-logo">
         </div>
         <div class="header-center">
@@ -485,28 +460,19 @@
         </div>
     </div>
 
-    <div id="qotd-sub-bar" class="qotd-sub-bar">
-        <span id="sub-qotd-question" class="sub-qotd-text">Loading question...</span>
-        <div style="position: relative; display: flex; align-items: center; justify-content: center;">
-            <img id="sub-qotd-qr" class="sub-qotd-qr" src="" alt="QR">
-        </div>
-    </div>
-
     <div id="floating-player" class="floating-player">
         <div class="drag-handle" title="Drag to move">⋮⋮</div>
         <button id="float-play-btn" class="float-btn" onclick="toggleVibePlay()">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
         </button>
         <div class="float-content">
-            <div class="float-info">
-                <span id="float-vibe-title">Classroom Vibe</span>
-            </div>
+            <div class="float-info"><span id="float-vibe-title">Classroom Vibe</span></div>
             <div class="float-volume">
-                <span id="vibeMuteIcon" onclick="toggleFloatVibeMute()" title="Mute/Unmute Vibe">🎵</span>
+                <span id="vibeMuteIcon" onclick="toggleFloatVibeMute()">🎵</span>
                 <input type="range" id="floatVibeVolume" min="0" max="100" step="1" value="50" oninput="syncVibeVolume(this.value)">
             </div>
             <div class="float-volume">
-                <span id="bellMuteIcon" onclick="toggleFloatBellMute()" title="Mute/Unmute Bells & Voice">🔔</span>
+                <span id="bellMuteIcon" onclick="toggleFloatBellMute()">🔔</span>
                 <input type="range" id="floatBellVolume" min="0" max="1" step="0.05" value="1" oninput="syncGlobalVolume(this.value)">
             </div>
         </div>
@@ -518,15 +484,15 @@
             <div class="setting-row" style="margin:10px 0 0 0;"><span class="sub-label">QotD / Voting</span><label class="switch"><input type="checkbox" onchange="toggleWidget('qotd', this.checked)" id="wm-tog-qotd"><span class="slider"></span></label></div>
             <div class="setting-row" style="margin:10px 0 0 0;"><span class="sub-label">Class Timer</span><label class="switch"><input type="checkbox" onchange="toggleWidget('timer', this.checked)" id="wm-tog-timer"><span class="slider"></span></label></div>
         </div>
-        <button class="float-btn" id="widget-menu-btn" onclick="toggleWidgetPanel(event)" title="Toggle Widgets" style="width: 48px; height: 48px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+        <button class="float-btn" id="widget-menu-btn" onclick="toggleWidgetPanel(event)" title="Toggle Widgets">
             <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
         </button>
     </div>
 
     <div id="toast">Loaded Successfully</div>
 
-    <div class="dashboard-wrapper" style="position: absolute; top: 100px; left: 20px; z-index: 2000; width: auto; pointer-events: none;">
-        <div class="sidebar" id="sidebar" style="pointer-events: auto;">
+    <div class="sidebar-wrapper">
+        <div class="sidebar collapsed" id="sidebar">
             <div class="control-group" style="padding-bottom: 5px; margin-bottom: 5px; border-bottom: none;">
                 <div class="switch-container">
                     <span class="sub-label" id="darkModeLabel">Dark Mode</span>
@@ -652,12 +618,12 @@
         </div>
     </div>
 
-    <div class="main-content-area" style="display: flex; justify-content: center; align-items: flex-start; gap: 20px; width: 100%; max-width: 1600px; margin: 0 auto; position: relative; z-index: 1;">
+    <div class="main-content-area">
         
-        <div class="widget-column" style="display: flex; flex-direction: column; gap: 20px; width: 320px; flex-shrink: 0; transition: width 0.4s ease, opacity 0.4s ease;">
+        <div class="widget-column">
             <div class="widget-card" id="widget-weather">
                 <div class="widget-header-row"><h4 class="widget-title">Local Forecast</h4></div>
-                <div id="weather-container-main" style="flex-grow: 1; overflow-y: auto; overflow-x: hidden;"></div>
+                <div id="weather-container-main" style="flex-grow: 1; overflow-y: auto; overflow-x: hidden; height: 100%;"></div>
             </div>
 
             <div class="widget-card" id="widget-timer">
@@ -676,7 +642,7 @@
             </div>
         </div>
 
-        <div class="schedule-column" style="flex-grow: 1; max-width: 900px; display: flex; flex-direction: column; align-items: center; transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1);">
+        <div class="schedule-column">
             <div class="schedule-container waffle-closed" id="schedule-container">
                 <div class="schedule-title-row">
                     <h3 id="schedule-title">Active Schedule</h3>
@@ -695,7 +661,7 @@
             </div>
         </div>
 
-        <div class="widget-column" style="display: flex; flex-direction: column; gap: 20px; width: 320px; flex-shrink: 0; transition: width 0.4s ease, opacity 0.4s ease;">
+        <div class="widget-column">
             <div class="widget-card" id="widget-qotd">
                 <div class="widget-header-row"><h4 class="widget-title">Question of the Day</h4></div>
                 
@@ -703,14 +669,16 @@
                     <div class="qotd-text" id="qotd-question">Loading question...</div>
                     <img id="qotd-qr-img" class="qotd-qr" src="" alt="Scan to vote">
                     <div style="font-size: 0.85rem; font-weight: bold; color: #888;">Scan to vote!</div>
-                    <div class="timer-btn-hollow" onclick="toggleQotdLock()" style="margin-top:10px; padding: 4px 10px; font-size:0.85rem; width:120px;">🔒 Close Voting</div>
+                    <div class="qotd-manual-unlock" title="Force Lock Voting" onclick="toggleQotdLock()" id="qotd-manual-lock">🔓</div>
                 </div>
+                
                 <div class="qotd-container" id="qotd-idle-view" style="display: none;">
                     <div class="qotd-text" id="qotd-idle-question">Loading question...</div>
                     <div style="font-size: 2.5rem; margin-top: 15px;">🔒</div>
                     <div style="font-size: 0.9rem; font-weight: bold; color: #888; margin-top: 5px;">Voting closed.</div>
-                    <div class="timer-btn-hollow" onclick="toggleQotdLock()" style="margin-top:10px; padding: 4px 10px; font-size:0.85rem; width:120px;">🔓 Open Voting</div>
+                    <div class="qotd-manual-unlock" title="Force Open Voting" onclick="toggleQotdLock()" id="qotd-manual-unlock-idle">🔒</div>
                 </div>
+                
                 <div class="qotd-container" id="qotd-results-view" style="display: none;">
                     <div class="qotd-text" id="qotd-results-question">Loading question...</div>
                     <div style="width: 100%; padding: 0 20px; box-sizing: border-box;">
@@ -720,7 +688,7 @@
                         <div class="qotd-bar-bg"><div class="qotd-bar-fill" id="qotd-bar-b" style="background-color: #5bc0de;"></div><div class="qotd-bar-label" id="qotd-pct-b">0%</div></div>
                         <div style="font-size: 0.8rem; margin-top: 15px; color: #888;" id="qotd-total-votes">Total Votes: 0</div>
                     </div>
-                    <div class="timer-btn-hollow" onclick="toggleQotdLock()" style="margin-top:10px; padding: 4px 10px; font-size:0.85rem; width:120px;">🔓 Re-open Voting</div>
+                    <div class="qotd-manual-unlock" title="Re-open Voting" onclick="toggleQotdLock()" id="qotd-manual-unlock-results">🔒</div>
                 </div>
             </div>
         </div>
@@ -784,7 +752,7 @@
         let savedVibes = [], currentVibeUrl = '', vibeVolume = 50;
         
         let isWaffleClosed = true, isMinimalView = false; 
-        let currentTestSound = 'positive', sidebarVisible = true, isDarkMode = false, showZero = false;
+        let currentTestSound = 'positive', sidebarVisible = false, isDarkMode = false, showZero = false;
         let playGoodbyes = false, muteBells = false;
         
         let accordionStates = { 'sec-audio': true, 'sec-reminders': true, 'sec-vibe': true, 'sec-schedule': true };
@@ -826,7 +794,7 @@
                 if (window.innerWidth <= 850) return; 
                 if (e.target.tagName === 'BUTTON') return; 
                 
-                isDragging = true;
+                let isDragging = true;
                 const player = handle.closest('.floating-player');
                 player.classList.add('dragging');
                 
@@ -856,6 +824,14 @@
             });
         });
 
+        window.addEventListener('resize', () => {
+            if (window.innerWidth <= 850) {
+                document.querySelectorAll('.floating-player').forEach(el => {
+                    el.style.top = ''; el.style.left = ''; el.style.right = ''; el.style.bottom = '';
+                });
+            }
+        });
+
         function reloadWeatherWidget() {
             const container1 = document.getElementById('weather-container-main');
             const color = isDarkMode ? '#ffffff' : '#333333';
@@ -869,19 +845,6 @@
             p.style.display = p.style.display === 'none' ? 'flex' : 'none';
         }
 
-        function updateQotdVisibility() {
-            const subBar = document.getElementById('qotd-sub-bar');
-            if(subBar) {
-                if(activeWidgets.qotd && !isMinimalView) {
-                    subBar.classList.add('visible');
-                    document.body.classList.add('qotd-sub-visible');
-                } else {
-                    subBar.classList.remove('visible');
-                    document.body.classList.remove('qotd-sub-visible');
-                }
-            }
-        }
-
         function toggleWidget(id, isChecked) {
             activeWidgets[id] = isChecked;
             const card = document.getElementById(`widget-${id}`);
@@ -890,7 +853,6 @@
                 else card.classList.remove('active-widget');
             }
             if (id === 'weather' && isChecked) reloadWeatherWidget();
-            if (id === 'qotd') updateQotdVisibility();
             
             const floatTog = document.getElementById(`wm-tog-${id}`);
             if(floatTog) floatTog.checked = isChecked;
@@ -1200,6 +1162,7 @@
             }
         }
 
+        // QotD Logic
         function getDailyQotd() {
             const now = new Date();
             const start = new Date(now.getFullYear(), 0, 0);
@@ -1220,12 +1183,6 @@
             const qObj = getDailyQotd();
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(QOTD_APPS_SCRIPT_URL)}`;
 
-            // Sub Bar Updates (Only shown when full schedule is visible)
-            const subText = document.getElementById('sub-qotd-question');
-            const subQR = document.getElementById('sub-qotd-qr');
-            if(subQR) subQR.src = qrUrl;
-
-            // Main Widget Updates
             document.getElementById('qotd-question').innerText = qObj.q;
             document.getElementById('qotd-idle-question').innerText = qObj.q;
             document.getElementById('qotd-results-question').innerText = qObj.q;
@@ -1242,16 +1199,11 @@
                 const currentMins = new Date().getHours() * 60 + new Date().getMinutes();
                 
                 if (currentMins >= p.startMins && currentMins < p.startMins + 5) {
-                    // FIRST 5 MINS (Open)
                     viewVoting.style.display = 'flex'; viewIdle.style.display = 'none'; viewResults.style.display = 'none';
-                    if (subText) subText.innerText = qObj.q;
-                    if (subQR) subQR.style.display = 'block';
                     qotdResultsFetched = false; 
                     qotdManualUnlock = false; 
                 } else if (currentMins >= p.endMins - 5 && currentMins < p.endMins) {
-                    // LAST 5 MINS (Results)
                     viewVoting.style.display = 'none'; viewIdle.style.display = 'none'; viewResults.style.display = 'flex';
-                    if (subQR) subQR.style.display = 'none';
                     qotdManualUnlock = false;
                     
                     if (!qotdResultsFetched) {
@@ -1270,35 +1222,23 @@
                                 document.getElementById('qotd-bar-b').style.width = pctB + '%';
                                 document.getElementById('qotd-pct-b').innerText = pctB + '%';
                                 document.getElementById('qotd-total-votes').innerText = "Total Votes: " + total;
-
-                                if(subText) subText.innerHTML = `Results: <b>${qObj.a}</b> (${pctA}%) vs <b>${qObj.b}</b> (${pctB}%)`;
                             }).catch(e => console.error("Error fetching QotD results:", e));
                     }
                 } else {
-                    // MID CLASS
                     if (qotdManualUnlock) {
-                        // Teacher Override Open!
                         viewVoting.style.display = 'flex'; viewIdle.style.display = 'none'; viewResults.style.display = 'none';
-                        if (subText) subText.innerText = qObj.q;
-                        if (subQR) subQR.style.display = 'block';
                     } else {
-                        // Normal Lock
                         viewVoting.style.display = 'none'; viewIdle.style.display = 'flex'; viewResults.style.display = 'none';
-                        if (subText) subText.innerText = qObj.q + " 🔒";
-                        if (subQR) subQR.style.display = 'none';
                     }
                 }
             } else {
-                // PASSING PERIOD
                 viewVoting.style.display = 'none'; viewIdle.style.display = 'flex'; viewResults.style.display = 'none';
-                if (subText) subText.innerText = "Voting opens at the start of class.";
-                if (subQR) subQR.style.display = 'none';
                 qotdResultsFetched = false;
                 qotdManualUnlock = false;
             }
         }
 
-        // --- ASYNC SCHEDULE FETCHING (Fixed for stability) ---
+        // --- ASYNC SCHEDULE FETCHING (Bulletproof) ---
         async function fetchDailySchedule() {
             const ind = document.getElementById('autoIndicator');
             if(ind) { ind.style.display = 'block'; ind.innerText = "Sync Status: Fetching..."; ind.style.color = '#888'; }
@@ -1309,7 +1249,6 @@
                 
                 if (data && data.schedule) {
                     let modeStr = String(data.mode || '').toLowerCase().trim();
-                    
                     let cleanSchedule = [];
                     data.schedule.forEach(p => {
                         if(!p || !p.name) return;
@@ -1323,14 +1262,13 @@
                     currentScheduleName = modeStr;
 
                     if(ind) { ind.innerText = "Sync Status: ✓ Connected"; ind.style.color = '#5cb85c'; }
-                    
                     const modeDropdown = document.getElementById('scheduleMode');
                     if(modeDropdown) {
                         modeDropdown.value = 'synced';
                         document.getElementById('syncedOption').innerText = `Sheet: ${modeStr.toUpperCase()}`;
                     }
                     currentMode = 'synced';
-                    changeMode(); 
+                    changeMode();
                     showToast(`Loaded: ${modeStr.toUpperCase()} Schedule`);
                 }
             } catch (err) {
@@ -1345,7 +1283,6 @@
                     if(modeDropdown) modeDropdown.value = 'web';
                     currentMode = 'web';
                 }
-                
                 changeMode();
                 showToast("Falling back to local cache.");
             }
@@ -1494,14 +1431,6 @@
                         const pBtn = document.getElementById("playBtn");
                         if (labels[currentTestSound] && pBtn) pBtn.innerHTML = "▶ Play " + labels[currentTestSound];
                     }
-
-                    if (p.side === false) {
-                        sidebarVisible = false;
-                        const sb = document.getElementById('sidebar');
-                        const hamBtn = document.getElementById('hamburgerBtn');
-                        if(sb) sb.classList.add('collapsed');
-                        if(hamBtn) hamBtn.classList.remove('active-btn');
-                    }
                     
                     if (p.waffleClosed !== undefined) { setWaffleState(p.waffleClosed, false); }
                     if (p.minimalView !== undefined) { setMinimalView(p.minimalView, false); }
@@ -1621,7 +1550,8 @@
             if(activeWidgets.weather) reloadWeatherWidget();
         }
 
-        function toggleSidebar(shouldSave = true) {
+        function toggleSidebar(event, shouldSave = true) {
+            if(event) event.stopPropagation();
             sidebarVisible = !sidebarVisible;
             const sidebar = document.getElementById('sidebar');
             const hamBtn = document.getElementById('hamburgerBtn');
@@ -1776,13 +1706,39 @@
             }
         }
 
+        function safePopulateVoiceList() {
+            try {
+                const voiceSelect = document.getElementById("voicePreference");
+                if(!voiceSelect) return;
+                const voices = window.speechSynthesis.getVoices();
+                if(voices.length === 0) return;
+                
+                const selectedURI = globalVoicePref;
+                voiceSelect.innerHTML = '';
+                const enVoices = voices.filter(v => v.lang.startsWith('en'));
+                
+                enVoices.forEach(voice => {
+                    const option = document.createElement('option');
+                    option.textContent = `${voice.name} (${voice.lang})`;
+                    option.value = voice.voiceURI;
+                    if(voice.voiceURI === selectedURI) option.selected = true;
+                    voiceSelect.appendChild(option);
+                });
+                
+                if(!voiceSelect.value && enVoices.length > 0) voiceSelect.value = enVoices[0].voiceURI;
+                globalVoicePref = voiceSelect.value;
+            } catch(e) {}
+        }
+        
         function speak(text) {
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 0.9; utterance.volume = globalVolume;
-            const voices = window.speechSynthesis.getVoices();
-            const selectedVoice = voices.find(v => v.voiceURI === globalVoicePref);
-            if (selectedVoice) utterance.voice = selectedVoice;
-            window.speechSynthesis.speak(utterance);
+            try {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.9; utterance.volume = globalVolume;
+                const voices = window.speechSynthesis.getVoices();
+                const selectedVoice = voices.find(v => v.voiceURI === globalVoicePref);
+                if (selectedVoice) utterance.voice = selectedVoice;
+                window.speechSynthesis.speak(utterance);
+            } catch (e) { console.error("Speech Synthesis failed:", e); }
         }
 
         function testSelectedSound() {
@@ -2306,22 +2262,30 @@
 
         // --- SAFE INITIALIZATION LOOP ---
         document.addEventListener('DOMContentLoaded', () => {
-            populateVoiceList(); 
             
-            // Instantly apply a fallback mode so the UI is never blank
-            if (activeSchedule.length === 0) { 
-                currentMode = 'web';
-                changeMode(); 
-            }
-            
+            // 1. Instantly load the fallback WEB schedule so the UI is never empty
+            currentMode = 'web';
+            changeMode(); 
+
+            // 2. Load Local Settings (this will override back to 'synced' if that was saved)
             loadLocalSettings(); 
+            
+            // 3. Initialize UI elements
             updateTimerDisplay();
             updateClock();
             
-            // Explicitly call fetch after everything else is painted
-            fetchDailySchedule();
-            initDraggableWidgets();
+            // 4. Try to load voices in a non-blocking way
+            try {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.onvoiceschanged = safePopulateVoiceList;
+                    safePopulateVoiceList();
+                }
+            } catch(e) {}
             
+            // 5. Fire off the async fetch to Google Calendar
+            fetchDailySchedule();
+            
+            // 6. Start interval loops
             setInterval(updateClock, 1000);
         });
 
