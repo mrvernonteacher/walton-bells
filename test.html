@@ -119,8 +119,14 @@
             z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; user-select: none;
         }
         .floating-player.visible { opacity: 1; pointer-events: auto; }
+        .floating-player.dragging { cursor: grabbing; transition: none !important; opacity: 0.95; transform: scale(1.02); z-index: 2000; }
+        .drag-handle { color: #888; font-size: 1.2rem; cursor: grab; display: flex; align-items: center; padding-right: 2px;}
+        body.dark-mode .drag-handle { color: #aaa; }
+        .floating-player.dragging .drag-handle { cursor: grabbing; }
+
         .float-content { display: flex; flex-direction: column; gap: 6px; }
         .float-info { font-weight: bold; font-size: 0.85rem; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #003366;}
+        body.dark-mode .float-info { color: #90caf9; }
         .float-volume { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
         .float-volume span { cursor: pointer; transition: transform 0.2s; width: 18px; text-align: center; }
         .float-volume span:hover { transform: scale(1.2); }
@@ -203,6 +209,7 @@
         @keyframes pulseAlert { 0% { opacity: 1; box-shadow: 0 0 8px rgba(217, 83, 79, 0.2); } 50% { opacity: 0.7; box-shadow: none; } 100% { opacity: 1; box-shadow: 0 0 8px rgba(217, 83, 79, 0.2); } }
         .dead-time-warning { color: #d9534f !important; font-weight: 900; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.5px; animation: pulseAlert 2s infinite; background: rgba(217, 83, 79, 0.15); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(217, 83, 79, 0.3) !important; margin-left: 15px; display: none; }
 
+        /* CUT-OFF FIX: minmax(0, 1fr) ensures the middle toggles never push the times off-screen */
         .schedule-grid { display: grid; grid-template-columns: minmax(80px, auto) minmax(0, 1fr) minmax(100px, auto); gap: 10px; align-items: center; padding: 8px 10px; transition: all 0.6s ease; width: 100%; box-sizing: border-box; }
         .schedule-header { font-size: 0.9rem; font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 6px; margin-bottom: 6px; }
         
@@ -213,11 +220,12 @@
         .options-col { display: flex; justify-content: center; align-items: center; white-space: nowrap; font-size: 0.95rem; }
         .options-col[title] { cursor: help; border-bottom: 1px dotted rgba(0,0,0,0.3); padding-bottom: 2px; } 
         
-        #schedule-list { list-style-type: none; padding: 0; margin: 0; }
+        #schedule-list { list-style: none; padding: 0; margin: 0; }
         #schedule-list li { border-bottom: 1px solid rgba(150,150,150,0.2); border-left: 5px solid transparent; max-height: 250px; overflow: hidden; opacity: 1; transition: max-height 0.6s ease, padding 0.5s ease, opacity 0.5s ease, margin 0.5s ease; }
+        #schedule-list li:nth-child(even) { background-color: rgba(0,0,0,0.03); }
 
-        .period-name { font-weight: bold; text-align: left; font-size: 1.6rem; align-self: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 5px;}
-        .period-time { text-align: right; font-size: 1.4rem; color: #555; align-self: center; white-space: nowrap; padding-left: 5px;}
+        .period-name { grid-column: 1; font-weight: bold; text-align: left; font-size: 1.6rem; align-self: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 5px;}
+        .period-time { grid-column: 3; text-align: right; font-size: 1.4rem; color: #555; align-self: center; white-space: nowrap; padding-left: 5px;}
 
         #schedule-list li.current-period { background: linear-gradient(to right, rgba(92, 184, 92, 0.2) var(--progress, 0%), rgba(92, 184, 92, 0.03) var(--progress, 0%)) !important; border-left: 5px solid #5cb85c !important; }
 
@@ -262,9 +270,10 @@
         .widget-close { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1.2rem; line-height: 1; padding: 0 5px; transition: color 0.2s; pointer-events: auto;}
         .widget-close:hover { color: #d9534f; }
 
-        /* Weather Widget Tweaks */
+        /* Weather Widget */
         #widget-weather { min-height: 250px; flex-grow: 1;}
         #weather-container-main { height: 100%; min-height: 200px; display: block; width: 100%; overflow: hidden;}
+        body.dark-mode #weather-container-main iframe { filter: none !important; } 
 
         /* --- Timer Widget Styles --- */
         .timer-display { font-size: 4rem; font-weight: bold; text-align: center; margin: 10px 0; font-variant-numeric: tabular-nums; }
@@ -356,7 +365,7 @@
         </div>
         
         <div class="header-center">
-            <div id="docked-schedule" class="docked-schedule">
+            <div id="docked-schedule" class="docked-schedule" style="display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center; opacity: 0; transform: translateY(-20px); transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); pointer-events: none; visibility: hidden; position: absolute; width: 100%; white-space: nowrap;">
                 <div class="docked-info-row" style="display:flex; align-items:center; justify-content:center; gap:20px;">
                     <div id="docked-name" class="docked-name">Focus Mode</div>
                     <div id="docked-badge" class="open-badge docked-badge" style="display:none;">OPEN</div>
@@ -382,6 +391,7 @@
     </div>
 
     <div id="floating-player" class="floating-player glass-panel">
+        <div class="drag-handle" title="Drag to move">⋮⋮</div>
         <button id="float-play-btn" class="float-btn" onclick="toggleVibePlay()">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
         </button>
@@ -405,7 +415,7 @@
             <div class="setting-row" style="margin:10px 0 0 0;"><span class="sub-label">Class Timer</span><label class="switch"><input type="checkbox" onchange="toggleWidget('timer', this.checked)" id="wm-tog-timer"><span class="slider"></span></label></div>
         </div>
         <button class="float-btn" id="widget-menu-btn" onclick="toggleWidgetPanel(event)" title="Toggle Widgets">
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
         </button>
     </div>
 
@@ -512,7 +522,7 @@
                         <input type="range" id="vibeVolumeControl" min="0" max="100" step="1" value="50" oninput="syncVibeVolume(this.value)"><span>🔊</span>
                     </div>
                     <div style="display:flex; gap:6px;">
-                        <button class="btn inline" style="flex-grow: 1;" onclick="startVibe()">▶ Start Vibe</button>
+                        <button class="btn inline" style="flex-grow: 1;" onclick="startVibe()">▶ Start</button>
                         <button class="btn btn-danger inline" onclick="stopVibe()">Stop</button>
                     </div>
                 </div>
@@ -520,11 +530,11 @@
 
             <div class="control-group">
                 <div class="accordion-header" onclick="toggleAccordion('sec-schedule')">
-                    <label class="title">4. Schedule</label><span class="chevron" id="chev-sec-schedule">▼</span>
+                    <label class="title">4. Schedule Options</label><span class="chevron" id="chev-sec-schedule">▼</span>
                 </div>
                 <div class="accordion-content" id="sec-schedule">
-                    <div id="autoIndicator" style="font-weight:bold; margin-bottom:10px; color:#888;">Sync Status: Initializing...</div>
-                    <button class="timer-btn-hollow" onclick="fetchDailySchedule(true)" style="width:100%; margin-bottom:10px;">Force Sync Schedule</button>
+                    <div id="autoIndicator" style="font-weight:bold; margin-bottom:10px; color:#888;">Sync Status: Waiting...</div>
+                    <button class="timer-btn-hollow" onclick="fetchDailySchedule(true)" style="width:100%; margin-bottom:10px;">Force Sync</button>
                     
                     <div class="setting-row">
                         <span class="sub-label">Show 0 Period</span>
@@ -569,7 +579,7 @@
                     <div class="period-name">Class</div>
                     <div class="middle-section">
                         <div class="options-wrapper">
-                            <div class="options-col">Cell Caddy</div><div class="options-col">Attend.</div><div class="options-col">Clean</div><div class="options-col">1 min left</div><div class="options-col">WEB Open</div><div class="options-col">iCal</div>
+                            <div class="options-col">Caddy</div><div class="options-col">Attend.</div><div class="options-col">Clean</div><div class="options-col">1 min left</div><div class="options-col">WEB Open</div><div class="options-col">iCal</div>
                         </div>
                     </div>
                     <div class="period-time">Time</div>
@@ -586,14 +596,14 @@
                     <div class="qotd-text" id="qotd-question">Loading question...</div>
                     <img id="qotd-qr-img" class="qotd-qr" src="" alt="Scan to vote">
                     <div style="font-size: 0.85rem; font-weight: bold; color: #888;">Scan to vote!</div>
-                    <div class="qotd-manual-unlock" title="Lock Voting" onclick="toggleQotdLock()" id="qotd-manual-lock">🔓 Lock</div>
+                    <div class="qotd-manual-unlock" title="Force Lock Voting" onclick="toggleQotdLock()" id="qotd-manual-lock">🔓 Lock Voting</div>
                 </div>
                 
                 <div class="qotd-container" id="qotd-idle-view" style="display: none;">
                     <div class="qotd-text" id="qotd-idle-question">Loading question...</div>
                     <div style="font-size: 2.5rem; margin-top: 15px;">🔒</div>
                     <div style="font-size: 0.9rem; font-weight: bold; color: #888; margin-top: 5px;">Voting closed.</div>
-                    <div class="qotd-manual-unlock" title="Open Voting" onclick="toggleQotdLock()" id="qotd-manual-unlock-idle">🔒 Open</div>
+                    <div class="qotd-manual-unlock" title="Force Open Voting" onclick="toggleQotdLock()" id="qotd-manual-unlock-idle">🔒 Open Voting</div>
                 </div>
                 
                 <div class="qotd-container" id="qotd-results-view" style="display: none;">
@@ -605,7 +615,7 @@
                         <div class="qotd-bar-bg"><div class="qotd-bar-fill" id="qotd-bar-b" style="background-color: #5bc0de;"></div><div class="qotd-bar-label" id="qotd-pct-b">0%</div></div>
                         <div style="font-size: 0.8rem; margin-top: 15px; color: #888;" id="qotd-total-votes">Total Votes: 0</div>
                     </div>
-                    <div class="qotd-manual-unlock" title="Re-open Voting" onclick="toggleQotdLock()" id="qotd-manual-unlock-results">🔒 Re-open</div>
+                    <div class="qotd-manual-unlock" title="Re-open Voting" onclick="toggleQotdLock()" id="qotd-manual-unlock-results">🔒 Re-open Voting</div>
                 </div>
             </div>
         </div>
@@ -639,13 +649,6 @@
             "Excellent effort today. Have a beautiful rest of your day."
         ];
 
-        const qotdDatabase = [
-            { q: "Would you rather have a 4-day school week with 9-hour days, or a 5-day week with 6-hour days?", a: "4 Days (9 Hours)", b: "5 Days (6 Hours)" },
-            { q: "Would you rather always have a substitute teacher who lets you do nothing, or an amazing teacher who gives lots of homework?", a: "Chill Sub", b: "Amazing Teacher + HW" },
-            { q: "Would you rather take all your tests verbally or write 10-page essays for every test?", a: "Verbal Tests", b: "10-Page Essays" },
-            { q: "Would you rather be the best student in a terrible class, or the worst student in an elite class?", a: "Best in Terrible", b: "Worst in Elite" }
-        ];
-
         const playSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
         const pauseSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
 
@@ -666,6 +669,7 @@
 
         let timerInterval = null, timerTotalSeconds = 300, timerIsPlaying = false;
         let qotdResultsFetched = false, qotdManualUnlock = false; 
+        let liveQotdData = null; // New variable to hold backend QotD data
 
         let playedActions = {}, currentMinuteTracker = "", lastAutoState = null; 
         let mrBsJukebox = false, jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
@@ -952,6 +956,8 @@
                                 e.target.setVolume(vibeVolume); 
                                 if(shouldPlay) {
                                     e.target.playVideo(); 
+                                    const floatBtn = document.getElementById('float-play-btn');
+                                    if(floatBtn) floatBtn.innerHTML = pauseSVG;
                                 }
                             } catch(err) {} 
                         }, 
@@ -1150,17 +1156,17 @@
         }
 
         // ==========================================================================
-        // QOTD LOGIC (Dynamic Apps Script Fetcher)
+        // DYNAMIC QOTD BACKEND LOGIC
         // ==========================================================================
-        let liveQotdData = null;
-
         function fetchQotdData() {
-            // Ask the apps script for today's question
+            document.getElementById('qotd-question').innerText = "Loading today's question...";
+            document.getElementById('qotd-idle-question').innerText = "Loading today's question...";
+            document.getElementById('qotd-results-question').innerText = "Loading today's question...";
+            
             fetch(QOTD_APPS_SCRIPT_URL + "?action=getToday")
                 .then(r => r.json())
                 .then(data => {
                     liveQotdData = data;
-                    // Pre-fill the UI with the text
                     document.getElementById('qotd-question').innerText = data.q;
                     document.getElementById('qotd-idle-question').innerText = data.q;
                     document.getElementById('qotd-results-question').innerText = data.q;
@@ -1170,7 +1176,10 @@
                     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(QOTD_APPS_SCRIPT_URL)}`;
                     document.getElementById('qotd-qr-img').src = qrUrl;
                 })
-                .catch(e => console.error("Error loading QotD:", e));
+                .catch(e => {
+                    console.error("Error loading QotD:", e);
+                    document.getElementById('qotd-question').innerText = "Error loading question.";
+                });
         }
 
         function toggleQotdLock() {
@@ -1180,9 +1189,7 @@
 
         function updateQotdUI(status) {
             if (!activeWidgets.qotd) return; 
-            
-            // If we haven't loaded the data yet, just wait.
-            if (!liveQotdData) return;
+            if (!liveQotdData) return; // Wait for the fetch
             
             const viewVoting = document.getElementById('qotd-voting-view');
             const viewIdle = document.getElementById('qotd-idle-view');
@@ -1207,7 +1214,6 @@
                     
                     if (!qotdResultsFetched) {
                         qotdResultsFetched = true;
-                        // Fetch the final stats before showing them
                         fetch(QOTD_APPS_SCRIPT_URL + "?action=getToday")
                             .then(r => r.json())
                             .then(data => {
@@ -1243,10 +1249,12 @@
             }
         }
 
-        // --- ASYNC SCHEDULE FETCHING ---
+        // ==========================================================================
+        // ASYNC SCHEDULE FETCHING (Pure Google Sync)
+        // ==========================================================================
         async function fetchDailySchedule() {
             const ind = document.getElementById('autoIndicator');
-            if(ind) { ind.style.display = 'block'; ind.innerText = "Sync Status: Fetching..."; ind.style.color = '#888'; }
+            if(ind) { ind.style.display = 'block'; ind.innerText = "Syncing..."; ind.style.color = '#888'; }
             
             try {
                 const response = await fetch(GOOGLE_CALENDAR_SCRIPT_URL, { method: 'GET', redirect: 'follow' });
@@ -1266,14 +1274,14 @@
                     currentScheduleName = String(data.mode || 'Daily').toUpperCase();
 
                     if(ind) { ind.innerText = `✓ Synced: ${currentScheduleName}`; ind.style.color = '#5cb85c'; }
-                    changeMode(true);
+                    document.getElementById('schedule-title').innerText = currentScheduleName + ' Schedule ';
+                    renderSchedule();
                     showToast(`Loaded: ${currentScheduleName} Schedule`);
                 }
             } catch (err) {
                 console.error("Schedule sync failed:", err);
-                if(ind) { ind.innerText = "Sync Status: ⚠ Offline"; ind.style.color = '#d9534f'; }
-                changeMode(true);
-                showToast("Offline. Could not fetch schedule.");
+                if(ind) { ind.innerText = "⚠ Offline"; ind.style.color = '#d9534f'; }
+                showToast("Could not fetch schedule from Google.");
             }
         }
 
@@ -1376,7 +1384,9 @@
             }
         }
 
-        // --- LOCAL STORAGE (Safe Loading Version) ---
+        // ==========================================================================
+        // LOCAL STORAGE (SAFE)
+        // ==========================================================================
         function saveLocalSettings() {
             if (isBooting) return; // Prevent overwriting settings during boot sequence!
             try {
@@ -1418,8 +1428,8 @@
                     }
                 } catch(e){}
                 
-                try { if (p.waffleClosed !== undefined) { setWaffleState(p.waffleClosed, false); } } catch(e){}
-                try { if (p.minimalView !== undefined) { setMinimalView(p.minimalView, false); } } catch(e){}
+                try { if (p.waffleClosed !== undefined) { toggleWaffleMenu(p.waffleClosed); } } catch(e){}
+                try { if (p.minimalView !== undefined) { toggleMinimalView(p.minimalView); } } catch(e){}
                 
                 try { 
                     if (p.dark === true) { 
@@ -1456,7 +1466,12 @@
                 
                 try { 
                     if (p.savedVibes) savedVibes = p.savedVibes;
-                    if (p.vibe) currentVibeUrl = p.vibe;
+                    if (p.vibe && savedVibes.length === 0) {
+                        savedVibes.push({ url: p.vibe, title: 'Saved Vibe' });
+                        currentVibeUrl = p.vibe;
+                    } else if (p.vibe) {
+                        currentVibeUrl = p.vibe;
+                    }
                     renderVibeDropdown();
                 } catch(e){}
 
@@ -1480,7 +1495,7 @@
                             const tog = document.getElementById(`wm-tog-${key}`);
                             if(tog) {
                                 tog.checked = p.widgets[key];
-                                toggleWidget(key, p.widgets[key], false); 
+                                toggleWidget(key, p.widgets[key], false); // Don't trigger saves during load
                             }
                         });
                     }
@@ -1506,343 +1521,11 @@
             }
         }
 
-        function toggleAccordion(id, shouldSave = true) {
-            const content = document.getElementById(id);
-            const chevron = document.getElementById('chev-' + id);
-            if (!content || !chevron) return;
-            
-            if (content.style.maxHeight === "0px" || content.style.maxHeight === "") {
-                content.style.maxHeight = content.scrollHeight + "px";
-                chevron.style.transform = "rotate(0deg)";
-                accordionStates[id] = true;
-                setTimeout(() => { if(accordionStates[id]) content.style.maxHeight = "none"; }, 300);
-            } else {
-                content.style.maxHeight = content.scrollHeight + "px"; 
-                setTimeout(() => {
-                    content.style.maxHeight = "0px";
-                    chevron.style.transform = "rotate(-90deg)";
-                    accordionStates[id] = false;
-                }, 10);
-            }
-            if(shouldSave) saveLocalSettings();
-        }
-
-        function toggleFullScreen() {
-            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(err => {});
-            else if (document.exitFullscreen) document.exitFullscreen();
-        }
-
-        function toggleDarkMode(shouldSave = true) {
-            const toggle = document.getElementById('darkModeToggle');
-            if(!toggle) return;
-            isDarkMode = toggle.checked;
-            
-            if (isDarkMode) { document.body.classList.add('dark-mode'); } 
-            else { document.body.classList.remove('dark-mode'); }
-            
-            if(activeWidgets.weather) reloadWeatherWidget();
-            if (shouldSave) saveLocalSettings();
-        }
-
-        function toggleSidebar(event, shouldSave = true) {
-            if(event) event.stopPropagation();
-            sidebarVisible = !sidebarVisible;
-            const sidebar = document.getElementById('sidebar');
-            const hamBtn = document.getElementById('hamburgerBtn');
-            if(sidebar) {
-                if (sidebarVisible) {
-                    sidebar.classList.remove('collapsed');
-                    if(hamBtn) hamBtn.classList.add('active-btn');
-                } else {
-                    sidebar.classList.add('collapsed');
-                    if(hamBtn) hamBtn.classList.remove('active-btn');
-                }
-            }
-            if (shouldSave) saveLocalSettings();
-        }
-
-        function updateFloatingPlayerVisibility() {
-            const player = document.getElementById('floating-player');
-            if (player) {
-                if (activePlayerUrl) player.classList.add('visible');
-                else player.classList.remove('visible');
-            }
-        }
-
-        function setWaffleState(isClosed, shouldSave = true) {
-            if (isWaffleClosed === isClosed && shouldSave) return;
-            isWaffleClosed = isClosed;
-            const container = document.getElementById('schedule-container');
-            const btn = document.getElementById('waffleViewBtn');
-            
-            if(container && btn) {
-                if (isWaffleClosed) {
-                    container.classList.add('waffle-closed'); 
-                    btn.classList.remove('active-btn');
-                } else {
-                    container.classList.remove('waffle-closed'); 
-                    btn.classList.add('active-btn');
-                }
-            }
-            if (shouldSave) saveLocalSettings();
-        }
-        function toggleWaffleMenu(shouldSave = true) { setWaffleState(!isWaffleClosed, shouldSave); }
-
-        function setMinimalView(state, shouldSave = true) {
-            if (isMinimalView === state) return;
-            isMinimalView = state;
-            const btn = document.getElementById('minimalViewBtn');
-            
-            if(btn) {
-                if (isMinimalView) {
-                    document.body.classList.add('minimal-active'); 
-                    btn.classList.add('active-btn');
-                } else {
-                    document.body.classList.remove('minimal-active'); 
-                    btn.classList.remove('active-btn');
-                }
-            }
-            
-            if (shouldSave) saveLocalSettings();
-        }
-        function toggleMinimalView(shouldSave = true) { setMinimalView(!isMinimalView, shouldSave); }
-
-        function toggleJukebox() {
-            const tog = document.getElementById('jukeboxToggle');
-            if(tog) mrBsJukebox = tog.checked;
-            lastPeriodStatus = null; 
-            saveLocalSettings();
-        }
-
-        function updateJukeboxUrl() {
-            const inp = document.getElementById('jukeboxUrlInput');
-            if(inp && inp.value.trim() !== '') {
-                jukeboxUrl = inp.value.trim();
-            } else {
-                jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
-            }
-            lastPeriodStatus = null; 
-            saveLocalSettings();
-        }
-
-        function toggleGoodbyes() { 
-            const tog = document.getElementById('playGoodbyes');
-            if(tog) playGoodbyes = tog.checked; 
-            saveLocalSettings(); 
-        }
-
-        function toggleMuteBells() { 
-            const tog = document.getElementById('muteBellsToggle');
-            if(tog) muteBells = tog.checked; 
-            saveLocalSettings(); 
-        }
-
-        function toggleDropdown(event) { 
-            event.stopPropagation(); 
-            const dd = document.getElementById("soundDropdown");
-            if(dd) dd.classList.toggle("show"); 
-        }
-
-        window.onclick = function(event) {
-            if (!event.target.matches('.split-button-caret')) {
-                let dropdowns = document.getElementsByClassName("dropdown-content");
-                for (let i = 0; i < dropdowns.length; i++) if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
-            }
-        }
-
-        function selectTestSound(value, label) {
-            currentTestSound = value; 
-            const btn = document.getElementById("playBtn");
-            const dd = document.getElementById("soundDropdown");
-            if(btn) btn.innerHTML = "▶ Play " + label;
-            if(dd) dd.classList.remove("show"); 
-            saveLocalSettings();
-        }
-
-        function changeVolume() { 
-            const vc = document.getElementById('volumeControl');
-            if(vc) syncGlobalVolume(vc.value); 
-        }
-
-        function playBellWithQueue(timesLeft = 1, onCompleteCallback = null) {
-            if (muteBells) {
-                if (onCompleteCallback) onCompleteCallback();
-                return;
-            }
-
-            const audio = document.getElementById('regularBellAudio'); 
-            if(!audio) {
-                if (onCompleteCallback) onCompleteCallback();
-                return;
-            }
-            
-            audio.currentTime = 0;
-            audio.onended = () => { 
-                if (timesLeft > 1) playBellWithQueue(timesLeft - 1, onCompleteCallback); 
-                else { 
-                    audio.onended = null; 
-                    if (onCompleteCallback) onCompleteCallback(); 
-                } 
-            };
-            
-            let playPromise = audio.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.catch(e => {
-                    console.error("Audio play blocked. Triggering failsafe voice delay.", e);
-                    audio.onended = null; 
-                    setTimeout(() => {
-                        if (timesLeft > 1) playBellWithQueue(timesLeft - 1, onCompleteCallback);
-                        else if (onCompleteCallback) onCompleteCallback();
-                    }, 1500); 
-                });
-            }
-        }
-
-        function safePopulateVoiceList() {
-            try {
-                const voiceSelect = document.getElementById("voicePreference");
-                if(!voiceSelect) return;
-                const voices = window.speechSynthesis.getVoices();
-                if(voices.length === 0) return;
-                
-                const selectedURI = globalVoicePref;
-                voiceSelect.innerHTML = '';
-                const enVoices = voices.filter(v => v.lang.startsWith('en'));
-                
-                let found = false;
-                enVoices.forEach(voice => {
-                    const option = document.createElement('option');
-                    option.textContent = `${voice.name} (${voice.lang})`;
-                    option.value = voice.voiceURI;
-                    if(voice.voiceURI === selectedURI) {
-                        option.selected = true;
-                        found = true;
-                    }
-                    voiceSelect.appendChild(option);
-                });
-                
-                if(!found && enVoices.length > 0) {
-                    voiceSelect.value = enVoices[0].voiceURI;
-                    globalVoicePref = enVoices[0].voiceURI;
-                    saveLocalSettings();
-                } else if (found) {
-                    voiceSelect.value = globalVoicePref;
-                }
-            } catch(e) {}
-        }
-        
-        function changeVoicePref() { 
-            const vp = document.getElementById('voicePreference');
-            if(vp) globalVoicePref = vp.value; 
-            saveLocalSettings(); 
-        }
-
-        function speak(text) {
-            try {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.rate = 0.9; utterance.volume = globalVolume;
-                const voices = window.speechSynthesis.getVoices();
-                const selectedVoice = voices.find(v => v.voiceURI === globalVoicePref);
-                if (selectedVoice) utterance.voice = selectedVoice;
-                window.speechSynthesis.speak(utterance);
-            } catch (e) { console.error("Speech Synthesis failed:", e); }
-        }
-
-        function testSelectedSound() {
-            triggerVisualAlert();
-            if (currentTestSound === 'positive') {
-                const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
-                speak(randomMsg);
-            }
-            else if (currentTestSound === 'start') playBellWithQueue(3, () => speak("Class is beginning. Please place your phones in the cell phone caddy."));
-            else if (currentTestSound === 'end') {
-                if (playGoodbyes) {
-                    const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
-                    playBellWithQueue(3, () => speak(randomMsg));
-                } else {
-                    playBellWithQueue(3);
-                }
-            }
-            else if (currentTestSound === 'warning1m') playBellWithQueue(1, () => speak("One minute until class begins. Please place your phones in the cell phone caddy."));
-            else if (currentTestSound === 'attendance') speak("Reminder. Please take attendance.");
-            else if (currentTestSound === 'cleanup') speak("Five minutes remaining. Please begin cleaning up your area.");
-            else if (currentTestSound === 'lunch') speak("Reminder. You have lunch duty.");
-        }
-
-        function addLunchDuty() {
-            const dayVal = document.getElementById('lunchDay');
-            const halfVal = document.getElementById('lunchHalf');
-            const periodVal = document.getElementById('lunchPeriod');
-            if(!dayVal || !halfVal || !periodVal) return;
-
-            const day = parseInt(dayVal.value);
-            const half = parseInt(halfVal.value);
-            const period = periodVal.value.trim();
-            if (period) {
-                lunchDuties.push({ day, half, period });
-                renderLunchDuties(); saveLocalSettings(); 
-                periodVal.value = '3rd';
-                
-                const content = document.getElementById('sec-reminders');
-                if(content.style.maxHeight !== "0px" && content.style.maxHeight !== "none") {
-                    content.style.maxHeight = "none";
-                }
-            }
-        }
-        function removeLunchDuty(index) { lunchDuties.splice(index, 1); renderLunchDuties(); saveLocalSettings(); }
-        
-        function renderLunchDuties() {
-            const list = document.getElementById('lunch-duty-list'); 
-            if(!list) return;
-            list.innerHTML = '';
-            const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-            lunchDuties.forEach((duty, index) => {
-                const li = document.createElement('li'); li.className = "duty-item";
-                li.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid rgba(150,150,150,0.2);";
-                li.innerHTML = `<span><b>${days[duty.day]}</b> - ${duty.period} (${duty.half === 1 ? '1st' : '2nd'} Half)</span>
-                                <button onclick="removeLunchDuty(${index})" style="background:none; border:none; color:#d9534f; cursor:pointer; font-size:1.1rem;" title="Remove Duty">✖</button>`;
-                list.appendChild(li);
-            });
-        }
-
-        function changeMode(shouldSave = true) {
+        function toggleZeroPeriod() {
             const sz = document.getElementById('showZeroPeriod');
             if(sz) showZero = sz.checked;
-            
-            // Reapply 0 period logic locally to activeSchedule
-            let hasZero = activeSchedule.some(p => /^0/i.test(String(p.name).trim()));
-            if (showZero && !hasZero) {
-                activeSchedule.unshift({ name: "0 pd", start: "07:10", end: "08:13" });
-            } else if (!showZero && hasZero) {
-                activeSchedule = activeSchedule.filter(p => !/^0/i.test(String(p.name).trim()));
-            }
-
-            const st = document.getElementById('schedule-title');
-            if(st && st.childNodes[0]) st.childNodes[0].nodeValue = currentScheduleName.toUpperCase() + ' Schedule '; 
-            
-            renderSchedule(); 
-            if (shouldSave) saveLocalSettings();
-        }
-
-        function toggleSetting(periodName, settingType, isChecked) {
-            const key = periodName; 
-            if (!classSettings[key]) classSettings[key] = { ...DEFAULT_PREFS };
-            classSettings[key][settingType] = isChecked;
             saveLocalSettings();
-            if (settingType === 'open') renderSchedule(); 
-        }
-
-        function setIcalFeed(periodName) {
-            const currentUrl = classSettings[periodName]?.icalUrl || '';
-            const url = prompt(`Paste the iCal feed URL for ${periodName}:`, currentUrl);
-            if (url !== null) {
-                if (!classSettings[periodName]) classSettings[periodName] = { ...DEFAULT_PREFS };
-                classSettings[periodName].icalUrl = url.trim();
-                saveLocalSettings();
-                renderSchedule(); 
-                showToast("iCal feed updated");
-            }
+            fetchDailySchedule(); // Refetch to dynamically rebuild array cleanly
         }
 
         function renderSchedule() {
@@ -1854,13 +1537,11 @@
                 list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Schedule data is missing or corrupted.</em></li>'; return; 
             }
 
-            let filteredSchedule = activeSchedule;
-
-            if (!filteredSchedule || filteredSchedule.length === 0) { 
-                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Waiting for Google...</em></li>'; return; 
+            if (activeSchedule.length === 0) { 
+                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Loading Schedule...</em></li>'; return; 
             }
 
-            filteredSchedule.forEach(period => {
+            activeSchedule.forEach(period => {
                 try {
                     const key = String(period.name);
                     const safeKey = key.replace(/'/g, "\\'"); 
@@ -1899,7 +1580,6 @@
                     if (s.icalUrl) {
                         fetchAgenda(s.icalUrl, `agenda-${safeKey}`);
                     }
-                    
                 } catch(e) { console.error("Error rendering a row:", e); }
             });
             
@@ -2135,6 +1815,8 @@
                 
                 if(!Array.isArray(activeSchedule)) return;
 
+                const isWebDay = currentScheduleName.toLowerCase().includes('web');
+
                 activeSchedule.forEach(period => {
                     if (!period || !period.name) return;
                     const pNameStr = String(period.name);
@@ -2143,6 +1825,7 @@
 
                     const hasLunch1 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 1);
                     let hasLunch2 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 2);
+                    if (isWebDay) hasLunch2 = false; 
 
                     const pStartStr = String(period.start);
                     const pEndStr = String(period.end);
@@ -2212,30 +1895,34 @@
         }
 
         // ==========================================================================
-        // INITIALIZATION
+        // SAFE INITIALIZATION LOOP
         // ==========================================================================
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. Load saved settings directly into memory without saving back to local storage yet
-            loadLocalSettings();
             
-            // 2. Render initial UI safely
+            // 1. Load local settings into memory FIRST
+            loadLocalSettings(); 
+            
+            // 2. Fetch QotD Backend Data Instantly
+            fetchQotdData();
+            
+            // 3. Initialize UI elements safely
             updateTimerDisplay();
             updateClock();
             
-            // 3. Force the sidebar strictly closed on load
+            // 4. Force Sidebar to be collapsed strictly on load
             const sidebar = document.getElementById('sidebar');
             const hamBtn = document.getElementById('hamburgerBtn');
             if(sidebar) sidebar.classList.add('collapsed');
             if(hamBtn) hamBtn.classList.remove('active-btn');
             sidebarVisible = false;
-
-            // 4. Start the clock ticks
+            
+            // 5. Start Clock Loop
             setInterval(updateClock, 1000);
             
-            // 5. Fetch schedule from Google 
-            fetchDailySchedule();
-
-            // 6. Load voices
+            // 6. Fire off the async fetch to Google Calendar
+            setTimeout(fetchDailySchedule, 500);
+            
+            // 7. Load voices in the background quietly
             try {
                 if ('speechSynthesis' in window) {
                     window.speechSynthesis.onvoiceschanged = safePopulateVoiceList;
@@ -2243,7 +1930,7 @@
                 }
             } catch(e) {}
             
-            // 7. FINALLY UNLOCK SAVING
+            // 8. UNLOCK SAVING
             setTimeout(() => { isBooting = false; }, 1500);
         });
 
