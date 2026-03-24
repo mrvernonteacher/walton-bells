@@ -7,6 +7,7 @@
     <style>
         /* --- Clean Browser Resets --- */
         * { -webkit-tap-highlight-color: transparent !important; outline: none !important; box-sizing: border-box; }
+
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(150,150,150,0.5); border-radius: 10px; }
@@ -31,13 +32,14 @@
             backdrop-filter: blur(15px) !important; -webkit-backdrop-filter: blur(15px) !important;
             border: 1px solid rgba(150, 150, 150, 0.2) !important;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
-            color: #333 !important; transition: all 0.4s ease;
+            color: #333 !important;
+            transition: all 0.4s ease;
         }
         
         body.dark-mode { background-color: #121212 !important; color: #e0e0e0 !important; }
         body.dark-mode .glass-panel {
             background-color: #1e1e1e !important;
-            border-color: rgba(255, 255, 255, 0.05) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8) !important;
             color: #e0e0e0 !important;
         }
@@ -70,10 +72,11 @@
 
         .header-left { display: flex; align-items: center; gap: 15px; justify-self: start; height: 75px;}
         .header-right { display: flex; align-items: center; gap: 10px; justify-self: end; height: 75px;}
-        .header-center { justify-self: center; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 75px; position: relative;}
+        .header-center { justify-self: center; display: flex; align-items: center; justify-content: center; width: 100%; height: 75px; position: relative;}
 
         .header-logo { height: 38px; width: auto; opacity: 0.8; transition: opacity 0.4s ease; display: block; }
         .header-logo:hover { opacity: 1; }
+        
         #clock { font-size: 2rem; font-weight: bold; color: #003366; text-align: right; white-space: nowrap; flex-shrink: 0; transition: color 0.4s ease;}
 
         /* Icon Buttons */
@@ -116,22 +119,17 @@
             z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; user-select: none;
         }
         .floating-player.visible { opacity: 1; pointer-events: auto; }
-        .floating-player.dragging { cursor: grabbing; transition: none !important; opacity: 0.95; transform: scale(1.02); z-index: 2000; }
-        .drag-handle { color: #888; font-size: 1.2rem; cursor: grab; display: flex; align-items: center; padding-right: 2px;}
-        .floating-player.dragging .drag-handle { cursor: grabbing; }
-
         .float-content { display: flex; flex-direction: column; gap: 6px; }
         .float-info { font-weight: bold; font-size: 0.85rem; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #003366;}
         .float-volume { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
-        .float-volume span { cursor: pointer; transition: transform 0.2s; user-select: none; width: 18px; text-align: center; }
+        .float-volume span { cursor: pointer; transition: transform 0.2s; width: 18px; text-align: center; }
         .float-volume span:hover { transform: scale(1.2); }
         .float-volume input { width: 100px; cursor: pointer; height: 4px; margin: 0;}
 
         /* --- Floating Footer --- */
         .footer { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); font-size: 0.85rem; text-align: center; width: 100%; transition: color 0.4s ease; z-index: 10; pointer-events: none; }
-        /* Sharp high-contrast drop shadow to fix blur */
         .footer p { margin: 0 0 5px 0; font-weight: bold; color: #333; text-shadow: 1px 1px 2px rgba(255,255,255,0.8); }
-        body.dark-mode .footer p { color: #e0e0e0; text-shadow: 1px 1px 2px rgba(0,0,0,0.9); }
+        body.dark-mode .footer p { color: #e0e0e0 !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.9) !important; }
         .footer-logo { max-width: 160px; height: auto; display: inline-block; opacity: 0.7; }
         
         /* --- Toast Notification --- */
@@ -142,7 +140,6 @@
             transition: top 0.6s ease, opacity 0.4s ease; pointer-events: none; border: none !important;
         }
         #toast.show { top: 90px; opacity: 1; }
-        body.dark-mode #toast { background-color: #2e7d32 !important; }
 
         /* --- Forms, Inputs, and Accordions --- */
         .control-group { border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 10px; margin-bottom: 10px;}
@@ -165,7 +162,7 @@
         .dropdown-content { display: none; position: absolute; right: 0; top: 100%; background-color: #fff; min-width: 240px; box-shadow: 0px 8px 16px rgba(0,0,0,0.2); z-index: 10; border-radius: 5px; overflow: hidden; border: 1px solid #ddd; }
         .dropdown-content.show { display: block; animation: dropDownFade 0.2s ease; transform-origin: top right;}
         @keyframes dropDownFade { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        .dropdown-content button { color: #333; padding: 8px 12px; text-decoration: none; display: block; width: 100%; background: none; border: none; border-bottom: 1px solid #eee; text-align: left; margin: 0; font-size: 0.9rem; cursor:pointer;}
+        .dropdown-content button { color: #333; padding: 8px 12px; text-decoration: none; display: block; width: 100%; background: none; border: none; border-bottom: 1px solid #eee; text-align: left; font-size: 0.9rem; cursor:pointer;}
         .dropdown-content button:hover { background-color: #f1f1f1; }
 
         .btn { background-color: #003366; color: white !important; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 0.95rem; width: 100%; margin-top: 8px; font-weight: bold; transition: all 0.2s; }
@@ -196,7 +193,7 @@
 
         /* --- THE MASTER SCHEDULE CONTAINER --- */
         .schedule-container { 
-            padding: 15px 20px; border-radius: 10px; width: 100%; box-sizing: border-box; transform-origin: top center;
+            padding: 15px 20px; border-radius: 10px; width: 100%; max-width: 900px; box-sizing: border-box; transform-origin: top center;
             transition: all 0.6s ease; max-height: 2000px; opacity: 1; overflow: hidden; margin: 0 auto;
         }
         
@@ -206,7 +203,6 @@
         @keyframes pulseAlert { 0% { opacity: 1; box-shadow: 0 0 8px rgba(217, 83, 79, 0.2); } 50% { opacity: 0.7; box-shadow: none; } 100% { opacity: 1; box-shadow: 0 0 8px rgba(217, 83, 79, 0.2); } }
         .dead-time-warning { color: #d9534f !important; font-weight: 900; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.5px; animation: pulseAlert 2s infinite; background: rgba(217, 83, 79, 0.15); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(217, 83, 79, 0.3) !important; margin-left: 15px; display: none; }
 
-        /* TEXT CUT-OFF FIX: Center column uses minmax(0, 1fr) and overflow-x */
         .schedule-grid { display: grid; grid-template-columns: minmax(80px, auto) minmax(0, 1fr) minmax(100px, auto); gap: 10px; align-items: center; padding: 8px 10px; transition: all 0.6s ease; width: 100%; box-sizing: border-box; }
         .schedule-header { font-size: 0.9rem; font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 6px; margin-bottom: 6px; }
         
@@ -244,15 +240,14 @@
         /* =========================================================
            STATE 2: MINIMAL VIEW (The "Fly to Top Bar" Liquid Dock) 
            ========================================================= */
-        .docked-schedule { display: flex; gap: 15px; align-items: center; justify-content: center; opacity: 0; transform: translateY(-20px); transition: all 0.6s ease; pointer-events: none; visibility: hidden; width: 100%; white-space: nowrap; flex-wrap: wrap;}
+        .docked-schedule { display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center; opacity: 0; transform: translateY(-20px); transition: all 0.6s ease; pointer-events: none; visibility: hidden; width: 100%; white-space: nowrap;}
+        .docked-info-row { display: flex; align-items: center; justify-content: center; gap: 20px;}
         body.minimal-active .docked-schedule { opacity: 1; transform: translateY(0); pointer-events: auto; visibility: visible; }
         
-        .docked-name { font-size: 1.6rem; font-weight: 800; color: #003366; }
-        body.dark-mode .docked-name { color: #90caf9; }
-        .docked-time { font-size: 1.4rem; font-weight: bold; color: #555; }
+        .docked-name { font-size: 1.6rem; font-weight: 800; }
+        .docked-time { font-size: 1.4rem; font-weight: bold; }
 
-        /* Progress Bar in Top Header */
-        .docked-progress-container { width: 100%; max-width: 300px; height: 6px; background: rgba(150,150,150,0.2); border-radius: 3px; overflow: hidden; margin-top: 2px;}
+        .docked-progress-container { width: 100%; max-width: 350px; height: 6px; background: rgba(150,150,150,0.2); border-radius: 3px; overflow: hidden; margin-top: 2px;}
         .docked-progress-fill { height: 100%; width: 0%; background: #5cb85c; transition: width 1s linear, background-color 0.5s ease; }
 
         body.minimal-active .schedule-column { max-width: 0 !important; opacity: 0 !important; padding: 0 !important; margin: 0 !important; overflow: hidden; pointer-events: none; }
@@ -263,7 +258,6 @@
         @keyframes fadeWidgetIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
         .widget-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 8px; margin-bottom: 12px; pointer-events: none; }
-        body.dark-mode .widget-header-row { border-bottom: 1px solid #444; }
         .widget-title { font-weight: bold; font-size: 1.1rem; margin: 0; }
         .widget-close { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1.2rem; line-height: 1; padding: 0 5px; transition: color 0.2s; pointer-events: auto;}
         .widget-close:hover { color: #d9534f; }
@@ -271,7 +265,6 @@
         /* Weather Widget Tweaks */
         #widget-weather { min-height: 250px; flex-grow: 1;}
         #weather-container-main { height: 100%; min-height: 200px; display: block; width: 100%; overflow: hidden;}
-        body.dark-mode #weather-container-main iframe { filter: none !important; } /* Stops the double-invert bug */
 
         /* --- Timer Widget Styles --- */
         .timer-display { font-size: 4rem; font-weight: bold; text-align: center; margin: 10px 0; font-variant-numeric: tabular-nums; }
@@ -347,8 +340,6 @@
             
             #widget-menu-wrapper { bottom: 65px !important; left: 50% !important; transform: translateX(-50%) !important; flex-direction: column-reverse; }
 
-            .drag-handle { display: none !important; } 
-            .float-volume input { width: 65px !important; } 
             .float-info { max-width: 110px; font-size: 0.8rem; }
             .footer { position: relative; transform: none; left: 0; bottom: 0; margin-top: 20px; padding-bottom: 20px;}
         }
@@ -366,13 +357,13 @@
         
         <div class="header-center">
             <div id="docked-schedule" class="docked-schedule">
-                <div style="display:flex; align-items:center; gap:15px;">
+                <div class="docked-info-row" style="display:flex; align-items:center; justify-content:center; gap:20px;">
                     <div id="docked-name" class="docked-name">Focus Mode</div>
                     <div id="docked-badge" class="open-badge docked-badge" style="display:none;">OPEN</div>
                     <div id="docked-time" class="docked-time">--:--</div>
                     <span id="docked-warning" class="dead-time-warning">DEAD TIME</span>
                 </div>
-                <div class="docked-progress-container" style="width: 100%; max-width: 350px; height: 6px; background: rgba(150,150,150,0.2); border-radius: 3px; overflow: hidden;">
+                <div class="docked-progress-container" style="width: 100%; max-width: 350px; height: 6px; background: rgba(150,150,150,0.2); border-radius: 3px; overflow: hidden; margin-top: 2px;">
                     <div id="docked-progress-fill" style="height: 100%; width: 0%; background: #5cb85c; transition: width 1s linear, background-color 0.5s ease;"></div>
                 </div>
             </div>
@@ -391,7 +382,6 @@
     </div>
 
     <div id="floating-player" class="floating-player glass-panel">
-        <div class="drag-handle" title="Drag to move">⋮⋮</div>
         <button id="float-play-btn" class="float-btn" onclick="toggleVibePlay()">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
         </button>
@@ -530,11 +520,11 @@
 
             <div class="control-group">
                 <div class="accordion-header" onclick="toggleAccordion('sec-schedule')">
-                    <label class="title">4. Schedule Override</label><span class="chevron" id="chev-sec-schedule">▼</span>
+                    <label class="title">4. Schedule</label><span class="chevron" id="chev-sec-schedule">▼</span>
                 </div>
                 <div class="accordion-content" id="sec-schedule">
-                    <div id="autoIndicator" style="font-weight:bold; margin-bottom:10px; color:#888;">Sync Status: Waiting...</div>
-                    <button class="timer-btn-hollow" onclick="fetchDailySchedule()" style="width:100%; margin-bottom:10px;">Force Schedule Sync</button>
+                    <div id="autoIndicator" style="font-weight:bold; margin-bottom:10px; color:#888;">Sync Status: Initializing...</div>
+                    <button class="timer-btn-hollow" onclick="fetchDailySchedule(true)" style="width:100%; margin-bottom:10px;">Force Sync Schedule</button>
                     
                     <div class="setting-row">
                         <span class="sub-label">Show 0 Period</span>
@@ -596,14 +586,14 @@
                     <div class="qotd-text" id="qotd-question">Loading question...</div>
                     <img id="qotd-qr-img" class="qotd-qr" src="" alt="Scan to vote">
                     <div style="font-size: 0.85rem; font-weight: bold; color: #888;">Scan to vote!</div>
-                    <div class="qotd-manual-unlock" onclick="toggleQotdLock()" id="qotd-manual-lock">🔒 Lock Voting</div>
+                    <div class="qotd-manual-unlock" title="Lock Voting" onclick="toggleQotdLock()" id="qotd-manual-lock">🔓 Lock</div>
                 </div>
                 
                 <div class="qotd-container" id="qotd-idle-view" style="display: none;">
                     <div class="qotd-text" id="qotd-idle-question">Loading question...</div>
                     <div style="font-size: 2.5rem; margin-top: 15px;">🔒</div>
                     <div style="font-size: 0.9rem; font-weight: bold; color: #888; margin-top: 5px;">Voting closed.</div>
-                    <div class="qotd-manual-unlock" onclick="toggleQotdLock()" id="qotd-manual-unlock-idle">🔓 Open Voting</div>
+                    <div class="qotd-manual-unlock" title="Open Voting" onclick="toggleQotdLock()" id="qotd-manual-unlock-idle">🔒 Open</div>
                 </div>
                 
                 <div class="qotd-container" id="qotd-results-view" style="display: none;">
@@ -615,7 +605,7 @@
                         <div class="qotd-bar-bg"><div class="qotd-bar-fill" id="qotd-bar-b" style="background-color: #5bc0de;"></div><div class="qotd-bar-label" id="qotd-pct-b">0%</div></div>
                         <div style="font-size: 0.8rem; margin-top: 15px; color: #888;" id="qotd-total-votes">Total Votes: 0</div>
                     </div>
-                    <div class="qotd-manual-unlock" onclick="toggleQotdLock()" id="qotd-manual-unlock-results">🔓 Re-open Voting</div>
+                    <div class="qotd-manual-unlock" title="Re-open Voting" onclick="toggleQotdLock()" id="qotd-manual-unlock-results">🔒 Re-open</div>
                 </div>
             </div>
         </div>
@@ -631,22 +621,37 @@
 
     <script>
         // ==========================================================================
-        // 1. CORE LOGIC & STATE (PURE GOOGLE FETCH)
+        // 1. CORE LOGIC & STATE 
         // ==========================================================================
-        const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec"; 
+        const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec?tab=Daily"; 
         const QOTD_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxTHBPh45e_R7clf_hx3j3OLJP1ThFEBlDIu4OLyt4tTEDZg6_xImwzO08bE0JzG_ezlQ/exec";
         const DEFAULT_PREFS = { open: false, putaway: false, attendance: false, cleanup: false, retrieve: false, icalUrl: '' };
 
-        const GOODBYE_MESSAGES = ["Great work today.", "Class dismissed!", "Make good choices!"];
+        const GOODBYE_MESSAGES = [
+            "Great work today. Have a wonderful rest of your day.",
+            "Class is dismissed. Keep up the fantastic effort!",
+            "Thank you for your hard work today. See you next time.",
+            "Have a great day, and make good choices!",
+            "Class is over. I hope you have a fantastic afternoon.",
+            "Thanks for a great class. Stay curious and keep learning.",
+            "You all did great today. Have a safe and happy afternoon.",
+            "Class dismissed. Remember to be kind to one another.",
+            "Excellent effort today. Have a beautiful rest of your day."
+        ];
 
         const qotdDatabase = [
-            { q: "Would you rather pause time, or fast-forward time?", a: "Pause Time", b: "Fast-Forward Time" },
-            { q: "Would you rather explore space or the deep ocean?", a: "Outer Space", b: "Deep Ocean" }
-        ]; 
+            { q: "Would you rather have a 4-day school week with 9-hour days, or a 5-day week with 6-hour days?", a: "4 Days (9 Hours)", b: "5 Days (6 Hours)" },
+            { q: "Would you rather always have a substitute teacher who lets you do nothing, or an amazing teacher who gives lots of homework?", a: "Chill Sub", b: "Amazing Teacher + HW" },
+            { q: "Would you rather take all your tests verbally or write 10-page essays for every test?", a: "Verbal Tests", b: "10-Page Essays" },
+            { q: "Would you rather be the best student in a terrible class, or the worst student in an elite class?", a: "Best in Terrible", b: "Worst in Elite" }
+        ];
+
+        const playSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+        const pauseSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
 
         let isBooting = true; // ABSOLUTE LOCK ON LOCAL STORAGE SAVING
 
-        let activeSchedule = []; // NO HARDCODED SCHEDULES!
+        let activeSchedule = []; 
         let currentScheduleName = "Loading..."; 
         let globalVolume = 1.0, globalVoicePref = '', classSettings = {};
         let lunchDuties = [], customReminders = [];
@@ -725,7 +730,6 @@
             const container1 = document.getElementById('weather-container-main');
             if(!container1) return;
             const color = isDarkMode ? '#ffffff' : '#333333';
-            // Added ?unit=us parameter explicitly!
             container1.innerHTML = `<a class="weatherwidget-io" href="https://forecast7.com/en/33d98n84d43/east-cobb/?unit=us" data-label_1="EAST COBB" data-theme="pure" data-basecolor="rgba(0,0,0,0)" data-textcolor="${color}">EAST COBB</a>`;
             !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;}else{js=d.getElementById(id);js.remove();js=d.createElement(s);js.id=id;}js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}(document,'script','weatherwidget-io-js');
         }
@@ -736,7 +740,7 @@
             p.style.display = p.style.display === 'none' ? 'flex' : 'none';
         }
 
-        function toggleWidget(id, isChecked) {
+        function toggleWidget(id, isChecked, shouldSave = true) {
             activeWidgets[id] = isChecked;
             const card = document.getElementById(`widget-${id}`);
             if(card) {
@@ -747,7 +751,7 @@
             
             const floatTog = document.getElementById(`wm-tog-${id}`);
             if(floatTog) floatTog.checked = isChecked;
-            saveLocalSettings();
+            if(shouldSave) saveLocalSettings();
         }
 
         function toggleSidebar(e) {
@@ -860,12 +864,14 @@
             const select = document.getElementById('vibeSelect');
             if(!select) return;
             select.innerHTML = '';
+            
             if(savedVibes.length === 0) {
                 select.innerHTML = '<option value="">-- Playlist Empty --</option>';
             } else {
                 savedVibes.forEach(v => {
                     const opt = document.createElement('option');
-                    opt.value = v.url; opt.textContent = v.title || "Loading Title...";
+                    opt.value = v.url;
+                    opt.textContent = v.title || "Loading Title...";
                     if (v.url === currentVibeUrl) opt.selected = true;
                     select.appendChild(opt);
                 });
@@ -878,9 +884,16 @@
                 const vid = extractVideoID(url);
                 if(vid) {
                     let exists = savedVibes.find(v => extractVideoID(v.url) === vid);
-                    if(!exists) { savedVibes.push({ url: url, title: 'Loading Vibe...' }); }
-                    currentVibeUrl = url; saveLocalSettings(); renderVibeDropdown(); startVibe(); 
-                } else { alert("Invalid YouTube URL. Please make sure it is a standard link."); }
+                    if(!exists) {
+                        savedVibes.push({ url: url, title: 'Loading Vibe...' });
+                    }
+                    currentVibeUrl = url;
+                    saveLocalSettings();
+                    renderVibeDropdown();
+                    startVibe(); 
+                } else {
+                    alert("Invalid YouTube URL. Please make sure it is a standard link.");
+                }
             }
         }
         
@@ -888,15 +901,25 @@
             if(!currentVibeUrl || savedVibes.length === 0) return;
             savedVibes = savedVibes.filter(v => v.url !== currentVibeUrl);
             if(savedVibes.length > 0) {
-                currentVibeUrl = savedVibes[0].url; saveLocalSettings(); renderVibeDropdown(); startVibe();
+                currentVibeUrl = savedVibes[0].url;
+                saveLocalSettings();
+                renderVibeDropdown();
+                startVibe();
             } else {
-                currentVibeUrl = ''; saveLocalSettings(); renderVibeDropdown(); stopVibe();
+                currentVibeUrl = '';
+                saveLocalSettings();
+                renderVibeDropdown();
+                stopVibe();
             }
         }
         
         function changeVibeSelection() {
             const select = document.getElementById('vibeSelect');
-            if(select && select.value) { currentVibeUrl = select.value; saveLocalSettings(); lastPeriodStatus = null; }
+            if(select && select.value) {
+                currentVibeUrl = select.value;
+                saveLocalSettings();
+                lastPeriodStatus = null; 
+            }
         }
 
         function applyMusicState(url, shouldPlay) {
@@ -907,12 +930,16 @@
             
             const vid = extractVideoID(url);
             if (!vid) return true;
+
             if (!isYtApiReady) return false; 
 
             const bgContainer = document.getElementById('vibe-bg');
             if(bgContainer) bgContainer.style.opacity = "0.45";
 
-            if (ytPlayer) { try { ytPlayer.destroy(); ytPlayer = null; } catch(e) {} } 
+            if (ytPlayer) {
+                try { ytPlayer.destroy(); ytPlayer = null; } catch(e) {}
+            } 
+            
             if(bgContainer) bgContainer.innerHTML = '<div id="yt-player-container"></div>';
             
             try {
@@ -925,8 +952,6 @@
                                 e.target.setVolume(vibeVolume); 
                                 if(shouldPlay) {
                                     e.target.playVideo(); 
-                                    const floatBtn = document.getElementById('float-play-btn');
-                                    if(floatBtn) floatBtn.innerHTML = pauseSVG;
                                 }
                             } catch(err) {} 
                         }, 
@@ -934,6 +959,7 @@
                     }
                 });
             } catch(e) {}
+            
             return true;
         }
 
@@ -945,11 +971,13 @@
                     if (state === YT.PlayerState.PLAYING || state === YT.PlayerState.BUFFERING) {
                         ytPlayer.pauseVideo();
                         if(floatBtn) floatBtn.innerHTML = playSVG;
-                        isMainVibePlaying = false; saveLocalSettings();
+                        isMainVibePlaying = false;
+                        saveLocalSettings();
                     } else {
                         ytPlayer.playVideo();
                         if(floatBtn) floatBtn.innerHTML = pauseSVG;
-                        isMainVibePlaying = true; saveLocalSettings();
+                        isMainVibePlaying = true;
+                        saveLocalSettings();
                     }
                 } catch(e) { console.error(e); }
             } else { startVibe(); }
@@ -962,6 +990,7 @@
             if(floatBtn) floatBtn.innerHTML = pauseSVG;
             saveLocalSettings();
             lastPeriodStatus = null; 
+            applyMusicState(currentVibeUrl, true);
         }
 
         function stopVibeCore() {
@@ -975,7 +1004,8 @@
         }
 
         function stopVibe() {
-            isMainVibePlaying = false; saveLocalSettings();
+            isMainVibePlaying = false;
+            saveLocalSettings();
             if (activePlayerUrl === jukeboxUrl) {
                 if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') ytPlayer.pauseVideo();
                 const floatBtn = document.getElementById('float-play-btn');
@@ -995,6 +1025,7 @@
                     let title = ytPlayer.getVideoData().title;
                     const titleEl = document.getElementById('float-vibe-title');
                     if(title && titleEl) titleEl.innerText = title;
+                    
                     if(title && activePlayerUrl === currentVibeUrl) {
                         let updated = false;
                         savedVibes.forEach(v => {
@@ -1029,7 +1060,12 @@
         }
 
         function toggleFloatVibeMute() {
-            if(isVibeMuted) { syncVibeVolume(savedVibeVol); } else { savedVibeVol = vibeVolume > 0 ? vibeVolume : 50; syncVibeVolume(0); }
+            if(isVibeMuted) {
+                syncVibeVolume(savedVibeVol);
+            } else {
+                savedVibeVol = vibeVolume > 0 ? vibeVolume : 50;
+                syncVibeVolume(0);
+            }
         }
 
         function syncGlobalVolume(val) {
@@ -1048,446 +1084,22 @@
 
             const audio = document.getElementById('regularBellAudio'); 
             if(audio) audio.volume = globalVolume;
+
             saveLocalSettings();
         }
 
         function toggleFloatBellMute() {
-            if(isGlobalMuted) { syncGlobalVolume(savedGlobalVol); } else { savedGlobalVol = globalVolume > 0 ? globalVolume : 1.0; syncGlobalVolume(0); }
-        }
-
-        function changeVolume() { const vc = document.getElementById('volumeControl'); if(vc) syncGlobalVolume(vc.value); }
-
-        function toggleJukebox() {
-            const tog = document.getElementById('jukeboxToggle');
-            if(tog) mrBsJukebox = tog.checked;
-            lastPeriodStatus = null; saveLocalSettings();
-        }
-
-        function updateJukeboxUrl() {
-            const inp = document.getElementById('jukeboxUrlInput');
-            if(inp && inp.value.trim() !== '') { jukeboxUrl = inp.value.trim(); } else { jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; }
-            lastPeriodStatus = null; saveLocalSettings();
-        }
-
-        function toggleGoodbyes() { 
-            const tog = document.getElementById('playGoodbyes');
-            if(tog) playGoodbyes = tog.checked; 
-            saveLocalSettings(); 
-        }
-
-        function toggleMuteBells() { 
-            const tog = document.getElementById('muteBellsToggle');
-            if(tog) muteBells = tog.checked; 
-            saveLocalSettings(); 
-        }
-
-        function toggleDropdown(event) { 
-            event.stopPropagation(); 
-            const dd = document.getElementById("soundDropdown");
-            if(dd) dd.classList.toggle("show"); 
-        }
-
-        function selectTestSound(value, label) {
-            currentTestSound = value; 
-            const btn = document.getElementById("playBtn");
-            const dd = document.getElementById("soundDropdown");
-            if(btn) btn.innerHTML = "▶ Play " + label;
-            if(dd) dd.classList.remove("show"); 
-            saveLocalSettings();
-        }
-
-        function playBellWithQueue(timesLeft = 1, onCompleteCallback = null) {
-            if (muteBells) { if (onCompleteCallback) onCompleteCallback(); return; }
-            const audio = document.getElementById('regularBellAudio'); 
-            if(!audio) { if (onCompleteCallback) onCompleteCallback(); return; }
-            
-            audio.currentTime = 0;
-            audio.onended = () => { 
-                if (timesLeft > 1) playBellWithQueue(timesLeft - 1, onCompleteCallback); 
-                else { audio.onended = null; if (onCompleteCallback) onCompleteCallback(); } 
-            };
-            
-            let playPromise = audio.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(e => {
-                    console.error("Audio play blocked. Triggering failsafe voice delay.", e);
-                    audio.onended = null; 
-                    setTimeout(() => {
-                        if (timesLeft > 1) playBellWithQueue(timesLeft - 1, onCompleteCallback);
-                        else if (onCompleteCallback) onCompleteCallback();
-                    }, 1500); 
-                });
-            }
-        }
-
-        function safePopulateVoiceList() {
-            try {
-                const voiceSelect = document.getElementById("voicePreference");
-                if(!voiceSelect) return;
-                const voices = window.speechSynthesis.getVoices();
-                if(voices.length === 0) return;
-                
-                const selectedURI = globalVoicePref;
-                voiceSelect.innerHTML = '';
-                const enVoices = voices.filter(v => v.lang.startsWith('en'));
-                
-                let found = false;
-                enVoices.forEach(voice => {
-                    const option = document.createElement('option');
-                    option.textContent = `${voice.name} (${voice.lang})`;
-                    option.value = voice.voiceURI;
-                    if(voice.voiceURI === selectedURI) { option.selected = true; found = true; }
-                    voiceSelect.appendChild(option);
-                });
-                
-                if(!found && enVoices.length > 0) {
-                    voiceSelect.value = enVoices[0].voiceURI;
-                    globalVoicePref = enVoices[0].voiceURI;
-                    saveLocalSettings();
-                } else if (found) {
-                    voiceSelect.value = globalVoicePref;
-                }
-            } catch(e) {}
-        }
-        
-        function changeVoicePref() { 
-            const vp = document.getElementById('voicePreference');
-            if(vp) globalVoicePref = vp.value; 
-            saveLocalSettings(); 
-        }
-
-        function speak(text) {
-            try {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.rate = 0.9; utterance.volume = globalVolume;
-                const voices = window.speechSynthesis.getVoices();
-                const selectedVoice = voices.find(v => v.voiceURI === globalVoicePref);
-                if (selectedVoice) utterance.voice = selectedVoice;
-                window.speechSynthesis.speak(utterance);
-            } catch (e) { console.error("Speech Synthesis failed:", e); }
-        }
-
-        function testSelectedSound() {
-            triggerVisualAlert();
-            if (currentTestSound === 'positive') { const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)]; speak(randomMsg); }
-            else if (currentTestSound === 'start') playBellWithQueue(3, () => speak("Class is beginning. Please place your phones in the cell phone caddy."));
-            else if (currentTestSound === 'end') {
-                if (playGoodbyes) { const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)]; playBellWithQueue(3, () => speak(randomMsg)); } else { playBellWithQueue(3); }
-            }
-            else if (currentTestSound === 'warning1m') playBellWithQueue(1, () => speak("One minute until class begins. Please place your phones in the cell phone caddy."));
-            else if (currentTestSound === 'attendance') speak("Reminder. Please take attendance.");
-            else if (currentTestSound === 'cleanup') speak("Five minutes remaining. Please begin cleaning up your area.");
-            else if (currentTestSound === 'lunch') speak("Reminder. You have lunch duty.");
-        }
-
-        // ==========================================================================
-        // 5. REMINDERS & SCHEDULE LOGIC
-        // ==========================================================================
-        function addCustomReminder() {
-            const name = document.getElementById('remName').value;
-            const time = document.getElementById('remTime').value;
-            const day = document.getElementById('remDay').value;
-            if(name && time) {
-                customReminders.push({ name, time, day });
-                renderCustomReminders(); saveLocalSettings();
-                document.getElementById('remName').value = ''; document.getElementById('remTime').value = '';
-            } else { showToast("Please enter a Name and Time"); }
-        }
-        
-        function removeCustomReminder(index) { customReminders.splice(index, 1); renderCustomReminders(); saveLocalSettings(); }
-
-        function renderCustomReminders() {
-            const list = document.getElementById('custom-reminder-list'); 
-            if(!list) return;
-            list.innerHTML = '';
-            const days = {"All": "Daily", "1": "Mon", "2": "Tue", "3": "Wed", "4": "Thu", "5": "Fri"};
-            customReminders.forEach((rem, index) => {
-                const li = document.createElement('li'); li.className = "duty-item";
-                li.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid rgba(150,150,150,0.2);";
-                li.innerHTML = `<span><b>${formatTime12(rem.time)}</b> - ${rem.name} (${days[rem.day]})</span>
-                                <button onclick="removeCustomReminder(${index})" style="background:none; border:none; color:#d9534f; cursor:pointer; font-size:1.1rem;" title="Remove Reminder">✖</button>`;
-                list.appendChild(li);
-            });
-        }
-
-        function addLunchDuty() {
-            const dayVal = document.getElementById('lunchDay'); const halfVal = document.getElementById('lunchHalf'); const periodVal = document.getElementById('lunchPeriod');
-            if(!dayVal || !halfVal || !periodVal) return;
-            const day = parseInt(dayVal.value); const half = parseInt(halfVal.value); const period = periodVal.value.trim();
-            if (period) {
-                lunchDuties.push({ day, half, period }); renderLunchDuties(); saveLocalSettings(); 
-                periodVal.value = '3rd';
-            }
-        }
-        function removeLunchDuty(index) { lunchDuties.splice(index, 1); renderLunchDuties(); saveLocalSettings(); }
-        
-        function renderLunchDuties() {
-            const list = document.getElementById('lunch-duty-list'); 
-            if(!list) return;
-            list.innerHTML = '';
-            const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-            lunchDuties.forEach((duty, index) => {
-                const li = document.createElement('li'); li.className = "duty-item";
-                li.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid rgba(150,150,150,0.2);";
-                li.innerHTML = `<span><b>${days[duty.day]}</b> - ${duty.period} (${duty.half === 1 ? '1st' : '2nd'} Half)</span>
-                                <button onclick="removeLunchDuty(${index})" style="background:none; border:none; color:#d9534f; cursor:pointer; font-size:1.1rem;" title="Remove Duty">✖</button>`;
-                list.appendChild(li);
-            });
-        }
-
-        function toggleSetting(periodName, settingType, isChecked) {
-            const key = periodName; 
-            if (!classSettings[key]) classSettings[key] = { ...DEFAULT_PREFS };
-            classSettings[key][settingType] = isChecked;
-            saveLocalSettings();
-            if (settingType === 'open') renderSchedule(); 
-        }
-
-        function toggleZeroPeriod() {
-            const sz = document.getElementById('showZeroPeriod');
-            if(sz) showZero = sz.checked;
-            saveLocalSettings();
-            fetchDailySchedule(); // Refetch to dynamically rebuild array cleanly
-        }
-
-        function renderSchedule() {
-            const list = document.getElementById('schedule-list'); 
-            if(!list) return;
-            list.innerHTML = '';
-            
-            if (!Array.isArray(activeSchedule)) {
-                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Schedule data is missing or corrupted.</em></li>'; return; 
-            }
-
-            if (activeSchedule.length === 0) { 
-                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Loading Schedule...</em></li>'; return; 
-            }
-
-            activeSchedule.forEach(period => {
-                try {
-                    const key = String(period.name);
-                    const safeKey = key.replace(/'/g, "\\'"); 
-                    const s = classSettings[key] || { ...DEFAULT_PREFS };
-                    
-                    const li = document.createElement('li'); 
-                    li.className = 'schedule-grid';
-                    li.dataset.start = String(period.start);
-                    li.dataset.end = String(period.end);
-                    
-                    let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
-                    let isWebBlock = /^[A-D](\s|-)?Block/i.test(key);
-                    let webOpenCheckbox = isWebBlock ? 
-                        `<div class="options-col opt-center"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
-                        `<div class="options-col"></div>`;
-
-                    li.innerHTML = `
-                        <div class="period-name">${key} ${openBadgeHtml}</div>
-                        <div class="middle-section">
-                            <div class="options-wrapper">
-                                <div class="options-col"><label class="switch" title="Phone Caddy"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'putaway', this.checked)" ${s.putaway ? 'checked' : ''}><span class="slider"></span></label></div>
-                                <div class="options-col"><label class="switch" title="Take Attendance"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'attendance', this.checked)" ${s.attendance ? 'checked' : ''}><span class="slider"></span></label></div>
-                                <div class="options-col"><label class="switch" title="5-Min Clean Up"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'cleanup', this.checked)" ${s.cleanup ? 'checked' : ''}><span class="slider"></span></label></div>
-                                <div class="options-col"><label class="switch" title="1 Min Warning & Retrieve"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'retrieve', this.checked)" ${s.retrieve ? 'checked' : ''}><span class="slider"></span></label></div>
-                                ${webOpenCheckbox}
-                                <div class="options-col">
-                                    <button onclick="setIcalFeed('${safeKey}')" style="background:none;border:none;cursor:pointer;font-size:1.3rem;transition:transform 0.2s; filter: ${s.icalUrl ? 'none' : 'grayscale(100%) opacity(0.4)'}" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="${s.icalUrl ? 'Edit iCal Feed' : 'Add iCal Feed'}">📅</button>
-                                </div>
-                            </div>
-                            <div class="agenda-display" id="agenda-${safeKey}"></div>
-                        </div>
-                        <div class="period-time">${formatTime12(String(period.start))} - ${formatTime12(String(period.end))}</div>
-                    `;
-                    list.appendChild(li);
-                    
-                    if (s.icalUrl) { fetchAgenda(s.icalUrl, `agenda-${safeKey}`); }
-                } catch(e) { console.error("Error rendering a row:", e); }
-            });
-            
-            highlightCurrentPeriod(new Date());
-        }
-
-        // ==========================================================================
-        // 6. ASYNC GOOGLE FETCH
-        // ==========================================================================
-        async function fetchDailySchedule() {
-            const ind = document.getElementById('autoIndicator');
-            if(ind) { ind.style.display = 'block'; ind.innerText = "Sync Status: Fetching..."; ind.style.color = '#888'; }
-            
-            try {
-                // Must explicitly request tab=Daily so we don't accidentally load Block schedules
-                const response = await fetch(GOOGLE_CALENDAR_SCRIPT_URL + "?tab=Daily");
-                const data = await response.json();
-                
-                if (data && data.schedule) {
-                    let cleanSchedule = [];
-                    data.schedule.forEach(p => {
-                        if(!p || !p.name) return;
-                        let cleanP = { name: String(p.name).trim(), start: String(p.start || '').trim(), end: String(p.end || '').trim() };
-                        if(cleanP.start.includes(':')) cleanP.start = cleanP.start.split(':').map(v => v.padStart(2, '0')).join(':');
-                        if(cleanP.end.includes(':')) cleanP.end = cleanP.end.split(':').map(v => v.padStart(2, '0')).join(':');
-                        cleanSchedule.push(cleanP);
-                    });
-
-                    // Zero period logic applied instantly to the fresh data
-                    let hasZero = cleanSchedule.some(p => /^0/i.test(String(p.name).trim()));
-                    if (showZero && !hasZero) { cleanSchedule.unshift({ name: "0 pd", start: "07:10", end: "08:13" }); } 
-                    else if (!showZero && hasZero) { cleanSchedule = cleanSchedule.filter(p => !/^0/i.test(String(p.name).trim())); }
-
-                    activeSchedule = cleanSchedule;
-                    currentScheduleName = String(data.mode || 'Daily').toUpperCase();
-
-                    if(ind) { ind.innerText = `✓ Synced: ${currentScheduleName}`; ind.style.color = '#5cb85c'; }
-                    document.getElementById('schedule-title').innerText = currentScheduleName + ' Schedule';
-                    
-                    renderSchedule();
-                    showToast(`Loaded: ${currentScheduleName} Schedule`);
-                } else {
-                    throw new Error("Empty schedule returned");
-                }
-            } catch (err) {
-                console.error("Schedule sync failed:", err);
-                if(ind) { ind.innerText = "Sync Status: ⚠ Offline"; ind.style.color = '#d9534f'; }
-                document.getElementById('schedule-list').innerHTML = '<li style="padding:20px;text-align:center;color:red;">Could not load schedule from Google. Check internet or Force Sync.</li>';
-            }
-        }
-
-        async function fetchAgenda(url, elementId) {
-            const el = document.getElementById(elementId);
-            if (!el) return;
-            let fetchUrlStr = url.trim();
-            if (fetchUrlStr.startsWith('webcal://')) { fetchUrlStr = 'https://' + fetchUrlStr.substring(9); }
-            if (agendaCache[fetchUrlStr]) {
-                if (agendaCache[fetchUrlStr] !== 'empty') { el.innerHTML = agendaCache[fetchUrlStr]; el.classList.add('has-data'); } 
-                else { el.innerHTML = ""; el.classList.remove('has-data'); }
-                return;
-            }
-            el.innerHTML = "<em>Fetching...</em>"; el.classList.add('has-data');
-
-            try {
-                if (!agendaPromises[fetchUrlStr]) {
-                    const fetchUrl = `${GOOGLE_CALENDAR_SCRIPT_URL.split('?')[0]}?icalUrl=${encodeURIComponent(fetchUrlStr)}`;
-                    agendaPromises[fetchUrlStr] = fetch(fetchUrl).then(async (response) => {
-                        if (!response.ok) throw new Error(`HTTP error!`);
-                        const icsData = await response.text();
-                        if (icsData.startsWith('Error:')) return `<em class="agenda-error" title="${icsData}">Apps Script error</em>`;
-                        if (!icsData || (!icsData.includes('BEGIN:VCALENDAR') && !icsData.includes('BEGIN:VEVENT'))) return "<em class='agenda-error'>Invalid data</em>";
-                        const today = new Date();
-                        const todayInt = parseInt(today.getFullYear() + String(today.getMonth() + 1).padStart(2, '0') + String(today.getDate()).padStart(2, '0'), 10);
-                        const events = icsData.split('BEGIN:VEVENT'); let todaysEvents = [];
-                        for (let i = 1; i < events.length; i++) {
-                            const eventText = events[i];
-                            const dtStartMatch = eventText.match(/DTSTART(?:;[^:]*)?:([0-9]{8})/); 
-                            const dtEndMatch = eventText.match(/DTEND(?:;[^:]*)?:([0-9]{8})/); 
-                            const isTimedMatch = eventText.match(/DTSTART(?:;[^:]*)?:[0-9]{8}T/);
-                            const summaryMatch = eventText.match(/SUMMARY:([^\r\n]*)/);
-
-                            if (dtStartMatch && summaryMatch) {
-                                const startInt = parseInt(dtStartMatch[1], 10);
-                                let isActive = false;
-                                if (dtEndMatch) {
-                                    const endInt = parseInt(dtEndMatch[1], 10);
-                                    if (isTimedMatch) isActive = (todayInt >= startInt && todayInt <= endInt);
-                                    else isActive = (todayInt >= startInt && todayInt < endInt);
-                                } else { isActive = (startInt === todayInt); }
-                                if (isActive) todaysEvents.push(summaryMatch[1].trim());
-                            }
-                        }
-                        if (todaysEvents.length > 0) return todaysEvents.join(' &nbsp;|&nbsp; ');
-                        else return "empty";
-                    });
-                }
-
-                const resultHtml = await agendaPromises[fetchUrlStr];
-                agendaCache[fetchUrlStr] = resultHtml;
-                if (resultHtml !== 'empty') { el.innerHTML = resultHtml; el.classList.add('has-data'); } 
-                else { el.innerHTML = ""; el.classList.remove('has-data'); }
-            } catch (error) {
-                el.innerHTML = "<em class='agenda-error'>Error loading feed.</em>";
-                agendaCache[fetchUrlStr] = "<em class='agenda-error'>Error loading feed.</em>";
-            }
-        }
-
-        function setIcalFeed(periodName) {
-            const currentUrl = classSettings[periodName]?.icalUrl || '';
-            const url = prompt(`Paste the iCal feed URL for ${periodName}:`, currentUrl);
-            if (url !== null) {
-                if (!classSettings[periodName]) classSettings[periodName] = { ...DEFAULT_PREFS };
-                classSettings[periodName].icalUrl = url.trim();
-                saveLocalSettings();
-                renderSchedule(); 
-                showToast("iCal feed updated");
-            }
-        }
-
-        // ==========================================================================
-        // 7. QOTD & TIMERS
-        // ==========================================================================
-        function getDailyQotd() {
-            const now = new Date();
-            const start = new Date(now.getFullYear(), 0, 0);
-            const diff = now - start;
-            const oneDay = 1000 * 60 * 60 * 24;
-            const dayOfYear = Math.floor(diff / oneDay);
-            return qotdDatabase[dayOfYear % qotdDatabase.length];
-        }
-
-        function toggleQotdLock() { qotdManualUnlock = !qotdManualUnlock; updateClock(); }
-
-        function updateQotdUI(status) {
-            if (!activeWidgets.qotd) return; 
-            
-            const qObj = getDailyQotd();
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(QOTD_APPS_SCRIPT_URL)}`;
-
-            document.getElementById('qotd-question').innerText = qObj.q;
-            document.getElementById('qotd-idle-question').innerText = qObj.q;
-            document.getElementById('qotd-results-question').innerText = qObj.q;
-            document.getElementById('qotd-label-a').innerText = qObj.a;
-            document.getElementById('qotd-label-b').innerText = qObj.b;
-            document.getElementById('qotd-qr-img').src = qrUrl;
-            
-            const viewVoting = document.getElementById('qotd-voting-view');
-            const viewIdle = document.getElementById('qotd-idle-view');
-            const viewResults = document.getElementById('qotd-results-view');
-
-            if (status && status.actualClass) {
-                const p = status.periodData;
-                const currentMins = new Date().getHours() * 60 + new Date().getMinutes();
-                
-                if (currentMins >= p.startMins && currentMins < p.startMins + 5) {
-                    // FIRST 5 MINS
-                    viewVoting.style.display = 'flex'; viewIdle.style.display = 'none'; viewResults.style.display = 'none';
-                    qotdResultsFetched = false; qotdManualUnlock = false; 
-                } else if (currentMins >= p.endMins - 5 && currentMins < p.endMins) {
-                    // LAST 5 MINS
-                    viewVoting.style.display = 'none'; viewIdle.style.display = 'none'; viewResults.style.display = 'flex';
-                    qotdManualUnlock = false;
-                    if (!qotdResultsFetched) {
-                        qotdResultsFetched = true;
-                        fetch(QOTD_APPS_SCRIPT_URL + "?action=getResults")
-                            .then(r => r.json())
-                            .then(data => {
-                                const votesA = parseInt(data.votesA) || 0;
-                                const votesB = parseInt(data.votesB) || 0;
-                                const total = votesA + votesB;
-                                const pctA = total === 0 ? 0 : Math.round((votesA / total) * 100);
-                                const pctB = total === 0 ? 0 : 100 - pctA;
-                                
-                                document.getElementById('qotd-bar-a').style.width = pctA + '%'; document.getElementById('qotd-pct-a').innerText = pctA + '%';
-                                document.getElementById('qotd-bar-b').style.width = pctB + '%'; document.getElementById('qotd-pct-b').innerText = pctB + '%';
-                                document.getElementById('qotd-total-votes').innerText = "Total Votes: " + total;
-                            }).catch(e => console.error("Error fetching QotD results:", e));
-                    }
-                } else {
-                    // MID CLASS
-                    if (qotdManualUnlock) { viewVoting.style.display = 'flex'; viewIdle.style.display = 'none'; viewResults.style.display = 'none'; } 
-                    else { viewVoting.style.display = 'none'; viewIdle.style.display = 'flex'; viewResults.style.display = 'none'; }
-                }
+            if(isGlobalMuted) {
+                syncGlobalVolume(savedGlobalVol);
             } else {
-                // PASSING PERIOD
-                viewVoting.style.display = 'none'; viewIdle.style.display = 'flex'; viewResults.style.display = 'none';
-                qotdResultsFetched = false; qotdManualUnlock = false;
+                savedGlobalVol = globalVolume > 0 ? globalVolume : 1.0;
+                syncGlobalVolume(0);
             }
+        }
+
+        function changeVolume() { 
+            const vc = document.getElementById('volumeControl');
+            if(vc) syncGlobalVolume(vc.value); 
         }
 
         function showToast(message) {
@@ -1506,239 +1118,275 @@
             if(timerTotalSeconds === 0) d.style.color = '#d9534f';
             else d.style.color = '';
         }
-        function addTimerMinutes(mins) { timerTotalSeconds += (mins * 60); updateTimerDisplay(); }
-        function resetTimer() { timerTotalSeconds = 300; updateTimerDisplay(); if(timerIsPlaying) togglePlayTimer(); }
+        function addTimerMinutes(mins) {
+            timerTotalSeconds += (mins * 60);
+            updateTimerDisplay();
+        }
+        function resetTimer() {
+            timerTotalSeconds = 300; 
+            updateTimerDisplay();
+            if(timerIsPlaying) togglePlayTimer();
+        }
         function togglePlayTimer() {
             const btn = document.getElementById('timer-start-btn');
             if(timerIsPlaying) {
-                clearInterval(timerInterval); timerIsPlaying = false;
+                clearInterval(timerInterval);
+                timerIsPlaying = false;
                 if(btn) { btn.innerText = "Start"; btn.style.backgroundColor = '#31b0d5'; }
             } else {
                 if(timerTotalSeconds <= 0) return; 
                 timerIsPlaying = true;
                 if(btn) { btn.innerText = "Pause"; btn.style.backgroundColor = '#d9534f'; }
                 timerInterval = setInterval(() => {
-                    if(timerTotalSeconds > 0) { timerTotalSeconds--; updateTimerDisplay(); } 
-                    else { togglePlayTimer(); playBellWithQueue(2); }
+                    if(timerTotalSeconds > 0) {
+                        timerTotalSeconds--;
+                        updateTimerDisplay();
+                    } else {
+                        togglePlayTimer();
+                        playBellWithQueue(2); 
+                    }
                 }, 1000);
             }
         }
 
-        // ==========================================================================
-        // 8. CLOCK & PERIOD LOGIC
-        // ==========================================================================
-        function timeToMins(t) { if (!t || !t.includes(':')) return 0; let [h, m] = t.split(':').map(Number); return h * 60 + m; }
-        function formatTime12(time24) { if (!time24 || !time24.includes(':')) return time24 || ''; let [h, m] = time24.split(':'); let ampm = h >= 12 ? 'PM' : 'AM'; return `${h % 12 || 12}:${m} ${ampm}`; }
-        function subtractMinutes(time24, minsToSubtract) { if (!time24 || !time24.includes(':')) return ''; let [h, m] = time24.split(':').map(Number); let d = new Date(); d.setHours(h, m, 0, 0); d.setMinutes(d.getMinutes() - minsToSubtract); return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0'); }
-        function addMinutes(time24, minsToAdd) { if (!time24 || !time24.includes(':')) return ''; let [h, m] = time24.split(':').map(Number); let d = new Date(); d.setHours(h, m, 0, 0); d.setMinutes(d.getMinutes() + minsToAdd); return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0'); }
-        function getMidpoint(start, end) { if (!start || !end || !start.includes(':') || !end.includes(':')) return ''; let [sh, sm] = start.split(':').map(Number); let [eh, em] = end.split(':').map(Number); let midMins = Math.floor(((sh * 60 + sm) + (eh * 60 + em)) / 2); return Math.floor(midMins / 60).toString().padStart(2, '0') + ':' + (midMins % 60).toString().padStart(2, '0'); }
-
-        function triggerVisualAlert() {
-            const overlay = document.createElement('div');
-            overlay.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; pointer-events:none; transition: background-color 0.5s;";
-            overlay.style.backgroundColor = isDarkMode ? "rgba(51, 43, 0, 0.8)" : "rgba(255, 243, 205, 0.8)";
-            document.body.appendChild(overlay);
-            setTimeout(() => { overlay.style.backgroundColor = "transparent"; }, 5500); 
-            setTimeout(() => { overlay.remove(); }, 6000); 
-        }
-
-        function highlightCurrentPeriod(now) {
-            const listItems = document.querySelectorAll('#schedule-list li');
-            if (listItems.length === 0) return null;
-            
-            const currentMins = now.getHours() * 60 + now.getMinutes();
-            const currentSecs = currentMins * 60 + now.getSeconds();
-            let highlightIndex = -1; let actualClassIndex = -1; let upcomingClassIndex = -1;
-            let inSchool = false; let isPassing = false; let periods = [];
-            
-            listItems.forEach((li, index) => {
-                periods.push({ index: index, startMins: timeToMins(li.dataset.start), endMins: timeToMins(li.dataset.end), li: li });
-                li.classList.remove('current-period'); li.style.setProperty('--progress', '0%');
-            });
-
-            if (periods.length === 0) return null;
-
-            if (currentMins >= periods[0].startMins && currentMins < periods[periods.length - 1].endMins) {
-                inSchool = true;
-                for (let i = 0; i < periods.length; i++) {
-                    let p = periods[i];
-                    if (currentMins >= p.startMins && currentMins < p.endMins) { actualClassIndex = p.index; break; }
-                    if (currentMins < p.startMins) { if (i > 0 && currentMins >= periods[i-1].endMins) { upcomingClassIndex = p.index; } break; }
-                }
-            }
-
-            if (actualClassIndex !== -1) { highlightIndex = actualClassIndex; isPassing = false; } 
-            else if (upcomingClassIndex !== -1) { highlightIndex = upcomingClassIndex; isPassing = true; }
-
-            if (highlightIndex !== -1) {
-                let p = periods[highlightIndex];
-                p.li.classList.add('current-period');
-                if (!isPassing) {
-                    let startSecs = p.startMins * 60; let endSecs = p.endMins * 60;
-                    let progress = Math.max(0, Math.min(100, ((currentSecs - startSecs) / (endSecs - startSecs)) * 100));
-                    p.li.style.setProperty('--progress', progress + '%');
-                } else { p.li.style.setProperty('--progress', '0%'); }
-            }
-
-            return { index: highlightIndex, isPassing: isPassing, periodData: highlightIndex !== -1 ? periods[highlightIndex] : null, actualClass: actualClassIndex !== -1 };
-        }
-
-        function triggerEvent(time, action, callback) {
-            if (currentMinuteTracker !== time) { playedActions = {}; currentMinuteTracker = time; }
-            const eventKey = `${time}-${action}`;
-            if (!playedActions[eventKey]) { callback(); playedActions[eventKey] = true; }
-        }
-
-        function updateClock() {
-            const clk = document.getElementById('clock');
-            if(!clk) return;
+        // QotD Logic
+        function getDailyQotd() {
             const now = new Date();
-            clk.innerText = now.toLocaleTimeString('en-US');
+            const start = new Date(now.getFullYear(), 0, 0);
+            const diff = now - start;
+            const oneDay = 1000 * 60 * 60 * 24;
+            const dayOfYear = Math.floor(diff / oneDay);
+            return qotdDatabase[dayOfYear % qotdDatabase.length];
+        }
+
+        function toggleQotdLock() {
+            qotdManualUnlock = !qotdManualUnlock;
+            updateClock(); 
+        }
+
+        function updateQotdUI(status) {
+            if (!activeWidgets.qotd) return; 
+            
+            const qObj = getDailyQotd();
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(QOTD_APPS_SCRIPT_URL)}`;
+
+            // Main Widget Updates
+            document.getElementById('qotd-question').innerText = qObj.q;
+            document.getElementById('qotd-idle-question').innerText = qObj.q;
+            document.getElementById('qotd-results-question').innerText = qObj.q;
+            document.getElementById('qotd-label-a').innerText = qObj.a;
+            document.getElementById('qotd-label-b').innerText = qObj.b;
+            document.getElementById('qotd-qr-img').src = qrUrl;
+            
+            const viewVoting = document.getElementById('qotd-voting-view');
+            const viewIdle = document.getElementById('qotd-idle-view');
+            const viewResults = document.getElementById('qotd-results-view');
+            const relockBtn = document.getElementById('qotd-manual-lock');
+
+            if (status && status.actualClass) {
+                const p = status.periodData;
+                const currentMins = new Date().getHours() * 60 + new Date().getMinutes();
+                
+                if (currentMins >= p.startMins && currentMins < p.startMins + 5) {
+                    // FIRST 5 MINS (Open)
+                    viewVoting.style.display = 'flex'; viewIdle.style.display = 'none'; viewResults.style.display = 'none';
+                    if(relockBtn) relockBtn.style.display = 'block';
+                    qotdResultsFetched = false; 
+                    qotdManualUnlock = false; 
+                } else if (currentMins >= p.endMins - 5 && currentMins < p.endMins) {
+                    // LAST 5 MINS (Results)
+                    viewVoting.style.display = 'none'; viewIdle.style.display = 'none'; viewResults.style.display = 'flex';
+                    if(relockBtn) relockBtn.style.display = 'none';
+                    qotdManualUnlock = false;
+                    
+                    if (!qotdResultsFetched) {
+                        qotdResultsFetched = true;
+                        fetch(QOTD_APPS_SCRIPT_URL + "?action=getResults")
+                            .then(r => r.json())
+                            .then(data => {
+                                const votesA = parseInt(data.votesA) || 0;
+                                const votesB = parseInt(data.votesB) || 0;
+                                const total = votesA + votesB;
+                                const pctA = total === 0 ? 0 : Math.round((votesA / total) * 100);
+                                const pctB = total === 0 ? 0 : 100 - pctA;
+                                
+                                document.getElementById('qotd-bar-a').style.width = pctA + '%';
+                                document.getElementById('qotd-pct-a').innerText = pctA + '%';
+                                document.getElementById('qotd-bar-b').style.width = pctB + '%';
+                                document.getElementById('qotd-pct-b').innerText = pctB + '%';
+                                document.getElementById('qotd-total-votes').innerText = "Total Votes: " + total;
+                            }).catch(e => console.error("Error fetching QotD results:", e));
+                    }
+                } else {
+                    // MID CLASS
+                    if (qotdManualUnlock) {
+                        // Teacher Override Open!
+                        viewVoting.style.display = 'flex'; viewIdle.style.display = 'none'; viewResults.style.display = 'none';
+                        if(relockBtn) relockBtn.style.display = 'block';
+                    } else {
+                        // Normal Lock
+                        viewVoting.style.display = 'none'; viewIdle.style.display = 'flex'; viewResults.style.display = 'none';
+                        if(relockBtn) relockBtn.style.display = 'none';
+                    }
+                }
+            } else {
+                // PASSING PERIOD
+                viewVoting.style.display = 'none'; viewIdle.style.display = 'flex'; viewResults.style.display = 'none';
+                if(relockBtn) relockBtn.style.display = 'none';
+                qotdResultsFetched = false;
+                qotdManualUnlock = false;
+            }
+        }
+
+        // --- ASYNC SCHEDULE FETCHING ---
+        async function fetchDailySchedule() {
+            const ind = document.getElementById('autoIndicator');
+            if(ind) { ind.style.display = 'block'; ind.innerText = "Sync Status: Fetching..."; ind.style.color = '#888'; }
             
             try {
-                let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-                const todayDayOfWeek = now.getDay(); 
+                const response = await fetch(GOOGLE_CALENDAR_SCRIPT_URL, { method: 'GET', redirect: 'follow' });
+                const data = await response.json();
                 
-                let status = highlightCurrentPeriod(now);
-                let currentStatus = 'outside'; let autoState = 'passing'; let isDeadTime = false; let currentProgress = 0;
+                if (data && data.schedule) {
+                    let cleanSchedule = [];
+                    data.schedule.forEach(p => {
+                        if(!p || !p.name) return;
+                        let cleanP = { name: String(p.name).trim(), start: String(p.start || '').trim(), end: String(p.end || '').trim() };
+                        if(cleanP.start.includes(':')) cleanP.start = cleanP.start.split(':').map(v => v.padStart(2, '0')).join(':');
+                        if(cleanP.end.includes(':')) cleanP.end = cleanP.end.split(':').map(v => v.padStart(2, '0')).join(':');
+                        cleanSchedule.push(cleanP);
+                    });
 
-                if (status && status.isPassing) { currentStatus = 'passing'; autoState = 'passing'; } 
-                else if (status && status.actualClass) {
-                    currentStatus = 'class';
-                    const p = status.periodData;
-                    const currentMins = now.getHours() * 60 + now.getMinutes();
-                    const currentSecs = currentMins * 60 + now.getSeconds();
-                    
-                    let startSecs = p.startMins * 60; let endSecs = p.endMins * 60;
-                    currentProgress = Math.max(0, Math.min(100, ((currentSecs - startSecs) / (endSecs - startSecs)) * 100));
+                    activeSchedule = cleanSchedule;
+                    currentScheduleName = String(data.mode || 'Daily').toUpperCase();
 
-                    if (currentMins >= p.startMins && currentMins < p.startMins + 5) { autoState = 'dead-start'; isDeadTime = true; } 
-                    else if (currentMins >= p.endMins - 5 && currentMins < p.endMins) { autoState = 'dead-end'; isDeadTime = true; } 
-                    else { autoState = 'core-class'; }
+                    if(ind) { ind.innerText = `✓ Synced: ${currentScheduleName}`; ind.style.color = '#5cb85c'; }
+                    changeMode(true);
+                    showToast(`Loaded: ${currentScheduleName} Schedule`);
                 }
-
-                let dName = document.getElementById('docked-name'); let dTime = document.getElementById('docked-time'); let dBadge = document.getElementById('docked-badge');
-                
-                if (status && status.actualClass) {
-                    const p = status.periodData;
-                    if (dName) dName.innerText = p.li.querySelector('.period-name').innerText;
-                    if (dTime) dTime.innerText = p.li.querySelector('.period-time').innerText;
-                    const s = classSettings[dName.innerText.trim()] || DEFAULT_PREFS;
-                    if (s.open && dBadge) dBadge.style.display = 'inline-block'; else if (dBadge) dBadge.style.display = 'none';
-                } else if (status && status.isPassing) {
-                    if (dName) dName.innerText = "Passing Period";
-                    const p = status.periodData;
-                    if (dTime) dTime.innerText = "Next: " + p.li.querySelector('.period-name').innerText;
-                    if (dBadge) dBadge.style.display = 'none';
-                } else {
-                    if (dName) dName.innerText = "Outside School Hours";
-                    if (dTime) dTime.innerText = "--:--";
-                    if (dBadge) dBadge.style.display = 'none';
-                }
-
-                // Update Docked Progress Bar
-                const dProg = document.getElementById('docked-progress-fill');
-                if (dProg) {
-                    if (status && status.actualClass) {
-                        dProg.style.width = currentProgress + '%';
-                        dProg.style.backgroundColor = isDeadTime ? 'var(--btn-danger)' : '#5cb85c';
-                    } else { dProg.style.width = '0%'; }
-                }
-
-                const warningElMain = document.getElementById('main-dead-time-warning');
-                const warningElDock = document.getElementById('docked-warning');
-                if (warningElMain) warningElMain.style.display = isDeadTime ? 'inline-block' : 'none';
-                if (warningElDock) warningElDock.style.display = isDeadTime ? 'inline-block' : 'none';
-
-                updateQotdUI(status);
-
-                if (lastAutoState !== null && autoState !== lastAutoState) {
-                    if (autoState === 'core-class') { toggleMinimalView(true); } 
-                    else if (autoState === 'dead-start' || autoState === 'dead-end' || autoState === 'passing') { toggleMinimalView(false); }
-                }
-                lastAutoState = autoState;
-
-                if (lastPeriodStatus !== currentStatus) {
-                    let success = false;
-                    if (mrBsJukebox && todayDayOfWeek === 5 && currentStatus === 'passing') { success = applyMusicState(jukeboxUrl, true); } 
-                    else {
-                        if (isMainVibePlaying && currentVibeUrl) { success = applyMusicState(currentVibeUrl, true); } 
-                        else { success = applyMusicState('', false); }
-                    }
-                    if (success) lastPeriodStatus = currentStatus;
-                }
-
-                if (current24 === '06:00' && now.getSeconds() === 0) { fetchDailySchedule(); }
-                
-                customReminders.forEach(rem => {
-                    if (current24 === rem.time) {
-                        if (rem.day === 'All' || parseInt(rem.day) === todayDayOfWeek) {
-                            triggerEvent(current24, `custom-${rem.name}`, () => {
-                                triggerVisualAlert();
-                                playBellWithQueue(1, () => speak(`Reminder. ${rem.name}`));
-                            });
-                        }
-                    }
-                });
-                
-                if(!Array.isArray(activeSchedule)) return;
-
-                activeSchedule.forEach(period => {
-                    if (!period || !period.name) return;
-                    const pNameStr = String(period.name);
-                    const s = classSettings[pNameStr] || { ...DEFAULT_PREFS };
-                    const hasLunch1 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 1);
-                    const hasLunch2 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 2);
-
-                    const pStartStr = String(period.start); const pEndStr = String(period.end);
-                    const startMinus1 = subtractMinutes(pStartStr, 1); const startPlus5 = addMinutes(pStartStr, 5);
-                    const endMinus5 = subtractMinutes(pEndStr, 5); const endMinus1 = subtractMinutes(pEndStr, 1);
-                    const midPoint = getMidpoint(pStartStr, pEndStr);
-
-                    if (current24 === pStartStr) {
-                        triggerEvent(current24, `start-${pNameStr}`, () => {
-                            triggerVisualAlert(); let speechText = "";
-                            if (s.open) speechText += "Please remember to sign in to WEB. ";
-                            if (s.putaway) speechText += "Class is beginning. Please place your phones in the cell phone caddy. ";
-                            if (hasLunch1) speechText += "Reminder: You have lunch duty today.";
-                            if (speechText) playBellWithQueue(3, () => speak(speechText)); else playBellWithQueue(3);
-                        });
-                    }
-                    
-                    if (current24 === pEndStr) {
-                        triggerEvent(current24, `end-${pNameStr}`, () => { 
-                            triggerVisualAlert(); 
-                            if (playGoodbyes) { const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)]; playBellWithQueue(3, () => speak(randomMsg)); } 
-                            else { playBellWithQueue(3); }
-                        });
-                    }
-
-                    if (!s.open && current24 === startMinus1) {
-                        triggerEvent(current24, `warning1m-${pNameStr}`, () => {
-                            triggerVisualAlert(); let speechText = "One minute until class begins.";
-                            if (s.putaway) speechText += " Please place your phones in the cell phone caddy.";
-                            playBellWithQueue(1, () => speak(speechText));
-                        });
-                    }
-
-                    if (!s.open && s.attendance && current24 === startPlus5) { triggerEvent(current24, `attendance5m-${pNameStr}`, () => { triggerVisualAlert(); speak("Reminder. Please take attendance."); }); }
-                    if (!s.open && hasLunch2 && current24 === midPoint) { triggerEvent(current24, `lunch2-${pNameStr}`, () => { triggerVisualAlert(); speak("Reminder. You have second half lunch duty."); }); }
-                    if (!s.open && s.cleanup && current24 === endMinus5) { triggerEvent(current24, `cleanup5m-${pNameStr}`, () => { triggerVisualAlert(); speak("Five minutes remaining. Please begin cleaning up your area."); }); }
-
-                    if (!s.open && s.retrieve && current24 === endMinus1) {
-                        triggerEvent(current24, `phone1m-${pNameStr}`, () => { 
-                            triggerVisualAlert(); let speechText = "One minute remaining.";
-                            if (s.putaway) speechText += " You may retrieve your cell phones.";
-                            playBellWithQueue(1, () => speak(speechText)); 
-                        });
-                    }
-                });
-            } catch(e) { console.error("Clock loop error:", e); }
+            } catch (err) {
+                console.error("Schedule sync failed:", err);
+                if(ind) { ind.innerText = "Sync Status: ⚠ Offline"; ind.style.color = '#d9534f'; }
+                changeMode(true);
+                showToast("Offline. Could not fetch schedule.");
+            }
         }
 
-        // ==========================================================================
-        // 9. BOOT SEQUENCE (IDIOT PROOFED)
-        // ==========================================================================
+        async function fetchAgenda(url, elementId) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            
+            let fetchUrlStr = url.trim();
+            if (fetchUrlStr.startsWith('webcal://')) {
+                fetchUrlStr = 'https://' + fetchUrlStr.substring(9);
+            }
+
+            if (agendaCache[fetchUrlStr]) {
+                if (agendaCache[fetchUrlStr] !== 'empty') {
+                    el.innerHTML = agendaCache[fetchUrlStr];
+                    el.classList.add('has-data');
+                } else {
+                    el.innerHTML = "";
+                    el.classList.remove('has-data');
+                }
+                return;
+            }
+
+            el.innerHTML = "<em>Fetching...</em>";
+            el.classList.add('has-data');
+
+            try {
+                if (!agendaPromises[fetchUrlStr]) {
+                    const fetchUrl = `${GOOGLE_CALENDAR_SCRIPT_URL.split('?')[0]}?icalUrl=${encodeURIComponent(fetchUrlStr)}`;
+                    
+                    agendaPromises[fetchUrlStr] = fetch(fetchUrl).then(async (response) => {
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        const icsData = await response.text();
+
+                        if (icsData.startsWith('Error:')) {
+                            return `<em class="agenda-error" title="${icsData}">Apps Script error</em>`;
+                        }
+
+                        if (!icsData || (!icsData.includes('BEGIN:VCALENDAR') && !icsData.includes('BEGIN:VEVENT'))) {
+                            return "<em class='agenda-error' title='Ensure you used the Secret iCal Address'>Invalid calendar data</em>";
+                        }
+
+                        const today = new Date();
+                        const todayInt = parseInt(today.getFullYear() + String(today.getMonth() + 1).padStart(2, '0') + String(today.getDate()).padStart(2, '0'), 10);
+                        
+                        const events = icsData.split('BEGIN:VEVENT');
+                        let todaysEvents = [];
+
+                        for (let i = 1; i < events.length; i++) {
+                            const eventText = events[i];
+                            
+                            const dtStartMatch = eventText.match(/DTSTART(?:;[^:]*)?:([0-9]{8})/); 
+                            const dtEndMatch = eventText.match(/DTEND(?:;[^:]*)?:([0-9]{8})/); 
+                            const isTimedMatch = eventText.match(/DTSTART(?:;[^:]*)?:[0-9]{8}T/);
+                            const summaryMatch = eventText.match(/SUMMARY:([^\r\n]*)/);
+
+                            if (dtStartMatch && summaryMatch) {
+                                const startInt = parseInt(dtStartMatch[1], 10);
+                                let isActive = false;
+
+                                if (dtEndMatch) {
+                                    const endInt = parseInt(dtEndMatch[1], 10);
+                                    if (isTimedMatch) {
+                                        isActive = (todayInt >= startInt && todayInt <= endInt);
+                                    } else {
+                                        isActive = (todayInt >= startInt && todayInt < endInt);
+                                    }
+                                } else {
+                                    isActive = (startInt === todayInt);
+                                }
+
+                                if (isActive) {
+                                    todaysEvents.push(summaryMatch[1].trim());
+                                }
+                            }
+                        }
+
+                        if (todaysEvents.length > 0) {
+                            return todaysEvents.join(' &nbsp;|&nbsp; ');
+                        } else {
+                            return "empty";
+                        }
+                    });
+                }
+
+                const resultHtml = await agendaPromises[fetchUrlStr];
+                agendaCache[fetchUrlStr] = resultHtml;
+
+                if (resultHtml !== 'empty') {
+                    el.innerHTML = resultHtml;
+                    el.classList.add('has-data');
+                } else {
+                    el.innerHTML = "";
+                    el.classList.remove('has-data');
+                }
+
+            } catch (error) {
+                el.innerHTML = "<em class='agenda-error'>Error loading feed.</em>";
+                agendaCache[fetchUrlStr] = "<em class='agenda-error'>Error loading feed.</em>";
+            }
+        }
+
+        // --- LOCAL STORAGE (Safe Loading Version) ---
+        function saveLocalSettings() {
+            if (isBooting) return; // Prevent overwriting settings during boot sequence!
+            try {
+                const data = {
+                    vol: globalVolume, voice: globalVoicePref, testSound: currentTestSound,
+                    side: sidebarVisible, waffleClosed: isWaffleClosed, minimalView: isMinimalView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
+                    settings: classSettings, lunchDuties: lunchDuties,
+                    savedVibes: savedVibes, vibe: currentVibeUrl, vibeVol: vibeVolume, muteB: muteBells,
+                    mrBsJukebox: mrBsJukebox, jukeboxUrl: jukeboxUrl, isMainVibePlaying: isMainVibePlaying,
+                    customReminders: customReminders, accordions: accordionStates, widgets: activeWidgets
+                };
+                localStorage.setItem('waltonBellState', JSON.stringify(data)); 
+            } catch (e) {}
+        }
+
         function loadLocalSettings() {
             try {
                 const saved = localStorage.getItem('waltonBellState');
@@ -1747,8 +1395,9 @@
                 const p = JSON.parse(saved);
                 
                 try { if (p.settings) classSettings = p.settings; } catch(e){}
-                try { if (p.lunchDuties) lunchDuties = p.lunchDuties; } catch(e){}
-                try { if (p.customReminders) customReminders = p.customReminders; } catch(e){}
+                try { if (p.lunchDuties) { lunchDuties = p.lunchDuties; renderLunchDuties(); } } catch(e){}
+                try { if (p.customReminders) { customReminders = p.customReminders; renderCustomReminders(); } } catch(e){}
+                
                 try { if (p.vol !== undefined) { syncGlobalVolume(p.vol); } else { syncGlobalVolume(1.0); } } catch(e){}
                 try { if (p.vibeVol !== undefined) { syncVibeVolume(p.vibeVol); } } catch(e){}
 
@@ -1802,10 +1451,8 @@
                 
                 try { 
                     if (p.savedVibes) savedVibes = p.savedVibes;
-                    if (p.vibe && savedVibes.length === 0) {
-                        savedVibes.push({ url: p.vibe, title: 'Saved Vibe' });
-                        currentVibeUrl = p.vibe;
-                    } else if (p.vibe) { currentVibeUrl = p.vibe; }
+                    if (p.vibe) currentVibeUrl = p.vibe;
+                    renderVibeDropdown();
                 } catch(e){}
 
                 try { 
@@ -1816,7 +1463,9 @@
                     const jkToggle = document.getElementById('jukeboxToggle');
                     if(jkToggle) jkToggle.checked = mrBsJukebox;
                     const jkInput = document.getElementById('jukeboxUrlInput');
-                    if(jkInput && jukeboxUrl !== "https://www.youtube.com/watch?v=CLLpSmaof4E") { jkInput.value = jukeboxUrl; }
+                    if(jkInput && jukeboxUrl !== "https://www.youtube.com/watch?v=CLLpSmaof4E") {
+                        jkInput.value = jukeboxUrl;
+                    }
                 } catch(e){}
 
                 try { 
@@ -1824,7 +1473,10 @@
                         activeWidgets = p.widgets;
                         Object.keys(p.widgets).forEach(key => {
                             const tog = document.getElementById(`wm-tog-${key}`);
-                            if(tog) { tog.checked = p.widgets[key]; toggleWidget(key, p.widgets[key]); }
+                            if(tog) {
+                                tog.checked = p.widgets[key];
+                                toggleWidget(key, p.widgets[key], false); 
+                            }
                         });
                     }
                 } catch(e){}
@@ -1844,30 +1496,740 @@
                 } catch(e){}
                 
                 try { if(p.voice) globalVoicePref = p.voice; } catch(e){}
-            } catch (e) { console.error("Memory parsing error", e); }
+            } catch (e) {
+                console.error("Local Storage parse error.", e);
+            }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // 1. Load memory immediately, but DONT save anything yet!
-            loadLocalSettings(); 
+        function toggleAccordion(id, shouldSave = true) {
+            const content = document.getElementById(id);
+            const chevron = document.getElementById('chev-' + id);
+            if (!content || !chevron) return;
             
-            // 2. Draw initial UI elements
+            if (content.style.maxHeight === "0px" || content.style.maxHeight === "") {
+                content.style.maxHeight = content.scrollHeight + "px";
+                chevron.style.transform = "rotate(0deg)";
+                accordionStates[id] = true;
+                setTimeout(() => { if(accordionStates[id]) content.style.maxHeight = "none"; }, 300);
+            } else {
+                content.style.maxHeight = content.scrollHeight + "px"; 
+                setTimeout(() => {
+                    content.style.maxHeight = "0px";
+                    chevron.style.transform = "rotate(-90deg)";
+                    accordionStates[id] = false;
+                }, 10);
+            }
+            if(shouldSave) saveLocalSettings();
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(err => {});
+            else if (document.exitFullscreen) document.exitFullscreen();
+        }
+
+        function toggleDarkMode(shouldSave = true) {
+            const toggle = document.getElementById('darkModeToggle');
+            if(!toggle) return;
+            isDarkMode = toggle.checked;
+            
+            if (isDarkMode) { document.body.classList.add('dark-mode'); } 
+            else { document.body.classList.remove('dark-mode'); }
+            
+            if(activeWidgets.weather) reloadWeatherWidget();
+            if (shouldSave) saveLocalSettings();
+        }
+
+        function toggleSidebar(event, shouldSave = true) {
+            if(event) event.stopPropagation();
+            sidebarVisible = !sidebarVisible;
+            const sidebar = document.getElementById('sidebar');
+            const hamBtn = document.getElementById('hamburgerBtn');
+            if(sidebar) {
+                if (sidebarVisible) {
+                    sidebar.classList.remove('collapsed');
+                    if(hamBtn) hamBtn.classList.add('active-btn');
+                } else {
+                    sidebar.classList.add('collapsed');
+                    if(hamBtn) hamBtn.classList.remove('active-btn');
+                }
+            }
+            if (shouldSave) saveLocalSettings();
+        }
+
+        function updateFloatingPlayerVisibility() {
+            const player = document.getElementById('floating-player');
+            if (player) {
+                if (activePlayerUrl) player.classList.add('visible');
+                else player.classList.remove('visible');
+            }
+        }
+
+        function setWaffleState(isClosed, shouldSave = true) {
+            if (isWaffleClosed === isClosed && shouldSave) return;
+            isWaffleClosed = isClosed;
+            const container = document.getElementById('schedule-container');
+            const btn = document.getElementById('waffleViewBtn');
+            
+            if(container && btn) {
+                if (isWaffleClosed) {
+                    container.classList.add('waffle-closed'); 
+                    btn.classList.remove('active-btn');
+                } else {
+                    container.classList.remove('waffle-closed'); 
+                    btn.classList.add('active-btn');
+                }
+            }
+            if (shouldSave) saveLocalSettings();
+        }
+        function toggleWaffleMenu(shouldSave = true) { setWaffleState(!isWaffleClosed, shouldSave); }
+
+        function setMinimalView(state, shouldSave = true) {
+            if (isMinimalView === state) return;
+            isMinimalView = state;
+            const btn = document.getElementById('minimalViewBtn');
+            
+            if(btn) {
+                if (isMinimalView) {
+                    document.body.classList.add('minimal-active'); 
+                    btn.classList.add('active-btn');
+                } else {
+                    document.body.classList.remove('minimal-active'); 
+                    btn.classList.remove('active-btn');
+                }
+            }
+            
+            if (shouldSave) saveLocalSettings();
+        }
+        function toggleMinimalView(shouldSave = true) { setMinimalView(!isMinimalView, shouldSave); }
+
+        function toggleJukebox() {
+            const tog = document.getElementById('jukeboxToggle');
+            if(tog) mrBsJukebox = tog.checked;
+            lastPeriodStatus = null; 
+            saveLocalSettings();
+        }
+
+        function updateJukeboxUrl() {
+            const inp = document.getElementById('jukeboxUrlInput');
+            if(inp && inp.value.trim() !== '') {
+                jukeboxUrl = inp.value.trim();
+            } else {
+                jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
+            }
+            lastPeriodStatus = null; 
+            saveLocalSettings();
+        }
+
+        function toggleGoodbyes() { 
+            const tog = document.getElementById('playGoodbyes');
+            if(tog) playGoodbyes = tog.checked; 
+            saveLocalSettings(); 
+        }
+
+        function toggleMuteBells() { 
+            const tog = document.getElementById('muteBellsToggle');
+            if(tog) muteBells = tog.checked; 
+            saveLocalSettings(); 
+        }
+
+        function toggleDropdown(event) { 
+            event.stopPropagation(); 
+            const dd = document.getElementById("soundDropdown");
+            if(dd) dd.classList.toggle("show"); 
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.split-button-caret')) {
+                let dropdowns = document.getElementsByClassName("dropdown-content");
+                for (let i = 0; i < dropdowns.length; i++) if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
+            }
+        }
+
+        function selectTestSound(value, label) {
+            currentTestSound = value; 
+            const btn = document.getElementById("playBtn");
+            const dd = document.getElementById("soundDropdown");
+            if(btn) btn.innerHTML = "▶ Play " + label;
+            if(dd) dd.classList.remove("show"); 
+            saveLocalSettings();
+        }
+
+        function changeVolume() { 
+            const vc = document.getElementById('volumeControl');
+            if(vc) syncGlobalVolume(vc.value); 
+        }
+
+        function playBellWithQueue(timesLeft = 1, onCompleteCallback = null) {
+            if (muteBells) {
+                if (onCompleteCallback) onCompleteCallback();
+                return;
+            }
+
+            const audio = document.getElementById('regularBellAudio'); 
+            if(!audio) {
+                if (onCompleteCallback) onCompleteCallback();
+                return;
+            }
+            
+            audio.currentTime = 0;
+            audio.onended = () => { 
+                if (timesLeft > 1) playBellWithQueue(timesLeft - 1, onCompleteCallback); 
+                else { 
+                    audio.onended = null; 
+                    if (onCompleteCallback) onCompleteCallback(); 
+                } 
+            };
+            
+            let playPromise = audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.catch(e => {
+                    console.error("Audio play blocked. Triggering failsafe voice delay.", e);
+                    audio.onended = null; 
+                    setTimeout(() => {
+                        if (timesLeft > 1) playBellWithQueue(timesLeft - 1, onCompleteCallback);
+                        else if (onCompleteCallback) onCompleteCallback();
+                    }, 1500); 
+                });
+            }
+        }
+
+        function safePopulateVoiceList() {
+            try {
+                const voiceSelect = document.getElementById("voicePreference");
+                if(!voiceSelect) return;
+                const voices = window.speechSynthesis.getVoices();
+                if(voices.length === 0) return;
+                
+                const selectedURI = globalVoicePref;
+                voiceSelect.innerHTML = '';
+                const enVoices = voices.filter(v => v.lang.startsWith('en'));
+                
+                let found = false;
+                enVoices.forEach(voice => {
+                    const option = document.createElement('option');
+                    option.textContent = `${voice.name} (${voice.lang})`;
+                    option.value = voice.voiceURI;
+                    if(voice.voiceURI === selectedURI) {
+                        option.selected = true;
+                        found = true;
+                    }
+                    voiceSelect.appendChild(option);
+                });
+                
+                if(!found && enVoices.length > 0) {
+                    voiceSelect.value = enVoices[0].voiceURI;
+                    globalVoicePref = enVoices[0].voiceURI;
+                    saveLocalSettings();
+                } else if (found) {
+                    voiceSelect.value = globalVoicePref;
+                }
+            } catch(e) {}
+        }
+        
+        function changeVoicePref() { 
+            const vp = document.getElementById('voicePreference');
+            if(vp) globalVoicePref = vp.value; 
+            saveLocalSettings(); 
+        }
+
+        function speak(text) {
+            try {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.9; utterance.volume = globalVolume;
+                const voices = window.speechSynthesis.getVoices();
+                const selectedVoice = voices.find(v => v.voiceURI === globalVoicePref);
+                if (selectedVoice) utterance.voice = selectedVoice;
+                window.speechSynthesis.speak(utterance);
+            } catch (e) { console.error("Speech Synthesis failed:", e); }
+        }
+
+        function testSelectedSound() {
+            triggerVisualAlert();
+            if (currentTestSound === 'positive') {
+                const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
+                speak(randomMsg);
+            }
+            else if (currentTestSound === 'start') playBellWithQueue(3, () => speak("Class is beginning. Please place your phones in the cell phone caddy."));
+            else if (currentTestSound === 'end') {
+                if (playGoodbyes) {
+                    const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
+                    playBellWithQueue(3, () => speak(randomMsg));
+                } else {
+                    playBellWithQueue(3);
+                }
+            }
+            else if (currentTestSound === 'warning1m') playBellWithQueue(1, () => speak("One minute until class begins. Please place your phones in the cell phone caddy."));
+            else if (currentTestSound === 'attendance') speak("Reminder. Please take attendance.");
+            else if (currentTestSound === 'cleanup') speak("Five minutes remaining. Please begin cleaning up your area.");
+            else if (currentTestSound === 'lunch') speak("Reminder. You have lunch duty.");
+        }
+
+        function addLunchDuty() {
+            const dayVal = document.getElementById('lunchDay');
+            const halfVal = document.getElementById('lunchHalf');
+            const periodVal = document.getElementById('lunchPeriod');
+            if(!dayVal || !halfVal || !periodVal) return;
+
+            const day = parseInt(dayVal.value);
+            const half = parseInt(halfVal.value);
+            const period = periodVal.value.trim();
+            if (period) {
+                lunchDuties.push({ day, half, period });
+                renderLunchDuties(); saveLocalSettings(); 
+                periodVal.value = '3rd';
+                
+                const content = document.getElementById('sec-reminders');
+                if(content.style.maxHeight !== "0px" && content.style.maxHeight !== "none") {
+                    content.style.maxHeight = "none";
+                }
+            }
+        }
+        function removeLunchDuty(index) { lunchDuties.splice(index, 1); renderLunchDuties(); saveLocalSettings(); }
+        
+        function renderLunchDuties() {
+            const list = document.getElementById('lunch-duty-list'); 
+            if(!list) return;
+            list.innerHTML = '';
+            const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+            lunchDuties.forEach((duty, index) => {
+                const li = document.createElement('li'); li.className = "duty-item";
+                li.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid rgba(150,150,150,0.2);";
+                li.innerHTML = `<span><b>${days[duty.day]}</b> - ${duty.period} (${duty.half === 1 ? '1st' : '2nd'} Half)</span>
+                                <button onclick="removeLunchDuty(${index})" style="background:none; border:none; color:#d9534f; cursor:pointer; font-size:1.1rem;" title="Remove Duty">✖</button>`;
+                list.appendChild(li);
+            });
+        }
+
+        function changeMode(shouldSave = true) {
+            const sz = document.getElementById('showZeroPeriod');
+            if(sz) showZero = sz.checked;
+            
+            // Reapply 0 period logic locally to activeSchedule
+            let hasZero = activeSchedule.some(p => /^0/i.test(String(p.name).trim()));
+            if (showZero && !hasZero) {
+                activeSchedule.unshift({ name: "0 pd", start: "07:10", end: "08:13" });
+            } else if (!showZero && hasZero) {
+                activeSchedule = activeSchedule.filter(p => !/^0/i.test(String(p.name).trim()));
+            }
+
+            const st = document.getElementById('schedule-title');
+            if(st && st.childNodes[0]) st.childNodes[0].nodeValue = currentScheduleName.toUpperCase() + ' Schedule '; 
+            
+            renderSchedule(); 
+            if (shouldSave) saveLocalSettings();
+        }
+
+        function toggleSetting(periodName, settingType, isChecked) {
+            const key = periodName; 
+            if (!classSettings[key]) classSettings[key] = { ...DEFAULT_PREFS };
+            classSettings[key][settingType] = isChecked;
+            saveLocalSettings();
+            if (settingType === 'open') renderSchedule(); 
+        }
+
+        function setIcalFeed(periodName) {
+            const currentUrl = classSettings[periodName]?.icalUrl || '';
+            const url = prompt(`Paste the iCal feed URL for ${periodName}:`, currentUrl);
+            if (url !== null) {
+                if (!classSettings[periodName]) classSettings[periodName] = { ...DEFAULT_PREFS };
+                classSettings[periodName].icalUrl = url.trim();
+                saveLocalSettings();
+                renderSchedule(); 
+                showToast("iCal feed updated");
+            }
+        }
+
+        function renderSchedule() {
+            const list = document.getElementById('schedule-list'); 
+            if(!list) return;
+            list.innerHTML = '';
+            
+            if (!Array.isArray(activeSchedule)) {
+                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Schedule data is missing or corrupted.</em></li>'; return; 
+            }
+
+            let filteredSchedule = activeSchedule;
+
+            if (!filteredSchedule || filteredSchedule.length === 0) { 
+                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Waiting for Google...</em></li>'; return; 
+            }
+
+            filteredSchedule.forEach(period => {
+                try {
+                    const key = String(period.name);
+                    const safeKey = key.replace(/'/g, "\\'"); 
+                    const s = classSettings[key] || { ...DEFAULT_PREFS };
+                    
+                    const li = document.createElement('li'); 
+                    li.className = 'schedule-grid';
+                    li.dataset.start = String(period.start);
+                    li.dataset.end = String(period.end);
+                    
+                    let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
+                    let isWebBlock = /^[A-D](\s|-)?Block/i.test(key);
+                    let webOpenCheckbox = isWebBlock ? 
+                        `<div class="options-col opt-center"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
+                        `<div class="options-col"></div>`;
+
+                    li.innerHTML = `
+                        <div class="period-name">${key} ${openBadgeHtml}</div>
+                        <div class="middle-section">
+                            <div class="options-wrapper">
+                                <div class="options-col"><label class="switch" title="Phone Caddy"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'putaway', this.checked)" ${s.putaway ? 'checked' : ''}><span class="slider"></span></label></div>
+                                <div class="options-col"><label class="switch" title="Take Attendance"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'attendance', this.checked)" ${s.attendance ? 'checked' : ''}><span class="slider"></span></label></div>
+                                <div class="options-col"><label class="switch" title="5-Min Clean Up"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'cleanup', this.checked)" ${s.cleanup ? 'checked' : ''}><span class="slider"></span></label></div>
+                                <div class="options-col"><label class="switch" title="1 Min Warning & Retrieve"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'retrieve', this.checked)" ${s.retrieve ? 'checked' : ''}><span class="slider"></span></label></div>
+                                ${webOpenCheckbox}
+                                <div class="options-col">
+                                    <button onclick="setIcalFeed('${safeKey}')" style="background:none;border:none;cursor:pointer;font-size:1.3rem;transition:transform 0.2s; filter: ${s.icalUrl ? 'none' : 'grayscale(100%) opacity(0.4)'}" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="${s.icalUrl ? 'Edit iCal Feed' : 'Add iCal Feed'}">📅</button>
+                                </div>
+                            </div>
+                            <div class="agenda-display" id="agenda-${safeKey}"></div>
+                        </div>
+                        <div class="period-time">${formatTime12(String(period.start))} - ${formatTime12(String(period.end))}</div>
+                    `;
+                    list.appendChild(li);
+                    
+                    if (s.icalUrl) {
+                        fetchAgenda(s.icalUrl, `agenda-${safeKey}`);
+                    }
+                    
+                } catch(e) { console.error("Error rendering a row:", e); }
+            });
+            
+            highlightCurrentPeriod(new Date());
+        }
+
+        // ==========================================================================
+        // SYSTEM TIMING LOOPS
+        // ==========================================================================
+        function timeToMins(t) {
+            if (!t || !t.includes(':')) return 0;
+            let [h, m] = t.split(':').map(Number);
+            return h * 60 + m;
+        }
+
+        function formatTime12(time24) { 
+            if (!time24 || !time24.includes(':')) return time24 || '';
+            let [h, m] = time24.split(':'); 
+            let ampm = h >= 12 ? 'PM' : 'AM'; 
+            return `${h % 12 || 12}:${m} ${ampm}`; 
+        }
+        function subtractMinutes(time24, minsToSubtract) {
+            if (!time24 || !time24.includes(':')) return '';
+            let [h, m] = time24.split(':').map(Number); let d = new Date(); d.setHours(h, m, 0, 0); d.setMinutes(d.getMinutes() - minsToSubtract);
+            return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+        }
+        function addMinutes(time24, minsToAdd) {
+            if (!time24 || !time24.includes(':')) return '';
+            let [h, m] = time24.split(':').map(Number); let d = new Date(); d.setHours(h, m, 0, 0); d.setMinutes(d.getMinutes() + minsToAdd);
+            return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+        }
+        function getMidpoint(start, end) {
+            if (!start || !end || !start.includes(':') || !end.includes(':')) return '';
+            let [sh, sm] = start.split(':').map(Number); let [eh, em] = end.split(':').map(Number);
+            let midMins = Math.floor(((sh * 60 + sm) + (eh * 60 + em)) / 2);
+            return Math.floor(midMins / 60).toString().padStart(2, '0') + ':' + (midMins % 60).toString().padStart(2, '0');
+        }
+
+        function triggerVisualAlert() {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; pointer-events:none; transition: background-color 0.5s;";
+            overlay.style.backgroundColor = isDarkMode ? "rgba(51, 43, 0, 0.8)" : "rgba(255, 243, 205, 0.8)";
+            document.body.appendChild(overlay);
+            setTimeout(() => { overlay.style.backgroundColor = "transparent"; }, 5500); 
+            setTimeout(() => { overlay.remove(); }, 6000); 
+        }
+
+        function highlightCurrentPeriod(now) {
+            const listItems = document.querySelectorAll('#schedule-list li');
+            if (listItems.length === 0) return null;
+            
+            const currentMins = now.getHours() * 60 + now.getMinutes();
+            const currentSecs = currentMins * 60 + now.getSeconds();
+            let highlightIndex = -1;
+            let actualClassIndex = -1;
+            let upcomingClassIndex = -1;
+            let inSchool = false;
+            let isPassing = false;
+            let periods = [];
+            
+            listItems.forEach((li, index) => {
+                periods.push({
+                    index: index,
+                    startMins: timeToMins(li.dataset.start),
+                    endMins: timeToMins(li.dataset.end),
+                    li: li
+                });
+                li.classList.remove('current-period'); 
+                li.style.setProperty('--progress', '0%');
+            });
+
+            if (periods.length === 0) return null;
+
+            if (currentMins >= periods[0].startMins && currentMins < periods[periods.length - 1].endMins) {
+                inSchool = true;
+                for (let i = 0; i < periods.length; i++) {
+                    let p = periods[i];
+                    if (currentMins >= p.startMins && currentMins < p.endMins) {
+                        actualClassIndex = p.index;
+                        break;
+                    }
+                    if (currentMins < p.startMins) {
+                        if (i > 0 && currentMins >= periods[i-1].endMins) {
+                            upcomingClassIndex = p.index; 
+                        }
+                        break;
+                    }
+                }
+            }
+
+            if (actualClassIndex !== -1) {
+                highlightIndex = actualClassIndex;
+                isPassing = false;
+            } else if (upcomingClassIndex !== -1) {
+                highlightIndex = upcomingClassIndex;
+                isPassing = true;
+            }
+
+            if (highlightIndex !== -1) {
+                let p = periods[highlightIndex];
+                p.li.classList.add('current-period');
+                if (!isPassing) {
+                    let startSecs = p.startMins * 60;
+                    let endSecs = p.endMins * 60;
+                    let progress = Math.max(0, Math.min(100, ((currentSecs - startSecs) / (endSecs - startSecs)) * 100));
+                    p.li.style.setProperty('--progress', progress + '%');
+                } else {
+                    p.li.style.setProperty('--progress', '0%');
+                }
+            }
+
+            return { 
+                index: highlightIndex, 
+                isPassing: isPassing, 
+                periodData: highlightIndex !== -1 ? periods[highlightIndex] : null,
+                actualClass: actualClassIndex !== -1
+            };
+        }
+
+        function triggerEvent(time, action, callback) {
+            if (currentMinuteTracker !== time) {
+                playedActions = {};
+                currentMinuteTracker = time;
+            }
+            const eventKey = `${time}-${action}`;
+            if (!playedActions[eventKey]) {
+                callback();
+                playedActions[eventKey] = true;
+            }
+        }
+
+        function updateClock() {
+            try {
+                const now = new Date();
+                const clk = document.getElementById('clock');
+                if(clk) clk.innerText = now.toLocaleTimeString('en-US');
+                let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+                const todayDayOfWeek = now.getDay(); 
+                
+                let status = highlightCurrentPeriod(now);
+                let currentStatus = 'outside';
+                let autoState = 'passing';
+                let isDeadTime = false;
+
+                if (status && status.isPassing) {
+                    currentStatus = 'passing';
+                    autoState = 'passing';
+                } 
+                else if (status && status.actualClass) {
+                    currentStatus = 'class';
+                    const p = status.periodData;
+                    const currentMins = now.getHours() * 60 + now.getMinutes();
+                    
+                    if (currentMins >= p.startMins && currentMins < p.startMins + 5) {
+                        autoState = 'dead-start';
+                        isDeadTime = true;
+                    } else if (currentMins >= p.endMins - 5 && currentMins < p.endMins) {
+                        autoState = 'dead-end';
+                        isDeadTime = true;
+                    } else {
+                        autoState = 'core-class';
+                    }
+                }
+
+                let dName = document.getElementById('docked-name');
+                let dTime = document.getElementById('docked-time');
+                let dBadge = document.getElementById('docked-badge');
+                
+                if (status && status.actualClass) {
+                    const p = status.periodData;
+                    if (dName) dName.innerText = p.li.querySelector('.period-name').childNodes[0].nodeValue.trim();
+                    
+                    const realTimeStr = p.li.querySelector('.period-time').innerText;
+                    if (dTime && realTimeStr) dTime.innerText = realTimeStr;
+
+                    const s = classSettings[dName.innerText.trim()] || DEFAULT_PREFS;
+                    if (s.open && dBadge) dBadge.style.display = 'inline-block';
+                    else if (dBadge) dBadge.style.display = 'none';
+                } else if (status && status.isPassing) {
+                    if (dName) dName.innerText = "Passing Period";
+                    const p = status.periodData;
+                    if (dTime) dTime.innerText = "Next: " + p.li.querySelector('.period-name').childNodes[0].nodeValue.trim();
+                    if (dBadge) dBadge.style.display = 'none';
+                } else {
+                    if (dName) dName.innerText = "Outside School Hours";
+                    if (dTime) dTime.innerText = "--:--";
+                    if (dBadge) dBadge.style.display = 'none';
+                }
+
+                const warningElMain = document.getElementById('main-dead-time-warning');
+                const warningElDock = document.getElementById('docked-warning');
+                if (warningElMain) warningElMain.style.display = isDeadTime ? 'inline-block' : 'none';
+                if (warningElDock) warningElDock.style.display = isDeadTime ? 'inline-block' : 'none';
+
+                updateQotdUI(status);
+
+                if (lastAutoState !== null && autoState !== lastAutoState) {
+                    if (autoState === 'core-class') {
+                        setMinimalView(true, true); 
+                    } else if (autoState === 'dead-start' || autoState === 'dead-end' || autoState === 'passing') {
+                        setMinimalView(false, true); 
+                    }
+                }
+                lastAutoState = autoState;
+
+                if (lastPeriodStatus !== currentStatus) {
+                    let success = false;
+                    
+                    if (mrBsJukebox && todayDayOfWeek === 5 && currentStatus === 'passing') {
+                        success = applyMusicState(jukeboxUrl, true);
+                    } else {
+                        if (isMainVibePlaying && currentVibeUrl) {
+                            success = applyMusicState(currentVibeUrl, true);
+                        } else {
+                            success = applyMusicState('', false); 
+                        }
+                    }
+                    if (success) lastPeriodStatus = currentStatus;
+                }
+
+                if (current24 === '06:00' && now.getSeconds() === 0) { fetchDailySchedule(); }
+                
+                customReminders.forEach(rem => {
+                    if (current24 === rem.time) {
+                        if (rem.day === 'All' || parseInt(rem.day) === todayDayOfWeek) {
+                            triggerEvent(current24, `custom-${rem.name}`, () => {
+                                triggerVisualAlert();
+                                playBellWithQueue(1, () => speak(`Reminder. ${rem.name}`));
+                            });
+                        }
+                    }
+                });
+                
+                if(!Array.isArray(activeSchedule)) return;
+
+                activeSchedule.forEach(period => {
+                    if (!period || !period.name) return;
+                    const pNameStr = String(period.name);
+
+                    const s = classSettings[pNameStr] || { ...DEFAULT_PREFS };
+
+                    const hasLunch1 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 1);
+                    let hasLunch2 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 2);
+
+                    const pStartStr = String(period.start);
+                    const pEndStr = String(period.end);
+                    const startMinus1 = subtractMinutes(pStartStr, 1);
+                    const startPlus5 = addMinutes(pStartStr, 5);
+                    const endMinus5 = subtractMinutes(pEndStr, 5);
+                    const endMinus1 = subtractMinutes(pEndStr, 1);
+                    const midPoint = getMidpoint(pStartStr, pEndStr);
+
+                    if (current24 === pStartStr) {
+                        triggerEvent(current24, `start-${pNameStr}`, () => {
+                            triggerVisualAlert();
+                            let speechText = "";
+                            
+                            if (s.open) speechText += "Please remember to sign in to WEB. ";
+                            if (s.putaway) speechText += "Class is beginning. Please place your phones in the cell phone caddy. ";
+                            if (hasLunch1) speechText += "Reminder: You have lunch duty today.";
+                            
+                            if (speechText) playBellWithQueue(3, () => speak(speechText));
+                            else playBellWithQueue(3);
+                        });
+                    }
+                    
+                    if (current24 === pEndStr) {
+                        triggerEvent(current24, `end-${pNameStr}`, () => { 
+                            triggerVisualAlert(); 
+                            if (playGoodbyes) {
+                                const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
+                                playBellWithQueue(3, () => speak(randomMsg));
+                            } else {
+                                playBellWithQueue(3); 
+                            }
+                        });
+                    }
+
+                    if (!s.open && current24 === startMinus1) {
+                        triggerEvent(current24, `warning1m-${pNameStr}`, () => {
+                            triggerVisualAlert();
+                            let speechText = "One minute until class begins.";
+                            if (s.putaway) speechText += " Please place your phones in the cell phone caddy.";
+                            playBellWithQueue(1, () => speak(speechText));
+                        });
+                    }
+
+                    if (!s.open && s.attendance && current24 === startPlus5) {
+                        triggerEvent(current24, `attendance5m-${pNameStr}`, () => { triggerVisualAlert(); speak("Reminder. Please take attendance."); });
+                    }
+                    
+                    if (!s.open && hasLunch2 && current24 === midPoint) {
+                        triggerEvent(current24, `lunch2-${pNameStr}`, () => { triggerVisualAlert(); speak("Reminder. You have second half lunch duty."); });
+                    }
+
+                    if (!s.open && s.cleanup && current24 === endMinus5) {
+                        triggerEvent(current24, `cleanup5m-${pNameStr}`, () => { triggerVisualAlert(); speak("Five minutes remaining. Please begin cleaning up your area."); });
+                    }
+
+                    if (!s.open && s.retrieve && current24 === endMinus1) {
+                        triggerEvent(current24, `phone1m-${pNameStr}`, () => { 
+                            triggerVisualAlert(); 
+                            let speechText = "One minute remaining.";
+                            if (s.putaway) speechText += " You may retrieve your cell phones.";
+                            playBellWithQueue(1, () => speak(speechText)); 
+                        });
+                    }
+                });
+            } catch(e) { console.error("Clock update error:", e); }
+        }
+
+        // ==========================================================================
+        // INITIALIZATION
+        // ==========================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Load saved settings directly into memory without saving back to local storage yet
+            loadLocalSettings();
+            
+            // 2. Render initial UI safely
             updateTimerDisplay();
             updateClock();
             
-            // 3. Force Sidebar strictly closed on boot so it never blocks the view
+            // 3. Force the sidebar strictly closed on load
             const sidebar = document.getElementById('sidebar');
             const hamBtn = document.getElementById('hamburgerBtn');
             if(sidebar) sidebar.classList.add('collapsed');
             if(hamBtn) hamBtn.classList.remove('active-btn');
             sidebarVisible = false;
 
-            // 4. Start Clock
+            // 4. Start the clock ticks
             setInterval(updateClock, 1000);
             
-            // 5. Fire async fetches safely in background
-            setTimeout(fetchDailySchedule, 500); 
-            
+            // 5. Fetch schedule from Google 
+            fetchDailySchedule();
+
             // 6. Load voices
             try {
                 if ('speechSynthesis' in window) {
@@ -1875,8 +2237,8 @@
                     safePopulateVoiceList();
                 }
             } catch(e) {}
-
-            // 7. Finally, release the lock on local storage
+            
+            // 7. FINALLY UNLOCK SAVING
             setTimeout(() => { isBooting = false; }, 1500);
         });
 
