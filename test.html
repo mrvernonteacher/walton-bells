@@ -26,6 +26,7 @@
 
         /* =========================================================
            MASTER GLASSMORPHISM & ABSOLUTE DARK MODE
+           Forcefully applies charcoal grey to prevent white-washing.
            ========================================================= */
         .glass-panel {
             background-color: rgba(255, 255, 255, 0.85) !important;
@@ -131,7 +132,7 @@
         .footer p { margin: 0 0 5px 0; font-weight: bold; text-shadow: 0 0 8px rgba(255,255,255,0.9);}
         .footer-logo { max-width: 160px; height: auto; display: inline-block; opacity: 0.7; }
         
-        /* --- Toast Notification (Fixed Position) --- */
+        /* --- Toast Notification --- */
         #toast {
             position: fixed; top: -60px; left: 50%; transform: translateX(-50%);
             background-color: #5cb85c; color: white !important; padding: 12px 24px;
@@ -139,16 +140,6 @@
             transition: top 0.6s ease, opacity 0.4s ease; pointer-events: none; border: none !important;
         }
         #toast.show { top: 90px; opacity: 1; }
-        body.dark-mode #toast { background-color: #2e7d32 !important; }
-
-        /* --- Layout & Structure (3-COLUMN GRID) --- */
-        .main-content-area {
-            display: flex; justify-content: center; align-items: stretch; gap: 20px;
-            width: 100%; max-width: 1600px; margin: 0 auto; transition: all 0.6s ease;
-        }
-
-        .widget-column { display: flex; flex-direction: column; gap: 20px; width: 320px; flex-shrink: 0; transition: all 0.6s ease; }
-        .schedule-column { flex-grow: 1; max-width: 900px; display: flex; flex-direction: column; align-items: center; transition: all 0.6s ease; overflow: hidden; width: 100%; }
 
         /* --- Forms, Inputs, and Accordions --- */
         .control-group { border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 10px; margin-bottom: 10px;}
@@ -191,9 +182,18 @@
         input:checked + .slider { background-color: #31b0d5; } 
         input:checked + .slider:before { transform: translateX(20px); }
 
+        /* --- Layout & Structure (3-COLUMN GRID) --- */
+        .main-content-area {
+            display: flex; justify-content: center; align-items: stretch; gap: 20px;
+            width: 100%; max-width: 1600px; margin: 0 auto; transition: all 0.6s ease;
+        }
+
+        .widget-column { display: flex; flex-direction: column; gap: 20px; width: 320px; flex-shrink: 0; transition: all 0.6s ease; }
+        .schedule-column { flex-grow: 1; max-width: 900px; display: flex; flex-direction: column; align-items: center; transition: all 0.6s ease; overflow: hidden; width: 100%; }
+
         /* --- THE MASTER SCHEDULE CONTAINER --- */
         .schedule-container { 
-            padding: 15px 20px; border-radius: 10px; width: 100%; max-width: 900px; box-sizing: border-box; transform-origin: top center;
+            padding: 15px 20px; width: 100%; max-width: 900px; box-sizing: border-box; transform-origin: top center;
             transition: all 0.6s ease; max-height: 2000px; opacity: 1; overflow: hidden; margin: 0 auto;
         }
         
@@ -203,9 +203,9 @@
         @keyframes pulseAlert { 0% { opacity: 1; box-shadow: 0 0 8px rgba(217, 83, 79, 0.2); } 50% { opacity: 0.7; box-shadow: none; } 100% { opacity: 1; box-shadow: 0 0 8px rgba(217, 83, 79, 0.2); } }
         .dead-time-warning { color: #d9534f !important; font-weight: 900; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.5px; animation: pulseAlert 2s infinite; background: rgba(217, 83, 79, 0.15); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(217, 83, 79, 0.3) !important; margin-left: 15px; display: none; }
 
-        /* CUT-OFF FIX: Center column uses minmax(0, 1fr) to respect boundaries */
+        /* TEXT CUT-OFF FIX: minmax(0, 1fr) ensures the middle toggles never push the times off-screen */
         .schedule-grid { display: grid; grid-template-columns: minmax(80px, auto) minmax(0, 1fr) minmax(100px, auto); gap: 10px; align-items: center; padding: 8px 10px; transition: all 0.6s ease; width: 100%; box-sizing: border-box; }
-        .schedule-header { font-size: 0.9rem; font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 6px; margin-bottom: 6px;}
+        .schedule-header { font-size: 0.9rem; font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 6px; margin-bottom: 6px; }
         
         .middle-section { display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; overflow-x: auto; scrollbar-width: none; }
         .middle-section::-webkit-scrollbar { display: none; }
@@ -215,19 +215,18 @@
         .options-col[title] { cursor: help; border-bottom: 1px dotted rgba(0,0,0,0.3); padding-bottom: 2px; } 
         
         #schedule-list { list-style-type: none; padding: 0; margin: 0; }
-        #schedule-list li { border-bottom: 1px solid rgba(150,150,150,0.2); border-left: 5px solid transparent; max-height: 250px; overflow: hidden; opacity: 1; transition: max-height 0.6s ease, padding 0.5s ease, opacity 0.5s ease, margin 0.5s ease; }
-        #schedule-list li:nth-child(even) { background-color: rgba(0,0,0,0.03); }
+        #schedule-list li { border-bottom: 1px solid rgba(150,150,150,0.2); border-left: 5px solid transparent; max-height: 250px; overflow: hidden; opacity: 1; transition: all 0.6s ease; }
 
         .period-name { font-weight: bold; text-align: left; font-size: 1.6rem; align-self: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 5px;}
         .period-time { text-align: right; font-size: 1.4rem; color: #555; align-self: center; white-space: nowrap; padding-left: 5px;}
 
         #schedule-list li.current-period { background: linear-gradient(to right, rgba(92, 184, 92, 0.2) var(--progress, 0%), rgba(92, 184, 92, 0.03) var(--progress, 0%)) !important; border-left: 5px solid #5cb85c !important; }
 
-        .agenda-display { font-size: 1.1rem; font-weight: 600; color: #004080; text-align: center; width: 100%; max-height: 0px; opacity: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.4s ease; }
+        .agenda-display { font-size: 1.1rem; font-weight: 600; color: #004080; text-align: center; width: 100%; max-height: 0px; opacity: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; transition: max-height 0.4s ease, opacity 0.3s ease; }
         .agenda-error { color: #d9534f !important; font-style: italic; font-weight: normal; }
 
         /* --- Open Block Badge --- */
-        .open-badge { background-color: #5cb85c; color: white !important; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; margin-left: 10px; vertical-align: middle; font-weight: bold; letter-spacing: 0.5px; display: inline-block; border: none !important;}
+        .open-badge { background-color: #5cb85c; color: white !important; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; margin-left: 10px; vertical-align: middle; font-weight: bold; border: none !important;}
         .waffle-closed .open-badge, .docked-badge { font-size: 1rem; padding: 4px 10px; margin-left: 15px; transform: translateY(-2px); transition: all 0.6s ease; }
 
         /* =========================================================
@@ -245,28 +244,27 @@
            ========================================================= */
         .docked-schedule { display: flex; gap: 20px; align-items: center; justify-content: center; opacity: 0; transform: translateY(-20px); transition: all 0.6s ease; pointer-events: none; visibility: hidden; position: absolute; width: 100%; white-space: nowrap; }
         body.minimal-active .docked-schedule { opacity: 1; transform: translateY(0); pointer-events: auto; visibility: visible; }
+        
         .docked-name { font-size: 1.8rem; font-weight: 800; color: #003366; }
         .docked-time { font-size: 1.6rem; font-weight: bold; color: #555; }
 
         body.minimal-active .schedule-column { max-width: 0 !important; opacity: 0 !important; padding: 0 !important; margin: 0 !important; overflow: hidden; pointer-events: none; }
 
         /* --- THE STATIC GRID WIDGETS --- */
-        .widget-card { border-radius: 15px; padding: 15px; display: none; flex-direction: column; overflow: hidden; width: 100%; transition: opacity 0.4s ease; }
+        .widget-card { display: none; flex-direction: column; overflow: hidden; width: 100%; transition: opacity 0.4s ease; padding: 15px;}
         .widget-card.active-widget { display: flex; animation: fadeWidgetIn 0.5s ease;}
         @keyframes fadeWidgetIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
         .widget-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 8px; margin-bottom: 12px; pointer-events: none; }
-        body.dark-mode .widget-header-row { border-bottom: 1px solid #444; }
         .widget-title { font-weight: bold; font-size: 1.1rem; color: #003366; margin: 0; }
         .widget-close { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1.2rem; line-height: 1; padding: 0 5px; transition: color 0.2s; pointer-events: auto;}
         .widget-close:hover { color: #d9534f; }
 
-        /* Weather Widget Tweaks */
+        /* Weather */
         #widget-weather { min-height: 250px; flex-grow: 1;}
         #weather-container-main { height: 100%; min-height: 200px; display: block; width: 100%; overflow: hidden;}
-        body.dark-mode #weather-container-main iframe { filter: none !important; }
 
-        /* --- Timer Widget Styles --- */
+        /* Timer */
         .timer-display { font-size: 4rem; font-weight: bold; color: #333; text-align: center; margin: 10px 0; font-variant-numeric: tabular-nums; }
         .timer-controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;}
         .timer-quick-add { display: flex; gap: 8px; justify-content: center; }
@@ -275,7 +273,7 @@
         .timer-btn-reset { border-color: #888; color: #888;}
         .timer-btn-reset:hover { background-color: rgba(150, 150, 150, 0.15); }
 
-        /* --- QotD Widget Styles --- */
+        /* QotD */
         #widget-qotd { min-height: 450px; flex-grow: 1;}
         .qotd-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; gap: 15px; position: relative; flex-grow: 1;}
         .qotd-text { font-size: 1.2rem; font-weight: bold; color: #003366; margin-bottom: 10px;}
@@ -516,11 +514,11 @@
                 </div>
                 <div class="accordion-content" id="sec-schedule">
                     <div id="autoIndicator" style="font-weight:bold; margin-bottom:10px; color:#888;">Sync Status: Initializing...</div>
-                    <button class="timer-btn-hollow" onclick="fetchDailySchedule()" style="width:100%; margin-bottom:10px;">Force Schedule Sync</button>
+                    <button class="timer-btn-hollow" onclick="fetchDailySchedule(true)" style="width:100%; margin-bottom:10px;">Force Sync Schedule</button>
                     
                     <div class="setting-row">
                         <span class="sub-label">Show 0 Period</span>
-                        <label class="switch"><input type="checkbox" id="showZeroPeriod" onchange="renderSchedule()"><span class="slider"></span></label>
+                        <label class="switch"><input type="checkbox" id="showZeroPeriod" onchange="changeMode(true)"><span class="slider"></span></label>
                     </div>
                 </div>
             </div>
@@ -544,7 +542,7 @@
                         <button class="timer-btn-hollow" onclick="addTimerMinutes(5)">+5m</button>
                     </div>
                     <div class="timer-controls" style="margin-top: 15px;">
-                        <button class="btn inline" id="timer-start-btn" onclick="togglePlayTimer()" style="width: 100px;">Start</button>
+                        <button class="btn inline" id="timer-start-btn" onclick="togglePlayTimer()" style="width: 100px; background-color: #31b0d5; border:none; color:white;">Start</button>
                         <button class="timer-btn-hollow timer-btn-reset" onclick="resetTimer()" style="width: 100px;">Reset</button>
                     </div>
                 </div>
@@ -613,10 +611,11 @@
 
     <script>
         // ==========================================================================
-        // STATE MANAGEMENT & GLOBALS (SAFE)
+        // CORE VARIABLES & DB
         // ==========================================================================
-        const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec?tab=Daily"; 
+        const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec"; 
         const QOTD_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxTHBPh45e_R7clf_hx3j3OLJP1ThFEBlDIu4OLyt4tTEDZg6_xImwzO08bE0JzG_ezlQ/exec";
+        const DEFAULT_PREFS = { open: false, putaway: false, attendance: false, cleanup: false, retrieve: false, icalUrl: '' };
 
         const GOODBYE_MESSAGES = [
             "Great work today. Have a wonderful rest of your day.",
@@ -640,10 +639,19 @@
         const playSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
         const pauseSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
 
-        let isBooting = true; // ABSOLUTE LOCK ON LOCAL STORAGE SAVING
+        let predefinedSchedules = {
+            synced: [], 
+            regular: [
+                { name: "1st", start: "08:20", end: "08:50" }, { name: "HR", start: "08:56", end: "09:05" }, 
+                { name: "2nd", start: "09:11", end: "09:40" }, { name: "3rd", start: "09:46", end: "10:15" }, 
+                { name: "4th", start: "10:21", end: "10:50" }, { name: "5th", start: "10:56", end: "11:25" }, 
+                { name: "6th", start: "11:31", end: "12:00" }, { name: "7th", start: "12:06", end: "12:35" }
+            ]
+        };
 
-        let activeSchedule = [];
-        let currentScheduleName = "Loading..."; 
+        let isBooting = true; // ABSOLUTE LOCK TO PREVENT MEMORY WIPES
+
+        let currentMode = 'regular', activeSchedule = [];
         let globalVolume = 1.0, globalVoicePref = '', classSettings = {};
         let lunchDuties = [], customReminders = [];
         let savedVibes = [], currentVibeUrl = '', vibeVolume = 50;
@@ -658,6 +666,7 @@
         let timerInterval = null, timerTotalSeconds = 300, timerIsPlaying = false;
         let qotdResultsFetched = false, qotdManualUnlock = false; 
 
+        let currentScheduleName = "Regular"; 
         let playedActions = {}, currentMinuteTracker = "", lastAutoState = null; 
         let mrBsJukebox = false, jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
         let isMainVibePlaying = false, activePlayerUrl = '', lastPeriodStatus = null; 
@@ -666,64 +675,261 @@
         let savedVibeVol = 50, isVibeMuted = false, savedGlobalVol = 1.0, isGlobalMuted = false;
 
         // ==========================================================================
-        // GLOBAL EVENT LISTENERS
+        // SAFE CLOCK LOOP
         // ==========================================================================
-        document.addEventListener('fullscreenchange', () => {
-            const fsBtn = document.getElementById('fullScreenBtn');
-            if(fsBtn) fsBtn.classList.toggle('active-btn', document.fullscreenElement);
-        });
-
-        document.addEventListener('click', (e) => {
-            const menu = document.getElementById('widget-panel-menu');
-            const btn = document.getElementById('widget-menu-btn');
-            if (menu && menu.style.display === 'flex') {
-                if (!menu.contains(e.target) && !btn.contains(e.target)) {
-                    menu.style.display = 'none';
-                }
-            }
-        });
-
-        window.addEventListener('resize', () => {
-            if (window.innerWidth <= 850) {
-                document.querySelectorAll('.floating-player').forEach(el => {
-                    el.style.top = ''; el.style.left = ''; el.style.right = ''; el.style.bottom = '';
-                });
-            }
-        });
-
-        // ==========================================================================
-        // UI & WIDGET TOGGLES
-        // ==========================================================================
-        function reloadWeatherWidget() {
-            const container1 = document.getElementById('weather-container-main');
-            if(!container1) return;
-            const color = isDarkMode ? '#ffffff' : '#333333';
-            container1.innerHTML = `<a class="weatherwidget-io" href="https://forecast7.com/en/33d98n84d43/east-cobb/?unit=us" data-label_1="EAST COBB" data-theme="pure" data-basecolor="rgba(0,0,0,0)" data-textcolor="${color}">EAST COBB</a>`;
-            !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;}else{js=d.getElementById(id);js.remove();js=d.createElement(s);js.id=id;}js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}(document,'script','weatherwidget-io-js');
-        }
-
-        function toggleWidgetPanel(e) {
-            if(e) e.stopPropagation();
-            const p = document.getElementById('widget-panel-menu');
-            p.style.display = p.style.display === 'none' ? 'flex' : 'none';
-        }
-
-        function toggleWidget(id, isChecked) {
-            activeWidgets[id] = isChecked;
-            const card = document.getElementById(`widget-${id}`);
-            if(card) {
-                if(isChecked) card.classList.add('active-widget');
-                else card.classList.remove('active-widget');
-            }
-            if (id === 'weather' && isChecked) reloadWeatherWidget();
+        function updateClock() {
+            const clk = document.getElementById('clock');
+            const now = new Date();
+            if(clk) clk.innerText = now.toLocaleTimeString('en-US'); // This ensures the clock ALWAYS ticks
             
-            const floatTog = document.getElementById(`wm-tog-${id}`);
-            if(floatTog) floatTog.checked = isChecked;
-            saveLocalSettings();
+            try {
+                let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+                const todayDayOfWeek = now.getDay(); 
+                
+                let status = highlightCurrentPeriod(now);
+                let currentStatus = 'outside';
+                let autoState = 'passing';
+                let isDeadTime = false;
+
+                if (status && status.isPassing) {
+                    currentStatus = 'passing';
+                    autoState = 'passing';
+                } 
+                else if (status && status.actualClass) {
+                    currentStatus = 'class';
+                    const p = status.periodData;
+                    const currentMins = now.getHours() * 60 + now.getMinutes();
+                    
+                    if (currentMins >= p.startMins && currentMins < p.startMins + 5) {
+                        autoState = 'dead-start';
+                        isDeadTime = true;
+                    } else if (currentMins >= p.endMins - 5 && currentMins < p.endMins) {
+                        autoState = 'dead-end';
+                        isDeadTime = true;
+                    } else {
+                        autoState = 'core-class';
+                    }
+                }
+
+                let dName = document.getElementById('docked-name');
+                let dTime = document.getElementById('docked-time');
+                let dBadge = document.getElementById('docked-badge');
+                
+                if (status && status.actualClass) {
+                    const p = status.periodData;
+                    if (dName) dName.innerText = p.li.querySelector('.period-name').childNodes[0].nodeValue.trim();
+                    
+                    const realTimeStr = p.li.querySelector('.period-time').innerText;
+                    if (dTime && realTimeStr) dTime.innerText = realTimeStr;
+
+                    const s = classSettings[dName.innerText.trim()] || DEFAULT_PREFS;
+                    if (s.open && dBadge) dBadge.style.display = 'inline-block';
+                    else if (dBadge) dBadge.style.display = 'none';
+                } else if (status && status.isPassing) {
+                    if (dName) dName.innerText = "Passing Period";
+                    const p = status.periodData;
+                    if (dTime) dTime.innerText = "Next: " + p.li.querySelector('.period-name').childNodes[0].nodeValue.trim();
+                    if (dBadge) dBadge.style.display = 'none';
+                } else {
+                    if (dName) dName.innerText = "Outside School Hours";
+                    if (dTime) dTime.innerText = "--:--";
+                    if (dBadge) dBadge.style.display = 'none';
+                }
+
+                const warningElMain = document.getElementById('main-dead-time-warning');
+                const warningElDock = document.getElementById('docked-warning');
+                if (warningElMain) warningElMain.style.display = isDeadTime ? 'inline-block' : 'none';
+                if (warningElDock) warningElDock.style.display = isDeadTime ? 'inline-block' : 'none';
+
+                updateQotdUI(status);
+
+                if (lastAutoState !== null && autoState !== lastAutoState) {
+                    if (autoState === 'core-class') {
+                        setMinimalView(true, true); 
+                    } else if (autoState === 'dead-start' || autoState === 'dead-end' || autoState === 'passing') {
+                        setMinimalView(false, true); 
+                    }
+                }
+                lastAutoState = autoState;
+
+                if (lastPeriodStatus !== currentStatus) {
+                    let success = false;
+                    if (mrBsJukebox && todayDayOfWeek === 5 && currentStatus === 'passing') {
+                        success = applyMusicState(jukeboxUrl, true);
+                    } else {
+                        if (isMainVibePlaying && currentVibeUrl) {
+                            success = applyMusicState(currentVibeUrl, true);
+                        } else {
+                            success = applyMusicState('', false); 
+                        }
+                    }
+                    if (success) lastPeriodStatus = currentStatus;
+                }
+
+                if (current24 === '06:00' && now.getSeconds() === 0) { fetchDailySchedule(true); }
+                
+                customReminders.forEach(rem => {
+                    if (current24 === rem.time) {
+                        if (rem.day === 'All' || parseInt(rem.day) === todayDayOfWeek) {
+                            triggerEvent(current24, `custom-${rem.name}`, () => {
+                                triggerVisualAlert();
+                                playBellWithQueue(1, () => speak(`Reminder. ${rem.name}`));
+                            });
+                        }
+                    }
+                });
+                
+                if(!Array.isArray(activeSchedule)) return;
+
+                activeSchedule.forEach(period => {
+                    if (!period || !period.name) return;
+                    const pNameStr = String(period.name);
+
+                    const s = classSettings[pNameStr] || { ...DEFAULT_PREFS };
+
+                    const hasLunch1 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 1);
+                    let hasLunch2 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 2);
+
+                    const pStartStr = String(period.start);
+                    const pEndStr = String(period.end);
+                    const startMinus1 = subtractMinutes(pStartStr, 1);
+                    const startPlus5 = addMinutes(pStartStr, 5);
+                    const endMinus5 = subtractMinutes(pEndStr, 5);
+                    const endMinus1 = subtractMinutes(pEndStr, 1);
+                    const midPoint = getMidpoint(pStartStr, pEndStr);
+
+                    if (current24 === pStartStr) {
+                        triggerEvent(current24, `start-${pNameStr}`, () => {
+                            triggerVisualAlert();
+                            let speechText = "";
+                            if (s.open) speechText += "Please remember to sign in to WEB. ";
+                            if (s.putaway) speechText += "Class is beginning. Please place your phones in the cell phone caddy. ";
+                            if (hasLunch1) speechText += "Reminder: You have lunch duty today.";
+                            if (speechText) playBellWithQueue(3, () => speak(speechText));
+                            else playBellWithQueue(3);
+                        });
+                    }
+                    
+                    if (current24 === pEndStr) {
+                        triggerEvent(current24, `end-${pNameStr}`, () => { 
+                            triggerVisualAlert(); 
+                            if (playGoodbyes) {
+                                const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
+                                playBellWithQueue(3, () => speak(randomMsg));
+                            } else {
+                                playBellWithQueue(3); 
+                            }
+                        });
+                    }
+
+                    if (!s.open && current24 === startMinus1) {
+                        triggerEvent(current24, `warning1m-${pNameStr}`, () => {
+                            triggerVisualAlert();
+                            let speechText = "One minute until class begins.";
+                            if (s.putaway) speechText += " Please place your phones in the cell phone caddy.";
+                            playBellWithQueue(1, () => speak(speechText));
+                        });
+                    }
+
+                    if (!s.open && s.attendance && current24 === startPlus5) {
+                        triggerEvent(current24, `attendance5m-${pNameStr}`, () => { triggerVisualAlert(); speak("Reminder. Please take attendance."); });
+                    }
+                    
+                    if (!s.open && hasLunch2 && current24 === midPoint) {
+                        triggerEvent(current24, `lunch2-${pNameStr}`, () => { triggerVisualAlert(); speak("Reminder. You have second half lunch duty."); });
+                    }
+
+                    if (!s.open && s.cleanup && current24 === endMinus5) {
+                        triggerEvent(current24, `cleanup5m-${pNameStr}`, () => { triggerVisualAlert(); speak("Five minutes remaining. Please begin cleaning up your area."); });
+                    }
+
+                    if (!s.open && s.retrieve && current24 === endMinus1) {
+                        triggerEvent(current24, `phone1m-${pNameStr}`, () => { 
+                            triggerVisualAlert(); 
+                            let speechText = "One minute remaining.";
+                            if (s.putaway) speechText += " You may retrieve your cell phones.";
+                            playBellWithQueue(1, () => speak(speechText)); 
+                        });
+                    }
+                });
+            } catch(e) { console.error("Highlight loop error:", e); }
         }
 
-        function toggleSidebar(event) {
-            if(event) event.stopPropagation();
+        // ==========================================================================
+        // DATA FETCHING
+        // ==========================================================================
+        async function fetchDailySchedule(isForceSync = false) {
+            const ind = document.getElementById('autoIndicator');
+            if(ind) { ind.style.display = 'block'; ind.innerText = "Sync Status: Fetching..."; ind.style.color = 'var(--text-muted)'; }
+            
+            try {
+                // Must explicitly request tab=Daily to prevent Block Schedules from loading
+                const fetchUrl = GOOGLE_CALENDAR_SCRIPT_URL + "?tab=Daily&cb=" + Date.now();
+                const response = await fetch(fetchUrl, { method: 'GET', redirect: 'follow' });
+                const data = await response.json();
+                
+                if (data && data.schedule) {
+                    let cleanSchedule = [];
+                    data.schedule.forEach(p => {
+                        if(!p || !p.name) return;
+                        let cleanP = { name: String(p.name).trim(), start: String(p.start || '').trim(), end: String(p.end || '').trim() };
+                        if(cleanP.start.includes(':')) cleanP.start = cleanP.start.split(':').map(v => v.padStart(2, '0')).join(':');
+                        if(cleanP.end.includes(':')) cleanP.end = cleanP.end.split(':').map(v => v.padStart(2, '0')).join(':');
+                        cleanSchedule.push(cleanP);
+                    });
+
+                    predefinedSchedules['synced'] = cleanSchedule;
+                    currentScheduleName = String(data.mode || 'Daily').toUpperCase();
+
+                    if(ind) { ind.innerText = `✓ Synced: ${currentScheduleName}`; ind.style.color = '#5cb85c'; }
+                    
+                    // If we forced sync, or if we were already on synced mode, update the UI
+                    if (isForceSync || currentMode === 'synced') {
+                        currentMode = 'synced';
+                        changeMode(true);
+                        showToast(`Loaded: ${currentScheduleName} Schedule`);
+                    }
+                }
+            } catch (err) {
+                console.error("Schedule sync failed:", err);
+                if(ind) { ind.innerText = "Sync Status: ⚠ Offline"; ind.style.color = '#d9534f'; }
+                if (isForceSync) showToast("Offline. Could not fetch schedule.");
+            }
+        }
+
+        function changeMode(shouldSave = true) {
+            const sz = document.getElementById('showZeroPeriod');
+            if(sz) showZero = sz.checked;
+            
+            let baseSchedule = predefinedSchedules[currentMode];
+            if (!baseSchedule || baseSchedule.length === 0) {
+                baseSchedule = predefinedSchedules['regular']; 
+                currentMode = 'regular';
+            }
+            
+            activeSchedule = [...baseSchedule]; 
+            let hasZero = activeSchedule.some(p => /^0/i.test(String(p.name).trim()));
+            
+            if (showZero && !hasZero) {
+                activeSchedule.unshift({ name: "0 pd", start: "07:10", end: "08:13" });
+            } else if (!showZero && hasZero) {
+                activeSchedule = activeSchedule.filter(p => !/^0/i.test(String(p.name).trim()));
+            }
+            
+            if (currentMode === 'regular') currentScheduleName = "Regular"; 
+            
+            const st = document.getElementById('schedule-title');
+            if(st && st.childNodes[0]) st.childNodes[0].nodeValue = currentScheduleName.toUpperCase() + ' Schedule '; 
+            
+            renderSchedule(); 
+            if (shouldSave) saveLocalSettings();
+        }
+
+        // ==========================================================================
+        // UI INTERACTION
+        // ==========================================================================
+        function toggleSidebar(e) {
+            if(e) e.stopPropagation();
             sidebarVisible = !sidebarVisible;
             const sidebar = document.getElementById('sidebar');
             const hamBtn = document.getElementById('hamburgerBtn');
@@ -770,12 +976,7 @@
             saveLocalSettings();
         }
 
-        function toggleFullScreen() {
-            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(err => {});
-            else if (document.exitFullscreen) document.exitFullscreen();
-        }
-
-        function toggleDarkMode() {
+        function toggleDarkMode(shouldSave = true) {
             const toggle = document.getElementById('darkModeToggle');
             if(!toggle) return;
             isDarkMode = toggle.checked;
@@ -783,34 +984,287 @@
             if (isDarkMode) { document.body.classList.add('dark-mode'); } 
             else { document.body.classList.remove('dark-mode'); }
             
-            saveLocalSettings();
-            renderLunchDuties(); 
             if(activeWidgets.weather) reloadWeatherWidget();
+            if (shouldSave) saveLocalSettings();
         }
 
-        function toggleAccordion(id) {
-            const content = document.getElementById(id);
-            const chevron = document.getElementById('chev-' + id);
-            if (!content || !chevron) return;
-            
-            if (content.style.maxHeight === "0px" || content.style.maxHeight === "") {
-                content.style.maxHeight = content.scrollHeight + "px";
-                chevron.style.transform = "rotate(0deg)";
-                accordionStates[id] = true;
-                setTimeout(() => { if(accordionStates[id]) content.style.maxHeight = "none"; }, 300);
-            } else {
-                content.style.maxHeight = content.scrollHeight + "px"; 
-                setTimeout(() => {
-                    content.style.maxHeight = "0px";
-                    chevron.style.transform = "rotate(-90deg)";
-                    accordionStates[id] = false;
-                }, 10);
+        function reloadWeatherWidget() {
+            const container1 = document.getElementById('weather-container-main');
+            if(!container1) return;
+            const color = isDarkMode ? '#ffffff' : '#333333';
+            container1.innerHTML = `<a class="weatherwidget-io" href="https://forecast7.com/en/33d98n84d43/east-cobb/?unit=us" data-label_1="EAST COBB" data-theme="pure" data-basecolor="rgba(0,0,0,0)" data-textcolor="${color}">EAST COBB</a>`;
+            !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;}else{js=d.getElementById(id);js.remove();js=d.createElement(s);js.id=id;}js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}(document,'script','weatherwidget-io-js');
+        }
+
+        function toggleWidgetPanel(e) {
+            if(e) e.stopPropagation();
+            const p = document.getElementById('widget-panel-menu');
+            p.style.display = p.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        function toggleWidget(id, isChecked) {
+            activeWidgets[id] = isChecked;
+            const card = document.getElementById(`widget-${id}`);
+            if(card) {
+                if(isChecked) card.classList.add('active-widget');
+                else card.classList.remove('active-widget');
             }
+            if (id === 'weather' && isChecked) reloadWeatherWidget();
+            
+            const floatTog = document.getElementById(`wm-tog-${id}`);
+            if(floatTog) floatTog.checked = isChecked;
             saveLocalSettings();
         }
 
         // ==========================================================================
-        // YOUTUBE & MEDIA LOGIC
+        // QOTD LOGIC
+        // ==========================================================================
+        function getDailyQotd() {
+            const now = new Date();
+            const start = new Date(now.getFullYear(), 0, 0);
+            const diff = now - start;
+            const oneDay = 1000 * 60 * 60 * 24;
+            const dayOfYear = Math.floor(diff / oneDay);
+            return qotdDatabase[dayOfYear % qotdDatabase.length];
+        }
+
+        function toggleQotdLock() {
+            qotdManualUnlock = !qotdManualUnlock;
+            updateClock(); 
+        }
+
+        function updateQotdUI(status) {
+            if (!activeWidgets.qotd) return; 
+            
+            const qObj = getDailyQotd();
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(QOTD_APPS_SCRIPT_URL)}`;
+
+            document.getElementById('qotd-question').innerText = qObj.q;
+            document.getElementById('qotd-idle-question').innerText = qObj.q;
+            document.getElementById('qotd-results-question').innerText = qObj.q;
+            document.getElementById('qotd-label-a').innerText = qObj.a;
+            document.getElementById('qotd-label-b').innerText = qObj.b;
+            document.getElementById('qotd-qr-img').src = qrUrl;
+            
+            const viewVoting = document.getElementById('qotd-voting-view');
+            const viewIdle = document.getElementById('qotd-idle-view');
+            const viewResults = document.getElementById('qotd-results-view');
+            const relockBtn = document.getElementById('qotd-manual-lock');
+
+            if (status && status.actualClass) {
+                const p = status.periodData;
+                const currentMins = new Date().getHours() * 60 + new Date().getMinutes();
+                
+                if (currentMins >= p.startMins && currentMins < p.startMins + 5) {
+                    // FIRST 5 MINS (Open)
+                    viewVoting.style.display = 'flex'; viewIdle.style.display = 'none'; viewResults.style.display = 'none';
+                    if(relockBtn) relockBtn.style.display = 'block';
+                    qotdResultsFetched = false; 
+                    qotdManualUnlock = false; 
+                } else if (currentMins >= p.endMins - 5 && currentMins < p.endMins) {
+                    // LAST 5 MINS (Results)
+                    viewVoting.style.display = 'none'; viewIdle.style.display = 'none'; viewResults.style.display = 'flex';
+                    if(relockBtn) relockBtn.style.display = 'none';
+                    qotdManualUnlock = false;
+                    
+                    if (!qotdResultsFetched) {
+                        qotdResultsFetched = true;
+                        fetch(QOTD_APPS_SCRIPT_URL + "?action=getResults")
+                            .then(r => r.json())
+                            .then(data => {
+                                const votesA = parseInt(data.votesA) || 0;
+                                const votesB = parseInt(data.votesB) || 0;
+                                const total = votesA + votesB;
+                                const pctA = total === 0 ? 0 : Math.round((votesA / total) * 100);
+                                const pctB = total === 0 ? 0 : 100 - pctA;
+                                
+                                document.getElementById('qotd-bar-a').style.width = pctA + '%';
+                                document.getElementById('qotd-pct-a').innerText = pctA + '%';
+                                document.getElementById('qotd-bar-b').style.width = pctB + '%';
+                                document.getElementById('qotd-pct-b').innerText = pctB + '%';
+                                document.getElementById('qotd-total-votes').innerText = "Total Votes: " + total;
+                            }).catch(e => console.error("Error fetching QotD results:", e));
+                    }
+                } else {
+                    // MID CLASS
+                    if (qotdManualUnlock) {
+                        viewVoting.style.display = 'flex'; viewIdle.style.display = 'none'; viewResults.style.display = 'none';
+                        if(relockBtn) relockBtn.style.display = 'block';
+                    } else {
+                        viewVoting.style.display = 'none'; viewIdle.style.display = 'flex'; viewResults.style.display = 'none';
+                        if(relockBtn) relockBtn.style.display = 'none';
+                    }
+                }
+            } else {
+                // PASSING PERIOD
+                viewVoting.style.display = 'none'; viewIdle.style.display = 'flex'; viewResults.style.display = 'none';
+                if(relockBtn) relockBtn.style.display = 'none';
+                qotdResultsFetched = false;
+                qotdManualUnlock = false;
+            }
+        }
+
+        // ==========================================================================
+        // MEDIA LOGIC
+        // ==========================================================================
+        function toggleJukebox() {
+            const tog = document.getElementById('jukeboxToggle');
+            if(tog) mrBsJukebox = tog.checked;
+            lastPeriodStatus = null; 
+            saveLocalSettings();
+        }
+
+        function updateJukeboxUrl() {
+            const inp = document.getElementById('jukeboxUrlInput');
+            if(inp && inp.value.trim() !== '') {
+                jukeboxUrl = inp.value.trim();
+            } else {
+                jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
+            }
+            lastPeriodStatus = null; 
+            saveLocalSettings();
+        }
+
+        function toggleGoodbyes() { 
+            const tog = document.getElementById('playGoodbyes');
+            if(tog) playGoodbyes = tog.checked; 
+            saveLocalSettings(); 
+        }
+
+        function toggleMuteBells() { 
+            const tog = document.getElementById('muteBellsToggle');
+            if(tog) muteBells = tog.checked; 
+            saveLocalSettings(); 
+        }
+
+        function toggleDropdown(event) { 
+            event.stopPropagation(); 
+            const dd = document.getElementById("soundDropdown");
+            if(dd) dd.classList.toggle("show"); 
+        }
+
+        function selectTestSound(value, label) {
+            currentTestSound = value; 
+            const btn = document.getElementById("playBtn");
+            const dd = document.getElementById("soundDropdown");
+            if(btn) btn.innerHTML = "▶ Play " + label;
+            if(dd) dd.classList.remove("show"); 
+            saveLocalSettings();
+        }
+
+        function changeVolume() { 
+            const vc = document.getElementById('volumeControl');
+            if(vc) syncGlobalVolume(vc.value); 
+        }
+
+        function playBellWithQueue(timesLeft = 1, onCompleteCallback = null) {
+            if (muteBells) {
+                if (onCompleteCallback) onCompleteCallback();
+                return;
+            }
+
+            const audio = document.getElementById('regularBellAudio'); 
+            if(!audio) {
+                if (onCompleteCallback) onCompleteCallback();
+                return;
+            }
+            
+            audio.currentTime = 0;
+            audio.onended = () => { 
+                if (timesLeft > 1) playBellWithQueue(timesLeft - 1, onCompleteCallback); 
+                else { 
+                    audio.onended = null; 
+                    if (onCompleteCallback) onCompleteCallback(); 
+                } 
+            };
+            
+            let playPromise = audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.catch(e => {
+                    console.error("Audio play blocked. Triggering failsafe voice delay.", e);
+                    audio.onended = null; 
+                    setTimeout(() => {
+                        if (timesLeft > 1) playBellWithQueue(timesLeft - 1, onCompleteCallback);
+                        else if (onCompleteCallback) onCompleteCallback();
+                    }, 1500); 
+                });
+            }
+        }
+
+        function safePopulateVoiceList() {
+            try {
+                const voiceSelect = document.getElementById("voicePreference");
+                if(!voiceSelect) return;
+                const voices = window.speechSynthesis.getVoices();
+                if(voices.length === 0) return;
+                
+                const selectedURI = globalVoicePref;
+                voiceSelect.innerHTML = '';
+                const enVoices = voices.filter(v => v.lang.startsWith('en'));
+                
+                let found = false;
+                enVoices.forEach(voice => {
+                    const option = document.createElement('option');
+                    option.textContent = `${voice.name} (${voice.lang})`;
+                    option.value = voice.voiceURI;
+                    if(voice.voiceURI === selectedURI) {
+                        option.selected = true;
+                        found = true;
+                    }
+                    voiceSelect.appendChild(option);
+                });
+                
+                if(!found && enVoices.length > 0) {
+                    voiceSelect.value = enVoices[0].voiceURI;
+                    globalVoicePref = enVoices[0].voiceURI;
+                    saveLocalSettings();
+                } else if (found) {
+                    voiceSelect.value = globalVoicePref;
+                }
+            } catch(e) {}
+        }
+        
+        function changeVoicePref() { 
+            const vp = document.getElementById('voicePreference');
+            if(vp) globalVoicePref = vp.value; 
+            saveLocalSettings(); 
+        }
+
+        function speak(text) {
+            try {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.9; utterance.volume = globalVolume;
+                const voices = window.speechSynthesis.getVoices();
+                const selectedVoice = voices.find(v => v.voiceURI === globalVoicePref);
+                if (selectedVoice) utterance.voice = selectedVoice;
+                window.speechSynthesis.speak(utterance);
+            } catch (e) { console.error("Speech Synthesis failed:", e); }
+        }
+
+        function testSelectedSound() {
+            triggerVisualAlert();
+            if (currentTestSound === 'positive') {
+                const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
+                speak(randomMsg);
+            }
+            else if (currentTestSound === 'start') playBellWithQueue(3, () => speak("Class is beginning. Please place your phones in the cell phone caddy."));
+            else if (currentTestSound === 'end') {
+                if (playGoodbyes) {
+                    const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
+                    playBellWithQueue(3, () => speak(randomMsg));
+                } else {
+                    playBellWithQueue(3);
+                }
+            }
+            else if (currentTestSound === 'warning1m') playBellWithQueue(1, () => speak("One minute until class begins. Please place your phones in the cell phone caddy."));
+            else if (currentTestSound === 'attendance') speak("Reminder. Please take attendance.");
+            else if (currentTestSound === 'cleanup') speak("Five minutes remaining. Please begin cleaning up your area.");
+            else if (currentTestSound === 'lunch') speak("Reminder. You have lunch duty.");
+        }
+
+        // ==========================================================================
+        // YOUTUBE BACKGROUND PLAYER
         // ==========================================================================
         let ytPlayer = null;
         let isYtApiReady = false;
@@ -895,6 +1349,7 @@
             if (!url) { stopVibeCore(); return true; } 
             
             activePlayerUrl = url;
+            updateFloatingPlayerVisibility(); 
             
             const vid = extractVideoID(url);
             if (!vid) return true;
@@ -920,6 +1375,8 @@
                                 e.target.setVolume(vibeVolume); 
                                 if(shouldPlay) {
                                     e.target.playVideo(); 
+                                    const floatBtn = document.getElementById('float-play-btn');
+                                    if(floatBtn) floatBtn.innerHTML = pauseSVG;
                                 }
                             } catch(err) {} 
                         }, 
@@ -940,12 +1397,12 @@
                         ytPlayer.pauseVideo();
                         if(floatBtn) floatBtn.innerHTML = playSVG;
                         isMainVibePlaying = false;
-                        if (activePlayerUrl === currentVibeUrl) { saveLocalSettings(); }
+                        saveLocalSettings();
                     } else {
                         ytPlayer.playVideo();
                         if(floatBtn) floatBtn.innerHTML = pauseSVG;
                         isMainVibePlaying = true;
-                        if (activePlayerUrl === currentVibeUrl) { saveLocalSettings(); }
+                        saveLocalSettings();
                     }
                 } catch(e) { console.error(e); }
             } else { startVibe(); }
@@ -967,6 +1424,7 @@
             if (ytPlayer) { try { ytPlayer.destroy(); ytPlayer = null; } catch(e) {} }
             const floatBtn = document.getElementById('float-play-btn');
             if(floatBtn) floatBtn.innerHTML = playSVG;
+            updateFloatingPlayerVisibility();
         }
 
         function stopVibe() {
@@ -985,7 +1443,7 @@
             const floatBtn = document.getElementById('float-play-btn');
             if(!floatBtn) return;
             
-            if (event.data == YT.PlayerState.PLAYING) {
+            if (event.data == YT.PlayerState.PLAYING || event.data == YT.PlayerState.BUFFERING) {
                 floatBtn.innerHTML = pauseSVG;
                 try {
                     let title = ytPlayer.getVideoData().title;
@@ -1068,162 +1526,8 @@
             if(vc) syncGlobalVolume(vc.value); 
         }
 
-        function toggleJukebox() {
-            const tog = document.getElementById('jukeboxToggle');
-            if(tog) mrBsJukebox = tog.checked;
-            lastPeriodStatus = null; 
-            saveLocalSettings();
-        }
-
-        function updateJukeboxUrl() {
-            const inp = document.getElementById('jukeboxUrlInput');
-            if(inp && inp.value.trim() !== '') {
-                jukeboxUrl = inp.value.trim();
-            } else {
-                jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
-            }
-            lastPeriodStatus = null; 
-            saveLocalSettings();
-        }
-
-        function toggleGoodbyes() { 
-            const tog = document.getElementById('playGoodbyes');
-            if(tog) playGoodbyes = tog.checked; 
-            saveLocalSettings(); 
-        }
-
-        function toggleMuteBells() { 
-            const tog = document.getElementById('muteBellsToggle');
-            if(tog) muteBells = tog.checked; 
-            saveLocalSettings(); 
-        }
-
-        function toggleDropdown(event) { 
-            event.stopPropagation(); 
-            const dd = document.getElementById("soundDropdown");
-            if(dd) dd.classList.toggle("show"); 
-        }
-
-        function selectTestSound(value, label) {
-            currentTestSound = value; 
-            const btn = document.getElementById("playBtn");
-            const dd = document.getElementById("soundDropdown");
-            if(btn) btn.innerHTML = "▶ Play " + label;
-            if(dd) dd.classList.remove("show"); 
-            saveLocalSettings();
-        }
-
         // ==========================================================================
-        // TEXT TO SPEECH LOGIC
-        // ==========================================================================
-        function playBellWithQueue(timesLeft = 1, onCompleteCallback = null) {
-            if (muteBells) {
-                if (onCompleteCallback) onCompleteCallback();
-                return;
-            }
-
-            const audio = document.getElementById('regularBellAudio'); 
-            if(!audio) {
-                if (onCompleteCallback) onCompleteCallback();
-                return;
-            }
-            
-            audio.currentTime = 0;
-            audio.onended = () => { 
-                if (timesLeft > 1) playBellWithQueue(timesLeft - 1, onCompleteCallback); 
-                else { 
-                    audio.onended = null; 
-                    if (onCompleteCallback) onCompleteCallback(); 
-                } 
-            };
-            
-            let playPromise = audio.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.catch(e => {
-                    console.error("Audio play blocked. Triggering failsafe voice delay.", e);
-                    audio.onended = null; 
-                    setTimeout(() => {
-                        if (timesLeft > 1) playBellWithQueue(timesLeft - 1, onCompleteCallback);
-                        else if (onCompleteCallback) onCompleteCallback();
-                    }, 1500); 
-                });
-            }
-        }
-
-        function safePopulateVoiceList() {
-            try {
-                const voiceSelect = document.getElementById("voicePreference");
-                if(!voiceSelect) return;
-                const voices = window.speechSynthesis.getVoices();
-                if(voices.length === 0) return;
-                
-                const selectedURI = globalVoicePref;
-                voiceSelect.innerHTML = '';
-                const enVoices = voices.filter(v => v.lang.startsWith('en'));
-                
-                let found = false;
-                enVoices.forEach(voice => {
-                    const option = document.createElement('option');
-                    option.textContent = `${voice.name} (${voice.lang})`;
-                    option.value = voice.voiceURI;
-                    if(voice.voiceURI === selectedURI) {
-                        option.selected = true;
-                        found = true;
-                    }
-                    voiceSelect.appendChild(option);
-                });
-                
-                if(!found && enVoices.length > 0) {
-                    voiceSelect.value = enVoices[0].voiceURI;
-                    globalVoicePref = enVoices[0].voiceURI;
-                    saveLocalSettings();
-                } else if (found) {
-                    voiceSelect.value = globalVoicePref;
-                }
-            } catch(e) {}
-        }
-
-        function changeVoicePref() { 
-            const vp = document.getElementById('voicePreference');
-            if(vp) globalVoicePref = vp.value; 
-            saveLocalSettings(); 
-        }
-
-        function speak(text) {
-            try {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.rate = 0.9; utterance.volume = globalVolume;
-                const voices = window.speechSynthesis.getVoices();
-                const selectedVoice = voices.find(v => v.voiceURI === globalVoicePref);
-                if (selectedVoice) utterance.voice = selectedVoice;
-                window.speechSynthesis.speak(utterance);
-            } catch (e) { console.error("Speech Synthesis failed:", e); }
-        }
-
-        function testSelectedSound() {
-            triggerVisualAlert();
-            if (currentTestSound === 'positive') {
-                const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
-                speak(randomMsg);
-            }
-            else if (currentTestSound === 'start') playBellWithQueue(3, () => speak("Class is beginning. Please place your phones in the cell phone caddy."));
-            else if (currentTestSound === 'end') {
-                if (playGoodbyes) {
-                    const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
-                    playBellWithQueue(3, () => speak(randomMsg));
-                } else {
-                    playBellWithQueue(3);
-                }
-            }
-            else if (currentTestSound === 'warning1m') playBellWithQueue(1, () => speak("One minute until class begins. Please place your phones in the cell phone caddy."));
-            else if (currentTestSound === 'attendance') speak("Reminder. Please take attendance.");
-            else if (currentTestSound === 'cleanup') speak("Five minutes remaining. Please begin cleaning up your area.");
-            else if (currentTestSound === 'lunch') speak("Reminder. You have lunch duty.");
-        }
-
-        // ==========================================================================
-        // REMINDERS & DUTIES LOGIC
+        // REMINDERS & DUTIES
         // ==========================================================================
         function addCustomReminder() {
             const name = document.getElementById('remName').value;
@@ -1236,6 +1540,11 @@
                 saveLocalSettings();
                 document.getElementById('remName').value = '';
                 document.getElementById('remTime').value = '';
+                
+                const content = document.getElementById('sec-reminders');
+                if(content.style.maxHeight !== "0px" && content.style.maxHeight !== "none") {
+                    content.style.maxHeight = "none";
+                }
             } else {
                 showToast("Please enter a Name and Time");
             }
@@ -1274,6 +1583,11 @@
                 lunchDuties.push({ day, half, period });
                 renderLunchDuties(); saveLocalSettings(); 
                 periodVal.value = '3rd';
+                
+                const content = document.getElementById('sec-reminders');
+                if(content.style.maxHeight !== "0px" && content.style.maxHeight !== "none") {
+                    content.style.maxHeight = "none";
+                }
             }
         }
         function removeLunchDuty(index) { lunchDuties.splice(index, 1); renderLunchDuties(); saveLocalSettings(); }
@@ -1293,96 +1607,7 @@
         }
 
         // ==========================================================================
-        // QOTD LOGIC
-        // ==========================================================================
-        function getDailyQotd() {
-            const now = new Date();
-            const start = new Date(now.getFullYear(), 0, 0);
-            const diff = now - start;
-            const oneDay = 1000 * 60 * 60 * 24;
-            const dayOfYear = Math.floor(diff / oneDay);
-            return qotdDatabase[dayOfYear % qotdDatabase.length];
-        }
-
-        function toggleQotdLock() {
-            qotdManualUnlock = !qotdManualUnlock;
-            updateClock(); 
-        }
-
-        function updateQotdUI(status) {
-            if (!activeWidgets.qotd) return; 
-            
-            const qObj = getDailyQotd();
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(QOTD_APPS_SCRIPT_URL)}`;
-
-            // Main Widget Updates
-            document.getElementById('qotd-question').innerText = qObj.q;
-            document.getElementById('qotd-idle-question').innerText = qObj.q;
-            document.getElementById('qotd-results-question').innerText = qObj.q;
-            document.getElementById('qotd-label-a').innerText = qObj.a;
-            document.getElementById('qotd-label-b').innerText = qObj.b;
-            document.getElementById('qotd-qr-img').src = qrUrl;
-            
-            const viewVoting = document.getElementById('qotd-voting-view');
-            const viewIdle = document.getElementById('qotd-idle-view');
-            const viewResults = document.getElementById('qotd-results-view');
-            const relockBtn = document.getElementById('qotd-manual-lock');
-
-            if (status && status.actualClass) {
-                const p = status.periodData;
-                const currentMins = new Date().getHours() * 60 + new Date().getMinutes();
-                
-                if (currentMins >= p.startMins && currentMins < p.startMins + 5) {
-                    // FIRST 5 MINS (Open)
-                    viewVoting.style.display = 'flex'; viewIdle.style.display = 'none'; viewResults.style.display = 'none';
-                    if(relockBtn) relockBtn.style.display = 'block';
-                    qotdResultsFetched = false; 
-                    qotdManualUnlock = false; 
-                } else if (currentMins >= p.endMins - 5 && currentMins < p.endMins) {
-                    // LAST 5 MINS (Results)
-                    viewVoting.style.display = 'none'; viewIdle.style.display = 'none'; viewResults.style.display = 'flex';
-                    if(relockBtn) relockBtn.style.display = 'none';
-                    qotdManualUnlock = false;
-                    
-                    if (!qotdResultsFetched) {
-                        qotdResultsFetched = true;
-                        fetch(QOTD_APPS_SCRIPT_URL + "?action=getResults")
-                            .then(r => r.json())
-                            .then(data => {
-                                const votesA = parseInt(data.votesA) || 0;
-                                const votesB = parseInt(data.votesB) || 0;
-                                const total = votesA + votesB;
-                                const pctA = total === 0 ? 0 : Math.round((votesA / total) * 100);
-                                const pctB = total === 0 ? 0 : 100 - pctA;
-                                
-                                document.getElementById('qotd-bar-a').style.width = pctA + '%';
-                                document.getElementById('qotd-pct-a').innerText = pctA + '%';
-                                document.getElementById('qotd-bar-b').style.width = pctB + '%';
-                                document.getElementById('qotd-pct-b').innerText = pctB + '%';
-                                document.getElementById('qotd-total-votes').innerText = "Total Votes: " + total;
-                            }).catch(e => console.error("Error fetching QotD results:", e));
-                    }
-                } else {
-                    // MID CLASS
-                    if (qotdManualUnlock) {
-                        viewVoting.style.display = 'flex'; viewIdle.style.display = 'none'; viewResults.style.display = 'none';
-                        if(relockBtn) relockBtn.style.display = 'block';
-                    } else {
-                        viewVoting.style.display = 'none'; viewIdle.style.display = 'flex'; viewResults.style.display = 'none';
-                        if(relockBtn) relockBtn.style.display = 'none';
-                    }
-                }
-            } else {
-                // PASSING PERIOD
-                viewVoting.style.display = 'none'; viewIdle.style.display = 'flex'; viewResults.style.display = 'none';
-                if(relockBtn) relockBtn.style.display = 'none';
-                qotdResultsFetched = false;
-                qotdManualUnlock = false;
-            }
-        }
-
-        // ==========================================================================
-        // TIMER LOGIC
+        // TIMERS
         // ==========================================================================
         function updateTimerDisplay() {
             const d = document.getElementById('timer-display');
@@ -1424,259 +1649,8 @@
             }
         }
 
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            if(!toast) return;
-            toast.innerText = message; toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, 4000);
-        }
-
         // ==========================================================================
-        // ASYNC GOOGLE FETCH LOGIC (NO MORE HARDCODED SCHEDULES)
-        // ==========================================================================
-        async function fetchDailySchedule() {
-            const ind = document.getElementById('autoIndicator');
-            if(ind) { ind.style.display = 'block'; ind.innerText = "Sync Status: Fetching..."; ind.style.color = '#888'; }
-            
-            try {
-                // Safely fetch without the cache buster to prevent Apps Script blocking
-                const response = await fetch(GOOGLE_CALENDAR_SCRIPT_URL, { method: 'GET', redirect: 'follow' });
-                const data = await response.json();
-                
-                if (data && data.schedule) {
-                    let cleanSchedule = [];
-                    data.schedule.forEach(p => {
-                        if(!p || !p.name) return;
-                        let cleanP = { name: String(p.name).trim(), start: String(p.start || '').trim(), end: String(p.end || '').trim() };
-                        if(cleanP.start.includes(':')) cleanP.start = cleanP.start.split(':').map(v => v.padStart(2, '0')).join(':');
-                        if(cleanP.end.includes(':')) cleanP.end = cleanP.end.split(':').map(v => v.padStart(2, '0')).join(':');
-                        cleanSchedule.push(cleanP);
-                    });
-
-                    activeSchedule = cleanSchedule;
-                    currentScheduleName = String(data.mode || 'Daily').toUpperCase();
-
-                    if(ind) { ind.innerText = `✓ Synced: ${currentScheduleName}`; ind.style.color = '#5cb85c'; }
-                    document.getElementById('schedule-title').innerText = currentScheduleName + ' Schedule ';
-                    renderSchedule();
-                    showToast(`Loaded: ${currentScheduleName} Schedule`);
-                }
-            } catch (err) {
-                console.error("Schedule sync failed:", err);
-                if(ind) { ind.innerText = "Sync Status: ⚠ Offline"; ind.style.color = '#d9534f'; }
-                showToast("Offline. Could not fetch schedule.");
-            }
-        }
-
-        async function fetchAgenda(url, elementId) {
-            const el = document.getElementById(elementId);
-            if (!el) return;
-            
-            let fetchUrlStr = url.trim();
-            if (fetchUrlStr.startsWith('webcal://')) { fetchUrlStr = 'https://' + fetchUrlStr.substring(9); }
-
-            if (agendaCache[fetchUrlStr]) {
-                if (agendaCache[fetchUrlStr] !== 'empty') { el.innerHTML = agendaCache[fetchUrlStr]; el.classList.add('has-data'); } 
-                else { el.innerHTML = ""; el.classList.remove('has-data'); }
-                return;
-            }
-
-            el.innerHTML = "<em>Fetching...</em>"; el.classList.add('has-data');
-
-            try {
-                if (!agendaPromises[fetchUrlStr]) {
-                    const fetchUrl = `${GOOGLE_CALENDAR_SCRIPT_URL.split('?')[0]}?icalUrl=${encodeURIComponent(fetchUrlStr)}`;
-                    
-                    agendaPromises[fetchUrlStr] = fetch(fetchUrl).then(async (response) => {
-                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                        const icsData = await response.text();
-
-                        if (icsData.startsWith('Error:')) return `<em class="agenda-error" title="${icsData}">Apps Script error</em>`;
-                        if (!icsData || (!icsData.includes('BEGIN:VCALENDAR') && !icsData.includes('BEGIN:VEVENT'))) return "<em class='agenda-error'>Invalid calendar data</em>";
-
-                        const today = new Date();
-                        const todayInt = parseInt(today.getFullYear() + String(today.getMonth() + 1).padStart(2, '0') + String(today.getDate()).padStart(2, '0'), 10);
-                        
-                        const events = icsData.split('BEGIN:VEVENT');
-                        let todaysEvents = [];
-
-                        for (let i = 1; i < events.length; i++) {
-                            const eventText = events[i];
-                            const dtStartMatch = eventText.match(/DTSTART(?:;[^:]*)?:([0-9]{8})/); 
-                            const dtEndMatch = eventText.match(/DTEND(?:;[^:]*)?:([0-9]{8})/); 
-                            const isTimedMatch = eventText.match(/DTSTART(?:;[^:]*)?:[0-9]{8}T/);
-                            const summaryMatch = eventText.match(/SUMMARY:([^\r\n]*)/);
-
-                            if (dtStartMatch && summaryMatch) {
-                                const startInt = parseInt(dtStartMatch[1], 10);
-                                let isActive = false;
-
-                                if (dtEndMatch) {
-                                    const endInt = parseInt(dtEndMatch[1], 10);
-                                    if (isTimedMatch) isActive = (todayInt >= startInt && todayInt <= endInt);
-                                    else isActive = (todayInt >= startInt && todayInt < endInt);
-                                } else {
-                                    isActive = (startInt === todayInt);
-                                }
-
-                                if (isActive) todaysEvents.push(summaryMatch[1].trim());
-                            }
-                        }
-                        if (todaysEvents.length > 0) return todaysEvents.join(' &nbsp;|&nbsp; ');
-                        else return "empty";
-                    });
-                }
-
-                const resultHtml = await agendaPromises[fetchUrlStr];
-                agendaCache[fetchUrlStr] = resultHtml;
-
-                if (resultHtml !== 'empty') { el.innerHTML = resultHtml; el.classList.add('has-data'); } 
-                else { el.innerHTML = ""; el.classList.remove('has-data'); }
-
-            } catch (error) {
-                el.innerHTML = "<em class='agenda-error'>Error loading feed.</em>";
-                agendaCache[fetchUrlStr] = "<em class='agenda-error'>Error loading feed.</em>";
-            }
-        }
-
-        // ==========================================================================
-        // LOCAL STORAGE (ABSOLUTE SAFE MODE)
-        // ==========================================================================
-        function saveLocalSettings() {
-            if (isBooting) return; // Prevent overwriting settings during boot sequence!
-            try {
-                const data = {
-                    vol: globalVolume, voice: globalVoicePref, testSound: currentTestSound,
-                    waffleClosed: isWaffleClosed, minimalView: isMinimalView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
-                    settings: classSettings, lunchDuties: lunchDuties,
-                    savedVibes: savedVibes, vibe: currentVibeUrl, vibeVol: vibeVolume, muteB: muteBells,
-                    mrBsJukebox: mrBsJukebox, jukeboxUrl: jukeboxUrl, isMainVibePlaying: isMainVibePlaying,
-                    customReminders: customReminders, accordions: accordionStates, widgets: activeWidgets
-                };
-                localStorage.setItem('waltonBellState', JSON.stringify(data)); // Using stable key
-            } catch (e) {}
-        }
-
-        function loadLocalSettings() {
-            try {
-                const saved = localStorage.getItem('waltonBellState');
-                if (saved) {
-                    const p = JSON.parse(saved);
-                    
-                    try { if (p.settings) classSettings = p.settings; } catch(e){}
-                    try { if (p.lunchDuties) lunchDuties = p.lunchDuties; } catch(e){}
-                    try { if (p.customReminders) customReminders = p.customReminders; } catch(e){}
-                    
-                    try { if (p.vol !== undefined) { syncGlobalVolume(p.vol); } else { syncGlobalVolume(1.0); } } catch(e){}
-                    try { if (p.vibeVol !== undefined) { syncVibeVolume(p.vibeVol); } } catch(e){}
-
-                    try { 
-                        if (p.testSound) {
-                            currentTestSound = p.testSound;
-                            const labels = {
-                                'positive': 'Voice Test', 'start': 'Class Start', 'end': 'Class End', 'warning1m': '1-Min Warning',
-                                'attendance': 'Take Attend.', 'cleanup': '5-Min Clean', 'lunch': 'Lunch Duty'
-                            };
-                            const pBtn = document.getElementById("playBtn");
-                            if (labels[currentTestSound] && pBtn) pBtn.innerHTML = "▶ Play " + labels[currentTestSound];
-                        }
-                    } catch(e){}
-                    
-                    try { if (p.waffleClosed !== undefined) { setWaffleState(p.waffleClosed, false); } } catch(e){}
-                    try { if (p.minimalView !== undefined) { setMinimalView(p.minimalView, false); } } catch(e){}
-                    
-                    try { 
-                        if (p.dark === true) { 
-                            isDarkMode = true;
-                            const dmToggle = document.getElementById('darkModeToggle');
-                            if(dmToggle) dmToggle.checked = true; 
-                            document.body.classList.add('dark-mode');
-                        }
-                    } catch(e){}
-
-                    try { 
-                        if (p.zero === true) { 
-                            showZero = true; 
-                            const zeroToggle = document.getElementById('showZeroPeriod');
-                            if(zeroToggle) zeroToggle.checked = true; 
-                        }
-                    } catch(e){}
-
-                    try { 
-                        if (p.playGoodbyes === true) { 
-                            playGoodbyes = true; 
-                            const pgToggle = document.getElementById('playGoodbyes');
-                            if(pgToggle) pgToggle.checked = true; 
-                        }
-                    } catch(e){}
-
-                    try { 
-                        if (p.muteB === true) { 
-                            muteBells = true; 
-                            const mbToggle = document.getElementById('muteBellsToggle');
-                            if(mbToggle) mbToggle.checked = true; 
-                        }
-                    } catch(e){}
-                    
-                    try { 
-                        if (p.savedVibes) savedVibes = p.savedVibes;
-                        if (p.vibe && savedVibes.length === 0) {
-                            savedVibes.push({ url: p.vibe, title: 'Saved Vibe' });
-                            currentVibeUrl = p.vibe;
-                        } else if (p.vibe) {
-                            currentVibeUrl = p.vibe;
-                        }
-                    } catch(e){}
-
-                    try { 
-                        if (p.mrBsJukebox !== undefined) mrBsJukebox = p.mrBsJukebox;
-                        if (p.jukeboxUrl) jukeboxUrl = p.jukeboxUrl;
-                        if (p.isMainVibePlaying !== undefined) isMainVibePlaying = p.isMainVibePlaying;
-
-                        const jkToggle = document.getElementById('jukeboxToggle');
-                        if(jkToggle) jkToggle.checked = mrBsJukebox;
-                        const jkInput = document.getElementById('jukeboxUrlInput');
-                        if(jkInput && jukeboxUrl !== "https://www.youtube.com/watch?v=CLLpSmaof4E") {
-                            jkInput.value = jukeboxUrl;
-                        }
-                    } catch(e){}
-
-                    try { 
-                        if (p.widgets) {
-                            activeWidgets = p.widgets;
-                            Object.keys(p.widgets).forEach(key => {
-                                const tog = document.getElementById(`wm-tog-${key}`);
-                                if(tog) {
-                                    tog.checked = p.widgets[key];
-                                    toggleWidget(key, p.widgets[key], false); 
-                                }
-                            });
-                        }
-                    } catch(e){}
-
-                    try { 
-                        if (p.accordions) {
-                            accordionStates = p.accordions;
-                            Object.keys(accordionStates).forEach(id => {
-                                if(accordionStates[id] === false) {
-                                    const el = document.getElementById(id);
-                                    if(el) el.style.maxHeight = "0px";
-                                    const chev = document.getElementById('chev-'+id);
-                                    if(chev) chev.style.transform = "rotate(-90deg)";
-                                }
-                            });
-                        }
-                    } catch(e){}
-                    
-                    try { if(p.voice) globalVoicePref = p.voice; } catch(e){}
-                }
-            } catch (e) {
-                console.error("Local Storage parse error.", e);
-            }
-        }
-
-        // ==========================================================================
-        // SCHEDULE RENDERING & UTILITIES
+        // SCHEDULE DISPLAY LOGIC
         // ==========================================================================
         function toggleSetting(periodName, settingType, isChecked) {
             const key = periodName; 
@@ -1703,20 +1677,15 @@
             if(!list) return;
             list.innerHTML = '';
             
-            if (!Array.isArray(activeSchedule)) return;
-
-            let filteredSchedule = activeSchedule;
-            
-            // Reapply 0 period logic locally if activeSchedule is raw from Google
-            let hasZero = filteredSchedule.some(p => /^0/i.test(String(p.name).trim()));
-            if (showZero && !hasZero) {
-                filteredSchedule.unshift({ name: "0 pd", start: "07:10", end: "08:13" });
-            } else if (!showZero && hasZero) {
-                filteredSchedule = filteredSchedule.filter(p => !/^0/i.test(String(p.name).trim()));
+            if (!Array.isArray(activeSchedule)) {
+                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Schedule data is missing or corrupted.</em></li>'; return; 
             }
 
+            let filteredSchedule = activeSchedule;
+            if (!showZero) filteredSchedule = activeSchedule.filter(p => p && p.name && !String(p.name).includes("0 pd"));
+
             if (!filteredSchedule || filteredSchedule.length === 0) { 
-                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Schedule loading...</em></li>'; return; 
+                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>No periods added yet.</em></li>'; return; 
             }
 
             filteredSchedule.forEach(period => {
@@ -1876,222 +1845,188 @@
             };
         }
 
-        function triggerEvent(time, action, callback) {
-            if (currentMinuteTracker !== time) {
-                playedActions = {};
-                currentMinuteTracker = time;
-            }
-            const eventKey = `${time}-${action}`;
-            if (!playedActions[eventKey]) {
-                callback();
-                playedActions[eventKey] = true;
-            }
+        // ==========================================================================
+        // STORAGE AND BOOT LOGIC (100% IDIOT PROOF)
+        // ==========================================================================
+        function saveLocalSettings() {
+            if (isBooting) return; // NEVER OVERWRITE MEMORY ON LOAD
+            try {
+                const data = {
+                    mode: currentMode, vol: globalVolume, voice: globalVoicePref, testSound: currentTestSound,
+                    side: sidebarVisible, waffleClosed: isWaffleClosed, minimalView: isMinimalView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
+                    settings: classSettings, lunchDuties: lunchDuties, customReminders: customReminders,
+                    savedVibes: savedVibes, vibe: currentVibeUrl, vibeVol: vibeVolume, muteB: muteBells,
+                    mrBsJukebox: mrBsJukebox, jukeboxUrl: jukeboxUrl, isMainVibePlaying: isMainVibePlaying,
+                    accordions: accordionStates, widgets: activeWidgets
+                };
+                localStorage.setItem('waltonBellState', JSON.stringify(data));
+            } catch (e) {}
         }
 
-        function updateClock() {
+        function loadLocalSettings() {
             try {
-                const now = new Date();
-                const clk = document.getElementById('clock');
-                if(clk) clk.innerText = now.toLocaleTimeString('en-US');
-                let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-                const todayDayOfWeek = now.getDay(); 
-                
-                let status = highlightCurrentPeriod(now);
-                let currentStatus = 'outside';
-                let autoState = 'passing';
-                let isDeadTime = false;
-
-                if (status && status.isPassing) {
-                    currentStatus = 'passing';
-                    autoState = 'passing';
-                } 
-                else if (status && status.actualClass) {
-                    currentStatus = 'class';
-                    const p = status.periodData;
-                    const currentMins = now.getHours() * 60 + now.getMinutes();
+                const saved = localStorage.getItem('waltonBellState');
+                if (saved) {
+                    const p = JSON.parse(saved);
                     
-                    if (currentMins >= p.startMins && currentMins < p.startMins + 5) {
-                        autoState = 'dead-start';
-                        isDeadTime = true;
-                    } else if (currentMins >= p.endMins - 5 && currentMins < p.endMins) {
-                        autoState = 'dead-end';
-                        isDeadTime = true;
-                    } else {
-                        autoState = 'core-class';
-                    }
-                }
-
-                let dName = document.getElementById('docked-name');
-                let dTime = document.getElementById('docked-time');
-                let dBadge = document.getElementById('docked-badge');
-                
-                if (status && status.actualClass) {
-                    const p = status.periodData;
-                    if (dName) dName.innerText = p.li.querySelector('.period-name').childNodes[0].nodeValue.trim();
+                    if (p.settings) classSettings = p.settings;
+                    if (p.lunchDuties) lunchDuties = p.lunchDuties;
+                    if (p.customReminders) customReminders = p.customReminders;
                     
-                    const realTimeStr = p.li.querySelector('.period-time').innerText;
-                    if (dTime && realTimeStr) dTime.innerText = realTimeStr;
+                    if (p.vol !== undefined) { syncGlobalVolume(p.vol); } 
+                    if (p.vibeVol !== undefined) { syncVibeVolume(p.vibeVol); }
 
-                    const s = classSettings[dName.innerText.trim()] || DEFAULT_PREFS;
-                    if (s.open && dBadge) dBadge.style.display = 'inline-block';
-                    else if (dBadge) dBadge.style.display = 'none';
-                } else if (status && status.isPassing) {
-                    if (dName) dName.innerText = "Passing Period";
-                    const p = status.periodData;
-                    if (dTime) dTime.innerText = "Next: " + p.li.querySelector('.period-name').childNodes[0].nodeValue.trim();
-                    if (dBadge) dBadge.style.display = 'none';
-                } else {
-                    if (dName) dName.innerText = "Outside School Hours";
-                    if (dTime) dTime.innerText = "--:--";
-                    if (dBadge) dBadge.style.display = 'none';
-                }
-
-                const warningElMain = document.getElementById('main-dead-time-warning');
-                const warningElDock = document.getElementById('docked-warning');
-                if (warningElMain) warningElMain.style.display = isDeadTime ? 'inline-block' : 'none';
-                if (warningElDock) warningElDock.style.display = isDeadTime ? 'inline-block' : 'none';
-
-                updateQotdUI(status);
-
-                if (lastAutoState !== null && autoState !== lastAutoState) {
-                    if (autoState === 'core-class') {
-                        setMinimalView(true, true); 
-                    } else if (autoState === 'dead-start' || autoState === 'dead-end' || autoState === 'passing') {
-                        setMinimalView(false, true); 
+                    if (p.testSound) {
+                        currentTestSound = p.testSound;
+                        const labels = {
+                            'positive': 'Voice Test', 'start': 'Class Start', 'end': 'Class End', 'warning1m': '1-Min Warning',
+                            'attendance': 'Take Attend.', 'cleanup': '5-Min Clean', 'lunch': 'Lunch Duty'
+                        };
+                        const pBtn = document.getElementById("playBtn");
+                        if (labels[currentTestSound] && pBtn) pBtn.innerHTML = "▶ Play " + labels[currentTestSound];
                     }
-                }
-                lastAutoState = autoState;
 
-                if (lastPeriodStatus !== currentStatus) {
-                    let success = false;
+                    if (p.waffleClosed !== undefined) { setWaffleState(p.waffleClosed, false); }
+                    if (p.minimalView !== undefined) { setMinimalView(p.minimalView, false); }
                     
-                    if (mrBsJukebox && todayDayOfWeek === 5 && currentStatus === 'passing') {
-                        success = applyMusicState(jukeboxUrl, true);
-                    } else {
-                        if (isMainVibePlaying && currentVibeUrl) {
-                            success = applyMusicState(currentVibeUrl, true);
-                        } else {
-                            success = applyMusicState('', false); 
-                        }
+                    if (p.dark === true) { 
+                        isDarkMode = true;
+                        const dmToggle = document.getElementById('darkModeToggle');
+                        if(dmToggle) dmToggle.checked = true; 
+                        document.body.classList.add('dark-mode');
                     }
-                    if (success) lastPeriodStatus = currentStatus;
-                }
-
-                if (current24 === '06:00' && now.getSeconds() === 0) { fetchDailySchedule(); }
-                
-                customReminders.forEach(rem => {
-                    if (current24 === rem.time) {
-                        if (rem.day === 'All' || parseInt(rem.day) === todayDayOfWeek) {
-                            triggerEvent(current24, `custom-${rem.name}`, () => {
-                                triggerVisualAlert();
-                                playBellWithQueue(1, () => speak(`Reminder. ${rem.name}`));
-                            });
-                        }
+                    if (p.zero === true) { 
+                        const zeroToggle = document.getElementById('showZeroPeriod');
+                        if(zeroToggle) zeroToggle.checked = true; 
+                        showZero = true; 
                     }
-                });
-                
-                if(!Array.isArray(activeSchedule)) return;
-
-                const isWebDay = currentScheduleName.toLowerCase().includes('web');
-
-                activeSchedule.forEach(period => {
-                    if (!period || !period.name) return;
-                    const pNameStr = String(period.name);
-
-                    const s = classSettings[pNameStr] || { ...DEFAULT_PREFS };
-
-                    const hasLunch1 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 1);
-                    let hasLunch2 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 2);
-                    if (isWebDay) hasLunch2 = false; 
-
-                    const pStartStr = String(period.start);
-                    const pEndStr = String(period.end);
-                    const startMinus1 = subtractMinutes(pStartStr, 1);
-                    const startPlus5 = addMinutes(pStartStr, 5);
-                    const endMinus5 = subtractMinutes(pEndStr, 5);
-                    const endMinus1 = subtractMinutes(pEndStr, 1);
-                    const midPoint = getMidpoint(pStartStr, pEndStr);
-
-                    if (current24 === pStartStr) {
-                        triggerEvent(current24, `start-${pNameStr}`, () => {
-                            triggerVisualAlert();
-                            let speechText = "";
-                            
-                            if (s.open) speechText += "Please remember to sign in to WEB. ";
-                            if (s.putaway) speechText += "Class is beginning. Please place your phones in the cell phone caddy. ";
-                            if (hasLunch1) speechText += "Reminder: You have lunch duty today.";
-                            
-                            if (speechText) playBellWithQueue(3, () => speak(speechText));
-                            else playBellWithQueue(3);
-                        });
+                    if (p.playGoodbyes === true) { 
+                        const pgToggle = document.getElementById('playGoodbyes');
+                        if(pgToggle) pgToggle.checked = true; 
+                        playGoodbyes = true; 
+                    }
+                    if (p.muteB === true) { 
+                        const mbToggle = document.getElementById('muteBellsToggle');
+                        if(mbToggle) mbToggle.checked = true; 
+                        muteBells = true; 
                     }
                     
-                    if (current24 === pEndStr) {
-                        triggerEvent(current24, `end-${pNameStr}`, () => { 
-                            triggerVisualAlert(); 
-                            if (playGoodbyes) {
-                                const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
-                                playBellWithQueue(3, () => speak(randomMsg));
-                            } else {
-                                playBellWithQueue(3); 
+                    if (p.savedVibes) savedVibes = p.savedVibes;
+                    if (p.vibe) currentVibeUrl = p.vibe;
+
+                    if (p.mrBsJukebox !== undefined) mrBsJukebox = p.mrBsJukebox;
+                    if (p.jukeboxUrl) jukeboxUrl = p.jukeboxUrl;
+                    if (p.isMainVibePlaying !== undefined) isMainVibePlaying = p.isMainVibePlaying;
+
+                    const jkToggle = document.getElementById('jukeboxToggle');
+                    if(jkToggle) jkToggle.checked = mrBsJukebox;
+                    const jkInput = document.getElementById('jukeboxUrlInput');
+                    if(jkInput && jukeboxUrl !== "https://www.youtube.com/watch?v=CLLpSmaof4E") {
+                        jkInput.value = jukeboxUrl;
+                    }
+
+                    if (p.widgets) {
+                        activeWidgets = p.widgets;
+                        Object.keys(p.widgets).forEach(key => {
+                            const tog = document.getElementById(`wm-tog-${key}`);
+                            if(tog) {
+                                tog.checked = p.widgets[key];
+                                toggleWidget(key, p.widgets[key], false); 
                             }
                         });
                     }
 
-                    if (!s.open && current24 === startMinus1) {
-                        triggerEvent(current24, `warning1m-${pNameStr}`, () => {
-                            triggerVisualAlert();
-                            let speechText = "One minute until class begins.";
-                            if (s.putaway) speechText += " Please place your phones in the cell phone caddy.";
-                            playBellWithQueue(1, () => speak(speechText));
+                    if (p.accordions) {
+                        accordionStates = p.accordions;
+                        Object.keys(accordionStates).forEach(id => {
+                            if(accordionStates[id] === false) {
+                                const el = document.getElementById(id);
+                                if(el) el.style.maxHeight = "0px";
+                                const chev = document.getElementById('chev-'+id);
+                                if(chev) chev.style.transform = "rotate(-90deg)";
+                            }
                         });
-                    }
-
-                    if (!s.open && s.attendance && current24 === startPlus5) {
-                        triggerEvent(current24, `attendance5m-${pNameStr}`, () => { triggerVisualAlert(); speak("Reminder. Please take attendance."); });
                     }
                     
-                    if (!s.open && hasLunch2 && current24 === midPoint) {
-                        triggerEvent(current24, `lunch2-${pNameStr}`, () => { triggerVisualAlert(); speak("Reminder. You have second half lunch duty."); });
-                    }
-
-                    if (!s.open && s.cleanup && current24 === endMinus5) {
-                        triggerEvent(current24, `cleanup5m-${pNameStr}`, () => { triggerVisualAlert(); speak("Five minutes remaining. Please begin cleaning up your area."); });
-                    }
-
-                    if (!s.open && s.retrieve && current24 === endMinus1) {
-                        triggerEvent(current24, `phone1m-${pNameStr}`, () => { 
-                            triggerVisualAlert(); 
-                            let speechText = "One minute remaining.";
-                            if (s.putaway) speechText += " You may retrieve your cell phones.";
-                            playBellWithQueue(1, () => speak(speechText)); 
-                        });
-                    }
-                });
-            } catch(e) { console.error("Clock update error:", e); }
+                    let savedMode = p.mode || 'synced';
+                    if (savedMode === 'daily') savedMode = 'synced';
+                    currentMode = savedMode;
+                    const modeDropdown = document.getElementById('scheduleMode');
+                    if(modeDropdown) modeDropdown.value = currentMode;
+                    
+                    if(p.voice) globalVoicePref = p.voice;
+                }
+            } catch (e) { console.error("Memory parsing error", e); }
         }
 
-        // ==========================================================================
-        // SAFE BOOT SEQUENCE
-        // ==========================================================================
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            if(!toast) return;
+            toast.innerText = message; toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 4000);
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. Read Local Memory
+            isBooting = true; // DO NOT DELETE MEMORY
+
+            // 1. Load Local Settings FIRST
             loadLocalSettings(); 
-
-            // 2. Set UI Elements BEFORE unlocking save
-            if(activeWidgets.weather) reloadWeatherWidget();
-            updateTimerDisplay();
-            updateClock();
             
-            // 3. Ensure Sidebar is strictly hidden
-            document.getElementById('sidebar').classList.add('collapsed');
+            // 2. Render Initial UI safely
+            changeMode(); 
+            updateTimerDisplay();
+            
+            // 3. Force Sidebar completely closed on boot
+            const sidebar = document.getElementById('sidebar');
+            const hamBtn = document.getElementById('hamburgerBtn');
+            if(sidebar) sidebar.classList.add('collapsed');
+            if(hamBtn) hamBtn.classList.remove('active-btn');
             sidebarVisible = false;
-
+            
             // 4. Start Clock loop
+            updateClock();
             setInterval(updateClock, 1000);
             
-            // 5. Start Background Fetch
-            fetchDailySchedule(); 
+            // 5. Start Background Fetch Safely (Ensures ?tab=Daily is requested)
+            setTimeout(() => {
+                const ind = document.getElementById('autoIndicator');
+                if(ind) { ind.style.display = 'block'; ind.innerText = "Sync Status: Fetching..."; ind.style.color = '#888'; }
+                
+                const fetchUrl = GOOGLE_CALENDAR_SCRIPT_URL + "?tab=Daily&cb=" + Date.now();
+                
+                fetch(fetchUrl, { method: 'GET', redirect: 'follow' })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data && data.schedule) {
+                            let cleanSchedule = [];
+                            data.schedule.forEach(p => {
+                                if(!p || !p.name) return;
+                                let cleanP = { name: String(p.name).trim(), start: String(p.start || '').trim(), end: String(p.end || '').trim() };
+                                if(cleanP.start.includes(':')) cleanP.start = cleanP.start.split(':').map(v => v.padStart(2, '0')).join(':');
+                                if(cleanP.end.includes(':')) cleanP.end = cleanP.end.split(':').map(v => v.padStart(2, '0')).join(':');
+                                cleanSchedule.push(cleanP);
+                            });
+
+                            predefinedSchedules['synced'] = cleanSchedule;
+                            currentScheduleName = String(data.mode || 'Daily').toUpperCase();
+
+                            if(ind) { ind.innerText = `✓ Synced: ${currentScheduleName}`; ind.style.color = '#5cb85c'; }
+                            const modeDropdown = document.getElementById('scheduleMode');
+                            if(modeDropdown) {
+                                modeDropdown.value = 'synced';
+                                document.getElementById('syncedOption').innerText = `Google Sheet (${currentScheduleName})`;
+                            }
+                            currentMode = 'synced';
+                            changeMode();
+                            showToast(`Loaded: ${currentScheduleName} Schedule`);
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Schedule sync failed:", err);
+                        if(ind) { ind.innerText = "Sync Status: ⚠ Offline"; ind.style.color = '#d9534f'; }
+                        showToast("Offline. Using local schedule.");
+                    });
+            }, 500); 
             
             // 6. Async load TTS Voices
             try {
@@ -2102,7 +2037,7 @@
             } catch(e) {}
 
             // 7. FINALLY UNLOCK SAVING
-            setTimeout(() => { isBooting = false; }, 1000);
+            setTimeout(() => { isBooting = false; }, 1500);
         });
 
     </script>
