@@ -7,7 +7,6 @@
     <style>
         /* --- Clean Browser Resets --- */
         * { -webkit-tap-highlight-color: transparent !important; outline: none !important; box-sizing: border-box; }
-
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(150,150,150,0.5); border-radius: 10px; }
@@ -39,7 +38,7 @@
         body.dark-mode { background-color: #121212 !important; color: #e0e0e0 !important; }
         body.dark-mode .glass-panel {
             background-color: #1e1e1e !important;
-            border-color: rgba(255, 255, 255, 0.1) !important;
+            border-color: rgba(255, 255, 255, 0.05) !important;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8) !important;
             color: #e0e0e0 !important;
         }
@@ -128,7 +127,7 @@
         .float-info { font-weight: bold; font-size: 0.85rem; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #003366;}
         body.dark-mode .float-info { color: #90caf9; }
         .float-volume { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
-        .float-volume span { cursor: pointer; transition: transform 0.2s; width: 18px; text-align: center; }
+        .float-volume span { cursor: pointer; transition: transform 0.2s; user-select: none; width: 18px; text-align: center; }
         .float-volume span:hover { transform: scale(1.2); }
         .float-volume input { width: 100px; cursor: pointer; height: 4px; margin: 0;}
 
@@ -146,6 +145,7 @@
             transition: top 0.6s ease, opacity 0.4s ease; pointer-events: none; border: none !important;
         }
         #toast.show { top: 90px; opacity: 1; }
+        body.dark-mode #toast { background-color: #2e7d32 !important; }
 
         /* --- Forms, Inputs, and Accordions --- */
         .control-group { border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 10px; margin-bottom: 10px;}
@@ -199,7 +199,7 @@
 
         /* --- THE MASTER SCHEDULE CONTAINER --- */
         .schedule-container { 
-            padding: 15px 20px; border-radius: 10px; width: 100%; max-width: 900px; box-sizing: border-box; transform-origin: top center;
+            padding: 15px 20px; border-radius: 10px; width: 100%; box-sizing: border-box; transform-origin: top center;
             transition: all 0.6s ease; max-height: 2000px; opacity: 1; overflow: hidden; margin: 0 auto;
         }
         
@@ -209,7 +209,7 @@
         @keyframes pulseAlert { 0% { opacity: 1; box-shadow: 0 0 8px rgba(217, 83, 79, 0.2); } 50% { opacity: 0.7; box-shadow: none; } 100% { opacity: 1; box-shadow: 0 0 8px rgba(217, 83, 79, 0.2); } }
         .dead-time-warning { color: #d9534f !important; font-weight: 900; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.5px; animation: pulseAlert 2s infinite; background: rgba(217, 83, 79, 0.15); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(217, 83, 79, 0.3) !important; margin-left: 15px; display: none; }
 
-        /* CUT-OFF FIX: minmax(0, 1fr) ensures the middle toggles never push the times off-screen */
+        /* Center column uses minmax(0, 1fr) and overflow-x */
         .schedule-grid { display: grid; grid-template-columns: minmax(80px, auto) minmax(0, 1fr) minmax(100px, auto); gap: 10px; align-items: center; padding: 8px 10px; transition: all 0.6s ease; width: 100%; box-sizing: border-box; }
         .schedule-header { font-size: 0.9rem; font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 6px; margin-bottom: 6px; }
         
@@ -222,10 +222,9 @@
         
         #schedule-list { list-style: none; padding: 0; margin: 0; }
         #schedule-list li { border-bottom: 1px solid rgba(150,150,150,0.2); border-left: 5px solid transparent; max-height: 250px; overflow: hidden; opacity: 1; transition: max-height 0.6s ease, padding 0.5s ease, opacity 0.5s ease, margin 0.5s ease; }
-        #schedule-list li:nth-child(even) { background-color: rgba(0,0,0,0.03); }
 
-        .period-name { grid-column: 1; font-weight: bold; text-align: left; font-size: 1.6rem; align-self: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 5px;}
-        .period-time { grid-column: 3; text-align: right; font-size: 1.4rem; color: #555; align-self: center; white-space: nowrap; padding-left: 5px;}
+        .period-name { font-weight: bold; text-align: left; font-size: 1.6rem; align-self: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 5px;}
+        .period-time { text-align: right; font-size: 1.4rem; color: #555; align-self: center; white-space: nowrap; padding-left: 5px;}
 
         #schedule-list li.current-period { background: linear-gradient(to right, rgba(92, 184, 92, 0.2) var(--progress, 0%), rgba(92, 184, 92, 0.03) var(--progress, 0%)) !important; border-left: 5px solid #5cb85c !important; }
 
@@ -266,14 +265,15 @@
         @keyframes fadeWidgetIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
         .widget-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 8px; margin-bottom: 12px; pointer-events: none; }
+        body.dark-mode .widget-header-row { border-bottom: 1px solid #444; }
         .widget-title { font-weight: bold; font-size: 1.1rem; margin: 0; }
         .widget-close { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1.2rem; line-height: 1; padding: 0 5px; transition: color 0.2s; pointer-events: auto;}
         .widget-close:hover { color: #d9534f; }
 
-        /* Weather Widget */
+        /* Weather Widget Tweaks */
         #widget-weather { min-height: 250px; flex-grow: 1;}
         #weather-container-main { height: 100%; min-height: 200px; display: block; width: 100%; overflow: hidden;}
-        body.dark-mode #weather-container-main iframe { filter: none !important; } 
+        body.dark-mode #weather-container-main iframe { filter: none !important; }
 
         /* --- Timer Widget Styles --- */
         .timer-display { font-size: 4rem; font-weight: bold; text-align: center; margin: 10px 0; font-variant-numeric: tabular-nums; }
@@ -319,10 +319,6 @@
             body.minimal-active .floating-header { height: 115px; align-items: flex-start; padding-top: 15px;}
             body.minimal-active .header-center { display: flex; position: absolute; bottom: 12px; left: 0; width: 100%; height: auto; align-items: center; justify-content: center; }
             
-            .docked-name { font-size: 1.3rem; }
-            .docked-time { font-size: 1.1rem; }
-            .docked-badge { font-size: 0.8rem !important; padding: 2px 6px !important; }
-            
             .sidebar-wrapper { top: 75px; left: 10px; }
             .sidebar { max-width: calc(100vw - 20px); width: calc(100vw - 20px); }
             
@@ -365,15 +361,15 @@
         </div>
         
         <div class="header-center">
-            <div id="docked-schedule" class="docked-schedule" style="display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center; opacity: 0; transform: translateY(-20px); transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); pointer-events: none; visibility: hidden; position: absolute; width: 100%; white-space: nowrap;">
-                <div class="docked-info-row" style="display:flex; align-items:center; justify-content:center; gap:20px;">
+            <div id="docked-schedule" class="docked-schedule">
+                <div class="docked-info-row">
                     <div id="docked-name" class="docked-name">Focus Mode</div>
                     <div id="docked-badge" class="open-badge docked-badge" style="display:none;">OPEN</div>
                     <div id="docked-time" class="docked-time">--:--</div>
                     <span id="docked-warning" class="dead-time-warning">DEAD TIME</span>
                 </div>
-                <div class="docked-progress-container" style="width: 100%; max-width: 350px; height: 6px; background: rgba(150,150,150,0.2); border-radius: 3px; overflow: hidden; margin-top: 2px;">
-                    <div id="docked-progress-fill" style="height: 100%; width: 0%; background: #5cb85c; transition: width 1s linear, background-color 0.5s ease;"></div>
+                <div class="docked-progress-container">
+                    <div id="docked-progress-fill" class="docked-progress-fill"></div>
                 </div>
             </div>
         </div>
@@ -415,7 +411,7 @@
             <div class="setting-row" style="margin:10px 0 0 0;"><span class="sub-label">Class Timer</span><label class="switch"><input type="checkbox" onchange="toggleWidget('timer', this.checked)" id="wm-tog-timer"><span class="slider"></span></label></div>
         </div>
         <button class="float-btn" id="widget-menu-btn" onclick="toggleWidgetPanel(event)" title="Toggle Widgets">
-            <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
         </button>
     </div>
 
@@ -534,7 +530,7 @@
                 </div>
                 <div class="accordion-content" id="sec-schedule">
                     <div id="autoIndicator" style="font-weight:bold; margin-bottom:10px; color:#888;">Sync Status: Waiting...</div>
-                    <button class="timer-btn-hollow" onclick="fetchDailySchedule(true)" style="width:100%; margin-bottom:10px;">Force Sync</button>
+                    <button class="timer-btn-hollow" onclick="fetchDailySchedule()" style="width:100%; margin-bottom:10px;">Force Sync</button>
                     
                     <div class="setting-row">
                         <span class="sub-label">Show 0 Period</span>
@@ -593,21 +589,21 @@
                 <div class="widget-header-row"><h4 class="widget-title">Question of the Day</h4><button class="widget-close" onclick="toggleWidget('qotd', false)">✖</button></div>
                 
                 <div class="qotd-container" id="qotd-voting-view">
-                    <div class="qotd-text" id="qotd-question">Loading question...</div>
+                    <div class="qotd-text" id="qotd-question">Loading...</div>
                     <img id="qotd-qr-img" class="qotd-qr" src="" alt="Scan to vote">
                     <div style="font-size: 0.85rem; font-weight: bold; color: #888;">Scan to vote!</div>
-                    <div class="qotd-manual-unlock" title="Force Lock Voting" onclick="toggleQotdLock()" id="qotd-manual-lock">🔓 Lock Voting</div>
+                    <div class="qotd-manual-unlock" title="Lock Voting" onclick="toggleQotdLock()" id="qotd-manual-lock">🔓 Lock Voting</div>
                 </div>
                 
                 <div class="qotd-container" id="qotd-idle-view" style="display: none;">
-                    <div class="qotd-text" id="qotd-idle-question">Loading question...</div>
+                    <div class="qotd-text" id="qotd-idle-question">Loading...</div>
                     <div style="font-size: 2.5rem; margin-top: 15px;">🔒</div>
                     <div style="font-size: 0.9rem; font-weight: bold; color: #888; margin-top: 5px;">Voting closed.</div>
-                    <div class="qotd-manual-unlock" title="Force Open Voting" onclick="toggleQotdLock()" id="qotd-manual-unlock-idle">🔒 Open Voting</div>
+                    <div class="qotd-manual-unlock" title="Open Voting" onclick="toggleQotdLock()" id="qotd-manual-unlock-idle">🔒 Open Voting</div>
                 </div>
                 
                 <div class="qotd-container" id="qotd-results-view" style="display: none;">
-                    <div class="qotd-text" id="qotd-results-question">Loading question...</div>
+                    <div class="qotd-text" id="qotd-results-question">Loading...</div>
                     <div style="width: 100%; padding: 0 20px; box-sizing: border-box;">
                         <div style="text-align: left; font-size: 0.8rem; font-weight: bold; margin-bottom: 2px;" id="qotd-label-a">Option A</div>
                         <div class="qotd-bar-bg"><div class="qotd-bar-fill" id="qotd-bar-a" style="background-color: #5cb85c;"></div><div class="qotd-bar-label" id="qotd-pct-a">0%</div></div>
@@ -615,7 +611,7 @@
                         <div class="qotd-bar-bg"><div class="qotd-bar-fill" id="qotd-bar-b" style="background-color: #5bc0de;"></div><div class="qotd-bar-label" id="qotd-pct-b">0%</div></div>
                         <div style="font-size: 0.8rem; margin-top: 15px; color: #888;" id="qotd-total-votes">Total Votes: 0</div>
                     </div>
-                    <div class="qotd-manual-unlock" title="Re-open Voting" onclick="toggleQotdLock()" id="qotd-manual-unlock-results">🔒 Re-open Voting</div>
+                    <div class="qotd-manual-unlock" title="Re-open Voting" onclick="toggleQotdLock()" id="qotd-manual-unlock-results">🔒 Re-open</div>
                 </div>
             </div>
         </div>
@@ -631,30 +627,17 @@
 
     <script>
         // ==========================================================================
-        // 1. CORE LOGIC & STATE 
+        // 1. CORE LOGIC & STATE (PURE GOOGLE FETCH)
         // ==========================================================================
-        const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec?tab=Daily"; 
+        const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec"; 
         const QOTD_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxTHBPh45e_R7clf_hx3j3OLJP1ThFEBlDIu4OLyt4tTEDZg6_xImwzO08bE0JzG_ezlQ/exec";
         const DEFAULT_PREFS = { open: false, putaway: false, attendance: false, cleanup: false, retrieve: false, icalUrl: '' };
 
-        const GOODBYE_MESSAGES = [
-            "Great work today. Have a wonderful rest of your day.",
-            "Class is dismissed. Keep up the fantastic effort!",
-            "Thank you for your hard work today. See you next time.",
-            "Have a great day, and make good choices!",
-            "Class is over. I hope you have a fantastic afternoon.",
-            "Thanks for a great class. Stay curious and keep learning.",
-            "You all did great today. Have a safe and happy afternoon.",
-            "Class dismissed. Remember to be kind to one another.",
-            "Excellent effort today. Have a beautiful rest of your day."
-        ];
-
-        const playSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
-        const pauseSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+        const GOODBYE_MESSAGES = ["Great work today.", "Class dismissed!", "Make good choices!"];
 
         let isBooting = true; // ABSOLUTE LOCK ON LOCAL STORAGE SAVING
 
-        let activeSchedule = []; 
+        let activeSchedule = []; // NO HARDCODED SCHEDULES
         let currentScheduleName = "Loading..."; 
         let globalVolume = 1.0, globalVoicePref = '', classSettings = {};
         let lunchDuties = [], customReminders = [];
@@ -669,7 +652,7 @@
 
         let timerInterval = null, timerTotalSeconds = 300, timerIsPlaying = false;
         let qotdResultsFetched = false, qotdManualUnlock = false; 
-        let liveQotdData = null; // New variable to hold backend QotD data
+        let liveQotdData = null; // New Dynamic QotD Backend
 
         let playedActions = {}, currentMinuteTracker = "", lastAutoState = null; 
         let mrBsJukebox = false, jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
@@ -703,6 +686,14 @@
                 });
             }
         });
+
+        function updateFloatingPlayerVisibility() {
+            const player = document.getElementById('floating-player');
+            if (player) {
+                if (activePlayerUrl) player.classList.add('visible');
+                else player.classList.remove('visible');
+            }
+        }
 
         // Player Drag Logic
         document.querySelectorAll('.drag-handle').forEach(handle => {
@@ -744,7 +735,7 @@
             p.style.display = p.style.display === 'none' ? 'flex' : 'none';
         }
 
-        function toggleWidget(id, isChecked, shouldSave = true) {
+        function toggleWidget(id, isChecked) {
             activeWidgets[id] = isChecked;
             const card = document.getElementById(`widget-${id}`);
             if(card) {
@@ -755,7 +746,7 @@
             
             const floatTog = document.getElementById(`wm-tog-${id}`);
             if(floatTog) floatTog.checked = isChecked;
-            if(shouldSave) saveLocalSettings();
+            saveLocalSettings();
         }
 
         function toggleSidebar(e) {
@@ -845,7 +836,7 @@
         }
 
         // ==========================================================================
-        // 4. YOUTUBE API LOGIC
+        // 4. YOUTUBE API LOGIC (Fixed URL Extractor for Playlists)
         // ==========================================================================
         let ytPlayer = null;
         let isYtApiReady = false;
@@ -858,10 +849,22 @@
         function onYouTubeIframeAPIReady() { isYtApiReady = true; }
 
         function extractVideoID(url) {
-            if(!url) return null;
+            if(!url) return { type: null, id: null };
+            
+            // Check for playlist parameter explicitly
+            const listMatch = url.match(/[?&]list=([^#\&\?]+)/);
+            if (listMatch) {
+                return { type: 'playlist', id: listMatch[1] };
+            }
+            
+            // Check for standard video ID
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|live\/|watch\?v=|\&v=)([^#\&\?]*).*/;
             const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
+            if (match && match[2].length === 11) {
+                return { type: 'video', id: match[2] };
+            }
+            
+            return { type: null, id: null };
         }
         
         function renderVibeDropdown() {
@@ -875,7 +878,7 @@
                 savedVibes.forEach(v => {
                     const opt = document.createElement('option');
                     opt.value = v.url;
-                    opt.textContent = v.title || "Loading Title...";
+                    opt.textContent = v.title || "Saved Vibe";
                     if (v.url === currentVibeUrl) opt.selected = true;
                     select.appendChild(opt);
                 });
@@ -883,13 +886,13 @@
         }
         
         function addNewVibe() {
-            const url = prompt("Paste a YouTube URL (Video or Live Stream):");
+            const url = prompt("Paste a YouTube URL (Video or Playlist):");
             if(url) {
-                const vid = extractVideoID(url);
-                if(vid) {
-                    let exists = savedVibes.find(v => extractVideoID(v.url) === vid);
+                const mediaData = extractVideoID(url);
+                if(mediaData.id) {
+                    let exists = savedVibes.find(v => extractVideoID(v.url).id === mediaData.id);
                     if(!exists) {
-                        savedVibes.push({ url: url, title: 'Loading Vibe...' });
+                        savedVibes.push({ url: url, title: mediaData.type === 'playlist' ? 'Loading Playlist...' : 'Loading Video...' });
                     }
                     currentVibeUrl = url;
                     saveLocalSettings();
@@ -932,8 +935,8 @@
             activePlayerUrl = url;
             updateFloatingPlayerVisibility(); 
             
-            const vid = extractVideoID(url);
-            if (!vid) return true;
+            const mediaData = extractVideoID(url);
+            if (!mediaData.id) return true;
 
             if (!isYtApiReady) return false; 
 
@@ -946,10 +949,25 @@
             
             if(bgContainer) bgContainer.innerHTML = '<div id="yt-player-container"></div>';
             
+            let playerParams = {
+                'autoplay': shouldPlay ? 1 : 0, 
+                'controls': 0, 'autohide': 1, 'wmode': 'opaque', 'showinfo': 0, 'mute': 0
+            };
+
+            // Dynamically assign parameters based on video vs playlist
+            if (mediaData.type === 'playlist') {
+                playerParams.listType = 'playlist';
+                playerParams.list = mediaData.id;
+                playerParams.loop = 1;
+            } else {
+                playerParams.playlist = mediaData.id;
+                playerParams.loop = 1;
+            }
+
             try {
                 ytPlayer = new YT.Player('yt-player-container', {
-                    videoId: vid,
-                    playerVars: { 'autoplay': shouldPlay ? 1 : 0, 'controls': 0, 'autohide': 1, 'wmode': 'opaque', 'showinfo': 0, 'loop': 1, 'playlist': vid, 'mute': 0 },
+                    videoId: mediaData.type === 'video' ? mediaData.id : undefined,
+                    playerVars: playerParams,
                     events: { 
                         'onReady': function(e) { 
                             try { 
@@ -986,7 +1004,9 @@
                         saveLocalSettings();
                     }
                 } catch(e) { console.error(e); }
-            } else { startVibe(); }
+            } else { 
+                startVibe(); 
+            }
         }
 
         function startVibe() {
@@ -1108,51 +1128,642 @@
             if(vc) syncGlobalVolume(vc.value); 
         }
 
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            if(!toast) return;
-            toast.innerText = message; toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, 4000);
+        function toggleJukebox() {
+            const tog = document.getElementById('jukeboxToggle');
+            if(tog) mrBsJukebox = tog.checked;
+            lastPeriodStatus = null; 
+            saveLocalSettings();
         }
 
-        function updateTimerDisplay() {
-            const d = document.getElementById('timer-display');
-            if(!d) return;
-            const m = Math.floor(timerTotalSeconds / 60).toString().padStart(2, '0');
-            const s = (timerTotalSeconds % 60).toString().padStart(2, '0');
-            d.innerText = `${m}:${s}`;
-            if(timerTotalSeconds === 0) d.style.color = '#d9534f';
-            else d.style.color = '';
-        }
-        function addTimerMinutes(mins) {
-            timerTotalSeconds += (mins * 60);
-            updateTimerDisplay();
-        }
-        function resetTimer() {
-            timerTotalSeconds = 300; 
-            updateTimerDisplay();
-            if(timerIsPlaying) togglePlayTimer();
-        }
-        function togglePlayTimer() {
-            const btn = document.getElementById('timer-start-btn');
-            if(timerIsPlaying) {
-                clearInterval(timerInterval);
-                timerIsPlaying = false;
-                if(btn) { btn.innerText = "Start"; btn.style.backgroundColor = '#31b0d5'; }
+        function updateJukeboxUrl() {
+            const inp = document.getElementById('jukeboxUrlInput');
+            if(inp && inp.value.trim() !== '') {
+                jukeboxUrl = inp.value.trim();
             } else {
-                if(timerTotalSeconds <= 0) return; 
-                timerIsPlaying = true;
-                if(btn) { btn.innerText = "Pause"; btn.style.backgroundColor = '#d9534f'; }
-                timerInterval = setInterval(() => {
-                    if(timerTotalSeconds > 0) {
-                        timerTotalSeconds--;
-                        updateTimerDisplay();
-                    } else {
-                        togglePlayTimer();
-                        playBellWithQueue(2); 
-                    }
-                }, 1000);
+                jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
             }
+            lastPeriodStatus = null; 
+            saveLocalSettings();
+        }
+
+        function toggleGoodbyes() { 
+            const tog = document.getElementById('playGoodbyes');
+            if(tog) playGoodbyes = tog.checked; 
+            saveLocalSettings(); 
+        }
+
+        function toggleMuteBells() { 
+            const tog = document.getElementById('muteBellsToggle');
+            if(tog) muteBells = tog.checked; 
+            saveLocalSettings(); 
+        }
+
+        function toggleDropdown(event) { 
+            event.stopPropagation(); 
+            const dd = document.getElementById("soundDropdown");
+            if(dd) dd.classList.toggle("show"); 
+        }
+
+        function selectTestSound(value, label) {
+            currentTestSound = value; 
+            const btn = document.getElementById("playBtn");
+            const dd = document.getElementById("soundDropdown");
+            if(btn) btn.innerHTML = "▶ Play " + label;
+            if(dd) dd.classList.remove("show"); 
+            saveLocalSettings();
+        }
+
+        function playBellWithQueue(timesLeft = 1, onCompleteCallback = null) {
+            if (muteBells) {
+                if (onCompleteCallback) onCompleteCallback();
+                return;
+            }
+
+            const audio = document.getElementById('regularBellAudio'); 
+            if(!audio) {
+                if (onCompleteCallback) onCompleteCallback();
+                return;
+            }
+            
+            audio.currentTime = 0;
+            audio.onended = () => { 
+                if (timesLeft > 1) playBellWithQueue(timesLeft - 1, onCompleteCallback); 
+                else { 
+                    audio.onended = null; 
+                    if (onCompleteCallback) onCompleteCallback(); 
+                } 
+            };
+            
+            let playPromise = audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.catch(e => {
+                    console.error("Audio play blocked. Triggering failsafe voice delay.", e);
+                    audio.onended = null; 
+                    setTimeout(() => {
+                        if (timesLeft > 1) playBellWithQueue(timesLeft - 1, onCompleteCallback);
+                        else if (onCompleteCallback) onCompleteCallback();
+                    }, 1500); 
+                });
+            }
+        }
+
+        function safePopulateVoiceList() {
+            try {
+                const voiceSelect = document.getElementById("voicePreference");
+                if(!voiceSelect) return;
+                const voices = window.speechSynthesis.getVoices();
+                if(voices.length === 0) return;
+                
+                const selectedURI = globalVoicePref;
+                voiceSelect.innerHTML = '';
+                const enVoices = voices.filter(v => v.lang.startsWith('en'));
+                
+                let found = false;
+                enVoices.forEach(voice => {
+                    const option = document.createElement('option');
+                    option.textContent = `${voice.name} (${voice.lang})`;
+                    option.value = voice.voiceURI;
+                    if(voice.voiceURI === selectedURI) {
+                        option.selected = true;
+                        found = true;
+                    }
+                    voiceSelect.appendChild(option);
+                });
+                
+                if(!found && enVoices.length > 0) {
+                    voiceSelect.value = enVoices[0].voiceURI;
+                    globalVoicePref = enVoices[0].voiceURI;
+                    saveLocalSettings();
+                } else if (found) {
+                    voiceSelect.value = globalVoicePref;
+                }
+            } catch(e) {}
+        }
+
+        function changeVoicePref() { 
+            const vp = document.getElementById('voicePreference');
+            if(vp) globalVoicePref = vp.value; 
+            saveLocalSettings(); 
+        }
+
+        function speak(text) {
+            try {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.9; utterance.volume = globalVolume;
+                const voices = window.speechSynthesis.getVoices();
+                const selectedVoice = voices.find(v => v.voiceURI === globalVoicePref);
+                if (selectedVoice) utterance.voice = selectedVoice;
+                window.speechSynthesis.speak(utterance);
+            } catch (e) { console.error("Speech Synthesis failed:", e); }
+        }
+
+        function testSelectedSound() {
+            triggerVisualAlert();
+            if (currentTestSound === 'positive') {
+                const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
+                speak(randomMsg);
+            }
+            else if (currentTestSound === 'start') playBellWithQueue(3, () => speak("Class is beginning. Please place your phones in the cell phone caddy."));
+            else if (currentTestSound === 'end') {
+                if (playGoodbyes) {
+                    const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
+                    playBellWithQueue(3, () => speak(randomMsg));
+                } else {
+                    playBellWithQueue(3);
+                }
+            }
+            else if (currentTestSound === 'warning1m') playBellWithQueue(1, () => speak("One minute until class begins. Please place your phones in the cell phone caddy."));
+            else if (currentTestSound === 'attendance') speak("Reminder. Please take attendance.");
+            else if (currentTestSound === 'cleanup') speak("Five minutes remaining. Please begin cleaning up your area.");
+            else if (currentTestSound === 'lunch') speak("Reminder. You have lunch duty.");
+        }
+
+        function addCustomReminder() {
+            const name = document.getElementById('remName').value;
+            const time = document.getElementById('remTime').value;
+            const day = document.getElementById('remDay').value;
+            
+            if(name && time) {
+                customReminders.push({ name, time, day });
+                renderCustomReminders();
+                saveLocalSettings();
+                document.getElementById('remName').value = '';
+                document.getElementById('remTime').value = '';
+            } else {
+                showToast("Please enter a Name and Time");
+            }
+        }
+        
+        function removeCustomReminder(index) { 
+            customReminders.splice(index, 1); 
+            renderCustomReminders(); 
+            saveLocalSettings(); 
+        }
+
+        function renderCustomReminders() {
+            const list = document.getElementById('custom-reminder-list'); 
+            if(!list) return;
+            list.innerHTML = '';
+            const days = {"All": "Daily", "1": "Mon", "2": "Tue", "3": "Wed", "4": "Thu", "5": "Fri"};
+            customReminders.forEach((rem, index) => {
+                const li = document.createElement('li'); li.className = "duty-item";
+                li.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid rgba(150,150,150,0.2);";
+                li.innerHTML = `<span><b>${formatTime12(rem.time)}</b> - ${rem.name} (${days[rem.day]})</span>
+                                <button onclick="removeCustomReminder(${index})" style="background:none; border:none; color:#d9534f; cursor:pointer; font-size:1.1rem;" title="Remove Reminder">✖</button>`;
+                list.appendChild(li);
+            });
+        }
+
+        function addLunchDuty() {
+            const dayVal = document.getElementById('lunchDay');
+            const halfVal = document.getElementById('lunchHalf');
+            const periodVal = document.getElementById('lunchPeriod');
+            if(!dayVal || !halfVal || !periodVal) return;
+
+            const day = parseInt(dayVal.value);
+            const half = parseInt(halfVal.value);
+            const period = periodVal.value.trim();
+            if (period) {
+                lunchDuties.push({ day, half, period });
+                renderLunchDuties(); saveLocalSettings(); 
+                periodVal.value = '3rd';
+            }
+        }
+
+        function removeLunchDuty(index) { lunchDuties.splice(index, 1); renderLunchDuties(); saveLocalSettings(); }
+        
+        function renderLunchDuties() {
+            const list = document.getElementById('lunch-duty-list'); 
+            if(!list) return;
+            list.innerHTML = '';
+            const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+            lunchDuties.forEach((duty, index) => {
+                const li = document.createElement('li'); li.className = "duty-item";
+                li.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid rgba(150,150,150,0.2);";
+                li.innerHTML = `<span><b>${days[duty.day]}</b> - ${duty.period} (${duty.half === 1 ? '1st' : '2nd'} Half)</span>
+                                <button onclick="removeLunchDuty(${index})" style="background:none; border:none; color:#d9534f; cursor:pointer; font-size:1.1rem;" title="Remove Duty">✖</button>`;
+                list.appendChild(li);
+            });
+        }
+
+        function changeMode(shouldSave = true) {
+            const sz = document.getElementById('showZeroPeriod');
+            if(sz) showZero = sz.checked;
+            
+            let hasZero = activeSchedule.some(p => /^0/i.test(String(p.name).trim()));
+            if (showZero && !hasZero) {
+                activeSchedule.unshift({ name: "0 pd", start: "07:10", end: "08:13" });
+            } else if (!showZero && hasZero) {
+                activeSchedule = activeSchedule.filter(p => !/^0/i.test(String(p.name).trim()));
+            }
+
+            const st = document.getElementById('schedule-title');
+            if(st && st.childNodes[0]) st.childNodes[0].nodeValue = currentScheduleName.toUpperCase() + ' Schedule '; 
+            
+            renderSchedule(); 
+            if (shouldSave) saveLocalSettings();
+        }
+
+        function toggleSetting(periodName, settingType, isChecked) {
+            const key = periodName; 
+            if (!classSettings[key]) classSettings[key] = { ...DEFAULT_PREFS };
+            classSettings[key][settingType] = isChecked;
+            saveLocalSettings();
+            if (settingType === 'open') renderSchedule(); 
+        }
+
+        function setIcalFeed(periodName) {
+            const currentUrl = classSettings[periodName]?.icalUrl || '';
+            const url = prompt(`Paste the iCal feed URL for ${periodName}:`, currentUrl);
+            if (url !== null) {
+                if (!classSettings[periodName]) classSettings[periodName] = { ...DEFAULT_PREFS };
+                classSettings[periodName].icalUrl = url.trim();
+                saveLocalSettings();
+                renderSchedule(); 
+                showToast("iCal feed updated");
+            }
+        }
+
+        function renderSchedule() {
+            const list = document.getElementById('schedule-list'); 
+            if(!list) return;
+            list.innerHTML = '';
+            
+            if (!Array.isArray(activeSchedule)) {
+                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Schedule data is missing or corrupted.</em></li>'; return; 
+            }
+
+            let filteredSchedule = activeSchedule;
+
+            if (!filteredSchedule || filteredSchedule.length === 0) { 
+                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Waiting for Google...</em></li>'; return; 
+            }
+
+            filteredSchedule.forEach(period => {
+                try {
+                    const key = String(period.name);
+                    const safeKey = key.replace(/'/g, "\\'"); 
+                    const s = classSettings[key] || { ...DEFAULT_PREFS };
+                    
+                    const li = document.createElement('li'); 
+                    li.className = 'schedule-grid';
+                    li.dataset.start = String(period.start);
+                    li.dataset.end = String(period.end);
+                    
+                    let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
+                    let isWebBlock = /^[A-D](\s|-)?Block/i.test(key);
+                    let webOpenCheckbox = isWebBlock ? 
+                        `<div class="options-col opt-center"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
+                        `<div class="options-col"></div>`;
+
+                    li.innerHTML = `
+                        <div class="period-name">${key} ${openBadgeHtml}</div>
+                        <div class="middle-section">
+                            <div class="options-wrapper">
+                                <div class="options-col"><label class="switch" title="Phone Caddy"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'putaway', this.checked)" ${s.putaway ? 'checked' : ''}><span class="slider"></span></label></div>
+                                <div class="options-col"><label class="switch" title="Take Attendance"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'attendance', this.checked)" ${s.attendance ? 'checked' : ''}><span class="slider"></span></label></div>
+                                <div class="options-col"><label class="switch" title="5-Min Clean Up"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'cleanup', this.checked)" ${s.cleanup ? 'checked' : ''}><span class="slider"></span></label></div>
+                                <div class="options-col"><label class="switch" title="1 Min Warning & Retrieve"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'retrieve', this.checked)" ${s.retrieve ? 'checked' : ''}><span class="slider"></span></label></div>
+                                ${webOpenCheckbox}
+                                <div class="options-col">
+                                    <button onclick="setIcalFeed('${safeKey}')" style="background:none;border:none;cursor:pointer;font-size:1.3rem;transition:transform 0.2s; filter: ${s.icalUrl ? 'none' : 'grayscale(100%) opacity(0.4)'}" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="${s.icalUrl ? 'Edit iCal Feed' : 'Add iCal Feed'}">📅</button>
+                                </div>
+                            </div>
+                            <div class="agenda-display" id="agenda-${safeKey}"></div>
+                        </div>
+                        <div class="period-time">${formatTime12(String(period.start))} - ${formatTime12(String(period.end))}</div>
+                    `;
+                    list.appendChild(li);
+                    
+                    if (s.icalUrl) {
+                        fetchAgenda(s.icalUrl, `agenda-${safeKey}`);
+                    }
+                } catch(e) { console.error("Error rendering a row:", e); }
+            });
+            
+            highlightCurrentPeriod(new Date());
+        }
+
+        function timeToMins(t) {
+            if (!t || !t.includes(':')) return 0;
+            let [h, m] = t.split(':').map(Number);
+            return h * 60 + m;
+        }
+
+        function formatTime12(time24) { 
+            if (!time24 || !time24.includes(':')) return time24 || '';
+            let [h, m] = time24.split(':'); 
+            let ampm = h >= 12 ? 'PM' : 'AM'; 
+            return `${h % 12 || 12}:${m} ${ampm}`; 
+        }
+        function subtractMinutes(time24, minsToSubtract) {
+            if (!time24 || !time24.includes(':')) return '';
+            let [h, m] = time24.split(':').map(Number); let d = new Date(); d.setHours(h, m, 0, 0); d.setMinutes(d.getMinutes() - minsToSubtract);
+            return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+        }
+        function addMinutes(time24, minsToAdd) {
+            if (!time24 || !time24.includes(':')) return '';
+            let [h, m] = time24.split(':').map(Number); let d = new Date(); d.setHours(h, m, 0, 0); d.setMinutes(d.getMinutes() + minsToAdd);
+            return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+        }
+        function getMidpoint(start, end) {
+            if (!start || !end || !start.includes(':') || !end.includes(':')) return '';
+            let [sh, sm] = start.split(':').map(Number); let [eh, em] = end.split(':').map(Number);
+            let midMins = Math.floor(((sh * 60 + sm) + (eh * 60 + em)) / 2);
+            return Math.floor(midMins / 60).toString().padStart(2, '0') + ':' + (midMins % 60).toString().padStart(2, '0');
+        }
+
+        function triggerVisualAlert() {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; pointer-events:none; transition: background-color 0.5s;";
+            overlay.style.backgroundColor = isDarkMode ? "rgba(51, 43, 0, 0.8)" : "rgba(255, 243, 205, 0.8)";
+            document.body.appendChild(overlay);
+            setTimeout(() => { overlay.style.backgroundColor = "transparent"; }, 5500); 
+            setTimeout(() => { overlay.remove(); }, 6000); 
+        }
+
+        function highlightCurrentPeriod(now) {
+            const listItems = document.querySelectorAll('#schedule-list li');
+            if (listItems.length === 0) return null;
+            
+            const currentMins = now.getHours() * 60 + now.getMinutes();
+            const currentSecs = currentMins * 60 + now.getSeconds();
+            let highlightIndex = -1;
+            let actualClassIndex = -1;
+            let upcomingClassIndex = -1;
+            let inSchool = false;
+            let isPassing = false;
+            let periods = [];
+            
+            listItems.forEach((li, index) => {
+                periods.push({
+                    index: index,
+                    startMins: timeToMins(li.dataset.start),
+                    endMins: timeToMins(li.dataset.end),
+                    li: li
+                });
+                li.classList.remove('current-period'); 
+                li.style.setProperty('--progress', '0%');
+            });
+
+            if (periods.length === 0) return null;
+
+            if (currentMins >= periods[0].startMins && currentMins < periods[periods.length - 1].endMins) {
+                inSchool = true;
+                for (let i = 0; i < periods.length; i++) {
+                    let p = periods[i];
+                    if (currentMins >= p.startMins && currentMins < p.endMins) {
+                        actualClassIndex = p.index;
+                        break;
+                    }
+                    if (currentMins < p.startMins) {
+                        if (i > 0 && currentMins >= periods[i-1].endMins) {
+                            upcomingClassIndex = p.index; 
+                        }
+                        break;
+                    }
+                }
+            }
+
+            if (actualClassIndex !== -1) {
+                highlightIndex = actualClassIndex;
+                isPassing = false;
+            } else if (upcomingClassIndex !== -1) {
+                highlightIndex = upcomingClassIndex;
+                isPassing = true;
+            }
+
+            if (highlightIndex !== -1) {
+                let p = periods[highlightIndex];
+                p.li.classList.add('current-period');
+                if (!isPassing) {
+                    let startSecs = p.startMins * 60;
+                    let endSecs = p.endMins * 60;
+                    let progress = Math.max(0, Math.min(100, ((currentSecs - startSecs) / (endSecs - startSecs)) * 100));
+                    p.li.style.setProperty('--progress', progress + '%');
+                } else {
+                    p.li.style.setProperty('--progress', '0%');
+                }
+            }
+
+            return { 
+                index: highlightIndex, 
+                isPassing: isPassing, 
+                periodData: highlightIndex !== -1 ? periods[highlightIndex] : null,
+                actualClass: actualClassIndex !== -1
+            };
+        }
+
+        function triggerEvent(time, action, callback) {
+            if (currentMinuteTracker !== time) {
+                playedActions = {};
+                currentMinuteTracker = time;
+            }
+            const eventKey = `${time}-${action}`;
+            if (!playedActions[eventKey]) {
+                callback();
+                playedActions[eventKey] = true;
+            }
+        }
+
+        function updateClock() {
+            const clk = document.getElementById('clock');
+            if(!clk) return;
+            const now = new Date();
+            clk.innerText = now.toLocaleTimeString('en-US');
+            
+            try {
+                let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+                const todayDayOfWeek = now.getDay(); 
+                
+                let status = highlightCurrentPeriod(now);
+                let currentStatus = 'outside';
+                let autoState = 'passing';
+                let isDeadTime = false;
+                let currentProgress = 0;
+
+                if (status && status.isPassing) {
+                    currentStatus = 'passing';
+                    autoState = 'passing';
+                } 
+                else if (status && status.actualClass) {
+                    currentStatus = 'class';
+                    const p = status.periodData;
+                    const currentMins = now.getHours() * 60 + now.getMinutes();
+                    const currentSecs = currentMins * 60 + now.getSeconds();
+                    
+                    let startSecs = p.startMins * 60;
+                    let endSecs = p.endMins * 60;
+                    currentProgress = Math.max(0, Math.min(100, ((currentSecs - startSecs) / (endSecs - startSecs)) * 100));
+                    
+                    if (currentMins >= p.startMins && currentMins < p.startMins + 5) {
+                        autoState = 'dead-start';
+                        isDeadTime = true;
+                    } else if (currentMins >= p.endMins - 5 && currentMins < p.endMins) {
+                        autoState = 'dead-end';
+                        isDeadTime = true;
+                    } else {
+                        autoState = 'core-class';
+                    }
+                }
+
+                let dName = document.getElementById('docked-name');
+                let dTime = document.getElementById('docked-time');
+                let dBadge = document.getElementById('docked-badge');
+                
+                if (status && status.actualClass) {
+                    const p = status.periodData;
+                    if (dName) dName.innerText = p.li.querySelector('.period-name').innerText;
+                    if (dTime) dTime.innerText = p.li.querySelector('.period-time').innerText;
+                    const s = classSettings[dName.innerText.trim()] || DEFAULT_PREFS;
+                    if (s.open && dBadge) dBadge.style.display = 'inline-block';
+                    else if (dBadge) dBadge.style.display = 'none';
+                } else if (status && status.isPassing) {
+                    if (dName) dName.innerText = "Passing Period";
+                    const p = status.periodData;
+                    if (dTime) dTime.innerText = "Next: " + p.li.querySelector('.period-name').innerText;
+                    if (dBadge) dBadge.style.display = 'none';
+                } else {
+                    if (dName) dName.innerText = "Outside School Hours";
+                    if (dTime) dTime.innerText = "--:--";
+                    if (dBadge) dBadge.style.display = 'none';
+                }
+
+                // Update Docked Progress Bar
+                const dProg = document.getElementById('docked-progress-fill');
+                if (dProg) {
+                    if (status && status.actualClass) {
+                        dProg.style.width = currentProgress + '%';
+                        dProg.style.backgroundColor = isDeadTime ? '#d9534f' : '#5cb85c';
+                    } else {
+                        dProg.style.width = '0%';
+                    }
+                }
+
+                const warningElMain = document.getElementById('main-dead-time-warning');
+                const warningElDock = document.getElementById('docked-warning');
+                if (warningElMain) warningElMain.style.display = isDeadTime ? 'inline-block' : 'none';
+                if (warningElDock) warningElDock.style.display = isDeadTime ? 'inline-block' : 'none';
+
+                updateQotdUI(status);
+
+                if (lastAutoState !== null && autoState !== lastAutoState) {
+                    if (autoState === 'core-class') {
+                        toggleMinimalView(true); 
+                    } else if (autoState === 'dead-start' || autoState === 'dead-end' || autoState === 'passing') {
+                        toggleMinimalView(false); 
+                    }
+                }
+                lastAutoState = autoState;
+
+                if (lastPeriodStatus !== currentStatus) {
+                    let success = false;
+                    
+                    if (mrBsJukebox && todayDayOfWeek === 5 && currentStatus === 'passing') {
+                        success = applyMusicState(jukeboxUrl, true);
+                    } else {
+                        if (isMainVibePlaying && currentVibeUrl) {
+                            success = applyMusicState(currentVibeUrl, true);
+                        } else {
+                            success = applyMusicState('', false); 
+                        }
+                    }
+                    if (success) lastPeriodStatus = currentStatus;
+                }
+
+                if (current24 === '06:00' && now.getSeconds() === 0) { fetchDailySchedule(); }
+                
+                customReminders.forEach(rem => {
+                    if (current24 === rem.time) {
+                        if (rem.day === 'All' || parseInt(rem.day) === todayDayOfWeek) {
+                            triggerEvent(current24, `custom-${rem.name}`, () => {
+                                triggerVisualAlert();
+                                playBellWithQueue(1, () => speak(`Reminder. ${rem.name}`));
+                            });
+                        }
+                    }
+                });
+                
+                if(!Array.isArray(activeSchedule)) return;
+
+                const isWebDay = currentScheduleName.toLowerCase().includes('web');
+
+                activeSchedule.forEach(period => {
+                    if (!period || !period.name) return;
+                    const pNameStr = String(period.name);
+
+                    const s = classSettings[pNameStr] || { ...DEFAULT_PREFS };
+
+                    const hasLunch1 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 1);
+                    let hasLunch2 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 2);
+                    if (isWebDay) hasLunch2 = false; 
+
+                    const pStartStr = String(period.start);
+                    const pEndStr = String(period.end);
+                    const startMinus1 = subtractMinutes(pStartStr, 1);
+                    const startPlus5 = addMinutes(pStartStr, 5);
+                    const endMinus5 = subtractMinutes(pEndStr, 5);
+                    const endMinus1 = subtractMinutes(pEndStr, 1);
+                    const midPoint = getMidpoint(pStartStr, pEndStr);
+
+                    if (current24 === pStartStr) {
+                        triggerEvent(current24, `start-${pNameStr}`, () => {
+                            triggerVisualAlert();
+                            let speechText = "";
+                            
+                            if (s.open) speechText += "Please remember to sign in to WEB. ";
+                            if (s.putaway) speechText += "Class is beginning. Please place your phones in the cell phone caddy. ";
+                            if (hasLunch1) speechText += "Reminder: You have lunch duty today.";
+                            
+                            if (speechText) playBellWithQueue(3, () => speak(speechText));
+                            else playBellWithQueue(3);
+                        });
+                    }
+                    
+                    if (current24 === pEndStr) {
+                        triggerEvent(current24, `end-${pNameStr}`, () => { 
+                            triggerVisualAlert(); 
+                            if (playGoodbyes) {
+                                const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
+                                playBellWithQueue(3, () => speak(randomMsg));
+                            } else {
+                                playBellWithQueue(3); 
+                            }
+                        });
+                    }
+
+                    if (!s.open && current24 === startMinus1) {
+                        triggerEvent(current24, `warning1m-${pNameStr}`, () => {
+                            triggerVisualAlert();
+                            let speechText = "One minute until class begins.";
+                            if (s.putaway) speechText += " Please place your phones in the cell phone caddy.";
+                            playBellWithQueue(1, () => speak(speechText));
+                        });
+                    }
+
+                    if (!s.open && s.attendance && current24 === startPlus5) {
+                        triggerEvent(current24, `attendance5m-${pNameStr}`, () => { triggerVisualAlert(); speak("Reminder. Please take attendance."); });
+                    }
+                    
+                    if (!s.open && hasLunch2 && current24 === midPoint) {
+                        triggerEvent(current24, `lunch2-${pNameStr}`, () => { triggerVisualAlert(); speak("Reminder. You have second half lunch duty."); });
+                    }
+
+                    if (!s.open && s.cleanup && current24 === endMinus5) {
+                        triggerEvent(current24, `cleanup5m-${pNameStr}`, () => { triggerVisualAlert(); speak("Five minutes remaining. Please begin cleaning up your area."); });
+                    }
+
+                    if (!s.open && s.retrieve && current24 === endMinus1) {
+                        triggerEvent(current24, `phone1m-${pNameStr}`, () => { 
+                            triggerVisualAlert(); 
+                            let speechText = "One minute remaining.";
+                            if (s.putaway) speechText += " You may retrieve your cell phones.";
+                            playBellWithQueue(1, () => speak(speechText)); 
+                        });
+                    }
+                });
+            } catch(e) { console.error("Clock update error:", e); }
         }
 
         // ==========================================================================
@@ -1189,7 +1800,7 @@
 
         function updateQotdUI(status) {
             if (!activeWidgets.qotd) return; 
-            if (!liveQotdData) return; // Wait for the fetch
+            if (!liveQotdData) return; // Wait for backend data
             
             const viewVoting = document.getElementById('qotd-voting-view');
             const viewIdle = document.getElementById('qotd-idle-view');
@@ -1233,9 +1844,11 @@
                 } else {
                     // MID CLASS
                     if (qotdManualUnlock) {
+                        // Teacher Override Open!
                         viewVoting.style.display = 'flex'; viewIdle.style.display = 'none'; viewResults.style.display = 'none';
                         if(relockBtn) relockBtn.style.display = 'block';
                     } else {
+                        // Normal Lock
                         viewVoting.style.display = 'none'; viewIdle.style.display = 'flex'; viewResults.style.display = 'none';
                         if(relockBtn) relockBtn.style.display = 'none';
                     }
@@ -1410,8 +2023,20 @@
                 const p = JSON.parse(saved);
                 
                 try { if (p.settings) classSettings = p.settings; } catch(e){}
-                try { if (p.lunchDuties) { lunchDuties = p.lunchDuties; renderLunchDuties(); } } catch(e){}
-                try { if (p.customReminders) { customReminders = p.customReminders; renderCustomReminders(); } } catch(e){}
+                
+                try { 
+                    if (p.lunchDuties) { 
+                        lunchDuties = p.lunchDuties; 
+                        renderLunchDuties(); 
+                    } 
+                } catch(e){}
+                
+                try { 
+                    if (p.customReminders) { 
+                        customReminders = p.customReminders; 
+                        renderCustomReminders(); 
+                    } 
+                } catch(e){}
                 
                 try { if (p.vol !== undefined) { syncGlobalVolume(p.vol); } else { syncGlobalVolume(1.0); } } catch(e){}
                 try { if (p.vibeVol !== undefined) { syncVibeVolume(p.vibeVol); } } catch(e){}
@@ -1428,8 +2053,8 @@
                     }
                 } catch(e){}
                 
-                try { if (p.waffleClosed !== undefined) { toggleWaffleMenu(p.waffleClosed); } } catch(e){}
-                try { if (p.minimalView !== undefined) { toggleMinimalView(p.minimalView); } } catch(e){}
+                try { if (p.waffleClosed !== undefined) { setWaffleState(p.waffleClosed, false); } } catch(e){}
+                try { if (p.minimalView !== undefined) { setMinimalView(p.minimalView, false); } } catch(e){}
                 
                 try { 
                     if (p.dark === true) { 
@@ -1495,7 +2120,7 @@
                             const tog = document.getElementById(`wm-tog-${key}`);
                             if(tog) {
                                 tog.checked = p.widgets[key];
-                                toggleWidget(key, p.widgets[key], false); // Don't trigger saves during load
+                                toggleWidget(key, p.widgets[key], false); 
                             }
                         });
                     }
@@ -1521,408 +2146,32 @@
             }
         }
 
-        function toggleZeroPeriod() {
-            const sz = document.getElementById('showZeroPeriod');
-            if(sz) showZero = sz.checked;
-            saveLocalSettings();
-            fetchDailySchedule(); // Refetch to dynamically rebuild array cleanly
-        }
-
-        function renderSchedule() {
-            const list = document.getElementById('schedule-list'); 
-            if(!list) return;
-            list.innerHTML = '';
-            
-            if (!Array.isArray(activeSchedule)) {
-                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Schedule data is missing or corrupted.</em></li>'; return; 
-            }
-
-            if (activeSchedule.length === 0) { 
-                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Loading Schedule...</em></li>'; return; 
-            }
-
-            activeSchedule.forEach(period => {
-                try {
-                    const key = String(period.name);
-                    const safeKey = key.replace(/'/g, "\\'"); 
-                    const s = classSettings[key] || { ...DEFAULT_PREFS };
-                    
-                    const li = document.createElement('li'); 
-                    li.className = 'schedule-grid';
-                    li.dataset.start = String(period.start);
-                    li.dataset.end = String(period.end);
-                    
-                    let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
-                    let isWebBlock = /^[A-D](\s|-)?Block/i.test(key);
-                    let webOpenCheckbox = isWebBlock ? 
-                        `<div class="options-col opt-center"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
-                        `<div class="options-col"></div>`;
-
-                    li.innerHTML = `
-                        <div class="period-name">${key} ${openBadgeHtml}</div>
-                        <div class="middle-section">
-                            <div class="options-wrapper">
-                                <div class="options-col"><label class="switch" title="Phone Caddy"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'putaway', this.checked)" ${s.putaway ? 'checked' : ''}><span class="slider"></span></label></div>
-                                <div class="options-col"><label class="switch" title="Take Attendance"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'attendance', this.checked)" ${s.attendance ? 'checked' : ''}><span class="slider"></span></label></div>
-                                <div class="options-col"><label class="switch" title="5-Min Clean Up"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'cleanup', this.checked)" ${s.cleanup ? 'checked' : ''}><span class="slider"></span></label></div>
-                                <div class="options-col"><label class="switch" title="1 Min Warning & Retrieve"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'retrieve', this.checked)" ${s.retrieve ? 'checked' : ''}><span class="slider"></span></label></div>
-                                ${webOpenCheckbox}
-                                <div class="options-col">
-                                    <button onclick="setIcalFeed('${safeKey}')" style="background:none;border:none;cursor:pointer;font-size:1.3rem;transition:transform 0.2s; filter: ${s.icalUrl ? 'none' : 'grayscale(100%) opacity(0.4)'}" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="${s.icalUrl ? 'Edit iCal Feed' : 'Add iCal Feed'}">📅</button>
-                                </div>
-                            </div>
-                            <div class="agenda-display" id="agenda-${safeKey}"></div>
-                        </div>
-                        <div class="period-time">${formatTime12(String(period.start))} - ${formatTime12(String(period.end))}</div>
-                    `;
-                    list.appendChild(li);
-                    
-                    if (s.icalUrl) {
-                        fetchAgenda(s.icalUrl, `agenda-${safeKey}`);
-                    }
-                } catch(e) { console.error("Error rendering a row:", e); }
-            });
-            
-            highlightCurrentPeriod(new Date());
-        }
-
         // ==========================================================================
-        // SYSTEM TIMING LOOPS
-        // ==========================================================================
-        function timeToMins(t) {
-            if (!t || !t.includes(':')) return 0;
-            let [h, m] = t.split(':').map(Number);
-            return h * 60 + m;
-        }
-
-        function formatTime12(time24) { 
-            if (!time24 || !time24.includes(':')) return time24 || '';
-            let [h, m] = time24.split(':'); 
-            let ampm = h >= 12 ? 'PM' : 'AM'; 
-            return `${h % 12 || 12}:${m} ${ampm}`; 
-        }
-        function subtractMinutes(time24, minsToSubtract) {
-            if (!time24 || !time24.includes(':')) return '';
-            let [h, m] = time24.split(':').map(Number); let d = new Date(); d.setHours(h, m, 0, 0); d.setMinutes(d.getMinutes() - minsToSubtract);
-            return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
-        }
-        function addMinutes(time24, minsToAdd) {
-            if (!time24 || !time24.includes(':')) return '';
-            let [h, m] = time24.split(':').map(Number); let d = new Date(); d.setHours(h, m, 0, 0); d.setMinutes(d.getMinutes() + minsToAdd);
-            return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
-        }
-        function getMidpoint(start, end) {
-            if (!start || !end || !start.includes(':') || !end.includes(':')) return '';
-            let [sh, sm] = start.split(':').map(Number); let [eh, em] = end.split(':').map(Number);
-            let midMins = Math.floor(((sh * 60 + sm) + (eh * 60 + em)) / 2);
-            return Math.floor(midMins / 60).toString().padStart(2, '0') + ':' + (midMins % 60).toString().padStart(2, '0');
-        }
-
-        function triggerVisualAlert() {
-            const overlay = document.createElement('div');
-            overlay.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; pointer-events:none; transition: background-color 0.5s;";
-            overlay.style.backgroundColor = isDarkMode ? "rgba(51, 43, 0, 0.8)" : "rgba(255, 243, 205, 0.8)";
-            document.body.appendChild(overlay);
-            setTimeout(() => { overlay.style.backgroundColor = "transparent"; }, 5500); 
-            setTimeout(() => { overlay.remove(); }, 6000); 
-        }
-
-        function highlightCurrentPeriod(now) {
-            const listItems = document.querySelectorAll('#schedule-list li');
-            if (listItems.length === 0) return null;
-            
-            const currentMins = now.getHours() * 60 + now.getMinutes();
-            const currentSecs = currentMins * 60 + now.getSeconds();
-            let highlightIndex = -1;
-            let actualClassIndex = -1;
-            let upcomingClassIndex = -1;
-            let inSchool = false;
-            let isPassing = false;
-            let periods = [];
-            
-            listItems.forEach((li, index) => {
-                periods.push({
-                    index: index,
-                    startMins: timeToMins(li.dataset.start),
-                    endMins: timeToMins(li.dataset.end),
-                    li: li
-                });
-                li.classList.remove('current-period'); 
-                li.style.setProperty('--progress', '0%');
-            });
-
-            if (periods.length === 0) return null;
-
-            if (currentMins >= periods[0].startMins && currentMins < periods[periods.length - 1].endMins) {
-                inSchool = true;
-                for (let i = 0; i < periods.length; i++) {
-                    let p = periods[i];
-                    if (currentMins >= p.startMins && currentMins < p.endMins) {
-                        actualClassIndex = p.index;
-                        break;
-                    }
-                    if (currentMins < p.startMins) {
-                        if (i > 0 && currentMins >= periods[i-1].endMins) {
-                            upcomingClassIndex = p.index; 
-                        }
-                        break;
-                    }
-                }
-            }
-
-            if (actualClassIndex !== -1) {
-                highlightIndex = actualClassIndex;
-                isPassing = false;
-            } else if (upcomingClassIndex !== -1) {
-                highlightIndex = upcomingClassIndex;
-                isPassing = true;
-            }
-
-            if (highlightIndex !== -1) {
-                let p = periods[highlightIndex];
-                p.li.classList.add('current-period');
-                if (!isPassing) {
-                    let startSecs = p.startMins * 60;
-                    let endSecs = p.endMins * 60;
-                    let progress = Math.max(0, Math.min(100, ((currentSecs - startSecs) / (endSecs - startSecs)) * 100));
-                    p.li.style.setProperty('--progress', progress + '%');
-                } else {
-                    p.li.style.setProperty('--progress', '0%');
-                }
-            }
-
-            return { 
-                index: highlightIndex, 
-                isPassing: isPassing, 
-                periodData: highlightIndex !== -1 ? periods[highlightIndex] : null,
-                actualClass: actualClassIndex !== -1
-            };
-        }
-
-        function triggerEvent(time, action, callback) {
-            if (currentMinuteTracker !== time) {
-                playedActions = {};
-                currentMinuteTracker = time;
-            }
-            const eventKey = `${time}-${action}`;
-            if (!playedActions[eventKey]) {
-                callback();
-                playedActions[eventKey] = true;
-            }
-        }
-
-        function updateClock() {
-            try {
-                const now = new Date();
-                const clk = document.getElementById('clock');
-                if(clk) clk.innerText = now.toLocaleTimeString('en-US');
-                let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-                const todayDayOfWeek = now.getDay(); 
-                
-                let status = highlightCurrentPeriod(now);
-                let currentStatus = 'outside';
-                let autoState = 'passing';
-                let isDeadTime = false;
-
-                if (status && status.isPassing) {
-                    currentStatus = 'passing';
-                    autoState = 'passing';
-                } 
-                else if (status && status.actualClass) {
-                    currentStatus = 'class';
-                    const p = status.periodData;
-                    const currentMins = now.getHours() * 60 + now.getMinutes();
-                    
-                    if (currentMins >= p.startMins && currentMins < p.startMins + 5) {
-                        autoState = 'dead-start';
-                        isDeadTime = true;
-                    } else if (currentMins >= p.endMins - 5 && currentMins < p.endMins) {
-                        autoState = 'dead-end';
-                        isDeadTime = true;
-                    } else {
-                        autoState = 'core-class';
-                    }
-                }
-
-                let dName = document.getElementById('docked-name');
-                let dTime = document.getElementById('docked-time');
-                let dBadge = document.getElementById('docked-badge');
-                
-                if (status && status.actualClass) {
-                    const p = status.periodData;
-                    if (dName) dName.innerText = p.li.querySelector('.period-name').childNodes[0].nodeValue.trim();
-                    
-                    const realTimeStr = p.li.querySelector('.period-time').innerText;
-                    if (dTime && realTimeStr) dTime.innerText = realTimeStr;
-
-                    const s = classSettings[dName.innerText.trim()] || DEFAULT_PREFS;
-                    if (s.open && dBadge) dBadge.style.display = 'inline-block';
-                    else if (dBadge) dBadge.style.display = 'none';
-                } else if (status && status.isPassing) {
-                    if (dName) dName.innerText = "Passing Period";
-                    const p = status.periodData;
-                    if (dTime) dTime.innerText = "Next: " + p.li.querySelector('.period-name').childNodes[0].nodeValue.trim();
-                    if (dBadge) dBadge.style.display = 'none';
-                } else {
-                    if (dName) dName.innerText = "Outside School Hours";
-                    if (dTime) dTime.innerText = "--:--";
-                    if (dBadge) dBadge.style.display = 'none';
-                }
-
-                const warningElMain = document.getElementById('main-dead-time-warning');
-                const warningElDock = document.getElementById('docked-warning');
-                if (warningElMain) warningElMain.style.display = isDeadTime ? 'inline-block' : 'none';
-                if (warningElDock) warningElDock.style.display = isDeadTime ? 'inline-block' : 'none';
-
-                updateQotdUI(status);
-
-                if (lastAutoState !== null && autoState !== lastAutoState) {
-                    if (autoState === 'core-class') {
-                        setMinimalView(true, true); 
-                    } else if (autoState === 'dead-start' || autoState === 'dead-end' || autoState === 'passing') {
-                        setMinimalView(false, true); 
-                    }
-                }
-                lastAutoState = autoState;
-
-                if (lastPeriodStatus !== currentStatus) {
-                    let success = false;
-                    
-                    if (mrBsJukebox && todayDayOfWeek === 5 && currentStatus === 'passing') {
-                        success = applyMusicState(jukeboxUrl, true);
-                    } else {
-                        if (isMainVibePlaying && currentVibeUrl) {
-                            success = applyMusicState(currentVibeUrl, true);
-                        } else {
-                            success = applyMusicState('', false); 
-                        }
-                    }
-                    if (success) lastPeriodStatus = currentStatus;
-                }
-
-                if (current24 === '06:00' && now.getSeconds() === 0) { fetchDailySchedule(); }
-                
-                customReminders.forEach(rem => {
-                    if (current24 === rem.time) {
-                        if (rem.day === 'All' || parseInt(rem.day) === todayDayOfWeek) {
-                            triggerEvent(current24, `custom-${rem.name}`, () => {
-                                triggerVisualAlert();
-                                playBellWithQueue(1, () => speak(`Reminder. ${rem.name}`));
-                            });
-                        }
-                    }
-                });
-                
-                if(!Array.isArray(activeSchedule)) return;
-
-                const isWebDay = currentScheduleName.toLowerCase().includes('web');
-
-                activeSchedule.forEach(period => {
-                    if (!period || !period.name) return;
-                    const pNameStr = String(period.name);
-
-                    const s = classSettings[pNameStr] || { ...DEFAULT_PREFS };
-
-                    const hasLunch1 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 1);
-                    let hasLunch2 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 2);
-                    if (isWebDay) hasLunch2 = false; 
-
-                    const pStartStr = String(period.start);
-                    const pEndStr = String(period.end);
-                    const startMinus1 = subtractMinutes(pStartStr, 1);
-                    const startPlus5 = addMinutes(pStartStr, 5);
-                    const endMinus5 = subtractMinutes(pEndStr, 5);
-                    const endMinus1 = subtractMinutes(pEndStr, 1);
-                    const midPoint = getMidpoint(pStartStr, pEndStr);
-
-                    if (current24 === pStartStr) {
-                        triggerEvent(current24, `start-${pNameStr}`, () => {
-                            triggerVisualAlert();
-                            let speechText = "";
-                            
-                            if (s.open) speechText += "Please remember to sign in to WEB. ";
-                            if (s.putaway) speechText += "Class is beginning. Please place your phones in the cell phone caddy. ";
-                            if (hasLunch1) speechText += "Reminder: You have lunch duty today.";
-                            
-                            if (speechText) playBellWithQueue(3, () => speak(speechText));
-                            else playBellWithQueue(3);
-                        });
-                    }
-                    
-                    if (current24 === pEndStr) {
-                        triggerEvent(current24, `end-${pNameStr}`, () => { 
-                            triggerVisualAlert(); 
-                            if (playGoodbyes) {
-                                const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
-                                playBellWithQueue(3, () => speak(randomMsg));
-                            } else {
-                                playBellWithQueue(3); 
-                            }
-                        });
-                    }
-
-                    if (!s.open && current24 === startMinus1) {
-                        triggerEvent(current24, `warning1m-${pNameStr}`, () => {
-                            triggerVisualAlert();
-                            let speechText = "One minute until class begins.";
-                            if (s.putaway) speechText += " Please place your phones in the cell phone caddy.";
-                            playBellWithQueue(1, () => speak(speechText));
-                        });
-                    }
-
-                    if (!s.open && s.attendance && current24 === startPlus5) {
-                        triggerEvent(current24, `attendance5m-${pNameStr}`, () => { triggerVisualAlert(); speak("Reminder. Please take attendance."); });
-                    }
-                    
-                    if (!s.open && hasLunch2 && current24 === midPoint) {
-                        triggerEvent(current24, `lunch2-${pNameStr}`, () => { triggerVisualAlert(); speak("Reminder. You have second half lunch duty."); });
-                    }
-
-                    if (!s.open && s.cleanup && current24 === endMinus5) {
-                        triggerEvent(current24, `cleanup5m-${pNameStr}`, () => { triggerVisualAlert(); speak("Five minutes remaining. Please begin cleaning up your area."); });
-                    }
-
-                    if (!s.open && s.retrieve && current24 === endMinus1) {
-                        triggerEvent(current24, `phone1m-${pNameStr}`, () => { 
-                            triggerVisualAlert(); 
-                            let speechText = "One minute remaining.";
-                            if (s.putaway) speechText += " You may retrieve your cell phones.";
-                            playBellWithQueue(1, () => speak(speechText)); 
-                        });
-                    }
-                });
-            } catch(e) { console.error("Clock update error:", e); }
-        }
-
-        // ==========================================================================
-        // SAFE INITIALIZATION LOOP
+        // INITIALIZATION
         // ==========================================================================
         document.addEventListener('DOMContentLoaded', () => {
-            
-            // 1. Load local settings into memory FIRST
-            loadLocalSettings(); 
+            // 1. Load saved settings directly into memory without saving back to local storage yet
+            loadLocalSettings();
             
             // 2. Fetch QotD Backend Data Instantly
             fetchQotdData();
             
-            // 3. Initialize UI elements safely
-            updateTimerDisplay();
-            updateClock();
-            
-            // 4. Force Sidebar to be collapsed strictly on load
+            // 3. Force the sidebar strictly closed on load
             const sidebar = document.getElementById('sidebar');
             const hamBtn = document.getElementById('hamburgerBtn');
             if(sidebar) sidebar.classList.add('collapsed');
             if(hamBtn) hamBtn.classList.remove('active-btn');
             sidebarVisible = false;
-            
-            // 5. Start Clock Loop
+
+            // 4. Start the clock ticks
+            updateTimerDisplay();
+            updateClock();
             setInterval(updateClock, 1000);
             
-            // 6. Fire off the async fetch to Google Calendar
-            setTimeout(fetchDailySchedule, 500);
-            
-            // 7. Load voices in the background quietly
+            // 5. Fetch schedule from Google 
+            fetchDailySchedule();
+
+            // 6. Load voices
             try {
                 if ('speechSynthesis' in window) {
                     window.speechSynthesis.onvoiceschanged = safePopulateVoiceList;
@@ -1930,7 +2179,7 @@
                 }
             } catch(e) {}
             
-            // 8. UNLOCK SAVING
+            // 7. FINALLY UNLOCK SAVING
             setTimeout(() => { isBooting = false; }, 1500);
         });
 
