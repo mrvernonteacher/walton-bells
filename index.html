@@ -1149,14 +1149,28 @@
             }
         }
 
-        // QotD Logic
-        function getDailyQotd() {
-            const now = new Date();
-            const start = new Date(now.getFullYear(), 0, 0);
-            const diff = now - start;
-            const oneDay = 1000 * 60 * 60 * 24;
-            const dayOfYear = Math.floor(diff / oneDay);
-            return qotdDatabase[dayOfYear % qotdDatabase.length];
+        // ==========================================================================
+        // QOTD LOGIC (Dynamic Apps Script Fetcher)
+        // ==========================================================================
+        let liveQotdData = null;
+
+        function fetchQotdData() {
+            // Ask the apps script for today's question
+            fetch(QOTD_APPS_SCRIPT_URL + "?action=getToday")
+                .then(r => r.json())
+                .then(data => {
+                    liveQotdData = data;
+                    // Pre-fill the UI with the text
+                    document.getElementById('qotd-question').innerText = data.q;
+                    document.getElementById('qotd-idle-question').innerText = data.q;
+                    document.getElementById('qotd-results-question').innerText = data.q;
+                    document.getElementById('qotd-label-a').innerText = data.a;
+                    document.getElementById('qotd-label-b').innerText = data.b;
+                    
+                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(QOTD_APPS_SCRIPT_URL)}`;
+                    document.getElementById('qotd-qr-img').src = qrUrl;
+                })
+                .catch(e => console.error("Error loading QotD:", e));
         }
 
         function toggleQotdLock() {
@@ -1167,16 +1181,8 @@
         function updateQotdUI(status) {
             if (!activeWidgets.qotd) return; 
             
-            const qObj = getDailyQotd();
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(QOTD_APPS_SCRIPT_URL)}`;
-
-            // Main Widget Updates
-            document.getElementById('qotd-question').innerText = qObj.q;
-            document.getElementById('qotd-idle-question').innerText = qObj.q;
-            document.getElementById('qotd-results-question').innerText = qObj.q;
-            document.getElementById('qotd-label-a').innerText = qObj.a;
-            document.getElementById('qotd-label-b').innerText = qObj.b;
-            document.getElementById('qotd-qr-img').src = qrUrl;
+            // If we haven't loaded the data yet, just wait.
+            if (!liveQotdData) return;
             
             const viewVoting = document.getElementById('qotd-voting-view');
             const viewIdle = document.getElementById('qotd-idle-view');
@@ -1201,7 +1207,8 @@
                     
                     if (!qotdResultsFetched) {
                         qotdResultsFetched = true;
-                        fetch(QOTD_APPS_SCRIPT_URL + "?action=getResults")
+                        // Fetch the final stats before showing them
+                        fetch(QOTD_APPS_SCRIPT_URL + "?action=getToday")
                             .then(r => r.json())
                             .then(data => {
                                 const votesA = parseInt(data.votesA) || 0;
@@ -1220,11 +1227,9 @@
                 } else {
                     // MID CLASS
                     if (qotdManualUnlock) {
-                        // Teacher Override Open!
                         viewVoting.style.display = 'flex'; viewIdle.style.display = 'none'; viewResults.style.display = 'none';
                         if(relockBtn) relockBtn.style.display = 'block';
                     } else {
-                        // Normal Lock
                         viewVoting.style.display = 'none'; viewIdle.style.display = 'flex'; viewResults.style.display = 'none';
                         if(relockBtn) relockBtn.style.display = 'none';
                     }
