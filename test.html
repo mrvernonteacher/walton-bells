@@ -5,67 +5,93 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Walton Bell Schedule</title>
     <style>
+        /* ==========================================================================
+           1. CSS VARIABLES (BULLETPROOF THEMING ENGINE)
+           ========================================================================== */
+        :root {
+            --bg-main: #f4f4f9;
+            --bg-panel: rgba(255, 255, 255, 0.85);
+            --border-panel: rgba(150, 150, 150, 0.2);
+            --shadow-panel: rgba(0, 0, 0, 0.1);
+            --shadow-heavy: rgba(0, 0, 0, 0.15);
+            
+            --text-main: #333333;
+            --text-muted: #888888;
+            --text-accent: #003366;
+            
+            --btn-primary: #003366;
+            --btn-primary-hover: #002244;
+            --btn-secondary: #31b0d5;
+            --btn-secondary-hover: #269abc;
+            --btn-danger: #d9534f;
+            
+            --progress-bg: rgba(92, 184, 92, 0.2);
+            --progress-border: #5cb85c;
+            --weather-text: #333333;
+        }
+
+        body.dark-mode {
+            --bg-main: #121212;
+            --bg-panel: rgba(30, 30, 30, 0.85);
+            --border-panel: rgba(255, 255, 255, 0.05);
+            --shadow-panel: rgba(0, 0, 0, 0.7);
+            --shadow-heavy: rgba(0, 0, 0, 0.8);
+            
+            --text-main: #e0e0e0;
+            --text-muted: #aaaaaa;
+            --text-accent: #90caf9;
+            
+            --btn-primary: #1976d2;
+            --btn-primary-hover: #1565c0;
+            --btn-secondary: #0288d1;
+            --btn-secondary-hover: #0277bd;
+            
+            --progress-bg: rgba(144, 202, 249, 0.25);
+            --progress-border: #90caf9;
+            --weather-text: #ffffff;
+        }
+
         /* --- Clean Browser Resets --- */
         * { -webkit-tap-highlight-color: transparent !important; outline: none !important; box-sizing: border-box; }
-
-        /* --- Sleek Auto-Hiding Scrollbars --- */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: transparent; border-radius: 10px; }
-        body:hover ::-webkit-scrollbar-thumb, .sidebar:hover ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.25); }
-        body.dark-mode:hover ::-webkit-scrollbar-thumb, body.dark-mode .sidebar:hover ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.25); }
+        body:hover ::-webkit-scrollbar-thumb, .sidebar:hover ::-webkit-scrollbar-thumb { background: var(--border-panel); }
         * { scrollbar-width: thin; scrollbar-color: transparent transparent; } 
-        *:hover { scrollbar-color: rgba(150,150,150,0.5) transparent; }
+        *:hover { scrollbar-color: var(--border-panel) transparent; }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            margin: 0;
-            padding: 100px 20px 100px 20px; 
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            transition: background-color 0.5s ease, color 0.5s ease;
-            overflow-x: hidden;
-            position: relative; 
+            background-color: var(--bg-main); color: var(--text-main);
+            margin: 0; padding: 100px 20px 100px 20px; 
+            display: flex; flex-direction: column; min-height: 100vh;
+            transition: background-color 0.4s ease, color 0.4s ease;
+            overflow-x: hidden; position: relative; 
+        }
+
+        h1, h2, h3, h4 { color: var(--text-accent); margin: 0; }
+
+        /* ==========================================================================
+           2. UNIVERSAL GLASS PANELS (NO MORE WHITE WASH)
+           ========================================================================== */
+        .glass-panel {
+            background-color: var(--bg-panel);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--border-panel);
+            box-shadow: 0 4px 15px var(--shadow-panel);
+            border-radius: 15px;
+            transition: all 0.4s ease;
         }
 
         /* --- Fullscreen YouTube Background --- */
-        #vibe-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; pointer-events: none; overflow: hidden;
-            opacity: 0; transition: opacity 1.5s ease; 
-        }
-        #vibe-bg iframe {
-            width: 100vw; height: 56.25vw; min-height: 100vh; min-width: 177.77vh; 
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: none;
-        }
-
-        /* =========================================================
-           MASTER GLASSMORPHISM & DARK MODE FIX
-           This guarantees Dark Mode is never overwritten by rogue CSS.
-           ========================================================= */
-        .glass-panel {
-            background-color: rgba(255, 255, 255, 0.85) !important;
-            backdrop-filter: blur(15px) !important; 
-            -webkit-backdrop-filter: blur(15px) !important;
-            border: 1px solid rgba(150, 150, 150, 0.2) !important;
-        }
-        
-        body.dark-mode .glass-panel {
-            background-color: rgba(30, 30, 30, 0.85) !important;
-            border-color: rgba(255, 255, 255, 0.05) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7) !important;
-        }
+        #vibe-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; overflow: hidden; opacity: 0; transition: opacity 1.5s ease; }
+        #vibe-bg iframe { width: 100vw; height: 56.25vw; min-height: 100vh; min-width: 177.77vh; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: none; }
 
         /* --- Master Top Navigation Bar --- */
         .floating-header {
             position: fixed; top: 0; left: 0; width: 100%; height: 75px;
             display: grid; grid-template-columns: 240px 1fr auto; align-items: center; 
-            padding: 0 30px; z-index: 1100;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08); border-radius: 0 0 15px 15px;
-            transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1);
+            padding: 0 30px; z-index: 1100; border-radius: 0 0 15px 15px;
         }
 
         .header-left { display: flex; align-items: center; gap: 15px; justify-self: start; height: 75px;}
@@ -75,122 +101,15 @@
         .header-logo { height: 38px; width: auto; opacity: 0.8; transition: opacity 0.4s ease; display: block; }
         .header-logo:hover { opacity: 1; }
         
-        #clock { font-size: 2rem; font-weight: bold; color: #003366; text-align: right; white-space: nowrap; flex-shrink: 0; transition: color 0.4s ease;}
-        body.dark-mode #clock { color: #e0e0e0; }
+        #clock { font-size: 2rem; font-weight: bold; color: var(--text-accent); text-align: right; white-space: nowrap; flex-shrink: 0;}
 
-        /* --- Smart State Icon Buttons --- */
+        /* Icon Buttons */
         .header-icon-btn {
-            background: none; border: none; color: #aaa; cursor: pointer; padding: 6px 8px; border-radius: 8px;
-            display: flex; align-items: center; justify-content: center; transition: all 0.3s cubic-bezier(0.25, 1.2, 0.3, 1);
-            font-size: 1.6rem; line-height: 1;
+            background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 6px 8px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; transition: all 0.2s; font-size: 1.6rem; line-height: 1;
         }
-        .header-icon-btn:hover { background-color: rgba(150,150,150,0.2); color: #888; transform: scale(1.05);}
-        .header-icon-btn.active-btn { color: #31b0d5; transform: scale(1.1);} 
-        
-        body.dark-mode .header-icon-btn { color: #666; }
-        body.dark-mode .header-icon-btn:hover { background-color: rgba(150,150,150,0.2); color: #aaa; }
-        body.dark-mode .header-icon-btn.active-btn { color: #90caf9; } 
-
-        /* --- Sidebar & Z-Index Fix --- */
-        .sidebar-wrapper { position: fixed; top: 90px; left: 20px; z-index: 2000; pointer-events: none; }
-        .sidebar {
-            width: 350px; padding: 15px 20px; border-radius: 10px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.5s cubic-bezier(0.25, 1.2, 0.3, 1);
-            overflow: hidden; transform-origin: left top; pointer-events: auto;
-            max-height: 80vh; overflow-y: auto;
-        }
-        .sidebar.collapsed { width: 0; padding: 0; opacity: 0; transform: scaleX(0); border: none; }
-
-        /* Floating Widget Menu (+ Button) */
-        #widget-menu-wrapper { position: fixed; bottom: 20px; left: 20px; z-index: 1050; }
-        .widget-panel-menu {
-            position: absolute; bottom: 60px; left: 0; border-radius: 15px; padding: 15px 20px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: none; flex-direction: column; width: 220px; 
-            animation: popUp 0.2s ease; transform-origin: bottom left;
-        }
-        @keyframes popUp { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-
-        .float-btn {
-            background: #003366; color: white; border: none; border-radius: 50%;
-            width: 48px; height: 48px; font-size: 1.8rem; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; transition: background 0.3s, transform 0.3s cubic-bezier(0.25, 1.2, 0.3, 1); flex-shrink: 0;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        .float-btn:hover { background: #002244; transform: scale(1.1); }
-        body.dark-mode .float-btn { background: #1976d2; }
-        body.dark-mode .float-btn:hover { background: #1565c0; }
-
-        /* --- Floating Player --- */
-        .floating-player {
-            position: fixed; bottom: 20px; right: 20px; top: auto; left: auto;
-            border-radius: 20px; padding: 10px 15px 10px 10px;
-            display: flex; align-items: center; gap: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1000; opacity: 0; pointer-events: none; 
-            transition: opacity 0.4s ease, transform 0.6s cubic-bezier(0.25, 1.2, 0.3, 1);
-            user-select: none; transform: translateY(20px);
-        }
-        .floating-player.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
-        .floating-player.dragging { cursor: grabbing; transition: none !important; opacity: 0.95; transform: scale(1.02); z-index: 2000; }
-        .drag-handle { color: #888; font-size: 1.2rem; cursor: grab; display: flex; align-items: center; padding-right: 2px;}
-        body.dark-mode .drag-handle { color: #aaa; }
-        .floating-player.dragging .drag-handle { cursor: grabbing; }
-
-        .float-content { display: flex; flex-direction: column; gap: 6px; }
-        .float-info { font-weight: bold; font-size: 0.85rem; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #003366;}
-        body.dark-mode .float-info { color: #90caf9; }
-        .float-volume { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
-        .float-volume span { cursor: pointer; transition: transform 0.2s; user-select: none; width: 18px; text-align: center; }
-        .float-volume span:hover { transform: scale(1.2); }
-        .float-volume input { width: 100px; cursor: pointer; height: 4px; margin: 0;}
-
-        /* --- Floating Footer --- */
-        .footer { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); font-size: 0.85rem; color: #555; text-align: center; width: 100%; transition: color 0.4s ease; z-index: 10; pointer-events: none; }
-        .footer p { margin: 0 0 5px 0; font-weight: bold; text-shadow: 0 0 8px rgba(255,255,255,0.9);}
-        .footer-logo { max-width: 160px; height: auto; display: inline-block; opacity: 0.7; }
-        body.dark-mode .footer p { text-shadow: 0 0 8px rgba(0,0,0,0.9); color: #aaa;}
-
-        /* --- Toast Notification --- */
-        #toast {
-            position: fixed; top: -60px; left: 50%; transform: translateX(-50%);
-            background-color: #5cb85c; color: white; padding: 12px 24px;
-            border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            font-weight: bold; font-size: 1.1rem; z-index: 9999; opacity: 0;
-            transition: top 0.6s cubic-bezier(0.25, 1.2, 0.3, 1), opacity 0.4s ease; pointer-events: none;
-        }
-        #toast.show { top: 90px; opacity: 1; }
-
-        /* --- Global Dark Mode Color Inversions --- */
-        body.dark-mode h1, body.dark-mode h3, body.dark-mode .schedule-header, body.dark-mode .period-name, body.dark-mode .title, body.dark-mode .widget-title { color: #90caf9; border-color: #444; }
-        body.dark-mode .control-group label.title { color: #90caf9; }
-        body.dark-mode .sub-label { color: #ccc !important; }
-        body.dark-mode #schedule-list li { border-color: #444; }
-        body.dark-mode #schedule-list li:nth-child(even) { background-color: rgba(255,255,255,0.03); }
-        body.dark-mode select, body.dark-mode input[type="text"], body.dark-mode input[type="time"], body.dark-mode input[type="date"] { background: #333; color: #fff; border-color: #555; }
-        body.dark-mode #jukeboxUrlInput { background: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.2); color: #e0e0e0;}
-        body.dark-mode .period-time { color: #ddd; }
-        body.dark-mode .dropdown-content { background-color: #333; border-color: #555; }
-        body.dark-mode .dropdown-content button { color: #e0e0e0; border-color: #444; }
-        body.dark-mode .dropdown-content button:hover { background-color: #444; color: #90caf9; }
-        body.dark-mode .duty-item { border-bottom-color: #444 !important; }
-        body.dark-mode .btn { background-color: #1976d2; color: #fff; }
-        body.dark-mode .btn:hover { background-color: #1565c0; }
-        body.dark-mode .split-button-main { background-color: #0288d1; }
-        body.dark-mode .split-button-caret { background-color: #0277bd; border-left: 1px solid #01579b; }
-
-        /* --- Custom Toggles --- */
-        .switch-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; margin-top: 5px;}
-        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
-        .switch input { opacity: 0; width: 0; height: 0; margin: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s cubic-bezier(0.25, 1.2, 0.3, 1); border-radius: 20px; }
-        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s cubic-bezier(0.25, 1.2, 0.3, 1); border-radius: 50%; }
-        input:checked + .slider { background-color: #31b0d5; } 
-        input:checked + .slider:before { transform: translateX(20px); }
-        body.dark-mode input:checked + .slider { background-color: #90caf9; }
-
-        /* --- Open Block Badge --- */
-        .open-badge { background-color: #5cb85c; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; margin-left: 10px; vertical-align: middle; font-weight: bold; letter-spacing: 0.5px; display: inline-block; }
-        body.dark-mode .open-badge { background-color: #2e7d32; color: #e8f5e9; }
-        .waffle-closed .open-badge, .docked-badge { font-size: 1rem; padding: 4px 10px; margin-left: 15px; transform: translateY(-2px); transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); }
+        .header-icon-btn:hover { background-color: var(--border-panel); color: var(--text-main); transform: scale(1.05);}
+        .header-icon-btn.active-btn { color: var(--btn-secondary); transform: scale(1.1);} 
 
         /* --- Layout & Structure (3-COLUMN GRID) --- */
         .main-content-area {
@@ -202,81 +121,49 @@
         .widget-column { display: flex; flex-direction: column; gap: 20px; width: 320px; flex-shrink: 0; transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); }
         .schedule-column { flex-grow: 1; max-width: 900px; display: flex; flex-direction: column; align-items: center; transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); overflow: hidden; width: 100%; }
 
-        /* UI Controls & Accordions */
-        .control-group { border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 10px; margin-bottom: 10px;}
-        .control-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
-        .accordion-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 5px 0; }
-        .accordion-header label.title { font-weight: bold; margin-bottom: 0; color: #003366; transition: color 0.4s ease; text-transform: uppercase; font-size: 0.85rem; pointer-events: none;}
-        .chevron { font-size: 0.8rem; color: #888; transition: transform 0.4s cubic-bezier(0.25, 1.2, 0.3, 1); }
-        .accordion-content { overflow: hidden; transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
-        .sub-label { font-size: 0.95rem; color: #444; font-weight: 500; transition: color 0.4s ease; cursor: help; }
-        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; margin-top: 5px;}
-        select, input[type="text"], input[type="time"], input[type="date"] { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 0.9rem; background: rgba(255,255,255,0.9); margin-bottom: 8px;}
-        .volume-container { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; margin-top: 10px;}
-        .split-button-container { display: flex; align-items: stretch; width: 100%; margin-top: 5px; margin-bottom: 5px;}
-        .split-button-main { flex-grow: 1; background-color: #5bc0de; color: white; border: none; padding: 8px 12px; border-radius: 5px 0 0 5px; cursor: pointer; font-size: 0.95rem; font-weight: bold; transition: background-color 0.2s; text-align: left; }
-        .split-button-main:hover { background-color: #31b0d5; }
-        .dropdown { position: relative; display: flex; }
-        .split-button-caret { background-color: #46b8da; color: white; border: none; border-left: 1px solid #31b0d5; padding: 0 10px; border-radius: 0 5px 5px 0; cursor: pointer; font-size: 1rem; transition: background-color 0.2s; }
-        .split-button-caret:hover { background-color: #31b0d5; }
-        .dropdown-content { display: none; position: absolute; right: 0; top: 100%; background-color: #fff; min-width: 240px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 10; border-radius: 5px; overflow: hidden; border: 1px solid #ddd; }
-        .dropdown-content.show { display: block; animation: dropDownFade 0.3s cubic-bezier(0.25, 1.2, 0.3, 1); transform-origin: top right;}
-        @keyframes dropDownFade { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        .dropdown-content button { color: #333; padding: 8px 12px; text-decoration: none; display: block; width: 100%; background: none; border: none; border-bottom: 1px solid #eee; text-align: left; margin: 0; font-size: 0.9rem; transition: background 0.2s;}
-        .dropdown-content button:hover { background-color: #f1f1f1; color: #003366; }
-
-        .btn { background-color: #003366; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 0.95rem; width: 100%; margin-top: 8px; font-weight: bold; transition: background-color 0.2s, transform 0.2s; }
-        .btn.inline { width: auto; margin-top: 0; padding: 6px 12px;}
-        .btn:hover { background-color: #002244; transform: translateY(-1px);}
-        .btn-danger { background-color: #d9534f; }
-        .btn-danger:hover { background-color: #c9302c; }
-
-        .goodbye-box { background: rgba(92, 184, 92, 0.15); border: 1px solid rgba(92, 184, 92, 0.4); padding: 12px; border-radius: 8px; margin-top: 15px; transition: all 0.4s ease; }
-        .goodbye-box label { color: #003366; transition: color 0.4s ease; font-weight: bold; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 8px;}
-
         /* --- THE MASTER SCHEDULE CONTAINER --- */
         .schedule-container { 
-            padding: 15px 20px; border-radius: 10px; width: 100%; max-width: 900px; box-sizing: border-box; transform-origin: top center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.6s cubic-bezier(0.34, 1.2, 0.64, 1), max-height 0.6s ease, padding 0.6s ease, opacity 0.4s ease;
+            padding: 15px 20px; width: 100%; max-width: 900px; box-sizing: border-box; transform-origin: top center;
             max-height: 2000px; opacity: 1; overflow: hidden; margin: 0 auto;
         }
         
-        .schedule-title-row { display: flex; justify-content: center; align-items: center; margin-bottom: 10px; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 8px; transition: all 0.4s ease; overflow: hidden; }
-        .schedule-title-row h3 { margin: 0; font-size: 1.5rem; color: #003366; transition: color 0.4s ease; }
+        .schedule-title-row { display: flex; justify-content: center; align-items: center; margin-bottom: 10px; border-bottom: 2px solid var(--border-panel); padding-bottom: 8px; }
 
         @keyframes pulseAlert {
             0% { opacity: 1; text-shadow: 0 0 4px rgba(217, 83, 79, 0.4); box-shadow: 0 0 8px rgba(217, 83, 79, 0.2); }
             50% { opacity: 0.7; text-shadow: none; box-shadow: none; }
             100% { opacity: 1; text-shadow: 0 0 4px rgba(217, 83, 79, 0.4); box-shadow: 0 0 8px rgba(217, 83, 79, 0.2); }
         }
-        .dead-time-warning { color: #d9534f; font-weight: 900; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.5px; animation: pulseAlert 2s infinite; background: rgba(217, 83, 79, 0.15); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(217, 83, 79, 0.3); margin-left: 15px; display: none; }
+        .dead-time-warning { color: var(--btn-danger); font-weight: 900; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.5px; animation: pulseAlert 2s infinite; background: rgba(217, 83, 79, 0.15); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(217, 83, 79, 0.3); margin-left: 15px; display: none; }
 
-        /* TEXT CUT-OFF FIX: minmax(0, 1fr) forces middle column to respect boundaries */
-        .schedule-grid { display: grid; grid-template-columns: minmax(80px, auto) minmax(0, 1fr) minmax(100px, auto); gap: 10px; align-items: center; padding: 8px 10px; transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); width: 100%; box-sizing: border-box; }
-        .schedule-header { font-size: 0.9rem; font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 6px; margin-bottom: 6px; transition: color 0.4s ease; }
+        /* CUT-OFF FIX: minmax(0, 1fr) ensures the middle toggles never push the times off-screen */
+        .schedule-grid { display: grid; grid-template-columns: minmax(80px, auto) minmax(0, 1fr) minmax(100px, auto); gap: 10px; align-items: center; padding: 8px 10px; width: 100%; box-sizing: border-box; }
+        .schedule-header { font-size: 0.9rem; font-weight: bold; color: var(--text-accent); border-bottom: 2px solid var(--border-panel); padding-bottom: 6px; margin-bottom: 6px; }
         
         .middle-section { display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; overflow-x: auto; scrollbar-width: none; }
         .middle-section::-webkit-scrollbar { display: none; }
-        .options-wrapper { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; width: 100%; min-width: max-content; max-height: 50px; opacity: 1; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease; }
+        .options-wrapper { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; width: 100%; min-width: max-content; max-height: 50px; opacity: 1; transition: max-height 0.4s ease, opacity 0.3s ease; }
         
         .options-col { display: flex; justify-content: center; align-items: center; white-space: nowrap; font-size: 0.95rem; }
-        .options-col[title] { cursor: help; border-bottom: 1px dotted rgba(0,0,0,0.3); padding-bottom: 2px; } 
-        body.dark-mode .options-col[title] { border-bottom: 1px dotted rgba(255,255,255,0.4); }
+        .options-col[title] { cursor: help; border-bottom: 1px dotted var(--border-panel); padding-bottom: 2px; } 
         
         #schedule-list { list-style-type: none; padding: 0; margin: 0; }
-        #schedule-list li { border-bottom: 1px solid rgba(150,150,150,0.2); border-left: 5px solid transparent; max-height: 250px; overflow: hidden; opacity: 1; transition: max-height 0.6s cubic-bezier(0.25, 1.2, 0.3, 1), padding 0.5s ease, opacity 0.5s ease, margin 0.5s ease; }
+        #schedule-list li { border-bottom: 1px solid var(--border-panel); border-left: 5px solid transparent; max-height: 250px; overflow: hidden; opacity: 1; transition: all 0.6s ease; }
         #schedule-list li:nth-child(even) { background-color: rgba(0,0,0,0.03); }
+        body.dark-mode #schedule-list li:nth-child(even) { background-color: rgba(255,255,255,0.03); }
 
-        .period-name { grid-column: 1; font-weight: bold; text-align: left; font-size: 1.6rem; align-self: center; transition: all 0.5s cubic-bezier(0.25, 1.2, 0.3, 1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 5px;}
-        .period-time { grid-column: 3; text-align: right; font-size: 1.4rem; color: #555; align-self: center; transition: all 0.5s cubic-bezier(0.25, 1.2, 0.3, 1); white-space: nowrap; padding-left: 5px;}
+        .period-name { grid-column: 1; font-weight: bold; text-align: left; font-size: 1.6rem; align-self: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 5px;}
+        .period-time { grid-column: 3; text-align: right; font-size: 1.4rem; color: var(--text-muted); align-self: center; white-space: nowrap; padding-left: 5px;}
 
-        #schedule-list li.current-period { background: linear-gradient(to right, rgba(92, 184, 92, 0.2) var(--progress, 0%), rgba(92, 184, 92, 0.03) var(--progress, 0%)) !important; border-left: 5px solid #5cb85c !important; box-shadow: inset 0 0 10px rgba(92, 184, 92, 0.1) !important; }
-        body.dark-mode #schedule-list li.current-period { background: linear-gradient(to right, rgba(144, 202, 249, 0.25) var(--progress, 0%), rgba(144, 202, 249, 0.03) var(--progress, 0%)) !important; border-left: 5px solid #90caf9 !important; box-shadow: inset 0 0 10px rgba(144, 202, 249, 0.1) !important; }
+        #schedule-list li.current-period { background: linear-gradient(to right, var(--progress-bg) var(--progress, 0%), transparent var(--progress, 0%)) !important; border-left: 5px solid var(--progress-border) !important; box-shadow: inset 0 0 10px rgba(92, 184, 92, 0.1) !important; }
 
-        .agenda-display { font-size: 1.1rem; font-weight: 600; color: #004080; text-align: center; width: 100%; max-height: 0px; opacity: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, margin 0.4s ease; }
-        body.dark-mode .agenda-display { color: #81d4fa; }
-        .agenda-error { color: #d9534f !important; font-style: italic; font-weight: normal; }
-        body.dark-mode .agenda-error { color: #ff8a80 !important; }
+        .agenda-display { font-size: 1.1rem; font-weight: 600; color: var(--text-accent); text-align: center; width: 100%; max-height: 0px; opacity: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; transition: max-height 0.4s ease, opacity 0.3s ease; }
+        .agenda-error { color: var(--btn-danger) !important; font-style: italic; font-weight: normal; }
+
+        /* --- Open Block Badge --- */
+        .open-badge { background-color: #5cb85c; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; margin-left: 10px; vertical-align: middle; font-weight: bold; letter-spacing: 0.5px; display: inline-block; }
+        body.dark-mode .open-badge { background-color: #2e7d32; color: #e8f5e9; }
+        .waffle-closed .open-badge, .docked-badge { font-size: 1rem; padding: 4px 10px; margin-left: 15px; transform: translateY(-2px); transition: all 0.4s ease; }
 
         /* =========================================================
            STATE 1: WAFFLE CLOSED 
@@ -285,64 +172,155 @@
         .waffle-closed .options-wrapper { max-height: 0px; opacity: 0; pointer-events: none; }
         .waffle-closed .agenda-display.has-data { max-height: 40px; opacity: 1; margin-top: 4px; }
         .waffle-closed .schedule-header .options-wrapper { max-height: 0px; opacity: 0; }
-        .waffle-closed .period-name { font-size: 2.2rem; color: #003366; }
-        body.dark-mode .waffle-closed .period-name { color: #90caf9; }
-        .waffle-closed .period-time { font-size: 2rem; font-weight: bold; color: #333; }
-        body.dark-mode .waffle-closed .period-time { color: #e0e0e0; }
+        .waffle-closed .period-name { font-size: 2.2rem; color: var(--text-accent); }
+        .waffle-closed .period-time { font-size: 2rem; font-weight: bold; color: var(--text-main); }
 
         /* =========================================================
            STATE 2: MINIMAL VIEW (The "Fly to Top Bar" Liquid Dock) 
            ========================================================= */
         .docked-schedule { display: flex; gap: 20px; align-items: center; justify-content: center; opacity: 0; transform: translateY(-20px); transition: all 0.6s cubic-bezier(0.25, 1.2, 0.3, 1); pointer-events: none; visibility: hidden; position: absolute; width: 100%; white-space: nowrap; }
         body.minimal-active .docked-schedule { opacity: 1; transform: translateY(0); pointer-events: auto; visibility: visible; }
-        
-        .docked-name { font-size: 1.8rem; font-weight: 800; color: #003366; }
-        body.dark-mode .docked-name { color: #90caf9; }
-        .docked-time { font-size: 1.6rem; font-weight: bold; color: #555; }
-        body.dark-mode .docked-time { color: #e0e0e0; }
-
+        .docked-name { font-size: 1.8rem; font-weight: 800; color: var(--text-accent); }
+        .docked-time { font-size: 1.6rem; font-weight: bold; color: var(--text-muted); }
         body.minimal-active .schedule-column { max-width: 0 !important; opacity: 0 !important; padding: 0 !important; margin: 0 !important; overflow: hidden; pointer-events: none; }
 
         /* --- THE STATIC GRID WIDGETS --- */
-        .widget-card { border-radius: 15px; padding: 15px; display: none; flex-direction: column; overflow: hidden; width: 100%; transition: opacity 0.4s ease; }
-        .widget-card.active-widget { display: flex; animation: fadeWidgetIn 0.5s cubic-bezier(0.25, 1.2, 0.3, 1);}
+        .widget-card { display: none; flex-direction: column; overflow: hidden; width: 100%; transition: opacity 0.4s ease; padding: 15px;}
+        .widget-card.active-widget { display: flex; animation: fadeWidgetIn 0.5s ease;}
         @keyframes fadeWidgetIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
-        .widget-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 8px; margin-bottom: 12px; pointer-events: none; }
-        .widget-title { font-weight: bold; font-size: 1.1rem; color: #003366; margin: 0; }
-        .widget-close { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1.2rem; line-height: 1; padding: 0 5px; transition: color 0.2s; pointer-events: auto;}
-        .widget-close:hover { color: #d9534f; }
+        .widget-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-panel); padding-bottom: 8px; margin-bottom: 12px; pointer-events: none; }
+        .widget-title { font-weight: bold; font-size: 1.1rem; color: var(--text-accent); margin: 0; }
+        .widget-close { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; line-height: 1; padding: 0 5px; transition: color 0.2s; pointer-events: auto;}
+        .widget-close:hover { color: var(--btn-danger); }
 
-        /* Weather Widget Tweaks */
+        /* Weather Widget */
         #widget-weather { min-height: 250px; flex-grow: 1;}
         #weather-container-main { height: 100%; min-height: 200px; display: block; width: 100%; overflow: hidden;}
-        body.dark-mode #weather-container-main iframe { filter: none !important; } /* Reverted bug causing illegibility */
+        /* Dark Mode filter removed - now handled natively via API textcolor injection! */
 
-        /* --- Timer Widget Styles (Modernized) --- */
-        .timer-display { font-size: 4rem; font-weight: bold; color: #333; text-align: center; margin: 10px 0; font-variant-numeric: tabular-nums; }
-        body.dark-mode .timer-display { color: #e0e0e0; }
+        /* Timer Widget */
+        .timer-display { font-size: 4rem; font-weight: bold; color: var(--text-main); text-align: center; margin: 10px 0; font-variant-numeric: tabular-nums; }
         .timer-controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;}
         .timer-quick-add { display: flex; gap: 8px; justify-content: center; }
-        .timer-btn-hollow { background-color: transparent; border: 2px solid #31b0d5; color: #31b0d5; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.2s;}
+        .timer-btn-hollow { background-color: transparent; border: 2px solid var(--btn-secondary); color: var(--btn-secondary); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.2s;}
         .timer-btn-hollow:hover { background-color: rgba(49, 176, 213, 0.15); transform: translateY(-1px); }
-        .timer-btn-reset { border-color: #888; color: #888;}
-        .timer-btn-reset:hover { background-color: rgba(150, 150, 150, 0.15); }
-        body.dark-mode .timer-btn-hollow { border-color: #90caf9; color: #90caf9; }
-        body.dark-mode .timer-btn-reset { border-color: #aaa; color: #aaa; }
+        .timer-btn-reset { border-color: var(--text-muted); color: var(--text-muted);}
 
-        /* --- QotD Widget Styles --- */
+        /* QotD Widget */
         #widget-qotd { min-height: 450px; flex-grow: 1;}
         .qotd-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; gap: 15px; position: relative; flex-grow: 1;}
-        .qotd-text { font-size: 1.2rem; font-weight: bold; color: #003366; margin-bottom: 10px;}
-        body.dark-mode .qotd-text { color: #e0e0e0; }
+        .qotd-text { font-size: 1.2rem; font-weight: bold; color: var(--text-accent); margin-bottom: 10px;}
         .qotd-qr { width: 150px; height: 150px; background: white; padding: 10px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 5px;}
-        .qotd-bar-bg { width: 100%; background: rgba(0,0,0,0.1); border-radius: 10px; height: 24px; overflow: hidden; position: relative;}
-        body.dark-mode .qotd-bar-bg { background: rgba(255,255,255,0.1); }
-        .qotd-bar-fill { height: 100%; background: #31b0d5; width: 0%; transition: width 1s cubic-bezier(0.25, 1.2, 0.3, 1); }
+        .qotd-bar-bg { width: 100%; background: var(--border-panel); border-radius: 10px; height: 24px; overflow: hidden; position: relative;}
+        .qotd-bar-fill { height: 100%; background: var(--btn-secondary); width: 0%; transition: width 1s ease; }
         .qotd-bar-label { position: absolute; top: 0; left: 10px; line-height: 24px; font-size: 0.85rem; font-weight: bold; color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.5);}
-        
         .qotd-manual-unlock { font-size: 1.5rem; cursor: pointer; transition: transform 0.2s; margin-top: 5px;}
         .qotd-manual-unlock:hover { transform: scale(1.1); }
+
+        /* --- Sidebar & Widgets Dropdown (Z-Index Fix) --- */
+        .sidebar-wrapper { position: fixed; top: 90px; left: 20px; z-index: 2000; pointer-events: none; }
+        .sidebar {
+            width: 350px; padding: 15px 20px;
+            transition: all 0.5s cubic-bezier(0.25, 1.2, 0.3, 1);
+            overflow: hidden; transform-origin: left top; pointer-events: auto;
+            max-height: 80vh; overflow-y: auto;
+        }
+        .sidebar.collapsed { width: 0; padding: 0; opacity: 0; transform: scaleX(0); border: none !important; box-shadow: none !important;}
+
+        /* Floating Widget Menu (+ Button) */
+        #widget-menu-wrapper { position: fixed; bottom: 20px; left: 20px; z-index: 1050; }
+        .widget-panel-menu {
+            position: absolute; bottom: 60px; left: 0;
+            padding: 15px 20px; display: none; flex-direction: column; width: 220px; 
+            animation: popUp 0.2s ease; transform-origin: bottom left;
+        }
+        @keyframes popUp { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+        .float-btn {
+            background: var(--btn-primary); color: white; border: none; border-radius: 50%;
+            width: 48px; height: 48px; font-size: 1.8rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .float-btn:hover { background: var(--btn-primary-hover); transform: scale(1.1); }
+
+        /* --- Floating Player --- */
+        .floating-player {
+            position: fixed; bottom: 20px; right: 20px; top: auto; left: auto;
+            padding: 10px 15px 10px 10px; border-radius: 20px;
+            display: flex; align-items: center; gap: 12px; z-index: 1000; opacity: 0; pointer-events: none; 
+            transition: opacity 0.4s ease, transform 0.6s ease;
+            user-select: none; transform: translateY(20px);
+        }
+        .floating-player.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+        .floating-player.dragging { cursor: grabbing; transition: none !important; opacity: 0.95; transform: scale(1.02); z-index: 2000; }
+        .drag-handle { color: var(--text-muted); font-size: 1.2rem; cursor: grab; display: flex; align-items: center; padding-right: 2px;}
+        .floating-player.dragging .drag-handle { cursor: grabbing; }
+
+        .float-content { display: flex; flex-direction: column; gap: 6px; }
+        .float-info { font-weight: bold; font-size: 0.85rem; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-accent);}
+        .float-volume { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
+        .float-volume span { cursor: pointer; transition: transform 0.2s; user-select: none; width: 18px; text-align: center; }
+        .float-volume span:hover { transform: scale(1.2); }
+        .float-volume input { width: 100px; cursor: pointer; height: 4px; margin: 0;}
+
+        /* --- Forms, Inputs, and Accordions --- */
+        .control-group { border-bottom: 1px solid var(--border-panel); padding-bottom: 10px; margin-bottom: 10px;}
+        .control-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
+        .accordion-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 5px 0; }
+        .accordion-header label.title { font-weight: bold; margin-bottom: 0; color: var(--text-accent); transition: color 0.4s ease; text-transform: uppercase; font-size: 0.85rem; pointer-events: none;}
+        .chevron { font-size: 0.8rem; color: var(--text-muted); transition: transform 0.4s ease; }
+        .accordion-content { overflow: hidden; transition: max-height 0.4s ease; }
+        .sub-label { font-size: 0.95rem; color: var(--text-main); font-weight: 500; transition: color 0.4s ease; cursor: help; }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; margin-top: 5px;}
+        select, input[type="text"], input[type="time"], input[type="date"] { width: 100%; padding: 8px; border: 1px solid var(--border-panel); border-radius: 5px; box-sizing: border-box; font-size: 0.9rem; background: transparent; color: var(--text-main); margin-bottom: 8px;}
+        
+        .volume-container { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; margin-top: 10px;}
+        
+        .split-button-container { display: flex; align-items: stretch; width: 100%; margin-top: 5px; margin-bottom: 5px;}
+        .split-button-main { flex-grow: 1; background-color: var(--btn-secondary); color: white; border: none; padding: 8px 12px; border-radius: 5px 0 0 5px; cursor: pointer; font-size: 0.95rem; font-weight: bold; transition: background-color 0.2s; text-align: left; }
+        .split-button-main:hover { background-color: var(--btn-secondary-hover); }
+        .dropdown { position: relative; display: flex; }
+        .split-button-caret { background-color: var(--btn-secondary); color: white; border: none; border-left: 1px solid rgba(0,0,0,0.1); padding: 0 10px; border-radius: 0 5px 5px 0; cursor: pointer; font-size: 1rem; transition: background-color 0.2s; }
+        .split-button-caret:hover { background-color: var(--btn-secondary-hover); }
+        .dropdown-content { display: none; position: absolute; right: 0; top: 100%; background: var(--bg-panel); min-width: 240px; box-shadow: 0px 8px 16px var(--shadow-heavy); z-index: 10; border-radius: 5px; overflow: hidden; border: 1px solid var(--border-panel); }
+        .dropdown-content.show { display: block; animation: dropDownFade 0.2s ease; transform-origin: top right;}
+        @keyframes dropDownFade { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .dropdown-content button { color: var(--text-main); padding: 8px 12px; text-decoration: none; display: block; width: 100%; background: none; border: none; border-bottom: 1px solid var(--border-panel); text-align: left; margin: 0; font-size: 0.9rem; cursor: pointer;}
+        .dropdown-content button:hover { background-color: var(--border-panel); }
+
+        .btn { background-color: var(--btn-primary); color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 0.95rem; width: 100%; margin-top: 8px; font-weight: bold; transition: all 0.2s; }
+        .btn.inline { width: auto; margin-top: 0; padding: 6px 12px;}
+        .btn:hover { background-color: var(--btn-primary-hover); transform: translateY(-1px);}
+        .btn-danger { background-color: var(--btn-danger); }
+
+        .goodbye-box { background: var(--progress-bg); border: 1px solid var(--border-panel); padding: 12px; border-radius: 8px; margin-top: 15px; }
+
+        /* --- Toggles --- */
+        .switch-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; margin-top: 5px;}
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; margin: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--btn-secondary); } 
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* --- Floating Footer --- */
+        .footer { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); font-size: 0.85rem; color: var(--text-muted); text-align: center; width: 100%; z-index: 10; pointer-events: none; }
+        .footer p { margin: 0 0 5px 0; font-weight: bold; text-shadow: 0 0 8px rgba(255,255,255,0.9);}
+        body.dark-mode .footer p { text-shadow: 0 0 8px rgba(0,0,0,0.9); }
+        .footer-logo { max-width: 160px; height: auto; display: inline-block; opacity: 0.7; }
+
+        /* --- Toast Notification --- */
+        #toast {
+            position: fixed; top: -60px; left: 50%; transform: translateX(-50%);
+            background-color: #5cb85c; color: white; padding: 12px 24px;
+            border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-weight: bold; font-size: 1.1rem; z-index: 9999; opacity: 0;
+            transition: top 0.6s ease, opacity 0.4s ease; pointer-events: none;
+        }
+        #toast.show { top: 90px; opacity: 1; }
 
         /* =========================================================
            MOBILE BROWSER OVERRIDES (< 1100px screens)
@@ -379,7 +357,7 @@
             
             .schedule-grid, .waffle-closed .schedule-grid { grid-template-columns: 1fr; gap: 8px; text-align: center; padding: 15px; }
             .period-name, .waffle-closed .period-name { grid-column: 1; grid-row: auto; text-align: center; font-size: 1.8rem; white-space: normal; padding: 0;}
-            .middle-section { grid-column: 1; grid-row: auto; }
+            .middle-section { grid-column: 1; grid-row: auto; overflow: visible;}
             .period-time, .waffle-closed .period-time { grid-column: 1; grid-row: auto; text-align: center; font-size: 1.4rem; white-space: normal; padding: 0;}
             .agenda-display { grid-column: 1 !important; grid-row: auto !important; white-space: normal; }
             .options-wrapper { grid-template-columns: repeat(3, 1fr); max-height: 80px; }
@@ -391,12 +369,12 @@
                 position: fixed !important; bottom: 0 !important; right: 0 !important; left: 0 !important; 
                 width: 100% !important; border-radius: 20px 20px 0 0 !important; 
                 justify-content: space-evenly; padding: 12px 15px !important;
-                box-shadow: 0 -5px 15px rgba(0,0,0,0.15) !important;
                 transform: translateY(100%); flex-wrap: nowrap; box-sizing: border-box;
             }
             #floating-player.visible { transform: translateY(0) !important; }
             
             #widget-menu-wrapper { bottom: 65px !important; left: 50% !important; transform: translateX(-50%) !important; }
+
             .drag-handle { display: none !important; } 
             .float-volume input { width: 65px !important; } 
             .float-info { max-width: 110px; font-size: 0.8rem; }
@@ -527,7 +505,7 @@
                             </select>
                         </div>
                         <button class="btn" onclick="addCustomReminder()" style="margin-top: 6px;">Add Reminder</button>
-                        <ul id="custom-reminder-list" style="list-style:none; padding:0; margin-top:10px; font-size:0.85rem; color:#555;"></ul>
+                        <ul id="custom-reminder-list" style="list-style:none; padding:0; margin-top:10px; font-size:0.85rem; color:var(--text-muted);"></ul>
                     </div>
                     <span class="sub-label" style="display:block; margin-bottom:5px;">Weekly Lunch Duties:</span>
                     <div style="display:flex; gap:6px; margin-bottom:6px;">
@@ -538,7 +516,7 @@
                         <select id="lunchPeriod" style="flex-grow: 1;"><option value="3rd">3rd Period</option><option value="4th">4th Period</option><option value="5th">5th Period</option><option value="6th">6th Period</option></select>
                         <button class="btn inline" onclick="addLunchDuty()">Add</button>
                     </div>
-                    <ul id="lunch-duty-list" style="list-style:none; padding:0; margin-top:10px; font-size:0.85rem; color:#555;"></ul>
+                    <ul id="lunch-duty-list" style="list-style:none; padding:0; margin-top:10px; font-size:0.85rem; color:var(--text-muted);"></ul>
                 </div>
             </div>
 
@@ -553,7 +531,7 @@
                             <label class="switch"><input type="checkbox" id="jukeboxToggle" onchange="toggleJukebox()"><span class="slider"></span></label>
                         </div>
                         <div style="font-size: 0.8rem; opacity: 0.85; margin-top: 5px; margin-bottom: 10px;">Plays an upbeat Clean Pop playlist during passing periods on Fridays.</div>
-                        <input type="text" id="jukeboxUrlInput" placeholder="Custom Playlist URL (Optional)" style="font-size: 0.8rem; padding: 6px; border: 1px solid rgba(0,0,0,0.2); background: rgba(255,255,255,0.7); width: 100%; border-radius: 4px; box-sizing: border-box;" onchange="updateJukeboxUrl()">
+                        <input type="text" id="jukeboxUrlInput" placeholder="Custom Playlist URL (Optional)" style="font-size: 0.8rem; padding: 6px; width: 100%; border-radius: 4px; box-sizing: border-box;" onchange="updateJukeboxUrl()">
                     </div>
                     <div style="display:flex; gap:6px; margin-bottom: 8px;">
                         <select id="vibeSelect" style="flex-grow: 1; min-width: 0;" onchange="changeVibeSelection()"><option value="">-- Add a Vibe --</option></select>
@@ -576,11 +554,11 @@
                     <label class="title">4. Schedule</label><span class="chevron" id="chev-sec-schedule">▼</span>
                 </div>
                 <div class="accordion-content" id="sec-schedule">
-                    <div id="autoIndicator" style="font-weight:bold; margin-bottom:10px; color:#888;">Sync Status: Initializing...</div>
+                    <div id="autoIndicator" style="font-weight:bold; margin-bottom:10px; color:var(--text-muted);">Sync Status: Initializing...</div>
                     <button class="timer-btn-hollow" onclick="fetchDailySchedule()" style="width:100%; margin-bottom:10px;">Force Sync Schedule</button>
                     <select id="scheduleMode" onchange="changeMode()">
-                        <option value="synced" id="syncedOption">Loading Google Sheet...</option>
-                        <option value="web">WEB Schedule (Hardcoded)</option>
+                        <option value="synced" id="syncedOption">Google Sheet (Live)</option>
+                        <option value="regular">Regular Schedule (Daily)</option>
                     </select>
                     <div class="setting-row">
                         <span class="sub-label">Show 0 Period</span>
@@ -608,7 +586,7 @@
                         <button class="timer-btn-hollow" onclick="addTimerMinutes(5)">+5m</button>
                     </div>
                     <div class="timer-controls" style="margin-top: 15px;">
-                        <button class="btn inline" id="timer-start-btn" onclick="togglePlayTimer()" style="width: 100px; background-color: #31b0d5; border:none; color:white;">Start</button>
+                        <button class="btn inline" id="timer-start-btn" onclick="togglePlayTimer()" style="width: 100px;">Start</button>
                         <button class="timer-btn-hollow timer-btn-reset" onclick="resetTimer()" style="width: 100px;">Reset</button>
                     </div>
                 </div>
@@ -641,25 +619,25 @@
                 <div class="qotd-container" id="qotd-voting-view">
                     <div class="qotd-text" id="qotd-question">Loading question...</div>
                     <img id="qotd-qr-img" class="qotd-qr" src="" alt="Scan to vote">
-                    <div style="font-size: 0.85rem; font-weight: bold; color: #888;">Scan to vote!</div>
-                    <div class="qotd-manual-unlock" title="Force Lock Voting" onclick="toggleQotdLock()" id="qotd-manual-lock">🔓</div>
+                    <div style="font-size: 0.85rem; font-weight: bold; color: var(--text-muted);">Scan to vote!</div>
+                    <div class="qotd-manual-unlock" title="Lock Voting" onclick="toggleQotdLock()" id="qotd-manual-lock">🔓</div>
                 </div>
                 
                 <div class="qotd-container" id="qotd-idle-view" style="display: none;">
                     <div class="qotd-text" id="qotd-idle-question">Loading question...</div>
                     <div style="font-size: 2.5rem; margin-top: 15px;">🔒</div>
-                    <div style="font-size: 0.9rem; font-weight: bold; color: #888; margin-top: 5px;">Voting closed.</div>
-                    <div class="qotd-manual-unlock" title="Force Open Voting" onclick="toggleQotdLock()" id="qotd-manual-unlock-idle">🔒</div>
+                    <div style="font-size: 0.9rem; font-weight: bold; color: var(--text-muted); margin-top: 5px;">Voting closed.</div>
+                    <div class="qotd-manual-unlock" title="Open Voting" onclick="toggleQotdLock()" id="qotd-manual-unlock-idle">🔒</div>
                 </div>
                 
                 <div class="qotd-container" id="qotd-results-view" style="display: none;">
                     <div class="qotd-text" id="qotd-results-question">Loading question...</div>
                     <div style="width: 100%; padding: 0 20px; box-sizing: border-box;">
                         <div style="text-align: left; font-size: 0.8rem; font-weight: bold; margin-bottom: 2px;" id="qotd-label-a">Option A</div>
-                        <div class="qotd-bar-bg"><div class="qotd-bar-fill" id="qotd-bar-a" style="background-color: #5cb85c;"></div><div class="qotd-bar-label" id="qotd-pct-a">0%</div></div>
+                        <div class="qotd-bar-bg"><div class="qotd-bar-fill" id="qotd-bar-a" style="background-color: var(--btn-secondary);"></div><div class="qotd-bar-label" id="qotd-pct-a">0%</div></div>
                         <div style="text-align: left; font-size: 0.8rem; font-weight: bold; margin-top: 10px; margin-bottom: 2px;" id="qotd-label-b">Option B</div>
-                        <div class="qotd-bar-bg"><div class="qotd-bar-fill" id="qotd-bar-b" style="background-color: #5bc0de;"></div><div class="qotd-bar-label" id="qotd-pct-b">0%</div></div>
-                        <div style="font-size: 0.8rem; margin-top: 15px; color: #888;" id="qotd-total-votes">Total Votes: 0</div>
+                        <div class="qotd-bar-bg"><div class="qotd-bar-fill" id="qotd-bar-b" style="background-color: var(--btn-primary);"></div><div class="qotd-bar-label" id="qotd-pct-b">0%</div></div>
+                        <div style="font-size: 0.8rem; margin-top: 15px; color: var(--text-muted);" id="qotd-total-votes">Total Votes: 0</div>
                     </div>
                     <div class="qotd-manual-unlock" title="Re-open Voting" onclick="toggleQotdLock()" id="qotd-manual-unlock-results">🔒</div>
                 </div>
@@ -707,16 +685,18 @@
 
         let predefinedSchedules = {
             synced: [], 
-            web: [
-                { name: "1st", start: "08:20", end: "08:50" }, { name: "WEB", start: "08:56", end: "09:40" }, 
-                { name: "2nd", start: "09:46", end: "10:15" }, { name: "3rd", start: "10:21", end: "10:50" }, 
-                { name: "4th", start: "10:56", end: "11:25" }, { name: "5th", start: "11:31", end: "12:00" }, 
-                { name: "6th", start: "12:06", end: "12:35" }, { name: "7th", start: "12:41", end: "13:10" }
+            regular: [
+                { name: "1st", start: "08:20", end: "08:50" }, { name: "HR", start: "08:56", end: "09:05" }, 
+                { name: "2nd", start: "09:11", end: "09:40" }, { name: "3rd", start: "09:46", end: "10:15" }, 
+                { name: "4th", start: "10:21", end: "10:50" }, { name: "5th", start: "10:56", end: "11:25" }, 
+                { name: "6th", start: "11:31", end: "12:00" }, { name: "7th", start: "12:06", end: "12:35" }
             ],
             custom: []
         };
 
-        let currentMode = 'synced', activeSchedule = [];
+        // CORE VARIABLES
+        let isBooting = true; // NEW: Protects memory on boot
+        let currentMode = 'regular', activeSchedule = [];
         let globalVolume = 1.0, globalVoicePref = '', classSettings = {};
         let lunchDuties = [], customReminders = [];
         let savedVibes = [], currentVibeUrl = '', vibeVolume = 50;
@@ -731,7 +711,7 @@
         let timerInterval = null, timerTotalSeconds = 300, timerIsPlaying = false;
         let qotdResultsFetched = false, qotdManualUnlock = false; 
 
-        let currentScheduleName = "Loading..."; 
+        let currentScheduleName = "Regular"; 
         let playedActions = {}, currentMinuteTracker = "", lastAutoState = null; 
         let mrBsJukebox = false, jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
         let isMainVibePlaying = false, activePlayerUrl = '', lastPeriodStatus = null; 
@@ -739,752 +719,87 @@
         let agendaCache = {}, agendaPromises = {};
         let savedVibeVol = 50, isVibeMuted = false, savedGlobalVol = 1.0, isGlobalMuted = false;
 
+        // --- GLOBAL EVENT LISTENERS ---
         document.addEventListener('fullscreenchange', () => {
             const fsBtn = document.getElementById('fullScreenBtn');
             if(fsBtn) fsBtn.classList.toggle('active-btn', document.fullscreenElement);
         });
 
-        // Widget Menu Click-Away Listener
         document.addEventListener('click', (e) => {
             const menu = document.getElementById('widget-panel-menu');
             const btn = document.getElementById('widget-menu-btn');
-            if (menu && menu.style.display === 'flex') {
-                if (!menu.contains(e.target) && !btn.contains(e.target)) {
-                    menu.style.display = 'none';
-                }
+            if (menu && menu.style.display === 'flex' && !menu.contains(e.target) && !btn.contains(e.target)) {
+                menu.style.display = 'none';
             }
         });
 
-        // Smart Draggable Logic for Player Only
-        document.querySelectorAll('.drag-handle').forEach(handle => {
-            handle.addEventListener('mousedown', function(e) {
-                if (window.innerWidth <= 850) return; 
-                if (e.target.tagName === 'BUTTON') return; 
-                
-                let isDragging = true;
-                const player = handle.closest('.floating-player');
-                player.classList.add('dragging');
-                
-                let startX = e.clientX;
-                let startY = e.clientY;
-                
-                document.onmouseup = function() {
-                    isDragging = false;
-                    document.onmouseup = null;
-                    document.onmousemove = null;
-                    player.classList.remove('dragging');
-                };
+        // --- DRAGGABLE PLAYER ---
+        const player = document.getElementById('floating-player');
+        const handle = player.querySelector('.drag-handle');
+        let isDragging = false, startX, startY;
 
-                document.onmousemove = function(ev) {
-                    if (!isDragging) return;
-                    ev.preventDefault();
-                    let diffX = startX - ev.clientX;
-                    let diffY = startY - ev.clientY;
-                    startX = ev.clientX;
-                    startY = ev.clientY;
-                    
-                    player.style.top = (player.offsetTop - diffY) + "px";
-                    player.style.left = (player.offsetLeft - diffX) + "px";
-                    player.style.bottom = 'auto';
-                    player.style.right = 'auto';
-                };
-            });
+        handle.addEventListener('mousedown', function(e) {
+            if (window.innerWidth <= 850) return; 
+            isDragging = true;
+            player.classList.add('dragging');
+            startX = e.clientX; startY = e.clientY;
+            
+            document.onmouseup = function() {
+                isDragging = false;
+                player.classList.remove('dragging');
+                document.onmouseup = null; document.onmousemove = null;
+            };
+            document.onmousemove = function(ev) {
+                if (!isDragging) return;
+                ev.preventDefault();
+                player.style.top = (player.offsetTop - (startY - ev.clientY)) + "px";
+                player.style.left = (player.offsetLeft - (startX - ev.clientX)) + "px";
+                player.style.bottom = 'auto'; player.style.right = 'auto';
+                startX = ev.clientX; startY = ev.clientY;
+            };
         });
 
-        window.addEventListener('resize', () => {
-            if (window.innerWidth <= 850) {
-                document.querySelectorAll('.floating-player').forEach(el => {
-                    el.style.top = ''; el.style.left = ''; el.style.right = ''; el.style.bottom = '';
-                });
-            }
-        });
-
-        function reloadWeatherWidget() {
-            const container1 = document.getElementById('weather-container-main');
-            if(!container1) return;
-            const color = isDarkMode ? '#ffffff' : '#333333';
-            container1.innerHTML = `<a class="weatherwidget-io" href="https://forecast7.com/en/33d98n84d43/east-cobb/?unit=us" data-label_1="EAST COBB" data-theme="pure" data-basecolor="rgba(0,0,0,0)" data-textcolor="${color}">EAST COBB</a>`;
-            !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;}else{js=d.getElementById(id);js.remove();js=d.createElement(s);js.id=id;}js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}(document,'script','weatherwidget-io-js');
-        }
-
-        function toggleWidgetPanel(e) {
+        // --- UI TOGGLES ---
+        function toggleSidebar(e) {
             if(e) e.stopPropagation();
-            const p = document.getElementById('widget-panel-menu');
-            p.style.display = p.style.display === 'none' ? 'flex' : 'none';
-        }
-
-        function toggleWidget(id, isChecked) {
-            activeWidgets[id] = isChecked;
-            const card = document.getElementById(`widget-${id}`);
-            if(card) {
-                if(isChecked) card.classList.add('active-widget');
-                else card.classList.remove('active-widget');
-            }
-            if (id === 'weather' && isChecked) reloadWeatherWidget();
-            
-            const floatTog = document.getElementById(`wm-tog-${id}`);
-            if(floatTog) floatTog.checked = isChecked;
+            sidebarVisible = !sidebarVisible;
+            document.getElementById('sidebar').classList.toggle('collapsed', !sidebarVisible);
+            document.getElementById('hamburgerBtn').classList.toggle('active-btn', sidebarVisible);
             saveLocalSettings();
         }
 
-        let ytPlayer = null;
-        let isYtApiReady = false;
-
-        var tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        var firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-        function onYouTubeIframeAPIReady() { isYtApiReady = true; }
-
-        function extractVideoID(url) {
-            if(!url) return null;
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|live\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
-        }
-        
-        function renderVibeDropdown() {
-            const select = document.getElementById('vibeSelect');
-            if(!select) return;
-            select.innerHTML = '';
-            
-            if(savedVibes.length === 0) {
-                select.innerHTML = '<option value="">-- Playlist Empty --</option>';
-            } else {
-                savedVibes.forEach(v => {
-                    const opt = document.createElement('option');
-                    opt.value = v.url;
-                    opt.textContent = v.title || "Loading Title...";
-                    if (v.url === currentVibeUrl) opt.selected = true;
-                    select.appendChild(opt);
-                });
-            }
-        }
-        
-        function addNewVibe() {
-            const url = prompt("Paste a YouTube URL (Video or Live Stream):");
-            if(url) {
-                const vid = extractVideoID(url);
-                if(vid) {
-                    let exists = savedVibes.find(v => extractVideoID(v.url) === vid);
-                    if(!exists) {
-                        savedVibes.push({ url: url, title: 'Loading Vibe...' });
-                    }
-                    currentVibeUrl = url;
-                    saveLocalSettings();
-                    renderVibeDropdown();
-                    startVibe(); 
-                } else {
-                    alert("Invalid YouTube URL. Please make sure it is a standard link.");
-                }
-            }
-        }
-        
-        function removeVibe() {
-            if(!currentVibeUrl || savedVibes.length === 0) return;
-            savedVibes = savedVibes.filter(v => v.url !== currentVibeUrl);
-            if(savedVibes.length > 0) {
-                currentVibeUrl = savedVibes[0].url;
-                saveLocalSettings();
-                renderVibeDropdown();
-                startVibe();
-            } else {
-                currentVibeUrl = '';
-                saveLocalSettings();
-                renderVibeDropdown();
-                stopVibe();
-            }
-        }
-        
-        function changeVibeSelection() {
-            const select = document.getElementById('vibeSelect');
-            if(select && select.value) {
-                currentVibeUrl = select.value;
-                saveLocalSettings();
-                lastPeriodStatus = null; 
-            }
-        }
-
-        function applyMusicState(url, shouldPlay) {
-            if (!url) { stopVibeCore(); return true; } 
-            
-            activePlayerUrl = url;
-            updateFloatingPlayerVisibility(); 
-            
-            const vid = extractVideoID(url);
-            if (!vid) return true;
-
-            if (!isYtApiReady) return false; 
-
-            const bgContainer = document.getElementById('vibe-bg');
-            if(bgContainer) bgContainer.style.opacity = "0.45";
-
-            if (ytPlayer) {
-                try { ytPlayer.destroy(); ytPlayer = null; } catch(e) {}
-            } 
-            
-            if(bgContainer) bgContainer.innerHTML = '<div id="yt-player-container"></div>';
-            
-            try {
-                ytPlayer = new YT.Player('yt-player-container', {
-                    videoId: vid,
-                    playerVars: { 'autoplay': shouldPlay ? 1 : 0, 'controls': 0, 'autohide': 1, 'wmode': 'opaque', 'showinfo': 0, 'loop': 1, 'playlist': vid, 'mute': 0 },
-                    events: { 
-                        'onReady': function(e) { 
-                            try { 
-                                e.target.setVolume(vibeVolume); 
-                                if(shouldPlay) e.target.playVideo(); 
-                            } catch(err) {} 
-                        }, 
-                        'onStateChange': onPlayerStateChange 
-                    }
-                });
-            } catch(e) {}
-            
-            return true;
-        }
-
-        function toggleVibePlay() {
-            const floatBtn = document.getElementById('float-play-btn');
-            if (ytPlayer && typeof ytPlayer.getPlayerState === 'function') {
-                try {
-                    let state = ytPlayer.getPlayerState();
-                    if (state === YT.PlayerState.PLAYING) {
-                        ytPlayer.pauseVideo();
-                        if(floatBtn) floatBtn.innerHTML = playSVG;
-                        isMainVibePlaying = false;
-                        if (activePlayerUrl === currentVibeUrl) { saveLocalSettings(); }
-                    } else {
-                        ytPlayer.playVideo();
-                        if(floatBtn) floatBtn.innerHTML = pauseSVG;
-                        isMainVibePlaying = true;
-                        if (activePlayerUrl === currentVibeUrl) { saveLocalSettings(); }
-                    }
-                } catch(e) { console.error(e); }
-            } else { startVibe(); }
-        }
-
-        function startVibe() {
-            if(!currentVibeUrl) return;
-            isMainVibePlaying = true;
-            saveLocalSettings();
-            lastPeriodStatus = null; 
-        }
-
-        function stopVibeCore() {
-            activePlayerUrl = '';
-            const bg = document.getElementById('vibe-bg');
-            if(bg) bg.style.opacity = "0";
-            if (ytPlayer) { try { ytPlayer.destroy(); ytPlayer = null; } catch(e) {} }
-            updateFloatingPlayerVisibility();
-        }
-
-        function stopVibe() {
-            isMainVibePlaying = false;
-            saveLocalSettings();
-            if (activePlayerUrl === jukeboxUrl) {
-                if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') ytPlayer.pauseVideo();
-            } else {
-                stopVibeCore();
-            }
-        }
-
-        function onPlayerStateChange(event) {
-            const floatBtn = document.getElementById('float-play-btn');
-            if(!floatBtn) return;
-            
-            if (event.data == YT.PlayerState.PLAYING) {
-                floatBtn.innerHTML = pauseSVG;
-                try {
-                    let title = ytPlayer.getVideoData().title;
-                    const titleEl = document.getElementById('float-vibe-title');
-                    if(title && titleEl) titleEl.innerText = title;
-                    
-                    if(title && activePlayerUrl === currentVibeUrl) {
-                        let updated = false;
-                        savedVibes.forEach(v => {
-                            if(v.url === currentVibeUrl && v.title !== title) { v.title = title; updated = true; }
-                        });
-                        if(updated) { saveLocalSettings(); renderVibeDropdown(); }
-                    }
-                } catch(e) {}
-            } else if (event.data == YT.PlayerState.ENDED) {
-                event.target.playVideo();
-            } else {
-                floatBtn.innerHTML = playSVG;
-            }
-        }
-
-        function syncVibeVolume(val) {
-            vibeVolume = parseInt(val);
-            const mainVol = document.getElementById('vibeVolumeControl');
-            const floatVol = document.getElementById('floatVibeVolume');
-            const floatIcon = document.getElementById('vibeMuteIcon');
-            const sideIcon = document.getElementById('sidebarVibeIcon');
-            
-            if(mainVol) mainVol.value = vibeVolume;
-            if(floatVol) floatVol.value = vibeVolume;
-            
-            isVibeMuted = (vibeVolume === 0);
-            if(floatIcon) floatIcon.innerText = isVibeMuted ? '🔇' : '🎵';
-            if(sideIcon) sideIcon.innerText = isVibeMuted ? '🔇' : '🎵';
-
-            if (ytPlayer && typeof ytPlayer.setVolume === 'function') { try { ytPlayer.setVolume(vibeVolume); } catch(e) {} }
+        function toggleWaffleMenu(force) {
+            isWaffleClosed = force !== undefined ? force : !isWaffleClosed;
+            document.getElementById('schedule-container').classList.toggle('waffle-closed', isWaffleClosed);
+            document.getElementById('waffleViewBtn').classList.toggle('active-btn', !isWaffleClosed);
             saveLocalSettings();
         }
 
-        function toggleFloatVibeMute() {
-            if(isVibeMuted) {
-                syncVibeVolume(savedVibeVol);
-            } else {
-                savedVibeVol = vibeVolume > 0 ? vibeVolume : 50;
-                syncVibeVolume(0);
-            }
-        }
-
-        function syncGlobalVolume(val) {
-            globalVolume = parseFloat(val);
-            const mainVol = document.getElementById('volumeControl');
-            const floatVol = document.getElementById('floatBellVolume');
-            const floatIcon = document.getElementById('bellMuteIcon');
-            const sideIcon = document.getElementById('sidebarBellIcon');
+        function toggleMinimalView(force) {
+            isMinimalView = force !== undefined ? force : !isMinimalView;
+            document.body.classList.toggle('minimal-active', isMinimalView);
+            document.getElementById('minimalViewBtn').classList.toggle('active-btn', isMinimalView);
             
-            if(mainVol) mainVol.value = globalVolume;
-            if(floatVol) floatVol.value = globalVolume;
-            
-            isGlobalMuted = (globalVolume === 0);
-            if(floatIcon) floatIcon.innerText = isGlobalMuted ? '🔕' : '🔔';
-            if(sideIcon) sideIcon.innerText = isGlobalMuted ? '🔕' : '🔔';
-
-            const audio = document.getElementById('regularBellAudio'); 
-            if(audio) audio.volume = globalVolume;
-
+            Object.keys(activeWidgets).forEach(k => toggleWidget(k, activeWidgets[k]));
             saveLocalSettings();
         }
 
-        function toggleFloatBellMute() {
-            if(isGlobalMuted) {
-                syncGlobalVolume(savedGlobalVol);
-            } else {
-                savedGlobalVol = globalVolume > 0 ? globalVolume : 1.0;
-                syncGlobalVolume(0);
-            }
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(err => {});
+            else if (document.exitFullscreen) document.exitFullscreen();
         }
 
-        function changeVolume() { 
-            const vc = document.getElementById('volumeControl');
-            if(vc) syncGlobalVolume(vc.value); 
-        }
-
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            if(!toast) return;
-            toast.innerText = message; toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, 4000);
-        }
-
-        function updateTimerDisplay() {
-            const d = document.getElementById('timer-display');
-            if(!d) return;
-            const m = Math.floor(timerTotalSeconds / 60).toString().padStart(2, '0');
-            const s = (timerTotalSeconds % 60).toString().padStart(2, '0');
-            d.innerText = `${m}:${s}`;
-            if(timerTotalSeconds === 0) d.style.color = '#d9534f';
-            else d.style.color = '';
-        }
-        function addTimerMinutes(mins) {
-            timerTotalSeconds += (mins * 60);
-            updateTimerDisplay();
-        }
-        function resetTimer() {
-            timerTotalSeconds = 300; 
-            updateTimerDisplay();
-            if(timerIsPlaying) togglePlayTimer();
-        }
-        function togglePlayTimer() {
-            const btn = document.getElementById('timer-start-btn');
-            if(timerIsPlaying) {
-                clearInterval(timerInterval);
-                timerIsPlaying = false;
-                if(btn) { btn.innerText = "Start"; btn.style.backgroundColor = '#31b0d5'; }
-            } else {
-                if(timerTotalSeconds <= 0) return; 
-                timerIsPlaying = true;
-                if(btn) { btn.innerText = "Pause"; btn.style.backgroundColor = '#d9534f'; }
-                timerInterval = setInterval(() => {
-                    if(timerTotalSeconds > 0) {
-                        timerTotalSeconds--;
-                        updateTimerDisplay();
-                    } else {
-                        togglePlayTimer();
-                        playBellWithQueue(2); 
-                    }
-                }, 1000);
-            }
-        }
-
-        // QotD Logic
-        function getDailyQotd() {
-            const now = new Date();
-            const start = new Date(now.getFullYear(), 0, 0);
-            const diff = now - start;
-            const oneDay = 1000 * 60 * 60 * 24;
-            const dayOfYear = Math.floor(diff / oneDay);
-            return qotdDatabase[dayOfYear % qotdDatabase.length];
-        }
-
-        function toggleQotdLock() {
-            qotdManualUnlock = !qotdManualUnlock;
-            updateClock(); 
-        }
-
-        function updateQotdUI(status) {
-            if (!activeWidgets.qotd) return; 
+        function toggleDarkMode(shouldSave = true) {
+            const toggle = document.getElementById('darkModeToggle');
+            if(!toggle) return;
+            isDarkMode = toggle.checked;
+            document.body.classList.toggle('dark-mode', isDarkMode);
             
-            const qObj = getDailyQotd();
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(QOTD_APPS_SCRIPT_URL)}`;
-
-            // Main Widget Updates
-            document.getElementById('qotd-question').innerText = qObj.q;
-            document.getElementById('qotd-idle-question').innerText = qObj.q;
-            document.getElementById('qotd-results-question').innerText = qObj.q;
-            document.getElementById('qotd-label-a').innerText = qObj.a;
-            document.getElementById('qotd-label-b').innerText = qObj.b;
-            document.getElementById('qotd-qr-img').src = qrUrl;
-            
-            const viewVoting = document.getElementById('qotd-voting-view');
-            const viewIdle = document.getElementById('qotd-idle-view');
-            const viewResults = document.getElementById('qotd-results-view');
-            const relockBtn = document.getElementById('qotd-manual-lock');
-
-            if (status && status.actualClass) {
-                const p = status.periodData;
-                const currentMins = new Date().getHours() * 60 + new Date().getMinutes();
-                
-                if (currentMins >= p.startMins && currentMins < p.startMins + 5) {
-                    // FIRST 5 MINS (Open)
-                    viewVoting.style.display = 'flex'; viewIdle.style.display = 'none'; viewResults.style.display = 'none';
-                    if(relockBtn) relockBtn.style.display = 'block';
-                    qotdResultsFetched = false; 
-                    qotdManualUnlock = false; 
-                } else if (currentMins >= p.endMins - 5 && currentMins < p.endMins) {
-                    // LAST 5 MINS (Results)
-                    viewVoting.style.display = 'none'; viewIdle.style.display = 'none'; viewResults.style.display = 'flex';
-                    if(relockBtn) relockBtn.style.display = 'none';
-                    qotdManualUnlock = false;
-                    
-                    if (!qotdResultsFetched) {
-                        qotdResultsFetched = true;
-                        fetch(QOTD_APPS_SCRIPT_URL + "?action=getResults")
-                            .then(r => r.json())
-                            .then(data => {
-                                const votesA = parseInt(data.votesA) || 0;
-                                const votesB = parseInt(data.votesB) || 0;
-                                const total = votesA + votesB;
-                                const pctA = total === 0 ? 0 : Math.round((votesA / total) * 100);
-                                const pctB = total === 0 ? 0 : 100 - pctA;
-                                
-                                document.getElementById('qotd-bar-a').style.width = pctA + '%';
-                                document.getElementById('qotd-pct-a').innerText = pctA + '%';
-                                document.getElementById('qotd-bar-b').style.width = pctB + '%';
-                                document.getElementById('qotd-pct-b').innerText = pctB + '%';
-                                document.getElementById('qotd-total-votes').innerText = "Total Votes: " + total;
-                            }).catch(e => console.error("Error fetching QotD results:", e));
-                    }
-                } else {
-                    // MID CLASS
-                    if (qotdManualUnlock) {
-                        // Teacher Override Open!
-                        viewVoting.style.display = 'flex'; viewIdle.style.display = 'none'; viewResults.style.display = 'none';
-                        if(relockBtn) relockBtn.style.display = 'block';
-                    } else {
-                        // Normal Lock
-                        viewVoting.style.display = 'none'; viewIdle.style.display = 'flex'; viewResults.style.display = 'none';
-                        if(relockBtn) relockBtn.style.display = 'none';
-                    }
-                }
-            } else {
-                // PASSING PERIOD
-                viewVoting.style.display = 'none'; viewIdle.style.display = 'flex'; viewResults.style.display = 'none';
-                if(relockBtn) relockBtn.style.display = 'none';
-                qotdResultsFetched = false;
-                qotdManualUnlock = false;
-            }
+            if (activeWidgets.weather) reloadWeatherWidget();
+            if (shouldSave) saveLocalSettings();
         }
 
-        // --- ASYNC SCHEDULE FETCHING ---
-        async function fetchDailySchedule() {
-            const ind = document.getElementById('autoIndicator');
-            if(ind) { ind.style.display = 'block'; ind.innerText = "Sync Status: Fetching..."; ind.style.color = '#888'; }
-            
-            try {
-                const response = await fetch(GOOGLE_CALENDAR_SCRIPT_URL);
-                const data = await response.json();
-                
-                if (data && data.schedule) {
-                    let modeStr = String(data.mode || '').toLowerCase().trim();
-                    let cleanSchedule = [];
-                    data.schedule.forEach(p => {
-                        if(!p || !p.name) return;
-                        let cleanP = { name: String(p.name).trim(), start: String(p.start || '').trim(), end: String(p.end || '').trim() };
-                        if(cleanP.start.includes(':')) cleanP.start = cleanP.start.split(':').map(v => v.padStart(2, '0')).join(':');
-                        if(cleanP.end.includes(':')) cleanP.end = cleanP.end.split(':').map(v => v.padStart(2, '0')).join(':');
-                        cleanSchedule.push(cleanP);
-                    });
-
-                    predefinedSchedules['synced'] = cleanSchedule;
-                    currentScheduleName = modeStr;
-
-                    if(ind) { ind.innerText = "Sync Status: ✓ Connected"; ind.style.color = '#5cb85c'; }
-                    const modeDropdown = document.getElementById('scheduleMode');
-                    if(modeDropdown) {
-                        modeDropdown.value = 'synced';
-                        document.getElementById('syncedOption').innerText = `Sheet: ${modeStr.toUpperCase()}`;
-                    }
-                    currentMode = 'synced';
-                    changeMode(true);
-                    showToast(`Loaded: ${modeStr.toUpperCase()} Schedule`);
-                }
-            } catch (err) {
-                console.error("Schedule sync failed:", err);
-                if(ind) { ind.innerText = "Sync Status: ⚠ Offline (Using Fallback)"; ind.style.color = '#d9534f'; }
-                
-                const modeDropdown = document.getElementById('scheduleMode');
-                if (predefinedSchedules['synced'] && predefinedSchedules['synced'].length > 0) {
-                    if(modeDropdown) modeDropdown.value = 'synced';
-                    currentMode = 'synced';
-                } else {
-                    if(modeDropdown) modeDropdown.value = 'web';
-                    currentMode = 'web';
-                }
-                changeMode(true);
-                showToast("Falling back to local schedule.");
-            }
-        }
-
-        async function fetchAgenda(url, elementId) {
-            const el = document.getElementById(elementId);
-            if (!el) return;
-            
-            let fetchUrlStr = url.trim();
-            if (fetchUrlStr.startsWith('webcal://')) {
-                fetchUrlStr = 'https://' + fetchUrlStr.substring(9);
-            }
-
-            if (agendaCache[fetchUrlStr]) {
-                if (agendaCache[fetchUrlStr] !== 'empty') {
-                    el.innerHTML = agendaCache[fetchUrlStr];
-                    el.classList.add('has-data');
-                } else {
-                    el.innerHTML = "";
-                    el.classList.remove('has-data');
-                }
-                return;
-            }
-
-            el.innerHTML = "<em>Fetching...</em>";
-            el.classList.add('has-data');
-
-            try {
-                if (!agendaPromises[fetchUrlStr]) {
-                    const fetchUrl = `${GOOGLE_CALENDAR_SCRIPT_URL}?icalUrl=${encodeURIComponent(fetchUrlStr)}`;
-                    
-                    agendaPromises[fetchUrlStr] = fetch(fetchUrl).then(async (response) => {
-                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                        const icsData = await response.text();
-
-                        if (icsData.startsWith('Error:')) {
-                            return `<em class="agenda-error" title="${icsData}">Apps Script error</em>`;
-                        }
-
-                        if (!icsData || (!icsData.includes('BEGIN:VCALENDAR') && !icsData.includes('BEGIN:VEVENT'))) {
-                            return "<em class='agenda-error' title='Ensure you used the Secret iCal Address'>Invalid calendar data</em>";
-                        }
-
-                        const today = new Date();
-                        const todayInt = parseInt(today.getFullYear() + String(today.getMonth() + 1).padStart(2, '0') + String(today.getDate()).padStart(2, '0'), 10);
-                        
-                        const events = icsData.split('BEGIN:VEVENT');
-                        let todaysEvents = [];
-
-                        for (let i = 1; i < events.length; i++) {
-                            const eventText = events[i];
-                            
-                            const dtStartMatch = eventText.match(/DTSTART(?:;[^:]*)?:([0-9]{8})/); 
-                            const dtEndMatch = eventText.match(/DTEND(?:;[^:]*)?:([0-9]{8})/); 
-                            const isTimedMatch = eventText.match(/DTSTART(?:;[^:]*)?:[0-9]{8}T/);
-                            const summaryMatch = eventText.match(/SUMMARY:([^\r\n]*)/);
-
-                            if (dtStartMatch && summaryMatch) {
-                                const startInt = parseInt(dtStartMatch[1], 10);
-                                let isActive = false;
-
-                                if (dtEndMatch) {
-                                    const endInt = parseInt(dtEndMatch[1], 10);
-                                    if (isTimedMatch) {
-                                        isActive = (todayInt >= startInt && todayInt <= endInt);
-                                    } else {
-                                        isActive = (todayInt >= startInt && todayInt < endInt);
-                                    }
-                                } else {
-                                    isActive = (startInt === todayInt);
-                                }
-
-                                if (isActive) {
-                                    todaysEvents.push(summaryMatch[1].trim());
-                                }
-                            }
-                        }
-
-                        if (todaysEvents.length > 0) {
-                            return todaysEvents.join(' &nbsp;|&nbsp; ');
-                        } else {
-                            return "empty";
-                        }
-                    });
-                }
-
-                const resultHtml = await agendaPromises[fetchUrlStr];
-                agendaCache[fetchUrlStr] = resultHtml;
-
-                if (resultHtml !== 'empty') {
-                    el.innerHTML = resultHtml;
-                    el.classList.add('has-data');
-                } else {
-                    el.innerHTML = "";
-                    el.classList.remove('has-data');
-                }
-
-            } catch (error) {
-                el.innerHTML = "<em class='agenda-error'>Error loading feed.</em>";
-                agendaCache[fetchUrlStr] = "<em class='agenda-error'>Error loading feed.</em>";
-            }
-        }
-
-        // --- LOCAL STORAGE ---
-        function saveLocalSettings() {
-            try {
-                const data = {
-                    mode: currentMode, vol: globalVolume, voice: globalVoicePref, testSound: currentTestSound,
-                    side: sidebarVisible, waffleClosed: isWaffleClosed, minimalView: isMinimalView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
-                    customSchedule: predefinedSchedules.custom, settings: classSettings, lunchDuties: lunchDuties,
-                    savedVibes: savedVibes, vibe: currentVibeUrl, vibeVol: vibeVolume, muteB: muteBells,
-                    mrBsJukebox: mrBsJukebox, jukeboxUrl: jukeboxUrl, isMainVibePlaying: isMainVibePlaying,
-                    customReminders: customReminders, accordions: accordionStates, widgets: activeWidgets
-                };
-                localStorage.setItem('waltonBellState', JSON.stringify(data));
-            } catch (e) {}
-        }
-
-        function loadLocalSettings() {
-            try {
-                const saved = localStorage.getItem('waltonBellState');
-                if (saved) {
-                    const p = JSON.parse(saved);
-                    
-                    if (p.customSchedule) predefinedSchedules.custom = p.customSchedule;
-                    if (p.settings) classSettings = p.settings;
-                    if (p.lunchDuties) lunchDuties = p.lunchDuties;
-                    if (p.customReminders) customReminders = p.customReminders;
-                    
-                    if (p.vol !== undefined) { syncGlobalVolume(p.vol); } else { syncGlobalVolume(1.0); }
-                    if (p.vibeVol !== undefined) { syncVibeVolume(p.vibeVol); }
-
-                    if (p.testSound) {
-                        currentTestSound = p.testSound;
-                        const labels = {
-                            'positive': 'Voice Test', 'start': 'Class Start', 'end': 'Class End', 'warning1m': '1-Min Warning',
-                            'attendance': 'Take Attend.', 'cleanup': '5-Min Clean', 'lunch': 'Lunch Duty'
-                        };
-                        const pBtn = document.getElementById("playBtn");
-                        if (labels[currentTestSound] && pBtn) pBtn.innerHTML = "▶ Play " + labels[currentTestSound];
-                    }
-
-                    if (p.side === true) {
-                        // User requested default closed, but if they specifically saved it open, let's honor it conditionally.
-                        // Actually, user requested: "the left menu is defaulting to open on refresh." I will enforce false on boot.
-                    }
-                    
-                    if (p.waffleClosed !== undefined) { setWaffleState(p.waffleClosed, false); }
-                    if (p.minimalView !== undefined) { setMinimalView(p.minimalView, false); }
-                    
-                    if (p.dark === true) { 
-                        isDarkMode = true;
-                        const dmToggle = document.getElementById('darkModeToggle');
-                        if(dmToggle) dmToggle.checked = true; 
-                        document.body.classList.add('dark-mode');
-                    }
-                    if (p.zero === true) { 
-                        const zeroToggle = document.getElementById('showZeroPeriod');
-                        if(zeroToggle) zeroToggle.checked = true; 
-                        showZero = true; 
-                    }
-                    if (p.playGoodbyes === true) { 
-                        const pgToggle = document.getElementById('playGoodbyes');
-                        if(pgToggle) pgToggle.checked = true; 
-                        playGoodbyes = true; 
-                    }
-                    if (p.muteB === true) { 
-                        const mbToggle = document.getElementById('muteBellsToggle');
-                        if(mbToggle) mbToggle.checked = true; 
-                        muteBells = true; 
-                    }
-                    
-                    if (p.savedVibes) savedVibes = p.savedVibes;
-                    if (p.vibe && savedVibes.length === 0) {
-                        savedVibes.push({ url: p.vibe, title: 'Saved Vibe' });
-                        currentVibeUrl = p.vibe;
-                    } else if (p.vibe) {
-                        currentVibeUrl = p.vibe;
-                    }
-
-                    if (p.mrBsJukebox !== undefined) mrBsJukebox = p.mrBsJukebox;
-                    if (p.jukeboxUrl) jukeboxUrl = p.jukeboxUrl;
-                    if (p.isMainVibePlaying !== undefined) isMainVibePlaying = p.isMainVibePlaying;
-
-                    const jkToggle = document.getElementById('jukeboxToggle');
-                    if(jkToggle) jkToggle.checked = mrBsJukebox;
-                    const jkInput = document.getElementById('jukeboxUrlInput');
-                    if(jkInput && jukeboxUrl !== "https://www.youtube.com/watch?v=CLLpSmaof4E") {
-                        jkInput.value = jukeboxUrl;
-                    }
-
-                    if (p.widgets) {
-                        activeWidgets = p.widgets;
-                        Object.keys(p.widgets).forEach(key => {
-                            const tog = document.getElementById(`wm-tog-${key}`);
-                            if(tog) {
-                                tog.checked = p.widgets[key];
-                                toggleWidget(key, p.widgets[key]);
-                            }
-                        });
-                    }
-
-                    if (p.accordions) {
-                        accordionStates = p.accordions;
-                        Object.keys(accordionStates).forEach(id => {
-                            if(accordionStates[id] === false) {
-                                const el = document.getElementById(id);
-                                if(el) el.style.maxHeight = "0px";
-                                const chev = document.getElementById('chev-'+id);
-                                if(chev) chev.style.transform = "rotate(-90deg)";
-                            }
-                        });
-                    }
-                    
-                    let savedMode = p.mode || 'synced';
-                    if (savedMode === 'daily') savedMode = 'regular';
-                    currentMode = savedMode;
-                    const modeDropdown = document.getElementById('scheduleMode');
-                    if(modeDropdown) modeDropdown.value = currentMode;
-                    
-                    if(p.voice) globalVoicePref = p.voice;
-                }
-            } catch (e) {}
-        }
-
-        function toggleAccordion(id, shouldSave = true) {
+        function toggleAccordion(id) {
             const content = document.getElementById(id);
             const chevron = document.getElementById('chev-' + id);
             if (!content || !chevron) return;
@@ -1502,180 +817,319 @@
                     accordionStates[id] = false;
                 }, 10);
             }
-            if(shouldSave) saveLocalSettings();
-        }
-
-        function toggleFullScreen() {
-            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(err => {});
-            else if (document.exitFullscreen) document.exitFullscreen();
-        }
-
-        function toggleDarkMode(shouldSave = true) {
-            const toggle = document.getElementById('darkModeToggle');
-            if(!toggle) return;
-            isDarkMode = toggle.checked;
-            
-            if (isDarkMode) { document.body.classList.add('dark-mode'); } 
-            else { document.body.classList.remove('dark-mode'); }
-            
-            if (shouldSave) saveLocalSettings();
-            renderLunchDuties(); 
-            if(activeWidgets.weather) reloadWeatherWidget();
-        }
-
-        function toggleSidebar(event, shouldSave = true) {
-            if(event) event.stopPropagation();
-            sidebarVisible = !sidebarVisible;
-            const sidebar = document.getElementById('sidebar');
-            const hamBtn = document.getElementById('hamburgerBtn');
-            if(sidebar) {
-                if (sidebarVisible) {
-                    sidebar.classList.remove('collapsed');
-                    if(hamBtn) hamBtn.classList.add('active-btn');
-                } else {
-                    sidebar.classList.add('collapsed');
-                    if(hamBtn) hamBtn.classList.remove('active-btn');
-                }
-            }
-            if (shouldSave) saveLocalSettings();
-        }
-
-        function updateFloatingPlayerVisibility() {
-            const player = document.getElementById('floating-player');
-            if (player) {
-                if (activePlayerUrl) player.classList.add('visible');
-                else player.classList.remove('visible');
-            }
-        }
-
-        function setWaffleState(isClosed, shouldSave = true) {
-            if (isWaffleClosed === isClosed && shouldSave) return;
-            isWaffleClosed = isClosed;
-            const container = document.getElementById('schedule-container');
-            const btn = document.getElementById('waffleViewBtn');
-            
-            if(container && btn) {
-                if (isWaffleClosed) {
-                    container.classList.add('waffle-closed'); 
-                    btn.classList.remove('active-btn');
-                } else {
-                    container.classList.remove('waffle-closed'); 
-                    btn.classList.add('active-btn');
-                }
-            }
-            if (shouldSave) saveLocalSettings();
-        }
-        function toggleWaffleMenu(shouldSave = true) { setWaffleState(!isWaffleClosed, shouldSave); }
-
-        function setMinimalView(state, shouldSave = true) {
-            if (isMinimalView === state) return;
-            isMinimalView = state;
-            const btn = document.getElementById('minimalViewBtn');
-            
-            if(btn) {
-                if (isMinimalView) {
-                    document.body.classList.add('minimal-active'); 
-                    btn.classList.add('active-btn');
-                } else {
-                    document.body.classList.remove('minimal-active'); 
-                    btn.classList.remove('active-btn');
-                }
-            }
-            
-            if (shouldSave) saveLocalSettings();
-        }
-        function toggleMinimalView(shouldSave = true) { setMinimalView(!isMinimalView, shouldSave); }
-
-        function toggleJukebox() {
-            const tog = document.getElementById('jukeboxToggle');
-            if(tog) mrBsJukebox = tog.checked;
-            lastPeriodStatus = null; 
             saveLocalSettings();
         }
 
-        function updateJukeboxUrl() {
-            const inp = document.getElementById('jukeboxUrlInput');
-            if(inp && inp.value.trim() !== '') {
-                jukeboxUrl = inp.value.trim();
+        // --- WIDGETS ---
+        function toggleWidgetPanel(e) {
+            if(e) e.stopPropagation();
+            const p = document.getElementById('widget-panel-menu');
+            p.style.display = p.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        function toggleWidget(id, isChecked) {
+            activeWidgets[id] = isChecked;
+            const card = document.getElementById(`widget-${id}`);
+            if(card) card.classList.toggle('active-widget', isChecked);
+            
+            const tog = document.getElementById(`wm-tog-${id}`);
+            if(tog) tog.checked = isChecked;
+
+            if (id === 'weather' && isChecked) reloadWeatherWidget();
+            
+            saveLocalSettings();
+        }
+
+        function reloadWeatherWidget() {
+            const c = document.getElementById('weather-container-main');
+            if(!c) return;
+            const color = isDarkMode ? '#e0e0e0' : '#333333';
+            c.innerHTML = `<a class="weatherwidget-io" href="https://forecast7.com/en/33d98n84d43/east-cobb/?unit=us" data-label_1="EAST COBB" data-font="Segoe UI" data-icons="Climacons Animated" data-theme="pure" data-basecolor="rgba(0,0,0,0)" data-textcolor="${color}">EAST COBB</a>`;
+            !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;}else{js=d.getElementById(id);js.remove();js=d.createElement(s);js.id=id;}js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}(document,'script','weatherwidget-io-js');
+        }
+
+        function toggleQotdLock() {
+            qotdManualUnlock = !qotdManualUnlock;
+            updateClock(); // Force repaint
+        }
+
+        // --- SCHEDULE LOGIC ---
+        async function fetchDailySchedule() {
+            const ind = document.getElementById('autoIndicator');
+            if(ind) { ind.style.display = 'block'; ind.innerText = "Sync Status: Fetching..."; ind.style.color = 'var(--text-muted)'; }
+            
+            try {
+                const response = await fetch(GOOGLE_CALENDAR_SCRIPT_URL);
+                const data = await response.json();
+                
+                if (data && data.schedule) {
+                    let clean = data.schedule.map(p => ({
+                        name: String(p.name).trim(),
+                        start: String(p.start).split(':').map(v=>v.padStart(2,'0')).join(':'),
+                        end: String(p.end).split(':').map(v=>v.padStart(2,'0')).join(':')
+                    }));
+
+                    predefinedSchedules['synced'] = clean;
+                    const modeStr = String(data.mode || 'Synced').toUpperCase();
+                    
+                    if(ind) { ind.innerText = "Sync Status: ✓ Connected"; ind.style.color = '#5cb85c'; }
+                    
+                    const modeDropdown = document.getElementById('scheduleMode');
+                    if(modeDropdown) {
+                        modeDropdown.value = 'synced';
+                        document.getElementById('syncedOption').innerText = `Sheet: ${modeStr}`;
+                    }
+                    
+                    currentMode = 'synced';
+                    currentScheduleName = modeStr;
+                    changeMode();
+                }
+            } catch (err) {
+                console.error("Schedule sync failed:", err);
+                if(ind) { ind.innerText = "Sync Status: ⚠ Offline (Using Local)"; ind.style.color = '#d9534f'; }
+                changeMode();
+            }
+        }
+
+        function changeMode() {
+            const sm = document.getElementById('scheduleMode');
+            const sz = document.getElementById('showZeroPeriod');
+            if(sm) currentMode = sm.value;
+            if(sz) showZero = sz.checked;
+            
+            let base = predefinedSchedules[currentMode] || predefinedSchedules['regular'];
+            if (!base || base.length === 0) base = predefinedSchedules['regular'];
+            
+            activeSchedule = [...base]; 
+            let hasZero = activeSchedule.some(p => /^0/i.test(String(p.name).trim()));
+            
+            if (showZero && !hasZero) activeSchedule.unshift({ name: "0 pd", start: "07:10", end: "08:13" });
+            else if (!showZero && hasZero) activeSchedule = activeSchedule.filter(p => !/^0/i.test(String(p.name).trim()));
+            
+            if (currentMode !== 'synced') {
+                currentScheduleName = currentMode.charAt(0).toUpperCase() + currentMode.slice(1);
+            }
+            
+            const st = document.getElementById('schedule-title');
+            if(st) st.innerText = currentScheduleName.toUpperCase() + ' Schedule'; 
+            
+            renderSchedule(); saveLocalSettings();
+        }
+
+        function renderSchedule() {
+            const list = document.getElementById('schedule-list'); 
+            if(!list) return;
+            list.innerHTML = '';
+            
+            if (!activeSchedule || activeSchedule.length === 0) return;
+
+            activeSchedule.forEach(p => {
+                const key = String(p.name);
+                const safeKey = key.replace(/'/g, "\\'"); 
+                const s = classSettings[key] || { ...DEFAULT_PREFS };
+                
+                const li = document.createElement('li'); 
+                li.className = 'schedule-grid';
+                li.dataset.start = p.start;
+                li.dataset.end = p.end;
+                
+                let isWebBlock = /^[A-D](\s|-)?Block/i.test(key);
+                let webHtml = isWebBlock ? `<div class="options-col"><label class="switch"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : `<div class="options-col"></div>`;
+
+                li.innerHTML = `
+                    <div class="period-name">${key} ${s.open ? '<span class="open-badge">OPEN</span>' : ''}</div>
+                    <div class="middle-section">
+                        <div class="options-wrapper">
+                            <div class="options-col"><label class="switch"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'putaway', this.checked)" ${s.putaway ? 'checked' : ''}><span class="slider"></span></label></div>
+                            <div class="options-col"><label class="switch"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'attendance', this.checked)" ${s.attendance ? 'checked' : ''}><span class="slider"></span></label></div>
+                            <div class="options-col"><label class="switch"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'cleanup', this.checked)" ${s.cleanup ? 'checked' : ''}><span class="slider"></span></label></div>
+                            <div class="options-col"><label class="switch"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'retrieve', this.checked)" ${s.retrieve ? 'checked' : ''}><span class="slider"></span></label></div>
+                            ${webHtml}
+                            <div class="options-col"><button style="background:none;border:none;font-size:1.2rem;">📅</button></div>
+                        </div>
+                    </div>
+                    <div class="period-time">${formatTime12(p.start)} - ${formatTime12(p.end)}</div>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        // --- UTILS ---
+        function toggleSetting(period, type, checked) {
+            if (!classSettings[period]) classSettings[period] = { ...DEFAULT_PREFS };
+            classSettings[period][type] = checked;
+            saveLocalSettings();
+            if (type === 'open') renderSchedule(); 
+        }
+
+        function formatTime12(t24) { 
+            if (!t24) return '';
+            let [h, m] = t24.split(':'); 
+            return `${h % 12 || 12}:${m} ${h >= 12 ? 'PM' : 'AM'}`; 
+        }
+
+        // --- SYSTEM LOOP ---
+        function updateClock() {
+            const now = new Date();
+            const clk = document.getElementById('clock');
+            if(clk) clk.innerText = now.toLocaleTimeString('en-US');
+            
+            const currentMins = now.getHours() * 60 + now.getMinutes();
+            
+            let activeP = null;
+            let isDeadTime = false;
+
+            document.querySelectorAll('#schedule-list li').forEach(li => {
+                li.classList.remove('current-period');
+                let [sh, sm] = li.dataset.start.split(':').map(Number);
+                let [eh, em] = li.dataset.end.split(':').map(Number);
+                let sMins = sh*60 + sm; let eMins = eh*60 + em;
+                
+                if(currentMins >= sMins && currentMins < eMins) {
+                    activeP = { name: li.querySelector('.period-name').childNodes[0].nodeValue.trim(), sMins, eMins, li };
+                    li.classList.add('current-period');
+                    let prog = Math.max(0, Math.min(100, (((currentMins*60+now.getSeconds()) - sMins*60) / ((eMins - sMins)*60)) * 100));
+                    li.style.setProperty('--progress', prog + '%');
+                    
+                    if (currentMins < sMins + 5 || currentMins >= eMins - 5) isDeadTime = true;
+                }
+            });
+
+            // Update Hologram
+            const dName = document.getElementById('docked-name');
+            const dTime = document.getElementById('docked-time');
+            if (activeP) {
+                if(dName) dName.innerText = activeP.name;
+                if(dTime) dTime.innerText = activeP.li.querySelector('.period-time').innerText;
             } else {
-                jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
-            }
-            lastPeriodStatus = null; 
-            saveLocalSettings();
-        }
-
-        function toggleGoodbyes() { 
-            const tog = document.getElementById('playGoodbyes');
-            if(tog) playGoodbyes = tog.checked; 
-            saveLocalSettings(); 
-        }
-
-        function toggleMuteBells() { 
-            const tog = document.getElementById('muteBellsToggle');
-            if(tog) muteBells = tog.checked; 
-            saveLocalSettings(); 
-        }
-
-        function toggleDropdown(event) { 
-            event.stopPropagation(); 
-            const dd = document.getElementById("soundDropdown");
-            if(dd) dd.classList.toggle("show"); 
-        }
-
-        window.onclick = function(event) {
-            if (!event.target.matches('.split-button-caret')) {
-                let dropdowns = document.getElementsByClassName("dropdown-content");
-                for (let i = 0; i < dropdowns.length; i++) if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
-            }
-        }
-
-        function selectTestSound(value, label) {
-            currentTestSound = value; 
-            const btn = document.getElementById("playBtn");
-            const dd = document.getElementById("soundDropdown");
-            if(btn) btn.innerHTML = "▶ Play " + label;
-            if(dd) dd.classList.remove("show"); 
-            saveLocalSettings();
-        }
-
-        function changeVolume() { 
-            const vc = document.getElementById('volumeControl');
-            if(vc) syncGlobalVolume(vc.value); 
-        }
-
-        function playBellWithQueue(timesLeft = 1, onCompleteCallback = null) {
-            if (muteBells) {
-                if (onCompleteCallback) onCompleteCallback();
-                return;
+                if(dName) dName.innerText = "Outside/Passing";
+                if(dTime) dTime.innerText = "--:--";
             }
 
-            const audio = document.getElementById('regularBellAudio'); 
-            if(!audio) {
-                if (onCompleteCallback) onCompleteCallback();
-                return;
+            document.getElementById('main-dead-time-warning').style.display = isDeadTime ? 'inline-block' : 'none';
+            document.getElementById('docked-warning').style.display = isDeadTime ? 'inline-block' : 'none';
+
+            // QotD Logic Updates
+            if(activeWidgets.qotd) {
+                const qObj = qotdDatabase[0]; // Fallback if Apps Script is slow
+                document.getElementById('qotd-question').innerText = qObj.q;
+                document.getElementById('qotd-idle-question').innerText = qObj.q;
+                document.getElementById('qotd-results-question').innerText = qObj.q;
+                
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(QOTD_APPS_SCRIPT_URL)}`;
+                document.getElementById('qotd-qr-img').src = qrUrl;
+
+                const vV = document.getElementById('qotd-voting-view');
+                const vI = document.getElementById('qotd-idle-view');
+                const vR = document.getElementById('qotd-results-view');
+
+                if (activeP) {
+                    if (currentMins >= activeP.sMins && currentMins < activeP.sMins + 5) {
+                        vV.style.display = 'flex'; vI.style.display = 'none'; vR.style.display = 'none';
+                        qotdResultsFetched = false; qotdManualUnlock = false; 
+                    } else if (currentMins >= activeP.eMins - 5 && currentMins < activeP.eMins) {
+                        vV.style.display = 'none'; vI.style.display = 'none'; vR.style.display = 'flex';
+                        qotdManualUnlock = false;
+                        if (!qotdResultsFetched) {
+                            qotdResultsFetched = true;
+                            document.getElementById('qotd-label-a').innerText = qObj.a;
+                            document.getElementById('qotd-label-b').innerText = qObj.b;
+                            document.getElementById('qotd-bar-a').style.width = '60%'; document.getElementById('qotd-pct-a').innerText = '60%';
+                            document.getElementById('qotd-bar-b').style.width = '40%'; document.getElementById('qotd-pct-b').innerText = '40%';
+                            document.getElementById('qotd-total-votes').innerText = "Total Votes: 42";
+                        }
+                    } else {
+                        if (qotdManualUnlock) { vV.style.display = 'flex'; vI.style.display = 'none'; vR.style.display = 'none'; } 
+                        else { vV.style.display = 'none'; vI.style.display = 'flex'; vR.style.display = 'none'; }
+                    }
+                } else {
+                    vV.style.display = 'none'; vI.style.display = 'flex'; vR.style.display = 'none';
+                }
             }
-            
-            audio.currentTime = 0;
-            audio.onended = () => { 
-                if (timesLeft > 1) playBellWithQueue(timesLeft - 1, onCompleteCallback); 
-                else { 
-                    audio.onended = null; 
-                    if (onCompleteCallback) onCompleteCallback(); 
-                } 
-            };
-            
-            let playPromise = audio.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.catch(e => {
-                    console.error("Audio play blocked. Triggering failsafe voice delay.", e);
-                    audio.onended = null; 
-                    setTimeout(() => {
-                        if (timesLeft > 1) playBellWithQueue(timesLeft - 1, onCompleteCallback);
-                        else if (onCompleteCallback) onCompleteCallback();
-                    }, 1500); 
-                });
+        }
+
+        // --- TIMER ---
+        function updateTimerDisplay() {
+            const m = Math.floor(timerTotalSeconds / 60).toString().padStart(2, '0');
+            const s = (timerTotalSeconds % 60).toString().padStart(2, '0');
+            const d = document.getElementById('timer-display');
+            if(d) { d.innerText = `${m}:${s}`; d.style.color = timerTotalSeconds === 0 ? 'var(--btn-danger)' : ''; }
+        }
+        function addTimerMinutes(m) { timerTotalSeconds += (m * 60); updateTimerDisplay(); }
+        function resetTimer() { timerTotalSeconds = 300; updateTimerDisplay(); if(timerIsPlaying) togglePlayTimer(); }
+        function togglePlayTimer() {
+            const btn = document.getElementById('timer-start-btn');
+            if(timerIsPlaying) {
+                clearInterval(timerInterval); timerIsPlaying = false;
+                if(btn) { btn.innerText = "Start"; btn.style.background = 'var(--btn-primary)'; }
+            } else {
+                if(timerTotalSeconds <= 0) return;
+                timerIsPlaying = true;
+                if(btn) { btn.innerText = "Pause"; btn.style.background = 'var(--btn-danger)'; }
+                timerInterval = setInterval(() => {
+                    if(timerTotalSeconds > 0) { timerTotalSeconds--; updateTimerDisplay(); }
+                    else { togglePlayTimer(); }
+                }, 1000);
             }
+        }
+
+        // --- LOCAL STORAGE ---
+        function saveLocalSettings() {
+            if (isBooting) return; // Prevent overwriting settings during setup!
+            try {
+                const data = {
+                    mode: currentMode, vol: globalVolume, voice: globalVoicePref, testSound: currentTestSound,
+                    side: sidebarVisible, waffleClosed: isWaffleClosed, minimalView: isMinimalView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
+                    settings: classSettings, lunchDuties: lunchDuties,
+                    savedVibes: savedVibes, vibe: currentVibeUrl, vibeVol: vibeVolume, muteB: muteBells,
+                    mrBsJukebox: mrBsJukebox, jukeboxUrl: jukeboxUrl, isMainVibePlaying: isMainVibePlaying,
+                    customReminders: customReminders, accordions: accordionStates, widgets: activeWidgets
+                };
+                localStorage.setItem('waltonBellState', JSON.stringify(data));
+            } catch (e) {}
+        }
+
+        function loadLocalSettings() {
+            try {
+                const saved = localStorage.getItem('waltonBellState');
+                if (saved) {
+                    const p = JSON.parse(saved);
+                    
+                    if (p.settings) classSettings = p.settings;
+                    
+                    let savedMode = p.mode || 'regular';
+                    if (savedMode === 'daily') savedMode = 'regular';
+                    currentMode = savedMode;
+                    
+                    if (p.dark === true) { 
+                        document.getElementById('darkModeToggle').checked = true; 
+                        document.body.classList.add('dark-mode');
+                        isDarkMode = true;
+                    }
+                    if (p.waffleClosed !== undefined) toggleWaffleMenu(p.waffleClosed);
+                    if (p.minimalView !== undefined) toggleMinimalView(p.minimalView);
+                    
+                    if (p.widgets) {
+                        activeWidgets = p.widgets;
+                        Object.keys(p.widgets).forEach(key => {
+                            const tog = document.getElementById(`wm-tog-${key}`);
+                            if(tog) { tog.checked = p.widgets[key]; toggleWidget(key, p.widgets[key]); }
+                        });
+                    }
+                    
+                    if (p.accordions) {
+                        accordionStates = p.accordions;
+                        Object.keys(accordionStates).forEach(id => {
+                            if(accordionStates[id] === false) {
+                                const el = document.getElementById(id);
+                                if(el) el.style.maxHeight = "0px";
+                                const chev = document.getElementById('chev-'+id);
+                                if(chev) chev.style.transform = "rotate(-90deg)";
+                            }
+                        });
+                    }
+                }
+            } catch (e) {}
         }
 
         function safePopulateVoiceList() {
@@ -1705,582 +1159,47 @@
                     voiceSelect.value = enVoices[0].voiceURI;
                     globalVoicePref = enVoices[0].voiceURI;
                     saveLocalSettings();
-                } else if (found) {
-                    voiceSelect.value = globalVoicePref;
+                } else {
+                    voiceSelect.value = selectedURI;
                 }
             } catch(e) {}
         }
 
-        function changeVoicePref() { 
-            const vp = document.getElementById('voicePreference');
-            if(vp) globalVoicePref = vp.value; 
-            saveLocalSettings(); 
-        }
-
-        function speak(text) {
-            try {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.rate = 0.9; utterance.volume = globalVolume;
-                const voices = window.speechSynthesis.getVoices();
-                const selectedVoice = voices.find(v => v.voiceURI === globalVoicePref);
-                if (selectedVoice) utterance.voice = selectedVoice;
-                window.speechSynthesis.speak(utterance);
-            } catch (e) { console.error("Speech Synthesis failed:", e); }
-        }
-
-        function testSelectedSound() {
-            triggerVisualAlert();
-            if (currentTestSound === 'positive') {
-                const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
-                speak(randomMsg);
-            }
-            else if (currentTestSound === 'start') playBellWithQueue(3, () => speak("Class is beginning. Please place your phones in the cell phone caddy."));
-            else if (currentTestSound === 'end') {
-                if (playGoodbyes) {
-                    const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
-                    playBellWithQueue(3, () => speak(randomMsg));
-                } else {
-                    playBellWithQueue(3);
-                }
-            }
-            else if (currentTestSound === 'warning1m') playBellWithQueue(1, () => speak("One minute until class begins. Please place your phones in the cell phone caddy."));
-            else if (currentTestSound === 'attendance') speak("Reminder. Please take attendance.");
-            else if (currentTestSound === 'cleanup') speak("Five minutes remaining. Please begin cleaning up your area.");
-            else if (currentTestSound === 'lunch') speak("Reminder. You have lunch duty.");
-        }
-
-        function addCustomReminder() {
-            const name = document.getElementById('remName').value;
-            const time = document.getElementById('remTime').value;
-            const day = document.getElementById('remDay').value;
-            
-            if(name && time) {
-                customReminders.push({ name, time, day });
-                renderCustomReminders();
-                saveLocalSettings();
-                document.getElementById('remName').value = '';
-                document.getElementById('remTime').value = '';
-                
-                const content = document.getElementById('sec-reminders');
-                if(content.style.maxHeight !== "0px" && content.style.maxHeight !== "none") {
-                    content.style.maxHeight = "none";
-                }
-            } else {
-                showToast("Please enter a Name and Time");
-            }
-        }
+        // --- BOOT SEQUENCE ---
+        let isBooting = true; // STOPS MEMORY FROM BEING WIPED
         
-        function removeCustomReminder(index) { 
-            customReminders.splice(index, 1); 
-            renderCustomReminders(); 
-            saveLocalSettings(); 
-        }
-
-        function renderCustomReminders() {
-            const list = document.getElementById('custom-reminder-list'); 
-            if(!list) return;
-            list.innerHTML = '';
-            const days = {"All": "Daily", "1": "Mon", "2": "Tue", "3": "Wed", "4": "Thu", "5": "Fri"};
-            customReminders.forEach((rem, index) => {
-                const li = document.createElement('li'); li.className = "duty-item";
-                li.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid #eee;";
-                li.innerHTML = `<span><b>${formatTime12(rem.time)}</b> - ${rem.name} (${days[rem.day]})</span>
-                                <button onclick="removeCustomReminder(${index})" style="background:none; border:none; color:#d9534f; cursor:pointer; font-size:1.1rem;" title="Remove Reminder">✖</button>`;
-                list.appendChild(li);
-            });
-        }
-
-        function addLunchDuty() {
-            const dayVal = document.getElementById('lunchDay');
-            const halfVal = document.getElementById('lunchHalf');
-            const periodVal = document.getElementById('lunchPeriod');
-            if(!dayVal || !halfVal || !periodVal) return;
-
-            const day = parseInt(dayVal.value);
-            const half = parseInt(halfVal.value);
-            const period = periodVal.value.trim();
-            if (period) {
-                lunchDuties.push({ day, half, period });
-                renderLunchDuties(); saveLocalSettings(); 
-                periodVal.value = '3rd';
-                
-                const content = document.getElementById('sec-reminders');
-                if(content.style.maxHeight !== "0px" && content.style.maxHeight !== "none") {
-                    content.style.maxHeight = "none";
-                }
-            }
-        }
-        function removeLunchDuty(index) { lunchDuties.splice(index, 1); renderLunchDuties(); saveLocalSettings(); }
-        
-        function renderLunchDuties() {
-            const list = document.getElementById('lunch-duty-list'); 
-            if(!list) return;
-            list.innerHTML = '';
-            const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-            lunchDuties.forEach((duty, index) => {
-                const li = document.createElement('li'); li.className = "duty-item";
-                li.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid #eee;";
-                li.innerHTML = `<span><b>${days[duty.day]}</b> - ${duty.period} (${duty.half === 1 ? '1st' : '2nd'} Half)</span>
-                                <button onclick="removeLunchDuty(${index})" style="background:none; border:none; color:#d9534f; cursor:pointer; font-size:1.1rem;" title="Remove Duty">✖</button>`;
-                list.appendChild(li);
-            });
-        }
-
-        function changeMode(shouldSave = true) {
-            const sm = document.getElementById('scheduleMode');
-            const sz = document.getElementById('showZeroPeriod');
-            if(sm) currentMode = sm.value;
-            if(sz) showZero = sz.checked;
-            
-            let baseSchedule = predefinedSchedules[currentMode];
-            if (!baseSchedule || baseSchedule.length === 0) {
-                baseSchedule = predefinedSchedules['web']; 
-            }
-            
-            activeSchedule = [...baseSchedule]; 
-            let hasZero = activeSchedule.some(p => /^0/i.test(String(p.name).trim()));
-            
-            if (showZero && !hasZero) {
-                activeSchedule.unshift({ name: "0 pd", start: "07:10", end: "08:13" });
-            } else if (!showZero && hasZero) {
-                activeSchedule = activeSchedule.filter(p => !/^0/i.test(String(p.name).trim()));
-            }
-            
-            if (currentMode !== 'synced') {
-                currentScheduleName = currentMode.charAt(0).toUpperCase() + currentMode.slice(1);
-                if (currentMode === 'web') currentScheduleName = "WEB";
-            } else if (currentScheduleName === "Loading...") {
-                currentScheduleName = "Regular"; 
-            }
-            
-            const st = document.getElementById('schedule-title');
-            if(st && st.childNodes[0]) st.childNodes[0].nodeValue = currentScheduleName.toUpperCase() + ' Schedule '; 
-            
-            renderSchedule(); 
-            if (shouldSave) saveLocalSettings();
-        }
-
-        function toggleSetting(periodName, settingType, isChecked) {
-            const key = periodName; 
-            if (!classSettings[key]) classSettings[key] = { ...DEFAULT_PREFS };
-            classSettings[key][settingType] = isChecked;
-            saveLocalSettings();
-            if (settingType === 'open') renderSchedule(); 
-        }
-
-        function setIcalFeed(periodName) {
-            const currentUrl = classSettings[periodName]?.icalUrl || '';
-            const url = prompt(`Paste the iCal feed URL for ${periodName}:`, currentUrl);
-            if (url !== null) {
-                if (!classSettings[periodName]) classSettings[periodName] = { ...DEFAULT_PREFS };
-                classSettings[periodName].icalUrl = url.trim();
-                saveLocalSettings();
-                renderSchedule(); 
-                showToast("iCal feed updated");
-            }
-        }
-
-        function renderSchedule() {
-            const list = document.getElementById('schedule-list'); 
-            if(!list) return;
-            list.innerHTML = '';
-            
-            if (!Array.isArray(activeSchedule)) {
-                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Schedule data is missing or corrupted.</em></li>'; return; 
-            }
-
-            let filteredSchedule = activeSchedule;
-            if (!showZero) filteredSchedule = activeSchedule.filter(p => p && p.name && !String(p.name).includes("0 pd"));
-
-            if (!filteredSchedule || filteredSchedule.length === 0) { 
-                list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>No periods added yet.</em></li>'; return; 
-            }
-
-            filteredSchedule.forEach(period => {
-                try {
-                    const key = String(period.name);
-                    const safeKey = key.replace(/'/g, "\\'"); 
-                    const s = classSettings[key] || { ...DEFAULT_PREFS };
-                    
-                    const li = document.createElement('li'); 
-                    li.className = 'schedule-grid';
-                    
-                    li.dataset.start = String(period.start);
-                    li.dataset.end = String(period.end);
-                    
-                    let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
-                    let isWebBlock = /^[A-D](\s|-)?Block/i.test(key);
-                    let webOpenCheckbox = isWebBlock ? 
-                        `<div class="options-col opt-center"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
-                        `<div class="options-col"></div>`;
-
-                    li.innerHTML = `
-                        <div class="period-name">${key} ${openBadgeHtml}</div>
-                        <div class="middle-section">
-                            <div class="options-wrapper">
-                                <div class="options-col"><label class="switch" title="Phone Caddy"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'putaway', this.checked)" ${s.putaway ? 'checked' : ''}><span class="slider"></span></label></div>
-                                <div class="options-col"><label class="switch" title="Take Attendance"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'attendance', this.checked)" ${s.attendance ? 'checked' : ''}><span class="slider"></span></label></div>
-                                <div class="options-col"><label class="switch" title="5-Min Clean Up"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'cleanup', this.checked)" ${s.cleanup ? 'checked' : ''}><span class="slider"></span></label></div>
-                                <div class="options-col"><label class="switch" title="1 Min Warning & Retrieve"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'retrieve', this.checked)" ${s.retrieve ? 'checked' : ''}><span class="slider"></span></label></div>
-                                ${webOpenCheckbox}
-                                <div class="options-col">
-                                    <button onclick="setIcalFeed('${safeKey}')" style="background:none;border:none;cursor:pointer;font-size:1.3rem;transition:transform 0.2s; filter: ${s.icalUrl ? 'none' : 'grayscale(100%) opacity(0.4)'}" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="${s.icalUrl ? 'Edit iCal Feed' : 'Add iCal Feed'}">📅</button>
-                                </div>
-                            </div>
-                            <div class="agenda-display" id="agenda-${safeKey}"></div>
-                        </div>
-                        <div class="period-time">${formatTime12(String(period.start))} - ${formatTime12(String(period.end))}</div>
-                    `;
-                    list.appendChild(li);
-                    
-                    if (s.icalUrl) {
-                        fetchAgenda(s.icalUrl, `agenda-${safeKey}`);
-                    }
-                    
-                } catch(e) { console.error("Error rendering a row:", e); }
-            });
-            
-            highlightCurrentPeriod(new Date());
-        }
-
-        function timeToMins(t) {
-            if (!t || !t.includes(':')) return 0;
-            let [h, m] = t.split(':').map(Number);
-            return h * 60 + m;
-        }
-
-        function formatTime12(time24) { 
-            if (!time24 || !time24.includes(':')) return time24 || '';
-            let [h, m] = time24.split(':'); 
-            let ampm = h >= 12 ? 'PM' : 'AM'; 
-            return `${h % 12 || 12}:${m} ${ampm}`; 
-        }
-        function subtractMinutes(time24, minsToSubtract) {
-            if (!time24 || !time24.includes(':')) return '';
-            let [h, m] = time24.split(':').map(Number); let d = new Date(); d.setHours(h, m, 0, 0); d.setMinutes(d.getMinutes() - minsToSubtract);
-            return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
-        }
-        function addMinutes(time24, minsToAdd) {
-            if (!time24 || !time24.includes(':')) return '';
-            let [h, m] = time24.split(':').map(Number); let d = new Date(); d.setHours(h, m, 0, 0); d.setMinutes(d.getMinutes() + minsToAdd);
-            return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
-        }
-        function getMidpoint(start, end) {
-            if (!start || !end || !start.includes(':') || !end.includes(':')) return '';
-            let [sh, sm] = start.split(':').map(Number); let [eh, em] = end.split(':').map(Number);
-            let midMins = Math.floor(((sh * 60 + sm) + (eh * 60 + em)) / 2);
-            return Math.floor(midMins / 60).toString().padStart(2, '0') + ':' + (midMins % 60).toString().padStart(2, '0');
-        }
-
-        function triggerVisualAlert() {
-            const overlay = document.createElement('div');
-            overlay.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; pointer-events:none; transition: background-color 0.5s;";
-            overlay.style.backgroundColor = isDarkMode ? "rgba(51, 43, 0, 0.8)" : "rgba(255, 243, 205, 0.8)";
-            document.body.appendChild(overlay);
-            setTimeout(() => { overlay.style.backgroundColor = "transparent"; }, 5500); 
-            setTimeout(() => { overlay.remove(); }, 6000); 
-        }
-
-        function highlightCurrentPeriod(now) {
-            const listItems = document.querySelectorAll('#schedule-list li');
-            if (listItems.length === 0) return null;
-            
-            const currentMins = now.getHours() * 60 + now.getMinutes();
-            const currentSecs = currentMins * 60 + now.getSeconds();
-            let highlightIndex = -1;
-            let actualClassIndex = -1;
-            let upcomingClassIndex = -1;
-            let inSchool = false;
-            let isPassing = false;
-            let periods = [];
-            
-            listItems.forEach((li, index) => {
-                periods.push({
-                    index: index,
-                    startMins: timeToMins(li.dataset.start),
-                    endMins: timeToMins(li.dataset.end),
-                    li: li
-                });
-                li.classList.remove('current-period'); 
-                li.style.setProperty('--progress', '0%');
-            });
-
-            if (periods.length === 0) return null;
-
-            if (currentMins >= periods[0].startMins && currentMins < periods[periods.length - 1].endMins) {
-                inSchool = true;
-                for (let i = 0; i < periods.length; i++) {
-                    let p = periods[i];
-                    if (currentMins >= p.startMins && currentMins < p.endMins) {
-                        actualClassIndex = p.index;
-                        break;
-                    }
-                    if (currentMins < p.startMins) {
-                        if (i > 0 && currentMins >= periods[i-1].endMins) {
-                            upcomingClassIndex = p.index; 
-                        }
-                        break;
-                    }
-                }
-            }
-
-            if (actualClassIndex !== -1) {
-                highlightIndex = actualClassIndex;
-                isPassing = false;
-            } else if (upcomingClassIndex !== -1) {
-                highlightIndex = upcomingClassIndex;
-                isPassing = true;
-            }
-
-            if (highlightIndex !== -1) {
-                let p = periods[highlightIndex];
-                p.li.classList.add('current-period');
-                if (!isPassing) {
-                    let startSecs = p.startMins * 60;
-                    let endSecs = p.endMins * 60;
-                    let progress = Math.max(0, Math.min(100, ((currentSecs - startSecs) / (endSecs - startSecs)) * 100));
-                    p.li.style.setProperty('--progress', progress + '%');
-                } else {
-                    p.li.style.setProperty('--progress', '0%');
-                }
-            }
-
-            return { 
-                index: highlightIndex, 
-                isPassing: isPassing, 
-                periodData: highlightIndex !== -1 ? periods[highlightIndex] : null,
-                actualClass: actualClassIndex !== -1
-            };
-        }
-
-        function triggerEvent(time, action, callback) {
-            if (currentMinuteTracker !== time) {
-                playedActions = {};
-                currentMinuteTracker = time;
-            }
-            const eventKey = `${time}-${action}`;
-            if (!playedActions[eventKey]) {
-                callback();
-                playedActions[eventKey] = true;
-            }
-        }
-
-        function updateClock() {
-            try {
-                const now = new Date();
-                const clk = document.getElementById('clock');
-                if(clk) clk.innerText = now.toLocaleTimeString('en-US');
-                let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-                const todayDayOfWeek = now.getDay(); 
-                
-                let status = highlightCurrentPeriod(now);
-                let currentStatus = 'outside';
-                let autoState = 'passing';
-                let isDeadTime = false;
-
-                if (status && status.isPassing) {
-                    currentStatus = 'passing';
-                    autoState = 'passing';
-                } 
-                else if (status && status.actualClass) {
-                    currentStatus = 'class';
-                    const p = status.periodData;
-                    const currentMins = now.getHours() * 60 + now.getMinutes();
-                    
-                    if (currentMins >= p.startMins && currentMins < p.startMins + 5) {
-                        autoState = 'dead-start';
-                        isDeadTime = true;
-                    } else if (currentMins >= p.endMins - 5 && currentMins < p.endMins) {
-                        autoState = 'dead-end';
-                        isDeadTime = true;
-                    } else {
-                        autoState = 'core-class';
-                    }
-                }
-
-                let dName = document.getElementById('docked-name');
-                let dTime = document.getElementById('docked-time');
-                let dBadge = document.getElementById('docked-badge');
-                
-                if (status && status.actualClass) {
-                    const p = status.periodData;
-                    if (dName) dName.innerText = p.li.querySelector('.period-name').childNodes[0].nodeValue.trim();
-                    
-                    const realTimeStr = p.li.querySelector('.period-time').innerText;
-                    if (dTime && realTimeStr) dTime.innerText = realTimeStr;
-
-                    const s = classSettings[dName.innerText.trim()] || DEFAULT_PREFS;
-                    if (s.open && dBadge) dBadge.style.display = 'inline-block';
-                    else if (dBadge) dBadge.style.display = 'none';
-                } else if (status && status.isPassing) {
-                    if (dName) dName.innerText = "Passing Period";
-                    const p = status.periodData;
-                    if (dTime) dTime.innerText = "Next: " + p.li.querySelector('.period-name').childNodes[0].nodeValue.trim();
-                    if (dBadge) dBadge.style.display = 'none';
-                } else {
-                    if (dName) dName.innerText = "Outside School Hours";
-                    if (dTime) dTime.innerText = "--:--";
-                    if (dBadge) dBadge.style.display = 'none';
-                }
-
-                const warningElMain = document.getElementById('main-dead-time-warning');
-                const warningElDock = document.getElementById('docked-warning');
-                if (warningElMain) warningElMain.style.display = isDeadTime ? 'inline-block' : 'none';
-                if (warningElDock) warningElDock.style.display = isDeadTime ? 'inline-block' : 'none';
-
-                updateQotdUI(status);
-
-                if (lastAutoState !== null && autoState !== lastAutoState) {
-                    if (autoState === 'core-class') {
-                        setMinimalView(true, true); 
-                    } else if (autoState === 'dead-start' || autoState === 'dead-end' || autoState === 'passing') {
-                        setMinimalView(false, true); 
-                    }
-                }
-                lastAutoState = autoState;
-
-                if (lastPeriodStatus !== currentStatus) {
-                    let success = false;
-                    
-                    if (mrBsJukebox && todayDayOfWeek === 5 && currentStatus === 'passing') {
-                        success = applyMusicState(jukeboxUrl, true);
-                    } else {
-                        if (isMainVibePlaying && currentVibeUrl) {
-                            success = applyMusicState(currentVibeUrl, true);
-                        } else {
-                            success = applyMusicState('', false); 
-                        }
-                    }
-                    if (success) lastPeriodStatus = currentStatus;
-                }
-
-                if (current24 === '06:00' && now.getSeconds() === 0) { fetchDailySchedule(); }
-                
-                customReminders.forEach(rem => {
-                    if (current24 === rem.time) {
-                        if (rem.day === 'All' || parseInt(rem.day) === todayDayOfWeek) {
-                            triggerEvent(current24, `custom-${rem.name}`, () => {
-                                triggerVisualAlert();
-                                playBellWithQueue(1, () => speak(`Reminder. ${rem.name}`));
-                            });
-                        }
-                    }
-                });
-                
-                if(!Array.isArray(activeSchedule)) return;
-
-                const isWebDay = currentScheduleName.toLowerCase().includes('web');
-
-                activeSchedule.forEach(period => {
-                    if (!period || !period.name) return;
-                    const pNameStr = String(period.name);
-
-                    const s = classSettings[pNameStr] || { ...DEFAULT_PREFS };
-
-                    const hasLunch1 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 1);
-                    let hasLunch2 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 2);
-                    if (isWebDay) hasLunch2 = false; 
-
-                    const pStartStr = String(period.start);
-                    const pEndStr = String(period.end);
-                    const startMinus1 = subtractMinutes(pStartStr, 1);
-                    const startPlus5 = addMinutes(pStartStr, 5);
-                    const endMinus5 = subtractMinutes(pEndStr, 5);
-                    const endMinus1 = subtractMinutes(pEndStr, 1);
-                    const midPoint = getMidpoint(pStartStr, pEndStr);
-
-                    if (current24 === pStartStr) {
-                        triggerEvent(current24, `start-${pNameStr}`, () => {
-                            triggerVisualAlert();
-                            let speechText = "";
-                            
-                            if (s.open) speechText += "Please remember to sign in to WEB. ";
-                            if (s.putaway) speechText += "Class is beginning. Please place your phones in the cell phone caddy. ";
-                            if (hasLunch1) speechText += "Reminder: You have lunch duty today.";
-                            
-                            if (speechText) playBellWithQueue(3, () => speak(speechText));
-                            else playBellWithQueue(3);
-                        });
-                    }
-                    
-                    if (current24 === pEndStr) {
-                        triggerEvent(current24, `end-${pNameStr}`, () => { 
-                            triggerVisualAlert(); 
-                            if (playGoodbyes) {
-                                const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
-                                playBellWithQueue(3, () => speak(randomMsg));
-                            } else {
-                                playBellWithQueue(3); 
-                            }
-                        });
-                    }
-
-                    if (!s.open && current24 === startMinus1) {
-                        triggerEvent(current24, `warning1m-${pNameStr}`, () => {
-                            triggerVisualAlert();
-                            let speechText = "One minute until class begins.";
-                            if (s.putaway) speechText += " Please place your phones in the cell phone caddy.";
-                            playBellWithQueue(1, () => speak(speechText));
-                        });
-                    }
-
-                    if (!s.open && s.attendance && current24 === startPlus5) {
-                        triggerEvent(current24, `attendance5m-${pNameStr}`, () => { triggerVisualAlert(); speak("Reminder. Please take attendance."); });
-                    }
-                    
-                    if (!s.open && hasLunch2 && current24 === midPoint) {
-                        triggerEvent(current24, `lunch2-${pNameStr}`, () => { triggerVisualAlert(); speak("Reminder. You have second half lunch duty."); });
-                    }
-
-                    if (!s.open && s.cleanup && current24 === endMinus5) {
-                        triggerEvent(current24, `cleanup5m-${pNameStr}`, () => { triggerVisualAlert(); speak("Five minutes remaining. Please begin cleaning up your area."); });
-                    }
-
-                    if (!s.open && s.retrieve && current24 === endMinus1) {
-                        triggerEvent(current24, `phone1m-${pNameStr}`, () => { 
-                            triggerVisualAlert(); 
-                            let speechText = "One minute remaining.";
-                            if (s.putaway) speechText += " You may retrieve your cell phones.";
-                            playBellWithQueue(1, () => speak(speechText)); 
-                        });
-                    }
-                });
-            } catch(e) { console.error("Clock update error:", e); }
-        }
-
-        // --- SAFE INITIALIZATION LOOP ---
         document.addEventListener('DOMContentLoaded', () => {
-            
-            // 1. Instantly load local settings into memory FIRST
+            // 1. Load Local Settings FIRST
             loadLocalSettings(); 
             
-            // 2. Set fallback schedule mode visually without saving over memory
-            changeMode(false); 
-
-            // 3. Initialize UI elements
+            // 2. Immediately render schedule so screen isn't blank
+            if (activeSchedule.length === 0) {
+                changeMode(false);
+            }
+            
+            // 3. Init UI loops
             updateTimerDisplay();
             updateClock();
+            setInterval(updateClock, 1000);
             
-            // 4. Force Sidebar to be collapsed strictly on load
+            // 4. Force Sidebar closed natively on boot
             const sidebar = document.getElementById('sidebar');
             const hamBtn = document.getElementById('hamburgerBtn');
             if(sidebar) sidebar.classList.add('collapsed');
             if(hamBtn) hamBtn.classList.remove('active-btn');
             sidebarVisible = false;
             
-            // 5. Start Clock Loop
-            setInterval(updateClock, 1000);
-            
-            // 6. Fire off the async fetch to Google Calendar
-            setTimeout(fetchDailySchedule, 500);
-            
-            // 7. Load voices in the background quietly
+            // 5. Fire async fetches safely in background
+            setTimeout(fetchDailySchedule, 500); 
             try {
                 if ('speechSynthesis' in window) {
                     window.speechSynthesis.onvoiceschanged = safePopulateVoiceList;
                     safePopulateVoiceList();
                 }
             } catch(e) {}
+            
+            // 6. Release the save lock
+            setTimeout(() => { isBooting = false; }, 1500);
         });
 
     </script>
