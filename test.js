@@ -20,6 +20,8 @@ const GOODBYE_MESSAGES = [
 const playSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
 const pauseSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
 
+let isBooting = true; 
+
 let activeSchedule = []; 
 let currentScheduleName = "Loading..."; 
 let globalVolume = 1.0, globalVoicePref = '', classSettings = {};
@@ -33,23 +35,8 @@ let playGoodbyes = false, muteBells = false;
 let accordionStates = { 'sec-audio': true, 'sec-reminders': true, 'sec-vibe': true, 'sec-schedule': true };
 let activeWidgets = { weather: true, timer: false, qotd: true, spacer1: false, spacer2: false }; 
 
-// --- DUAL-STATE LAYOUT MEMORY ARRAYS ---
-let layoutNormal = [
-    {id: 'widget-weather', span: 1, rowSpan: 1},
-    {id: 'widget-schedule', span: 2, rowSpan: 1},
-    {id: 'widget-timer', span: 1, rowSpan: 1},
-    {id: 'widget-qotd', span: 1, rowSpan: 1},
-    {id: 'widget-spacer1', span: 1, rowSpan: 1},
-    {id: 'widget-spacer2', span: 1, rowSpan: 1}
-];
-let layoutFocus = [
-    {id: 'widget-schedule', span: 2, rowSpan: 1},
-    {id: 'widget-weather', span: 1, rowSpan: 1},
-    {id: 'widget-timer', span: 1, rowSpan: 1},
-    {id: 'widget-qotd', span: 1, rowSpan: 1},
-    {id: 'widget-spacer1', span: 1, rowSpan: 1},
-    {id: 'widget-spacer2', span: 1, rowSpan: 1}
-];
+let layoutNormal = [];
+let layoutFocus = [];
 
 let timerInterval = null, timerTotalSeconds = 300, timerIsPlaying = false;
 let playedActions = {}, currentMinuteTracker = "", lastAutoState = null; 
@@ -117,13 +104,11 @@ function initWidgets() {
             }
         });
 
-        // Save Height when user stops dragging the native resize handle
         widget.addEventListener('mouseup', (e) => {
             if (!isMinimalView) saveLayout();
         });
     });
 
-    // --- WIDTH CLICK-TO-RESIZE (↔) ---
     document.querySelectorAll('.widget-resize-width').forEach(handle => {
         handle.addEventListener('click', function(e) {
             e.preventDefault();
@@ -141,42 +126,20 @@ function initWidgets() {
             saveLayout(); 
         });
     });
-
-    // --- HEIGHT CLICK-TO-RESIZE (↕) ---
-    document.querySelectorAll('.widget-resize-height').forEach(handle => {
-        handle.addEventListener('click', function(e) {
-            e.preventDefault();
-            const widget = this.closest('.widget-card');
-            
-            let currentSpan = 1;
-            if (widget.classList.contains('row-span-2')) currentSpan = 2;
-            if (widget.classList.contains('row-span-3')) currentSpan = 3;
-            if (widget.classList.contains('row-span-4')) currentSpan = 4;
-            
-            widget.classList.remove(`row-span-${currentSpan}`);
-            let nextSpan = currentSpan >= 4 ? 1 : currentSpan + 1;
-            widget.classList.add(`row-span-${nextSpan}`);
-            
-            saveLayout(); 
-        });
-    });
 }
 
 function saveLayout() {
+    if (isBooting) return;
     const grid = document.getElementById('master-grid');
     const widgets = Array.from(grid.querySelectorAll('.widget-card'));
     
     const currentLayout = widgets.map(el => {
-        let wSpan = 1; let hSpan = 1;
+        let wSpan = 1;
         if (el.classList.contains('span-2')) wSpan = 2;
         if (el.classList.contains('span-3')) wSpan = 3;
         if (el.classList.contains('span-4')) wSpan = 4;
-        
-        if (el.classList.contains('row-span-2')) hSpan = 2;
-        if (el.classList.contains('row-span-3')) hSpan = 3;
-        if (el.classList.contains('row-span-4')) hSpan = 4;
 
-        return { id: el.id, span: wSpan, rowSpan: hSpan, height: el.style.height }; 
+        return { id: el.id, span: wSpan, height: el.style.height }; 
     });
 
     if (isMinimalView) layoutFocus = currentLayout;
@@ -194,10 +157,15 @@ function applyLayout() {
     activeLayout.forEach(item => {
         const el = document.getElementById(item.id);
         if (el) {
-            el.classList.remove('span-1', 'span-2', 'span-3', 'span-4', 'row-span-1', 'row-span-2', 'row-span-3', 'row-span-4');
+            el.classList.remove('span-1', 'span-2', 'span-3', 'span-4');
             el.classList.add(`span-${item.span || 1}`);
-            el.classList.add(`row-span-${item.rowSpan || 1}`);
-            if (item.height) el.style.height = item.height;
+            
+            if (item.height && !isMinimalView) {
+                el.style.height = item.height;
+            } else if (isMinimalView) {
+                el.style.height = 'auto'; // Force auto height in focus mode
+            }
+            
             grid.appendChild(el); 
         }
     });
@@ -1362,47 +1330,41 @@ function updateClock() {
 // INITIALIZATION
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Initialize dragging and resizing engines
     initWidgets();
     
-    // 2. Load saved settings (this also loads the saved layout arrays)
+    // Hard reset the save key to a new version to wipe out old conflicting layout data
+    // ONLY run this once if things get weird, then you can remove it. But it's safe to keep.
+    const migrationCheck = localStorage.getItem('waltonDashboardV2_Migrated');
+    if (!migrationCheck) {
+        localStorage.removeItem('waltonBellState'); 
+        localStorage.setItem('waltonDashboardV2_Migrated', 'true');
+    }
+    
     loadLocalSettings();
-    
-    // 3. Immediately apply the saved layout before the user sees it
     applyLayout();
-    
-    // 4. Fetch QotD Backend Data Instantly
     fetchQotdData();
     
-    // 5. Force the sidebar strictly closed on load
     const sidebar = document.getElementById('sidebar');
     const hamBtn = document.getElementById('hamburgerBtn');
     if(sidebar) sidebar.classList.add('collapsed');
     if(hamBtn) hamBtn.classList.remove('active-btn');
     sidebarVisible = false;
 
-    // Force Waffle settings modal closed on load
     const waffleModal = document.getElementById('waffle-modal');
     if (waffleModal) waffleModal.classList.remove('show');
 
-    // 6. Start the clock ticks
     updateTimerDisplay();
     updateClock();
     setInterval(updateClock, 1000);
     
-    // 7. Fetch schedule from Google 
     fetchDailySchedule();
 
-    // 8. Load voices
     try {
         if ('speechSynthesis' in window) {
             window.speechSynthesis.onvoiceschanged = safePopulateVoiceList;
             safePopulateVoiceList();
         }
     } catch(e) {}
-    
-    // 9. Change storage key inside code to reset user cache to version 2
-    localStorage.setItem('waltonDashboardV2', JSON.stringify({})); 
     
     setTimeout(() => { isBooting = false; }, 1500);
 });
