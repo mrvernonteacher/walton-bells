@@ -8,7 +8,7 @@
 ::-webkit-scrollbar-thumb { background: rgba(150,150,150,0.5); border-radius: 10px; }
 * { scrollbar-width: thin; scrollbar-color: rgba(150,150,150,0.5) transparent; } 
 
-/* Make the native resize handle invisible so we don't lose our rounded corners */
+/* Make native resize handle invisible */
 ::-webkit-resizer { background: transparent; }
 
 body {
@@ -181,7 +181,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 
 
 /* =========================================================
-   5. NEW: WAFFLE SETTINGS MODAL 
+   5. WAFFLE SETTINGS MODAL 
    ========================================================= */
 .waffle-modal-overlay {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -214,19 +214,23 @@ body.dark-mode .waffle-header { color: #90caf9; border-bottom: 2px solid #444 !i
    ========================================================= */
 .main-content-area {
     width: 100%; max-width: 1800px; margin: 0 auto; 
-    padding-bottom: 50px;
+    padding-bottom: 200px; /* Lots of space to drag at bottom */
 }
 
 .master-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: minmax(min-content, auto);
     grid-auto-flow: row dense;
+    align-items: start; /* Prevents widgets from artificially stretching each other */
     gap: 20px;
     width: 100%;
 }
 
 .span-1 { grid-column: span 1; }
 .span-2 { grid-column: span 2; }
+.span-3 { grid-column: span 3; }
+.span-4 { grid-column: span 4; }
 
 /* --- WIDGET CARDS (Grid Children) --- */
 .widget-card { 
@@ -234,9 +238,13 @@ body.dark-mode .waffle-header { color: #90caf9; border-bottom: 2px solid #444 !i
     position: relative; transition: grid-column 0.3s ease; 
     background-color: rgba(255, 255, 255, 0.85); 
     width: 100%; min-width: 0; 
-    /* THIS ENABLES DRAGGABLE HEIGHTS */
-    resize: vertical; overflow: hidden;
-    height: 180px; min-height: 60px; /* Default 1/3 height for standard widgets */
+    
+    /* NATURAL FIT CONTENT SETTINGS */
+    height: auto; 
+    min-height: 150px; 
+    max-height: 85vh; 
+    resize: vertical; 
+    overflow: hidden;
 }
 .widget-card.active-widget { display: flex; }
 
@@ -250,12 +258,12 @@ body.dark-mode .waffle-header { color: #90caf9; border-bottom: 2px solid #444 !i
 body.dark-mode .widget-card::after { border-color: rgba(255,255,255,0.2); }
 body.dark-mode .widget-card:hover::after { border-color: #90caf9; }
 
-/* FOCUS MODE OVERRIDES: Minimizes widgets to just their headers */
+/* FOCUS MODE OVERRIDES */
 body.minimal-active .widget-card > .widget-body { display: none !important; }
 body.minimal-active .widget-card { height: auto !important; min-height: 0 !important; resize: none !important; padding-bottom: 15px; }
 body.minimal-active .widget-card::after { display: none !important; }
 
-/* Push headers to top layer so they aren't clipped */
+/* Push headers to top layer */
 .widget-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 8px; margin-bottom: 12px; position: relative; z-index: 10;}
 body.dark-mode .widget-header-row { border-bottom: 1px solid #444; }
 .widget-title { font-weight: bold; font-size: 1.1rem; margin: 0; pointer-events: none;}
@@ -276,9 +284,6 @@ body.dark-mode .widget-header-row { border-bottom: 1px solid #444; }
     flex-grow: 1; overflow-y: auto; overflow-x: hidden; height: 100%; width: 100%;
     scrollbar-width: thin; scrollbar-color: rgba(150,150,150,0.5) transparent;
 }
-
-/* Schedule Widget specifics */
-#widget-schedule { height: 400px; } /* Give the schedule more breathing room by default */
 
 .schedule-title-row { display: flex; justify-content: center; align-items: center; margin-bottom: 10px; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 8px;}
 .schedule-title-row h3 { margin: 0; font-size: 1.5rem; color: #003366;}
@@ -301,11 +306,21 @@ body.dark-mode .widget-header-row { border-bottom: 1px solid #444; }
 
 .period-name { font-weight: bold; text-align: left; font-size: 1.6rem; align-self: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 5px;}
 .period-time { text-align: right; font-size: 1.4rem; color: #555; align-self: center; white-space: nowrap; padding-left: 5px;}
-#schedule-list li.current-period { background: linear-gradient(to right, rgba(92, 184, 92, 0.2) var(--progress, 0%), rgba(92, 184, 92, 0.03) var(--progress, 0%)) !important; border-left: 5px solid #5cb85c !important; }
+
+/* BLUE HIGHLIGHT PROGRESS BAR */
+#schedule-list li.current-period { background: linear-gradient(to right, rgba(49, 176, 213, 0.2) var(--progress, 0%), rgba(49, 176, 213, 0.03) var(--progress, 0%)) !important; border-left: 5px solid #31b0d5 !important; }
 
 .agenda-display { font-size: 1.1rem; font-weight: 600; color: #004080; text-align: center; width: 100%; max-height: 0px; opacity: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; transition: max-height 0.4s ease, opacity 0.3s ease; }
 .agenda-error { color: #d9534f !important; font-style: italic; font-weight: normal; }
 .open-badge { background-color: #5cb85c; color: white !important; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; margin-left: 10px; vertical-align: middle; font-weight: bold; border: none !important;}
+
+/* Docked Progress / Top Bar schedule always visible */
+.docked-schedule { display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center; width: 100%; white-space: nowrap;}
+.docked-info-row { display: flex; align-items: center; justify-content: center; gap: 20px;}
+.docked-name { font-size: 1.6rem; font-weight: 800; }
+.docked-time { font-size: 1.4rem; font-weight: bold; }
+.docked-progress-container { width: 100%; max-width: 350px; height: 6px; background: rgba(150,150,150,0.2); border-radius: 3px; overflow: hidden; margin-top: 2px;}
+.docked-progress-fill { height: 100%; width: 0%; background: #31b0d5; transition: width 1s linear, background-color 0.5s ease; }
 
 /* Weather Widget Tweaks */
 #weather-container-main { display: block; width: 100%; }
@@ -329,14 +344,6 @@ body.dark-mode #weather-container-main iframe { filter: none !important; }
 .qotd-bar-label { position: absolute; top: 0; left: 10px; line-height: 24px; font-size: 0.85rem; font-weight: bold; color: white !important; text-shadow: 0 1px 3px rgba(0,0,0,0.5); border: none !important;}
 .qotd-manual-unlock { font-size: 1rem; cursor: pointer; transition: transform 0.2s; margin-top: 5px; padding: 6px 12px; background: rgba(150,150,150,0.1); border-radius: 5px; font-weight: bold;}
 .qotd-manual-unlock:hover { background: rgba(150,150,150,0.2); }
-
-/* Docked Progress / Top Bar schedule always visible */
-.docked-schedule { display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center; width: 100%; white-space: nowrap;}
-.docked-info-row { display: flex; align-items: center; justify-content: center; gap: 20px;}
-.docked-name { font-size: 1.6rem; font-weight: 800; }
-.docked-time { font-size: 1.4rem; font-weight: bold; }
-.docked-progress-container { width: 100%; max-width: 350px; height: 6px; background: rgba(150,150,150,0.2); border-radius: 3px; overflow: hidden; margin-top: 2px;}
-.docked-progress-fill { height: 100%; width: 0%; background: #5cb85c; transition: width 1s linear, background-color 0.5s ease; }
 
 /* =========================================================
    8. MOBILE RESPONSIVE OVERRIDES
