@@ -35,9 +35,23 @@ let playGoodbyes = false, muteBells = false;
 let accordionStates = { 'sec-audio': true, 'sec-reminders': true, 'sec-vibe': true, 'sec-schedule': true };
 let activeWidgets = { weather: true, timer: false, qotd: true, spacer1: false, spacer2: false }; 
 
-// Default starting layout
-let layoutNormal = [];
-let layoutFocus = [];
+// --- DUAL-STATE LAYOUT MEMORY ARRAYS ---
+let layoutNormal = [
+    {id: 'widget-weather', span: 1, rowSpan: 1},
+    {id: 'widget-schedule', span: 2, rowSpan: 1},
+    {id: 'widget-timer', span: 1, rowSpan: 1},
+    {id: 'widget-qotd', span: 1, rowSpan: 1},
+    {id: 'widget-spacer1', span: 1, rowSpan: 1},
+    {id: 'widget-spacer2', span: 1, rowSpan: 1}
+];
+let layoutFocus = [
+    {id: 'widget-schedule', span: 2, rowSpan: 1},
+    {id: 'widget-weather', span: 1, rowSpan: 1},
+    {id: 'widget-timer', span: 1, rowSpan: 1},
+    {id: 'widget-qotd', span: 1, rowSpan: 1},
+    {id: 'widget-spacer1', span: 1, rowSpan: 1},
+    {id: 'widget-spacer2', span: 1, rowSpan: 1}
+];
 
 let timerInterval = null, timerTotalSeconds = 300, timerIsPlaying = false;
 let playedActions = {}, currentMinuteTracker = "", lastAutoState = null; 
@@ -48,7 +62,7 @@ let agendaCache = {}, agendaPromises = {};
 let savedVibeVol = 50, isVibeMuted = false, savedGlobalVol = 1.0, isGlobalMuted = false;
 
 // ==========================================================================
-// 2. MAGNETIC GRID SYSTEM (Drag, Drop & Heights)
+// 2. MAGNETIC GRID SYSTEM (Drag, Drop & Resizing)
 // ==========================================================================
 function initWidgets() {
     const masterGrid = document.getElementById('master-grid');
@@ -111,6 +125,44 @@ function initWidgets() {
             if (!isMinimalView) saveLayout();
         });
     });
+
+    // --- WIDTH CLICK-TO-RESIZE (↔) ---
+    document.querySelectorAll('.widget-resize-width').forEach(handle => {
+        handle.addEventListener('click', function(e) {
+            e.preventDefault();
+            const widget = this.closest('.widget-card');
+            
+            let currentSpan = 1;
+            if (widget.classList.contains('span-2')) currentSpan = 2;
+            if (widget.classList.contains('span-3')) currentSpan = 3;
+            if (widget.classList.contains('span-4')) currentSpan = 4;
+            
+            widget.classList.remove(`span-${currentSpan}`);
+            let nextSpan = currentSpan >= 4 ? 1 : currentSpan + 1;
+            widget.classList.add(`span-${nextSpan}`);
+            
+            saveLayout(); 
+        });
+    });
+
+    // --- HEIGHT CLICK-TO-RESIZE (↕) ---
+    document.querySelectorAll('.widget-resize-height').forEach(handle => {
+        handle.addEventListener('click', function(e) {
+            e.preventDefault();
+            const widget = this.closest('.widget-card');
+            
+            let currentSpan = 1;
+            if (widget.classList.contains('row-span-2')) currentSpan = 2;
+            if (widget.classList.contains('row-span-3')) currentSpan = 3;
+            if (widget.classList.contains('row-span-4')) currentSpan = 4;
+            
+            widget.classList.remove(`row-span-${currentSpan}`);
+            let nextSpan = currentSpan >= 4 ? 1 : currentSpan + 1;
+            widget.classList.add(`row-span-${nextSpan}`);
+            
+            saveLayout(); 
+        });
+    });
 }
 
 function saveLayout() {
@@ -119,7 +171,16 @@ function saveLayout() {
     const widgets = Array.from(grid.querySelectorAll('.widget-card'));
     
     const currentLayout = widgets.map(el => {
-        return { id: el.id, height: el.style.height }; // Save DOM order and explicit height
+        let wSpan = 1; let hSpan = 1;
+        if (el.classList.contains('span-2')) wSpan = 2;
+        if (el.classList.contains('span-3')) wSpan = 3;
+        if (el.classList.contains('span-4')) wSpan = 4;
+        
+        if (el.classList.contains('row-span-2')) hSpan = 2;
+        if (el.classList.contains('row-span-3')) hSpan = 3;
+        if (el.classList.contains('row-span-4')) hSpan = 4;
+
+        return { id: el.id, span: wSpan, rowSpan: hSpan, height: el.style.height }; 
     });
 
     if (isMinimalView) layoutFocus = currentLayout;
@@ -137,9 +198,10 @@ function applyLayout() {
     activeLayout.forEach(item => {
         const el = document.getElementById(item.id);
         if (el) {
-            // Restore height if it was explicitly resized
+            el.classList.remove('span-1', 'span-2', 'span-3', 'span-4', 'row-span-1', 'row-span-2', 'row-span-3', 'row-span-4');
+            el.classList.add(`span-${item.span || 1}`);
+            el.classList.add(`row-span-${item.rowSpan || 1}`);
             if (item.height) el.style.height = item.height;
-            // Physical reordering
             grid.appendChild(el); 
         }
     });
@@ -319,24 +381,6 @@ function renderLunchDuties() {
     });
 }
 
-function toggleSetting(key, prop, isChecked) {
-    if (!classSettings[key]) classSettings[key] = { ...DEFAULT_PREFS };
-    classSettings[key][prop] = isChecked;
-    saveLocalSettings();
-    renderSchedule(); 
-}
-
-function setIcalFeed(key) {
-    if (!classSettings[key]) classSettings[key] = { ...DEFAULT_PREFS };
-    const currentUrl = classSettings[key].icalUrl || '';
-    const newUrl = prompt(`Enter Secret iCal URL for ${key} (Leave blank to remove):`, currentUrl);
-    if (newUrl !== null) {
-        classSettings[key].icalUrl = newUrl.trim();
-        saveLocalSettings();
-        renderSchedule();
-    }
-}
-
 function toggleJukebox() {
     const el = document.getElementById('jukeboxToggle');
     mrBsJukebox = el ? el.checked : false;
@@ -352,7 +396,7 @@ function updateJukeboxUrl() {
 }
 
 // ==========================================================================
-// 4. UI TOGGLES & FLOATING MENUS
+// 4. UI TOGGLES, SETTINGS & MODALS
 // ==========================================================================
 document.addEventListener('fullscreenchange', () => {
     const fsBtn = document.getElementById('fullScreenBtn');
@@ -437,22 +481,85 @@ function toggleSidebar(e) {
     saveLocalSettings();
 }
 
+// --- THE NEW WAFFLE SETTINGS MODAL ---
 function toggleWaffleMenu(force) {
-    isWaffleClosed = force !== undefined ? force : !isWaffleClosed;
-    const container = document.getElementById('widget-schedule'); 
+    const modal = document.getElementById('waffle-modal');
     const btn = document.getElementById('waffleViewBtn');
-    if(container && btn) {
-        // Toggle the waffle display inside the widget
-        const schedBody = document.getElementById('schedule-container');
-        if(schedBody) {
-             if (isWaffleClosed) schedBody.classList.add('waffle-closed'); 
-             else schedBody.classList.remove('waffle-closed');
+
+    if (force === false) {
+        isWaffleClosed = true;
+    } else if (force === true) {
+        isWaffleClosed = false;
+    } else {
+        isWaffleClosed = !isWaffleClosed;
+    }
+
+    if (modal && btn) {
+        if (isWaffleClosed) {
+            modal.classList.remove('show');
+            btn.classList.remove('active-btn');
+        } else {
+            renderWaffleSettings(); 
+            modal.classList.add('show');
+            btn.classList.add('active-btn');
         }
-        
-        if (isWaffleClosed) btn.classList.remove('active-btn');
-        else btn.classList.add('active-btn');
     }
     saveLocalSettings();
+}
+
+function renderWaffleSettings() {
+    const list = document.getElementById('waffle-settings-list');
+    if(!list) return;
+    list.innerHTML = '';
+    
+    // Hardcoded list of all possible blocks
+    const periods = ['1', 'HR', '2', '3', '4', '5', '6', '7', 'A Block', 'B Block', 'C Block', 'D Block'];
+
+    periods.forEach(key => {
+        const safeKey = key.replace(/'/g, "\\'");
+        const s = classSettings[key] || { ...DEFAULT_PREFS };
+        
+        let isWebBlock = /^[A-D](\s|-)?Block/i.test(key);
+        let webOpenCheckbox = isWebBlock ?
+            `<div class="options-col opt-center"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` :
+            `<div class="options-col"></div>`;
+
+        const li = document.createElement('li');
+        li.className = 'waffle-grid';
+        li.innerHTML = `
+            <div class="period-name" style="font-size: 1.1rem; font-weight: bold;">${key}</div>
+            <div class="options-wrapper">
+                <div class="options-col"><label class="switch" title="Phone Caddy"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'putaway', this.checked)" ${s.putaway ? 'checked' : ''}><span class="slider"></span></label></div>
+                <div class="options-col"><label class="switch" title="Take Attendance"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'attendance', this.checked)" ${s.attendance ? 'checked' : ''}><span class="slider"></span></label></div>
+                <div class="options-col"><label class="switch" title="5-Min Clean Up"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'cleanup', this.checked)" ${s.cleanup ? 'checked' : ''}><span class="slider"></span></label></div>
+                <div class="options-col"><label class="switch" title="1 Min Warning & Retrieve"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'retrieve', this.checked)" ${s.retrieve ? 'checked' : ''}><span class="slider"></span></label></div>
+                ${webOpenCheckbox}
+                <div class="options-col">
+                    <button onclick="setIcalFeed('${safeKey}')" style="background:none;border:none;cursor:pointer;font-size:1.3rem;transition:transform 0.2s; filter: ${s.icalUrl ? 'none' : 'grayscale(100%) opacity(0.4)'}" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="${s.icalUrl ? 'Edit iCal Feed' : 'Add iCal Feed'}">📅</button>
+                </div>
+            </div>
+        `;
+        list.appendChild(li);
+    });
+}
+
+function toggleSetting(key, prop, isChecked) {
+    if (!classSettings[key]) classSettings[key] = { ...DEFAULT_PREFS };
+    classSettings[key][prop] = isChecked;
+    saveLocalSettings();
+    renderSchedule(); 
+}
+
+function setIcalFeed(key) {
+    if (!classSettings[key]) classSettings[key] = { ...DEFAULT_PREFS };
+    const currentUrl = classSettings[key].icalUrl || '';
+    const newUrl = prompt(`Enter Secret iCal URL for ${key} (Leave blank to remove):`, currentUrl);
+    if (newUrl !== null) {
+        classSettings[key].icalUrl = newUrl.trim();
+        saveLocalSettings();
+        renderWaffleSettings(); // Refresh popup UI
+        renderSchedule();       // Refresh schedule widget UI
+    }
 }
 
 function toggleMinimalView(force) {
@@ -872,6 +979,7 @@ setInterval(() => {
     }
 }, 15000);
 
+// --- CLEANED UP SCHEDULE RENDERER ---
 async function fetchDailySchedule() {
     const ind = document.getElementById('autoIndicator');
     if(ind) { ind.style.display = 'block'; ind.innerText = "Syncing..."; ind.style.color = '#888'; }
@@ -1004,6 +1112,51 @@ async function fetchAgenda(url, elementId) {
     }
 }
 
+function renderSchedule() {
+    const list = document.getElementById('schedule-list'); 
+    if(!list) return;
+    list.innerHTML = '';
+    
+    if (!Array.isArray(activeSchedule)) {
+        list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Schedule data is missing or corrupted.</em></li>'; return; 
+    }
+
+    if (activeSchedule.length === 0) { 
+        list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Waiting for Google...</em></li>'; return; 
+    }
+
+    activeSchedule.forEach(period => {
+        try {
+            const key = String(period.name);
+            const safeKey = key.replace(/'/g, "\\'"); 
+            const s = classSettings[key] || { ...DEFAULT_PREFS };
+            
+            const li = document.createElement('li'); 
+            li.className = 'schedule-grid';
+            li.dataset.start = String(period.start);
+            li.dataset.end = String(period.end);
+            
+            let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
+
+            // Schedule widget is now super clean! Just Name, Agenda, and Time.
+            li.innerHTML = `
+                <div class="period-name">${key} ${openBadgeHtml}</div>
+                <div class="middle-section">
+                    <div class="agenda-display" id="agenda-${safeKey}"></div>
+                </div>
+                <div class="period-time">${formatTime12(String(period.start))} - ${formatTime12(String(period.end))}</div>
+            `;
+            list.appendChild(li);
+            
+            if (s.icalUrl) {
+                fetchAgenda(s.icalUrl, `agenda-${safeKey}`);
+            }
+        } catch(e) { console.error("Error rendering a row:", e); }
+    });
+    
+    highlightCurrentPeriod(new Date());
+}
+
 // ==========================================================================
 // 7. LOCAL STORAGE & INITIALIZATION
 // ==========================================================================
@@ -1014,7 +1167,6 @@ function loadLocalSettings() {
         
         const p = JSON.parse(saved);
         
-        // This failsafe ensures old layouts (missing spacers or heights) don't overwrite the new default
         try { 
             if (p.layoutNormal && p.layoutNormal.some(w => w.id === 'widget-spacer1')) {
                 layoutNormal = p.layoutNormal; 
@@ -1047,7 +1199,6 @@ function loadLocalSettings() {
         
         try { if (p.waffleClosed !== undefined) { setWaffleState(p.waffleClosed, false); } } catch(e){}
         
-        // Set Minimal View state
         try { 
             if (p.minimalView !== undefined) { 
                 isMinimalView = p.minimalView;
@@ -1055,6 +1206,8 @@ function loadLocalSettings() {
                 if (isMinimalView) {
                     document.body.classList.add('minimal-active'); 
                     if(btn) btn.classList.add('active-btn');
+                    const schedWidget = document.getElementById('widget-schedule');
+                    if(schedWidget) schedWidget.style.setProperty('display', 'flex', 'important');
                 }
             } 
         } catch(e){}
@@ -1151,71 +1304,6 @@ function loadLocalSettings() {
     } catch (e) {
         console.error("Local Storage parse error.", e);
     }
-}
-
-function toggleZeroPeriod() {
-    const sz = document.getElementById('showZeroPeriod');
-    if(sz) showZero = sz.checked;
-    saveLocalSettings();
-    fetchDailySchedule(); 
-}
-
-function renderSchedule() {
-    const list = document.getElementById('schedule-list'); 
-    if(!list) return;
-    list.innerHTML = '';
-    
-    if (!Array.isArray(activeSchedule)) {
-        list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Schedule data is missing or corrupted.</em></li>'; return; 
-    }
-
-    if (activeSchedule.length === 0) { 
-        list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Waiting for Google...</em></li>'; return; 
-    }
-
-    activeSchedule.forEach(period => {
-        try {
-            const key = String(period.name);
-            const safeKey = key.replace(/'/g, "\\'"); 
-            const s = classSettings[key] || { ...DEFAULT_PREFS };
-            
-            const li = document.createElement('li'); 
-            li.className = 'schedule-grid';
-            li.dataset.start = String(period.start);
-            li.dataset.end = String(period.end);
-            
-            let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
-            let isWebBlock = /^[A-D](\s|-)?Block/i.test(key);
-            let webOpenCheckbox = isWebBlock ? 
-                `<div class="options-col opt-center"><label class="switch" title="Mark as WEB Open Block"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'open', this.checked)" ${s.open ? 'checked' : ''}><span class="slider"></span></label></div>` : 
-                `<div class="options-col"></div>`;
-
-            li.innerHTML = `
-                <div class="period-name">${key} ${openBadgeHtml}</div>
-                <div class="middle-section">
-                    <div class="options-wrapper">
-                        <div class="options-col"><label class="switch" title="Phone Caddy"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'putaway', this.checked)" ${s.putaway ? 'checked' : ''}><span class="slider"></span></label></div>
-                        <div class="options-col"><label class="switch" title="Take Attendance"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'attendance', this.checked)" ${s.attendance ? 'checked' : ''}><span class="slider"></span></label></div>
-                        <div class="options-col"><label class="switch" title="5-Min Clean Up"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'cleanup', this.checked)" ${s.cleanup ? 'checked' : ''}><span class="slider"></span></label></div>
-                        <div class="options-col"><label class="switch" title="1 Min Warning & Retrieve"><input type="checkbox" onchange="toggleSetting('${safeKey}', 'retrieve', this.checked)" ${s.retrieve ? 'checked' : ''}><span class="slider"></span></label></div>
-                        ${webOpenCheckbox}
-                        <div class="options-col">
-                            <button onclick="setIcalFeed('${safeKey}')" style="background:none;border:none;cursor:pointer;font-size:1.3rem;transition:transform 0.2s; filter: ${s.icalUrl ? 'none' : 'grayscale(100%) opacity(0.4)'}" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="${s.icalUrl ? 'Edit iCal Feed' : 'Add iCal Feed'}">📅</button>
-                        </div>
-                    </div>
-                    <div class="agenda-display" id="agenda-${safeKey}"></div>
-                </div>
-                <div class="period-time">${formatTime12(String(period.start))} - ${formatTime12(String(period.end))}</div>
-            `;
-            list.appendChild(li);
-            
-            if (s.icalUrl) {
-                fetchAgenda(s.icalUrl, `agenda-${safeKey}`);
-            }
-        } catch(e) { console.error("Error rendering a row:", e); }
-    });
-    
-    highlightCurrentPeriod(new Date());
 }
 
 // ==========================================================================
@@ -1431,34 +1519,26 @@ function updateClock() {
 // INITIALIZATION
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Initialize dragging and resizing engines
     initWidgets();
-    
-    // 2. Load saved settings (this also loads the saved layout arrays)
     loadLocalSettings();
-    
-    // 3. Immediately apply the saved layout before the user sees it
     applyLayout();
-    
-    // 4. Fetch QotD Backend Data Instantly
     fetchQotdData();
     
-    // 5. Force the sidebar strictly closed on load
+    // Render the new hidden Waffle Menu
+    renderWaffleSettings();
+    
     const sidebar = document.getElementById('sidebar');
     const hamBtn = document.getElementById('hamburgerBtn');
     if(sidebar) sidebar.classList.add('collapsed');
     if(hamBtn) hamBtn.classList.remove('active-btn');
     sidebarVisible = false;
 
-    // 6. Start the clock ticks
     updateTimerDisplay();
     updateClock();
     setInterval(updateClock, 1000);
     
-    // 7. Fetch schedule from Google 
     fetchDailySchedule();
 
-    // 8. Load voices
     try {
         if ('speechSynthesis' in window) {
             window.speechSynthesis.onvoiceschanged = safePopulateVoiceList;
@@ -1466,6 +1546,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     } catch(e) {}
     
-    // 9. FINALLY UNLOCK SAVING
     setTimeout(() => { isBooting = false; }, 1500);
 });
