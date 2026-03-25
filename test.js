@@ -4,7 +4,7 @@
 const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec?tab=Daily"; 
 const QOTD_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxTHBPh45e_R7clf_hx3j3OLJP1ThFEBlDIu4OLyt4tTEDZg6_xImwzO08bE0JzG_ezlQ/exec";
 const DEFAULT_PREFS = { open: false, putaway: false, attendance: false, cleanup: false, retrieve: false, icalUrl: '' };
-const SAVE_KEY = 'waltonSettingsV3'; // Unified, pristine save file key
+const SAVE_KEY = 'waltonSettingsV3'; 
 
 const GOODBYE_MESSAGES = [
     "Great work today. Have a wonderful rest of your day.",
@@ -230,16 +230,6 @@ function toggleDropdown(e) {
     document.getElementById("soundDropdown").classList.toggle("show");
 }
 
-window.onclick = function(event) {
-    if (!event.target.matches('.split-button-caret')) {
-        var dropdowns = document.getElementsByClassName("dropdown-content");
-        for (var i = 0; i < dropdowns.length; i++) {
-            var openDropdown = dropdowns[i];
-            if (openDropdown.classList.contains('show')) openDropdown.classList.remove('show');
-        }
-    }
-}
-
 function selectTestSound(id, name) {
     currentTestSound = id;
     document.getElementById("playBtn").innerHTML = "▶ Play " + name;
@@ -346,6 +336,28 @@ function updateJukeboxUrl() {
 // ==========================================================================
 // 4. UI TOGGLES, SETTINGS & MODALS
 // ==========================================================================
+
+// Global Click Listener (Fixes the "Click Outside" bug)
+document.addEventListener('click', (e) => {
+    // Close audio dropdown if clicking outside
+    if (!e.target.matches('.split-button-caret')) {
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        for (var i = 0; i < dropdowns.length; i++) {
+            var openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) openDropdown.classList.remove('show');
+        }
+    }
+
+    // Close Widget Add Menu if clicking outside
+    const widgetMenu = document.getElementById('widget-panel-menu');
+    const widgetBtn = document.getElementById('widget-menu-btn');
+    if (widgetMenu && widgetMenu.style.display === 'flex') {
+        if (!widgetMenu.contains(e.target) && !widgetBtn.contains(e.target)) {
+            widgetMenu.style.display = 'none';
+        }
+    }
+});
+
 document.addEventListener('fullscreenchange', () => {
     const fsBtn = document.getElementById('fullScreenBtn');
     if(fsBtn) fsBtn.classList.toggle('active-btn', document.fullscreenElement);
@@ -433,9 +445,13 @@ function toggleWaffleMenu(force) {
     const modal = document.getElementById('waffle-modal');
     const btn = document.getElementById('waffleViewBtn');
 
-    if (force === false) isWaffleClosed = true;
-    else if (force === true) isWaffleClosed = false;
-    else isWaffleClosed = !isWaffleClosed;
+    if (force === false) {
+        isWaffleClosed = true;
+    } else if (force === true) {
+        isWaffleClosed = false;
+    } else {
+        isWaffleClosed = !isWaffleClosed;
+    }
 
     if (modal && btn) {
         if (isWaffleClosed) {
@@ -450,6 +466,7 @@ function toggleWaffleMenu(force) {
     saveLocalSettings();
 }
 
+// Builds the settings pop-up using your exact new CSS grid layout
 function renderWaffleSettings() {
     const list = document.getElementById('waffle-settings-list');
     if(!list) return;
@@ -1097,171 +1114,6 @@ function renderSchedule() {
 }
 
 // ==========================================================================
-// 7. LOCAL STORAGE & INITIALIZATION
-// ==========================================================================
-function saveLocalSettings() {
-    if (isBooting) return;
-    const grid = document.getElementById('master-grid');
-    if(grid) {
-        const widgets = Array.from(grid.querySelectorAll('.widget-card'));
-        const currentLayout = widgets.map(el => {
-            return { id: el.id, height: el.style.height }; 
-        });
-        if (isMinimalView) layoutFocus = currentLayout;
-        else layoutNormal = currentLayout;
-    }
-
-    try {
-        const data = {
-            vol: globalVolume, voice: globalVoicePref, testSound: currentTestSound,
-            side: sidebarVisible, waffleClosed: isWaffleClosed, minimalView: isMinimalView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
-            settings: classSettings, lunchDuties: lunchDuties,
-            savedVibes: savedVibes, vibe: currentVibeUrl, vibeVol: vibeVolume, muteB: muteBells,
-            mrBsJukebox: mrBsJukebox, jukeboxUrl: jukeboxUrl, isMainVibePlaying: isMainVibePlaying,
-            customReminders: customReminders, accordions: accordionStates, widgets: activeWidgets,
-            layoutNormal: layoutNormal, layoutFocus: layoutFocus
-        };
-        localStorage.setItem(SAVE_KEY, JSON.stringify(data)); 
-    } catch (e) {}
-}
-
-function loadLocalSettings() {
-    try {
-        const saved = localStorage.getItem(SAVE_KEY); 
-        if (!saved) return;
-        
-        const p = JSON.parse(saved);
-        
-        try { if (p.layoutNormal) layoutNormal = p.layoutNormal; } catch(e){}
-        try { if (p.layoutFocus) layoutFocus = p.layoutFocus; } catch(e){}
-
-        try { if (p.settings) classSettings = p.settings; } catch(e){}
-        try { if (p.lunchDuties) { lunchDuties = p.lunchDuties; renderLunchDuties(); } } catch(e){}
-        try { if (p.customReminders) { customReminders = p.customReminders; renderCustomReminders(); } } catch(e){}
-        
-        try { if (p.vol !== undefined) { syncGlobalVolume(p.vol); } else { syncGlobalVolume(1.0); } } catch(e){}
-        try { if (p.vibeVol !== undefined) { syncVibeVolume(p.vibeVol); } } catch(e){}
-
-        try { 
-            if (p.testSound) {
-                currentTestSound = p.testSound;
-                const labels = {
-                    'positive': 'Voice Test', 'start': 'Class Start', 'end': 'Class End', 'warning1m': '1-Min Warning',
-                    'attendance': 'Take Attend.', 'cleanup': '5-Min Clean', 'lunch': 'Lunch Duty'
-                };
-                const pBtn = document.getElementById("playBtn");
-                if (labels[currentTestSound] && pBtn) pBtn.innerHTML = "▶ Play " + labels[currentTestSound];
-            }
-        } catch(e){}
-        
-        try { if (p.waffleClosed !== undefined) { setWaffleState(p.waffleClosed, false); } } catch(e){}
-        
-        try { 
-            if (p.minimalView !== undefined) { 
-                isMinimalView = p.minimalView;
-                const btn = document.getElementById('minimalViewBtn');
-                if (isMinimalView) {
-                    document.body.classList.add('minimal-active'); 
-                    if(btn) btn.classList.add('active-btn');
-                }
-            } 
-        } catch(e){}
-        
-        try { 
-            if (p.dark === true) { 
-                isDarkMode = true;
-                const dmToggle = document.getElementById('darkModeToggle');
-                if(dmToggle) dmToggle.checked = true; 
-                document.body.classList.add('dark-mode');
-            }
-        } catch(e){}
-
-        try { 
-            if (p.zero === true) { 
-                showZero = true; 
-                const zeroToggle = document.getElementById('showZeroPeriod');
-                if(zeroToggle) zeroToggle.checked = true; 
-            }
-        } catch(e){}
-
-        try { 
-            if (p.playGoodbyes === true) { 
-                playGoodbyes = true; 
-                const pgToggle = document.getElementById('playGoodbyes');
-                if(pgToggle) pgToggle.checked = true; 
-            }
-        } catch(e){}
-
-        try { 
-            if (p.muteB === true) { 
-                muteBells = true; 
-                const mbToggle = document.getElementById('muteBellsToggle');
-                if(mbToggle) mbToggle.checked = true; 
-            }
-        } catch(e){}
-        
-        try { 
-            if (p.savedVibes) savedVibes = p.savedVibes;
-            if (p.vibe && savedVibes.length === 0) {
-                savedVibes.push({ url: p.vibe, title: 'Saved Vibe' });
-                currentVibeUrl = p.vibe;
-            } else if (p.vibe) {
-                currentVibeUrl = p.vibe;
-            }
-            renderVibeDropdown();
-        } catch(e){}
-
-        try { 
-            if (p.mrBsJukebox !== undefined) mrBsJukebox = p.mrBsJukebox;
-            if (p.jukeboxUrl) jukeboxUrl = p.jukeboxUrl;
-            if (p.isMainVibePlaying !== undefined) isMainVibePlaying = p.isMainVibePlaying;
-
-            const jkToggle = document.getElementById('jukeboxToggle');
-            if(jkToggle) jkToggle.checked = mrBsJukebox;
-            const jkInput = document.getElementById('jukeboxUrlInput');
-            if(jkInput && jukeboxUrl !== "https://www.youtube.com/watch?v=CLLpSmaof4E") {
-                jkInput.value = jukeboxUrl;
-            }
-        } catch(e){}
-
-        try { 
-            if (p.widgets) {
-                activeWidgets = p.widgets;
-                Object.keys(p.widgets).forEach(key => {
-                    const tog = document.getElementById(`wm-tog-${key}`);
-                    if(tog) {
-                        tog.checked = p.widgets[key];
-                        const card = document.getElementById(`widget-${key}`);
-                        if(card) {
-                            if(p.widgets[key]) card.classList.add('active-widget');
-                            else card.classList.remove('active-widget');
-                        }
-                    }
-                });
-            }
-        } catch(e){}
-
-        try { 
-            if (p.accordions) {
-                accordionStates = p.accordions;
-                Object.keys(accordionStates).forEach(id => {
-                    if(accordionStates[id] === false) {
-                        const el = document.getElementById(id);
-                        if(el) el.style.maxHeight = "0px";
-                        const chev = document.getElementById('chev-'+id);
-                        if(chev) chev.style.transform = "rotate(-90deg)";
-                    }
-                });
-            }
-        } catch(e){}
-        
-        try { if(p.voice) globalVoicePref = p.voice; } catch(e){}
-    } catch (e) {
-        console.error("Local Storage parse error.", e);
-    }
-}
-
-// ==========================================================================
 // 8. MASTER CLOCK LOOP
 // ==========================================================================
 function timeToMins(t) { if (!t || !t.includes(':')) return 0; let [h, m] = t.split(':').map(Number); return h * 60 + m; }
@@ -1333,7 +1185,6 @@ function updateClock() {
         clk.innerText = now.toLocaleTimeString('en-US'); 
     }
     
-    // Wrapped in a try/catch failsafe so the clock never stops ticking if a widget crashes
     try {
         const now = new Date();
         let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
@@ -1481,7 +1332,6 @@ function updateClock() {
 document.addEventListener('DOMContentLoaded', () => {
     initWidgets();
     
-    // Clear out the corrupted save file from the previous bug and migrate to pristine file
     const isV3 = localStorage.getItem('waltonSettingsV3_Migrated');
     if (!isV3) {
         localStorage.removeItem('waltonDashboardV2');
