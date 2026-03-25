@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Walton Bell Schedule (Test Build)</title>
-    
     <link rel="stylesheet" href="test.css">
 </head>
 <body>
@@ -201,17 +200,17 @@
     <div class="main-content-area">
         <div id="master-grid" class="master-grid">
             
-            <div class="widget-card glass-panel span-1" id="widget-weather">
+            <div class="widget-card glass-panel span-1" id="widget-weather" draggable="true">
                 <div class="widget-header-row">
                     <span class="widget-drag-handle" title="Drag to move">⠿</span>
                     <h4 class="widget-title">Local Forecast</h4>
                     <button class="widget-close" onclick="toggleWidget('weather', false)">✖</button>
                 </div>
                 <div id="weather-container-main" style="flex-grow: 1; overflow-y: auto; overflow-x: hidden; height: 100%; min-height: 200px;"></div>
-                <div class="widget-resize-handle" title="Drag to resize">⤡</div>
+                <div class="widget-resize-handle" title="Click to change size">⤡</div>
             </div>
 
-            <div class="widget-card glass-panel span-2 waffle-closed active-widget" id="widget-schedule">
+            <div class="widget-card glass-panel span-2 waffle-closed active-widget" id="widget-schedule" draggable="true">
                 <div class="widget-header-row">
                     <span class="widget-drag-handle" title="Drag to move">⠿</span>
                     <div class="schedule-title-row" style="border:none; margin:0; padding:0;">
@@ -232,10 +231,10 @@
                     </div>
                     <ul id="schedule-list"></ul>
                 </div>
-                <div class="widget-resize-handle" title="Drag to resize">⤡</div>
+                <div class="widget-resize-handle" title="Click to change size">⤡</div>
             </div>
 
-            <div class="widget-card glass-panel span-1" id="widget-timer">
+            <div class="widget-card glass-panel span-1" id="widget-timer" draggable="true">
                 <div class="widget-header-row">
                     <span class="widget-drag-handle" title="Drag to move">⠿</span>
                     <h4 class="widget-title">Class Timer</h4>
@@ -252,10 +251,10 @@
                         <button class="timer-btn-hollow timer-btn-reset" onclick="resetTimer()" style="width: 100px;">Reset</button>
                     </div>
                 </div>
-                <div class="widget-resize-handle" title="Drag to resize">⤡</div>
+                <div class="widget-resize-handle" title="Click to change size">⤡</div>
             </div>
 
-            <div class="widget-card glass-panel span-1" id="widget-qotd">
+            <div class="widget-card glass-panel span-1" id="widget-qotd" draggable="true">
                 <div class="widget-header-row">
                     <span class="widget-drag-handle" title="Drag to move">⠿</span>
                     <h4 class="widget-title">Question of the Day</h4>
@@ -276,7 +275,7 @@
                     </div>
                     <div class="qotd-manual-unlock" onclick="toggleQotdQR()" id="qotd-toggle-btn">👁️ Hide QR Code</div>
                 </div>
-                <div class="widget-resize-handle" title="Drag to resize">⤡</div>
+                <div class="widget-resize-handle" title="Click to change size">⤡</div>
             </div>
 
         </div>
