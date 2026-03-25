@@ -15,7 +15,6 @@
             <button id="hamburgerBtn" class="header-icon-btn" onclick="toggleSidebar(event)" title="Toggle Settings">☰</button>
             <img src="https://drive.google.com/thumbnail?id=1XJEeGiblu9O3iGevy_j8RLR06LcyimqQ&sz=w400" alt="Walton Logo" class="header-logo">
         </div>
-        
         <div class="header-center">
             <div id="docked-schedule" class="docked-schedule">
                 <div class="docked-info-row" style="display:flex; align-items:center; justify-content:center; gap:20px;">
@@ -29,7 +28,6 @@
                 </div>
             </div>
         </div>
-        
         <div class="header-right">
             <button id="minimalViewBtn" class="header-icon-btn" onclick="toggleMinimalView()" title="Focus Mode">
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M4 11h16v2H4z"/></svg>
@@ -65,6 +63,9 @@
             <div class="setting-row" style="margin:0;"><span class="sub-label">Weather Forecast</span><label class="switch"><input type="checkbox" onchange="toggleWidget('weather', this.checked)" id="wm-tog-weather"><span class="slider"></span></label></div>
             <div class="setting-row" style="margin:10px 0 0 0;"><span class="sub-label">QotD / Voting</span><label class="switch"><input type="checkbox" onchange="toggleWidget('qotd', this.checked)" id="wm-tog-qotd"><span class="slider"></span></label></div>
             <div class="setting-row" style="margin:10px 0 0 0;"><span class="sub-label">Class Timer</span><label class="switch"><input type="checkbox" onchange="toggleWidget('timer', this.checked)" id="wm-tog-timer"><span class="slider"></span></label></div>
+            <hr style="border: 0; border-top: 1px solid rgba(150,150,150,0.3); margin: 10px 0;">
+            <div class="setting-row" style="margin:0;"><span class="sub-label" style="font-size: 0.8rem; color:#888;">Blank Spacer 1</span><label class="switch"><input type="checkbox" onchange="toggleWidget('spacer1', this.checked)" id="wm-tog-spacer1"><span class="slider"></span></label></div>
+            <div class="setting-row" style="margin:10px 0 0 0;"><span class="sub-label" style="font-size: 0.8rem; color:#888;">Blank Spacer 2</span><label class="switch"><input type="checkbox" onchange="toggleWidget('spacer2', this.checked)" id="wm-tog-spacer2"><span class="slider"></span></label></div>
         </div>
         <button class="float-btn" id="widget-menu-btn" onclick="toggleWidgetPanel(event)" title="Toggle Widgets">
             <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
@@ -200,17 +201,20 @@
     <div class="main-content-area">
         <div id="master-grid" class="master-grid">
             
-            <div class="widget-card glass-panel span-1" id="widget-weather" draggable="true">
+            <div class="widget-card glass-panel span-1 row-span-1" id="widget-weather" draggable="true">
                 <div class="widget-header-row">
                     <span class="widget-drag-handle" title="Drag to move">⠿</span>
                     <h4 class="widget-title">Local Forecast</h4>
                     <button class="widget-close" onclick="toggleWidget('weather', false)">✖</button>
                 </div>
                 <div id="weather-container-main" style="flex-grow: 1; overflow-y: auto; overflow-x: hidden; height: 100%; min-height: 200px;"></div>
-                <div class="widget-resize-handle" title="Click to change size">⤡</div>
+                <div class="widget-resize-controls">
+                    <span class="widget-resize-width" title="Cycle Width">↔</span>
+                    <span class="widget-resize-height" title="Cycle Height">↕</span>
+                </div>
             </div>
 
-            <div class="widget-card glass-panel span-2 waffle-closed active-widget" id="widget-schedule" draggable="true">
+            <div class="widget-card glass-panel span-2 row-span-1 waffle-closed active-widget" id="widget-schedule" draggable="true">
                 <div class="widget-header-row">
                     <span class="widget-drag-handle" title="Drag to move">⠿</span>
                     <div class="schedule-title-row" style="border:none; margin:0; padding:0;">
@@ -218,8 +222,7 @@
                     </div>
                     <span id="main-dead-time-warning" class="dead-time-warning" style="padding: 2px 6px; font-size: 0.8rem;">DEAD TIME</span>
                 </div>
-                
-                <div class="schedule-container" id="schedule-container" style="padding: 0;">
+                <div class="schedule-container" id="schedule-container" style="padding: 0; overflow-y: auto;">
                     <div class="schedule-grid schedule-header">
                         <div class="period-name">Class</div>
                         <div class="middle-section">
@@ -231,10 +234,13 @@
                     </div>
                     <ul id="schedule-list"></ul>
                 </div>
-                <div class="widget-resize-handle" title="Click to change size">⤡</div>
+                <div class="widget-resize-controls">
+                    <span class="widget-resize-width" title="Cycle Width">↔</span>
+                    <span class="widget-resize-height" title="Cycle Height">↕</span>
+                </div>
             </div>
 
-            <div class="widget-card glass-panel span-1" id="widget-timer" draggable="true">
+            <div class="widget-card glass-panel span-1 row-span-1" id="widget-timer" draggable="true">
                 <div class="widget-header-row">
                     <span class="widget-drag-handle" title="Drag to move">⠿</span>
                     <h4 class="widget-title">Class Timer</h4>
@@ -251,16 +257,19 @@
                         <button class="timer-btn-hollow timer-btn-reset" onclick="resetTimer()" style="width: 100px;">Reset</button>
                     </div>
                 </div>
-                <div class="widget-resize-handle" title="Click to change size">⤡</div>
+                <div class="widget-resize-controls">
+                    <span class="widget-resize-width" title="Cycle Width">↔</span>
+                    <span class="widget-resize-height" title="Cycle Height">↕</span>
+                </div>
             </div>
 
-            <div class="widget-card glass-panel span-1" id="widget-qotd" draggable="true">
+            <div class="widget-card glass-panel span-1 row-span-1" id="widget-qotd" draggable="true">
                 <div class="widget-header-row">
                     <span class="widget-drag-handle" title="Drag to move">⠿</span>
                     <h4 class="widget-title">Question of the Day</h4>
                     <button class="widget-close" onclick="toggleWidget('qotd', false)">✖</button>
                 </div>
-                <div class="qotd-container" id="qotd-main-view">
+                <div class="qotd-container" id="qotd-main-view" style="overflow-y: auto;">
                     <div class="qotd-text" id="qotd-question">Loading question...</div>
                     <div id="qotd-qr-section" style="display:flex; flex-direction:column; align-items:center; width:100%;">
                         <img id="qotd-qr-img" class="qotd-qr" src="" alt="Scan to vote">
@@ -275,7 +284,19 @@
                     </div>
                     <div class="qotd-manual-unlock" onclick="toggleQotdQR()" id="qotd-toggle-btn">👁️ Hide QR Code</div>
                 </div>
-                <div class="widget-resize-handle" title="Click to change size">⤡</div>
+                <div class="widget-resize-controls">
+                    <span class="widget-resize-width" title="Cycle Width">↔</span>
+                    <span class="widget-resize-height" title="Cycle Height">↕</span>
+                </div>
+            </div>
+
+            <div class="widget-card spacer-card span-1 row-span-1" id="widget-spacer1" draggable="true" style="background: transparent !important; box-shadow: none !important; border: 2px dashed rgba(150,150,150,0.3) !important;">
+                <span class="widget-drag-handle" title="Drag to move spacer" style="text-align:center; padding: 20px; font-size:2rem;">⠿</span>
+                <button class="widget-close" onclick="toggleWidget('spacer1', false)" style="position:absolute; top:10px; right:10px;">✖</button>
+            </div>
+            <div class="widget-card spacer-card span-1 row-span-1" id="widget-spacer2" draggable="true" style="background: transparent !important; box-shadow: none !important; border: 2px dashed rgba(150,150,150,0.3) !important;">
+                <span class="widget-drag-handle" title="Drag to move spacer" style="text-align:center; padding: 20px; font-size:2rem;">⠿</span>
+                <button class="widget-close" onclick="toggleWidget('spacer2', false)" style="position:absolute; top:10px; right:10px;">✖</button>
             </div>
 
         </div>
@@ -287,7 +308,6 @@
     </div>
 
     <audio id="regularBellAudio" src="bell.mp3" preload="auto"></audio>
-
     <script src="test.js" defer></script>
 </body>
 </html>
