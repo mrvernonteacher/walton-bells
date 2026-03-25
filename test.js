@@ -4,6 +4,7 @@
 const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec?tab=Daily"; 
 const QOTD_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxTHBPh45e_R7clf_hx3j3OLJP1ThFEBlDIu4OLyt4tTEDZg6_xImwzO08bE0JzG_ezlQ/exec";
 const DEFAULT_PREFS = { open: false, putaway: false, attendance: false, cleanup: false, retrieve: false, icalUrl: '' };
+const SAVE_KEY = 'waltonSettingsV3'; // Unified, pristine save file key
 
 const GOODBYE_MESSAGES = [
     "Great work today. Have a wonderful rest of your day.",
@@ -51,17 +52,18 @@ let savedVibeVol = 50, isVibeMuted = false, savedGlobalVol = 1.0, isGlobalMuted 
 // ==========================================================================
 function initWidgets() {
     const masterGrid = document.getElementById('master-grid');
+    if (!masterGrid) return;
     let draggedWidget = null;
 
-    // --- DRAG HANDLERS ---
+    // Grab by the Handle
     document.querySelectorAll('.widget-drag-handle').forEach(handle => {
         handle.addEventListener('mousedown', (e) => {
             const widget = e.target.closest('.widget-card');
-            widget.setAttribute('draggable', 'true');
+            if(widget) widget.setAttribute('draggable', 'true');
         });
         handle.addEventListener('mouseup', (e) => {
             const widget = e.target.closest('.widget-card');
-            widget.removeAttribute('draggable');
+            if(widget) widget.removeAttribute('draggable');
         });
     });
 
@@ -76,7 +78,7 @@ function initWidgets() {
             widget.removeAttribute('draggable');
             document.querySelectorAll('.widget-card').forEach(w => w.classList.remove('drag-over'));
             draggedWidget = null;
-            saveLayout(); // Save new order
+            saveLayout(); 
         });
 
         widget.addEventListener('dragover', (e) => {
@@ -105,9 +107,11 @@ function initWidgets() {
             }
         });
 
-        // Save Height when user stops dragging the native CSS resize corner
+        // Trigger height save when letting go of native CSS resizer
         widget.addEventListener('mouseup', (e) => {
-            if (!isMinimalView) saveLayout();
+            if (!isMinimalView && !draggedWidget) {
+                saveLayout();
+            }
         });
     });
 }
@@ -115,8 +119,9 @@ function initWidgets() {
 function saveLayout() {
     if (isBooting) return;
     const grid = document.getElementById('master-grid');
+    if (!grid) return;
+
     const widgets = Array.from(grid.querySelectorAll('.widget-card'));
-    
     const currentLayout = widgets.map(el => {
         return { id: el.id, height: el.style.height }; 
     });
@@ -130,14 +135,17 @@ function saveLayout() {
 function applyLayout() {
     const activeLayout = isMinimalView ? layoutFocus : layoutNormal;
     const grid = document.getElementById('master-grid');
-    
-    if(!activeLayout || activeLayout.length === 0) return;
+    if (!grid || !activeLayout || activeLayout.length === 0) return;
 
     activeLayout.forEach(item => {
         const el = document.getElementById(item.id);
         if (el) {
-            if (item.height && !isMinimalView) el.style.height = item.height;
-            grid.appendChild(el); // Physical reordering
+            if (item.height && !isMinimalView) {
+                el.style.height = item.height;
+            } else if (isMinimalView) {
+                el.style.height = 'auto'; // Force height to collapse in Focus Mode
+            }
+            grid.appendChild(el); 
         }
     });
 }
@@ -149,13 +157,18 @@ let availableVoices = [];
 
 function safePopulateVoiceList() {
     if (!('speechSynthesis' in window)) return;
-    availableVoices = window.speechSynthesis.getVoices();
-    const select = document.getElementById('voicePreference');
-    if (!select) return;
-    if (availableVoices.length === 0) {
-        select.innerHTML = '<option value="">Loading voices...</option>';
+    let voices = window.speechSynthesis.getVoices();
+    
+    // Some browsers need a tiny delay to load the API list
+    if (voices.length === 0) {
+        setTimeout(safePopulateVoiceList, 500);
         return;
     }
+    
+    availableVoices = voices;
+    const select = document.getElementById('voicePreference');
+    if (!select) return;
+    
     select.innerHTML = '';
     availableVoices.forEach((voice) => {
         const opt = document.createElement('option');
@@ -416,18 +429,13 @@ function toggleSidebar(e) {
     saveLocalSettings();
 }
 
-// --- THE WAFFLE SETTINGS MODAL ---
 function toggleWaffleMenu(force) {
     const modal = document.getElementById('waffle-modal');
     const btn = document.getElementById('waffleViewBtn');
 
-    if (force === false) {
-        isWaffleClosed = true;
-    } else if (force === true) {
-        isWaffleClosed = false;
-    } else {
-        isWaffleClosed = !isWaffleClosed;
-    }
+    if (force === false) isWaffleClosed = true;
+    else if (force === true) isWaffleClosed = false;
+    else isWaffleClosed = !isWaffleClosed;
 
     if (modal && btn) {
         if (isWaffleClosed) {
@@ -906,7 +914,6 @@ function fetchQotdData() {
         .catch(e => console.error("Error loading QotD:", e));
 }
 
-// Auto-poll QotD stats every 15 seconds
 setInterval(() => {
     if (activeWidgets.qotd) {
         try { fetchQotdData(); } catch(e){}
@@ -1092,15 +1099,41 @@ function renderSchedule() {
 // ==========================================================================
 // 7. LOCAL STORAGE & INITIALIZATION
 // ==========================================================================
+function saveLocalSettings() {
+    if (isBooting) return;
+    const grid = document.getElementById('master-grid');
+    if(grid) {
+        const widgets = Array.from(grid.querySelectorAll('.widget-card'));
+        const currentLayout = widgets.map(el => {
+            return { id: el.id, height: el.style.height }; 
+        });
+        if (isMinimalView) layoutFocus = currentLayout;
+        else layoutNormal = currentLayout;
+    }
+
+    try {
+        const data = {
+            vol: globalVolume, voice: globalVoicePref, testSound: currentTestSound,
+            side: sidebarVisible, waffleClosed: isWaffleClosed, minimalView: isMinimalView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
+            settings: classSettings, lunchDuties: lunchDuties,
+            savedVibes: savedVibes, vibe: currentVibeUrl, vibeVol: vibeVolume, muteB: muteBells,
+            mrBsJukebox: mrBsJukebox, jukeboxUrl: jukeboxUrl, isMainVibePlaying: isMainVibePlaying,
+            customReminders: customReminders, accordions: accordionStates, widgets: activeWidgets,
+            layoutNormal: layoutNormal, layoutFocus: layoutFocus
+        };
+        localStorage.setItem(SAVE_KEY, JSON.stringify(data)); 
+    } catch (e) {}
+}
+
 function loadLocalSettings() {
     try {
-        const saved = localStorage.getItem('waltonDashboardV2'); // USING NEW CLEAN STORAGE KEY
+        const saved = localStorage.getItem(SAVE_KEY); 
         if (!saved) return;
         
         const p = JSON.parse(saved);
         
-        try { if (p.layoutNormal && p.layoutNormal.some(w => w.id === 'widget-spacer1')) layoutNormal = p.layoutNormal; } catch(e){}
-        try { if (p.layoutFocus && p.layoutFocus.some(w => w.id === 'widget-spacer1')) layoutFocus = p.layoutFocus; } catch(e){}
+        try { if (p.layoutNormal) layoutNormal = p.layoutNormal; } catch(e){}
+        try { if (p.layoutFocus) layoutFocus = p.layoutFocus; } catch(e){}
 
         try { if (p.settings) classSettings = p.settings; } catch(e){}
         try { if (p.lunchDuties) { lunchDuties = p.lunchDuties; renderLunchDuties(); } } catch(e){}
@@ -1120,6 +1153,8 @@ function loadLocalSettings() {
                 if (labels[currentTestSound] && pBtn) pBtn.innerHTML = "▶ Play " + labels[currentTestSound];
             }
         } catch(e){}
+        
+        try { if (p.waffleClosed !== undefined) { setWaffleState(p.waffleClosed, false); } } catch(e){}
         
         try { 
             if (p.minimalView !== undefined) { 
@@ -1226,13 +1261,6 @@ function loadLocalSettings() {
     }
 }
 
-function toggleZeroPeriod() {
-    const sz = document.getElementById('showZeroPeriod');
-    if(sz) showZero = sz.checked;
-    saveLocalSettings();
-    fetchDailySchedule(); 
-}
-
 // ==========================================================================
 // 8. MASTER CLOCK LOOP
 // ==========================================================================
@@ -1300,11 +1328,14 @@ function triggerEvent(time, action, callback) {
 
 function updateClock() {
     const clk = document.getElementById('clock');
-    if(!clk) return;
-    const now = new Date();
-    clk.innerText = now.toLocaleTimeString('en-US'); 
+    if(clk) {
+        const now = new Date();
+        clk.innerText = now.toLocaleTimeString('en-US'); 
+    }
     
+    // Wrapped in a try/catch failsafe so the clock never stops ticking if a widget crashes
     try {
+        const now = new Date();
         let current24 = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
         const todayDayOfWeek = now.getDay(); 
         
@@ -1439,7 +1470,9 @@ function updateClock() {
                 });
             }
         });
-    } catch(e) { console.error("Clock loop error:", e); }
+    } catch(e) { 
+        console.error("Clock loop error:", e); 
+    }
 }
 
 // ==========================================================================
@@ -1447,6 +1480,15 @@ function updateClock() {
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', () => {
     initWidgets();
+    
+    // Clear out the corrupted save file from the previous bug and migrate to pristine file
+    const isV3 = localStorage.getItem('waltonSettingsV3_Migrated');
+    if (!isV3) {
+        localStorage.removeItem('waltonDashboardV2');
+        localStorage.removeItem('waltonBellState');
+        localStorage.setItem('waltonSettingsV3_Migrated', 'true');
+    }
+
     loadLocalSettings();
     applyLayout();
     fetchQotdData();
@@ -1468,8 +1510,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
         if ('speechSynthesis' in window) {
-            window.speechSynthesis.onvoiceschanged = safePopulateVoiceList;
             safePopulateVoiceList();
+            window.speechSynthesis.onvoiceschanged = safePopulateVoiceList;
         }
     } catch(e) {}
     
