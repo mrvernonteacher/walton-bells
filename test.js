@@ -37,16 +37,16 @@ let activeWidgets = { weather: true, timer: false, qotd: true };
 
 // --- DUAL-STATE LAYOUT MEMORY ARRAYS ---
 let layoutNormal = [
-    {id: 'widget-weather', span: 1},
     {id: 'widget-schedule', span: 2},
-    {id: 'widget-timer', span: 1},
-    {id: 'widget-qotd', span: 1}
+    {id: 'widget-weather', span: 1},
+    {id: 'widget-qotd', span: 1},
+    {id: 'widget-timer', span: 1}
 ];
 let layoutFocus = [
     {id: 'widget-schedule', span: 2},
     {id: 'widget-weather', span: 1},
-    {id: 'widget-timer', span: 1},
-    {id: 'widget-qotd', span: 1}
+    {id: 'widget-qotd', span: 1},
+    {id: 'widget-timer', span: 1}
 ];
 
 let timerInterval = null, timerTotalSeconds = 300, timerIsPlaying = false;
@@ -59,13 +59,13 @@ let agendaCache = {}, agendaPromises = {};
 let savedVibeVol = 50, isVibeMuted = false, savedGlobalVol = 1.0, isGlobalMuted = false;
 
 // ==========================================================================
-// MAGNETIC GRID SYSTEM (Drag, Drop & Resize)
+// 2. MAGNETIC GRID SYSTEM (Drag, Drop & Click-to-Resize)
 // ==========================================================================
 function initWidgets() {
     const masterGrid = document.getElementById('master-grid');
     let draggedWidget = null;
 
-    // --- DRAG HANDLERS ---
+    // --- DRAG HANDLERS (Only active when clicking the ⠿ handle) ---
     document.querySelectorAll('.widget-drag-handle').forEach(handle => {
         handle.addEventListener('mousedown', (e) => {
             const widget = e.target.closest('.widget-card');
@@ -86,57 +86,58 @@ function initWidgets() {
         widget.addEventListener('dragend', () => {
             if(draggedWidget) draggedWidget.classList.remove('is-dragging');
             widget.removeAttribute('draggable');
+            document.querySelectorAll('.widget-card').forEach(w => w.classList.remove('drag-over'));
             draggedWidget = null;
-            saveLayout(); // Save state on drop
+            saveLayout(); // Save new order
+        });
+
+        widget.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            if (!draggedWidget || draggedWidget === widget) return;
+            widget.classList.add('drag-over');
+        });
+
+        widget.addEventListener('dragleave', (e) => {
+            widget.classList.remove('drag-over');
+        });
+
+        widget.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (!draggedWidget || draggedWidget === widget) return;
+            widget.classList.remove('drag-over');
+            
+            const allWidgets = [...masterGrid.querySelectorAll('.widget-card')];
+            const draggedIndex = allWidgets.indexOf(draggedWidget);
+            const targetIndex = allWidgets.indexOf(widget);
+            
+            if (draggedIndex < targetIndex) {
+                widget.after(draggedWidget);
+            } else {
+                masterGrid.insertBefore(draggedWidget, widget);
+            }
         });
     });
 
-    masterGrid.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        if (!draggedWidget) return;
-        const target = e.target.closest('.widget-card');
-        
-        if (target && target !== draggedWidget && !target.classList.contains('is-dragging')) {
-            const rect = target.getBoundingClientRect();
-            // Determine if mouse is past the halfway point of the target
-            const next = (e.clientX - rect.left) / (rect.width) > 0.5;
-            masterGrid.insertBefore(draggedWidget, next ? target.nextSibling : target);
-        }
-    });
-
-    // --- RESIZE HANDLERS ---
+    // --- CLICK-TO-RESIZE HANDLERS ---
     document.querySelectorAll('.widget-resize-handle').forEach(handle => {
-        handle.addEventListener('mousedown', function(e) {
+        handle.addEventListener('click', function(e) {
             e.preventDefault();
             const widget = this.closest('.widget-card');
             
-            const startX = e.clientX;
-            const initialWidth = widget.offsetWidth;
-            const gridWidth = masterGrid.offsetWidth;
-            const colWidth = (gridWidth + 20) / 4; // 20 is the CSS gap
-
-            function onMouseMove(ev) {
-                const diff = ev.clientX - startX;
-                const newWidth = initialWidth + diff;
-                
-                // Snap math to columns
-                let spans = Math.round(newWidth / colWidth);
-                if (spans < 1) spans = 1;
-                if (spans > 4) spans = 4;
-                
-                // Apply visual snap
-                widget.classList.remove('span-1', 'span-2', 'span-3', 'span-4');
-                widget.classList.add(`span-${spans}`);
-            }
-
-            function onMouseUp() {
-                document.removeEventListener('mousemove', onMouseMove);
-                document.removeEventListener('mouseup', onMouseUp);
-                saveLayout(); // Save state when mouse released
-            }
-
-            document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('mouseup', onMouseUp);
+            // Determine current span
+            let currentSpan = 1;
+            if (widget.classList.contains('span-2')) currentSpan = 2;
+            if (widget.classList.contains('span-3')) currentSpan = 3;
+            if (widget.classList.contains('span-4')) currentSpan = 4;
+            
+            // Remove old class
+            widget.classList.remove(`span-${currentSpan}`);
+            
+            // Cycle to next span (1 -> 2 -> 3 -> 4 -> 1)
+            let nextSpan = currentSpan >= 4 ? 1 : currentSpan + 1;
+            widget.classList.add(`span-${nextSpan}`);
+            
+            saveLayout(); // Save new size
         });
     });
 }
@@ -180,7 +181,7 @@ function applyLayout() {
 }
 
 // ==========================================================================
-// AUDIO, VOICES, AND REMINDERS
+// 3. AUDIO, VOICES, AND REMINDERS
 // ==========================================================================
 let availableVoices = [];
 
@@ -386,7 +387,7 @@ function updateJukeboxUrl() {
 }
 
 // ==========================================================================
-// 2. GLOBAL EVENT LISTENERS
+// 4. UI TOGGLES & FLOATING MENUS
 // ==========================================================================
 document.addEventListener('fullscreenchange', () => {
     const fsBtn = document.getElementById('fullScreenBtn');
@@ -409,7 +410,7 @@ function updateFloatingPlayerVisibility() {
     }
 }
 
-// Player Drag Logic
+// Floating Player Drag Logic
 document.querySelectorAll('.drag-handle').forEach(handle => {
     handle.addEventListener('mousedown', function(e) {
         if (window.innerWidth <= 850) return; 
@@ -432,9 +433,6 @@ document.querySelectorAll('.drag-handle').forEach(handle => {
     });
 });
 
-// ==========================================================================
-// 3. UI TOGGLES
-// ==========================================================================
 function reloadWeatherWidget() {
     const container1 = document.getElementById('weather-container-main');
     if(!container1) return;
@@ -461,7 +459,7 @@ function toggleWidget(id, isChecked) {
     const floatTog = document.getElementById(`wm-tog-${id}`);
     if(floatTog) floatTog.checked = isChecked;
     
-    applyLayout(); // Ensure standard positioning applies
+    applyLayout(); 
     saveLocalSettings();
 }
 
@@ -484,7 +482,7 @@ function toggleSidebar(e) {
 
 function toggleWaffleMenu(force) {
     isWaffleClosed = force !== undefined ? force : !isWaffleClosed;
-    const container = document.getElementById('widget-schedule'); // Uses the full widget ID now
+    const container = document.getElementById('widget-schedule'); 
     const btn = document.getElementById('waffleViewBtn');
     if(container && btn) {
         if (isWaffleClosed) {
@@ -566,7 +564,7 @@ function toggleAccordion(id) {
 }
 
 // ==========================================================================
-// 4. YOUTUBE API LOGIC 
+// 5. YOUTUBE API LOGIC 
 // ==========================================================================
 let ytPlayer = null;
 let isYtApiReady = false;
@@ -844,7 +842,7 @@ function showToast(message) {
 }
 
 // ==========================================================================
-// TIMERS & WIDGETS
+// 6. TIMERS & DATA FETCHING (QotD + Schedule)
 // ==========================================================================
 function updateTimerDisplay() {
     const d = document.getElementById('timer-display');
@@ -886,9 +884,6 @@ function togglePlayTimer() {
     }
 }
 
-// ==========================================================================
-// DYNAMIC QOTD BACKEND LOGIC
-// ==========================================================================
 let qotdQrVisible = true;
 
 function toggleQotdQR() {
@@ -930,9 +925,6 @@ setInterval(() => {
     }
 }, 15000);
 
-// ==========================================================================
-// ASYNC SCHEDULE FETCHING (Pure Google Sync)
-// ==========================================================================
 async function fetchDailySchedule() {
     const ind = document.getElementById('autoIndicator');
     if(ind) { ind.style.display = 'block'; ind.innerText = "Syncing..."; ind.style.color = '#888'; }
@@ -1066,24 +1058,8 @@ async function fetchAgenda(url, elementId) {
 }
 
 // ==========================================================================
-// LOCAL STORAGE (SAFE)
+// 7. LOCAL STORAGE & INITIALIZATION
 // ==========================================================================
-function saveLocalSettings() {
-    if (isBooting) return; 
-    try {
-        const data = {
-            vol: globalVolume, voice: globalVoicePref, testSound: currentTestSound,
-            side: sidebarVisible, waffleClosed: isWaffleClosed, minimalView: isMinimalView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
-            settings: classSettings, lunchDuties: lunchDuties,
-            savedVibes: savedVibes, vibe: currentVibeUrl, vibeVol: vibeVolume, muteB: muteBells,
-            mrBsJukebox: mrBsJukebox, jukeboxUrl: jukeboxUrl, isMainVibePlaying: isMainVibePlaying,
-            customReminders: customReminders, accordions: accordionStates, widgets: activeWidgets,
-            layoutNormal: layoutNormal, layoutFocus: layoutFocus // Saves Layouts
-        };
-        localStorage.setItem('waltonBellState', JSON.stringify(data)); 
-    } catch (e) {}
-}
-
 function loadLocalSettings() {
     try {
         const saved = localStorage.getItem('waltonBellState');
