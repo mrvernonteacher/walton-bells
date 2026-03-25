@@ -165,9 +165,6 @@ select, input[type="text"], input[type="time"], input[type="date"] { width: 100%
 .btn:hover { background-color: #002244; transform: translateY(-1px);}
 .btn-danger { background-color: #d9534f !important; }
 
-.goodbye-box { background: rgba(92, 184, 92, 0.15); border: 1px solid rgba(150,150,150,0.2); padding: 12px; border-radius: 8px; margin-top: 15px; }
-.goodbye-box label { color: #003366; font-weight: bold; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 8px;}
-
 .switch-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; margin-top: 5px;}
 .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
 .switch input { opacity: 0; width: 0; height: 0; margin: 0; }
@@ -188,8 +185,6 @@ input:checked + .slider:before { transform: translateX(20px); }
     display: grid;
     /* Strict 25% columns */
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    /* Dynamic rows to prevent layout thrashing */
-    grid-auto-rows: minmax(180px, auto); 
     grid-auto-flow: row dense;
     gap: 20px;
     width: 100%;
@@ -198,27 +193,25 @@ input:checked + .slider:before { transform: translateX(20px); }
 /* Span Classes for Magnetic Sizing */
 .span-1 { grid-column: span 1; }
 .span-2 { grid-column: span 2; }
-.span-3 { grid-column: span 3; }
-.span-4 { grid-column: span 4; }
-
-/* Row Classes for Height Sizing */
-.row-span-1 { grid-row: span 1; }
-.row-span-2 { grid-row: span 2; }
-.row-span-3 { grid-row: span 3; }
-.row-span-4 { grid-row: span 4; }
 
 /* --- WIDGET CARDS (Grid Children) --- */
 .widget-card { 
-    border-radius: 15px; padding: 15px; display: none; flex-direction: column; 
-    position: relative; transition: grid-column 0.3s ease, grid-row 0.3s ease; 
-    background-color: rgba(255, 255, 255, 0.85); /* Fallback */
-    height: 100%; width: 100%;
-    min-width: 0; min-height: 0;
-    overflow: hidden; 
+    border-radius: 15px; padding: 15px; padding-bottom: 20px; display: none; flex-direction: column; 
+    position: relative; transition: grid-column 0.3s ease; 
+    background-color: rgba(255, 255, 255, 0.85); 
+    width: 100%; min-width: 0; 
+    /* THIS ENABLES DRAGGABLE HEIGHTS */
+    resize: vertical; overflow: hidden;
+    height: 180px; min-height: 60px; /* Default 1/3 height for widgets */
 }
 .widget-card.active-widget { display: flex; }
+#widget-schedule { height: 500px; } /* Override default height for schedule */
 
-/* Fix overlapping icons by pushing them to the top layer */
+/* FOCUS MODE OVERRIDES: Minimizes widgets to just their headers */
+body.minimal-active .widget-card > .widget-body { display: none !important; }
+body.minimal-active .widget-card { height: auto !important; min-height: 0 !important; resize: none !important; padding-bottom: 15px; }
+
+/* Push headers to top layer so they aren't clipped */
 .widget-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 8px; margin-bottom: 12px; position: relative; z-index: 10;}
 body.dark-mode .widget-header-row { border-bottom: 1px solid #444; }
 .widget-title { font-weight: bold; font-size: 1.1rem; margin: 0; pointer-events: none;}
@@ -229,27 +222,16 @@ body.dark-mode .widget-header-row { border-bottom: 1px solid #444; }
 .widget-card.is-dragging { opacity: 0.5; border: 2px dashed #31b0d5 !important; z-index: 50; }
 .widget-card.drag-over { border: 2px solid #5cb85c !important; transform: scale(1.02); }
 
-/* The New Separate Width & Height Resize Icons */
-.widget-resize-controls {
-    position: absolute; bottom: 5px; right: 5px; 
-    display: flex; gap: 8px; z-index: 100;
-    background: rgba(255,255,255,0.7); border-radius: 5px; padding: 2px;
-}
-body.dark-mode .widget-resize-controls { background: rgba(0,0,0,0.5); }
-
-.widget-resize-width, .widget-resize-height {
-    cursor: pointer; font-size: 1.1rem; color: #888; user-select: none; line-height: 1; transition: color 0.2s; font-weight: bold;
-}
-.widget-resize-width:hover, .widget-resize-height:hover { color: #31b0d5; }
-
 .widget-close { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1.2rem; line-height: 1; padding: 0 5px; transition: color 0.2s; }
 .widget-close:hover { color: #d9534f; }
 
 /* =========================================================
-   6. SCHEDULE WIDGET STYLING
+   6. WIDGET INNER CONTENT (Scrollable logic)
    ========================================================= */
-#widget-schedule .schedule-container { max-height: none; background: transparent !important; box-shadow: none !important; border: none !important; padding: 0 !important;}
-body.minimal-active #widget-schedule { display: none !important; }
+.widget-body {
+    flex-grow: 1; overflow-y: auto; overflow-x: hidden; height: 100%; width: 100%;
+    scrollbar-width: thin; scrollbar-color: rgba(150,150,150,0.5) transparent;
+}
 
 .schedule-title-row { display: flex; justify-content: center; align-items: center; margin-bottom: 10px; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 8px;}
 .schedule-title-row h3 { margin: 0; font-size: 1.5rem; color: #003366;}
@@ -272,40 +254,17 @@ body.minimal-active #widget-schedule { display: none !important; }
 
 .period-name { font-weight: bold; text-align: left; font-size: 1.6rem; align-self: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 5px;}
 .period-time { text-align: right; font-size: 1.4rem; color: #555; align-self: center; white-space: nowrap; padding-left: 5px;}
-
 #schedule-list li.current-period { background: linear-gradient(to right, rgba(92, 184, 92, 0.2) var(--progress, 0%), rgba(92, 184, 92, 0.03) var(--progress, 0%)) !important; border-left: 5px solid #5cb85c !important; }
 
 .agenda-display { font-size: 1.1rem; font-weight: 600; color: #004080; text-align: center; width: 100%; max-height: 0px; opacity: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; transition: max-height 0.4s ease, opacity 0.3s ease; }
 .agenda-error { color: #d9534f !important; font-style: italic; font-weight: normal; }
-
 .open-badge { background-color: #5cb85c; color: white !important; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; margin-left: 10px; vertical-align: middle; font-weight: bold; border: none !important;}
 
-/* Schedule State 1: WAFFLE CLOSED */
-.waffle-closed .schedule-grid { grid-template-columns: minmax(100px, auto) 1fr minmax(140px, auto); }
-.waffle-closed .options-wrapper { max-height: 0px; opacity: 0; pointer-events: none; }
-.waffle-closed .agenda-display.has-data { max-height: 40px; opacity: 1; margin-top: 4px; }
-.waffle-closed .schedule-header .options-wrapper { max-height: 0px; opacity: 0; }
-.waffle-closed .period-name { font-size: 2.2rem; }
-.waffle-closed .period-time { font-size: 2rem; font-weight: bold; }
-
-/* Schedule State 2: MINIMAL VIEW (Fly to Top Bar) */
-.docked-schedule { display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center; opacity: 0; transform: translateY(-20px); transition: all 0.6s ease; pointer-events: none; visibility: hidden; width: 100%; white-space: nowrap;}
-.docked-info-row { display: flex; align-items: center; justify-content: center; gap: 20px;}
-body.minimal-active .docked-schedule { opacity: 1; transform: translateY(0); pointer-events: auto; visibility: visible; }
-
-.docked-name { font-size: 1.6rem; font-weight: 800; }
-.docked-time { font-size: 1.4rem; font-weight: bold; }
-
-.docked-progress-container { width: 100%; max-width: 350px; height: 6px; background: rgba(150,150,150,0.2); border-radius: 3px; overflow: hidden; margin-top: 2px;}
-.docked-progress-fill { height: 100%; width: 0%; background: #5cb85c; transition: width 1s linear, background-color 0.5s ease; }
-
-/* =========================================================
-   7. INDIVIDUAL WIDGET STYLES (Timer, Weather, QotD)
-   ========================================================= */
-#widget-weather { flex-grow: 1;}
-#weather-container-main { height: 100%; display: block; width: 100%; overflow: hidden;}
+/* Weather Widget Tweaks */
+#weather-container-main { display: block; width: 100%; }
 body.dark-mode #weather-container-main iframe { filter: none !important; }
 
+/* Timer Widget Styles */
 .timer-display { font-size: 4rem; font-weight: bold; text-align: center; margin: 10px 0; font-variant-numeric: tabular-nums; }
 .timer-controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;}
 .timer-quick-add { display: flex; gap: 8px; justify-content: center; }
@@ -314,8 +273,8 @@ body.dark-mode #weather-container-main iframe { filter: none !important; }
 .timer-btn-reset { border-color: #888; color: #888;}
 .timer-btn-reset:hover { background-color: rgba(150, 150, 150, 0.15); }
 
-#widget-qotd { flex-grow: 1;}
-.qotd-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; gap: 15px; position: relative; flex-grow: 1;}
+/* QotD Widget Styles */
+.qotd-container { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; text-align: center; gap: 15px;}
 .qotd-text { font-size: 1.2rem; font-weight: bold; margin-bottom: 10px;}
 .qotd-qr { width: 150px; height: 150px; background: white !important; padding: 10px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 5px; border: none !important;}
 .qotd-bar-bg { width: 100%; background: rgba(0,0,0,0.1); border-radius: 10px; height: 24px; overflow: hidden; position: relative;}
@@ -324,12 +283,19 @@ body.dark-mode #weather-container-main iframe { filter: none !important; }
 .qotd-manual-unlock { font-size: 1rem; cursor: pointer; transition: transform 0.2s; margin-top: 5px; padding: 6px 12px; background: rgba(150,150,150,0.1); border-radius: 5px; font-weight: bold;}
 .qotd-manual-unlock:hover { background: rgba(150,150,150,0.2); }
 
+/* Docked Progress / Top Bar schedule always visible */
+.docked-schedule { display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center; width: 100%; white-space: nowrap;}
+.docked-info-row { display: flex; align-items: center; justify-content: center; gap: 20px;}
+.docked-name { font-size: 1.6rem; font-weight: 800; }
+.docked-time { font-size: 1.4rem; font-weight: bold; }
+.docked-progress-container { width: 100%; max-width: 350px; height: 6px; background: rgba(150,150,150,0.2); border-radius: 3px; overflow: hidden; margin-top: 2px;}
+.docked-progress-fill { height: 100%; width: 0%; background: #5cb85c; transition: width 1s linear, background-color 0.5s ease; }
+
 /* =========================================================
-   8. MOBILE RESPONSIVE OVERRIDES
+   7. MOBILE RESPONSIVE OVERRIDES
    ========================================================= */
 @media (max-width: 1100px) {
     .master-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .span-3, .span-4 { grid-column: span 2; }
 }
 
 @media (max-width: 850px) {
@@ -350,18 +316,17 @@ body.dark-mode #weather-container-main iframe { filter: none !important; }
     .sidebar { max-width: calc(100vw - 20px); width: calc(100vw - 20px); }
     
     .master-grid { grid-template-columns: 1fr; }
-    .span-1, .span-2, .span-3, .span-4 { grid-column: span 1; }
+    .span-2 { grid-column: span 1; }
     
     .schedule-header { display: none !important; }
     .schedule-title-row { flex-direction: column; text-align: center; gap: 5px; }
     
-    .schedule-grid, .waffle-closed .schedule-grid { grid-template-columns: 1fr; gap: 8px; text-align: center; padding: 15px; }
-    .period-name, .waffle-closed .period-name { grid-column: 1; grid-row: auto; text-align: center; font-size: 1.8rem; white-space: normal; padding: 0;}
+    .schedule-grid { grid-template-columns: 1fr; gap: 8px; text-align: center; padding: 15px; }
+    .period-name { grid-column: 1; grid-row: auto; text-align: center; font-size: 1.8rem; white-space: normal; padding: 0;}
     .middle-section { grid-column: 1; grid-row: auto; }
-    .period-time, .waffle-closed .period-time { grid-column: 1; grid-row: auto; text-align: center; font-size: 1.4rem; white-space: normal; padding: 0;}
+    .period-time { grid-column: 1; grid-row: auto; text-align: center; font-size: 1.4rem; white-space: normal; padding: 0;}
     .agenda-display { grid-column: 1 !important; grid-row: auto !important; white-space: normal; }
     .options-wrapper { grid-template-columns: repeat(3, 1fr); max-height: 80px; }
-    .waffle-closed .options-wrapper { max-height: 0px; }
 
     #floating-player { 
         position: fixed !important; bottom: 0 !important; right: 0 !important; left: 0 !important; 
