@@ -47,12 +47,13 @@ let agendaCache = {}, agendaPromises = {};
 let savedVibeVol = 50, isVibeMuted = false, savedGlobalVol = 1.0, isGlobalMuted = false;
 
 // ==========================================================================
-// 2. MAGNETIC GRID SYSTEM (Drag, Drop & Resizing)
+// 2. MAGNETIC GRID SYSTEM (Drag, Drop & Height Memory)
 // ==========================================================================
 function initWidgets() {
     const masterGrid = document.getElementById('master-grid');
     let draggedWidget = null;
 
+    // --- DRAG HANDLERS ---
     document.querySelectorAll('.widget-drag-handle').forEach(handle => {
         handle.addEventListener('mousedown', (e) => {
             const widget = e.target.closest('.widget-card');
@@ -75,7 +76,7 @@ function initWidgets() {
             widget.removeAttribute('draggable');
             document.querySelectorAll('.widget-card').forEach(w => w.classList.remove('drag-over'));
             draggedWidget = null;
-            saveLayout(); 
+            saveLayout(); // Save new order
         });
 
         widget.addEventListener('dragover', (e) => {
@@ -104,26 +105,9 @@ function initWidgets() {
             }
         });
 
+        // Save Height when user stops dragging the native CSS resize corner
         widget.addEventListener('mouseup', (e) => {
             if (!isMinimalView) saveLayout();
-        });
-    });
-
-    document.querySelectorAll('.widget-resize-width').forEach(handle => {
-        handle.addEventListener('click', function(e) {
-            e.preventDefault();
-            const widget = this.closest('.widget-card');
-            
-            let currentSpan = 1;
-            if (widget.classList.contains('span-2')) currentSpan = 2;
-            if (widget.classList.contains('span-3')) currentSpan = 3;
-            if (widget.classList.contains('span-4')) currentSpan = 4;
-            
-            widget.classList.remove(`span-${currentSpan}`);
-            let nextSpan = currentSpan >= 4 ? 1 : currentSpan + 1;
-            widget.classList.add(`span-${nextSpan}`);
-            
-            saveLayout(); 
         });
     });
 }
@@ -134,12 +118,7 @@ function saveLayout() {
     const widgets = Array.from(grid.querySelectorAll('.widget-card'));
     
     const currentLayout = widgets.map(el => {
-        let wSpan = 1;
-        if (el.classList.contains('span-2')) wSpan = 2;
-        if (el.classList.contains('span-3')) wSpan = 3;
-        if (el.classList.contains('span-4')) wSpan = 4;
-
-        return { id: el.id, span: wSpan, height: el.style.height }; 
+        return { id: el.id, height: el.style.height }; 
     });
 
     if (isMinimalView) layoutFocus = currentLayout;
@@ -157,16 +136,8 @@ function applyLayout() {
     activeLayout.forEach(item => {
         const el = document.getElementById(item.id);
         if (el) {
-            el.classList.remove('span-1', 'span-2', 'span-3', 'span-4');
-            el.classList.add(`span-${item.span || 1}`);
-            
-            if (item.height && !isMinimalView) {
-                el.style.height = item.height;
-            } else if (isMinimalView) {
-                el.style.height = 'auto'; // Force auto height in focus mode
-            }
-            
-            grid.appendChild(el); 
+            if (item.height && !isMinimalView) el.style.height = item.height;
+            grid.appendChild(el); // Physical reordering
         }
     });
 }
@@ -445,6 +416,7 @@ function toggleSidebar(e) {
     saveLocalSettings();
 }
 
+// --- THE WAFFLE SETTINGS MODAL ---
 function toggleWaffleMenu(force) {
     const modal = document.getElementById('waffle-modal');
     const btn = document.getElementById('waffleViewBtn');
@@ -1118,6 +1090,150 @@ function renderSchedule() {
 }
 
 // ==========================================================================
+// 7. LOCAL STORAGE & INITIALIZATION
+// ==========================================================================
+function loadLocalSettings() {
+    try {
+        const saved = localStorage.getItem('waltonDashboardV2'); // USING NEW CLEAN STORAGE KEY
+        if (!saved) return;
+        
+        const p = JSON.parse(saved);
+        
+        try { if (p.layoutNormal && p.layoutNormal.some(w => w.id === 'widget-spacer1')) layoutNormal = p.layoutNormal; } catch(e){}
+        try { if (p.layoutFocus && p.layoutFocus.some(w => w.id === 'widget-spacer1')) layoutFocus = p.layoutFocus; } catch(e){}
+
+        try { if (p.settings) classSettings = p.settings; } catch(e){}
+        try { if (p.lunchDuties) { lunchDuties = p.lunchDuties; renderLunchDuties(); } } catch(e){}
+        try { if (p.customReminders) { customReminders = p.customReminders; renderCustomReminders(); } } catch(e){}
+        
+        try { if (p.vol !== undefined) { syncGlobalVolume(p.vol); } else { syncGlobalVolume(1.0); } } catch(e){}
+        try { if (p.vibeVol !== undefined) { syncVibeVolume(p.vibeVol); } } catch(e){}
+
+        try { 
+            if (p.testSound) {
+                currentTestSound = p.testSound;
+                const labels = {
+                    'positive': 'Voice Test', 'start': 'Class Start', 'end': 'Class End', 'warning1m': '1-Min Warning',
+                    'attendance': 'Take Attend.', 'cleanup': '5-Min Clean', 'lunch': 'Lunch Duty'
+                };
+                const pBtn = document.getElementById("playBtn");
+                if (labels[currentTestSound] && pBtn) pBtn.innerHTML = "▶ Play " + labels[currentTestSound];
+            }
+        } catch(e){}
+        
+        try { 
+            if (p.minimalView !== undefined) { 
+                isMinimalView = p.minimalView;
+                const btn = document.getElementById('minimalViewBtn');
+                if (isMinimalView) {
+                    document.body.classList.add('minimal-active'); 
+                    if(btn) btn.classList.add('active-btn');
+                }
+            } 
+        } catch(e){}
+        
+        try { 
+            if (p.dark === true) { 
+                isDarkMode = true;
+                const dmToggle = document.getElementById('darkModeToggle');
+                if(dmToggle) dmToggle.checked = true; 
+                document.body.classList.add('dark-mode');
+            }
+        } catch(e){}
+
+        try { 
+            if (p.zero === true) { 
+                showZero = true; 
+                const zeroToggle = document.getElementById('showZeroPeriod');
+                if(zeroToggle) zeroToggle.checked = true; 
+            }
+        } catch(e){}
+
+        try { 
+            if (p.playGoodbyes === true) { 
+                playGoodbyes = true; 
+                const pgToggle = document.getElementById('playGoodbyes');
+                if(pgToggle) pgToggle.checked = true; 
+            }
+        } catch(e){}
+
+        try { 
+            if (p.muteB === true) { 
+                muteBells = true; 
+                const mbToggle = document.getElementById('muteBellsToggle');
+                if(mbToggle) mbToggle.checked = true; 
+            }
+        } catch(e){}
+        
+        try { 
+            if (p.savedVibes) savedVibes = p.savedVibes;
+            if (p.vibe && savedVibes.length === 0) {
+                savedVibes.push({ url: p.vibe, title: 'Saved Vibe' });
+                currentVibeUrl = p.vibe;
+            } else if (p.vibe) {
+                currentVibeUrl = p.vibe;
+            }
+            renderVibeDropdown();
+        } catch(e){}
+
+        try { 
+            if (p.mrBsJukebox !== undefined) mrBsJukebox = p.mrBsJukebox;
+            if (p.jukeboxUrl) jukeboxUrl = p.jukeboxUrl;
+            if (p.isMainVibePlaying !== undefined) isMainVibePlaying = p.isMainVibePlaying;
+
+            const jkToggle = document.getElementById('jukeboxToggle');
+            if(jkToggle) jkToggle.checked = mrBsJukebox;
+            const jkInput = document.getElementById('jukeboxUrlInput');
+            if(jkInput && jukeboxUrl !== "https://www.youtube.com/watch?v=CLLpSmaof4E") {
+                jkInput.value = jukeboxUrl;
+            }
+        } catch(e){}
+
+        try { 
+            if (p.widgets) {
+                activeWidgets = p.widgets;
+                Object.keys(p.widgets).forEach(key => {
+                    const tog = document.getElementById(`wm-tog-${key}`);
+                    if(tog) {
+                        tog.checked = p.widgets[key];
+                        const card = document.getElementById(`widget-${key}`);
+                        if(card) {
+                            if(p.widgets[key]) card.classList.add('active-widget');
+                            else card.classList.remove('active-widget');
+                        }
+                    }
+                });
+            }
+        } catch(e){}
+
+        try { 
+            if (p.accordions) {
+                accordionStates = p.accordions;
+                Object.keys(accordionStates).forEach(id => {
+                    if(accordionStates[id] === false) {
+                        const el = document.getElementById(id);
+                        if(el) el.style.maxHeight = "0px";
+                        const chev = document.getElementById('chev-'+id);
+                        if(chev) chev.style.transform = "rotate(-90deg)";
+                    }
+                });
+            }
+        } catch(e){}
+        
+        try { if(p.voice) globalVoicePref = p.voice; } catch(e){}
+    } catch (e) {
+        console.error("Local Storage parse error.", e);
+    }
+}
+
+function toggleZeroPeriod() {
+    const sz = document.getElementById('showZeroPeriod');
+    if(sz) showZero = sz.checked;
+    saveLocalSettings();
+    fetchDailySchedule(); 
+}
+
+// ==========================================================================
 // 8. MASTER CLOCK LOOP
 // ==========================================================================
 function timeToMins(t) { if (!t || !t.includes(':')) return 0; let [h, m] = t.split(':').map(Number); return h * 60 + m; }
@@ -1331,15 +1447,6 @@ function updateClock() {
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', () => {
     initWidgets();
-    
-    // Hard reset the save key to a new version to wipe out old conflicting layout data
-    // ONLY run this once if things get weird, then you can remove it. But it's safe to keep.
-    const migrationCheck = localStorage.getItem('waltonDashboardV2_Migrated');
-    if (!migrationCheck) {
-        localStorage.removeItem('waltonBellState'); 
-        localStorage.setItem('waltonDashboardV2_Migrated', 'true');
-    }
-    
     loadLocalSettings();
     applyLayout();
     fetchQotdData();
