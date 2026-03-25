@@ -8,6 +8,9 @@
 ::-webkit-scrollbar-thumb { background: rgba(150,150,150,0.5); border-radius: 10px; }
 * { scrollbar-width: thin; scrollbar-color: rgba(150,150,150,0.5) transparent; } 
 
+/* Make the native resize handle invisible so we don't lose our rounded corners */
+::-webkit-resizer { background: transparent; }
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f4f4f9; color: #333; margin: 0; padding: 100px 20px 100px 20px; 
@@ -165,6 +168,9 @@ select, input[type="text"], input[type="time"], input[type="date"] { width: 100%
 .btn:hover { background-color: #002244; transform: translateY(-1px);}
 .btn-danger { background-color: #d9534f !important; }
 
+.goodbye-box { background: rgba(92, 184, 92, 0.15); border: 1px solid rgba(150,150,150,0.2); padding: 12px; border-radius: 8px; margin-top: 15px; }
+.goodbye-box label { color: #003366; font-weight: bold; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 8px;}
+
 .switch-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; margin-top: 5px;}
 .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
 .switch input { opacity: 0; width: 0; height: 0; margin: 0; }
@@ -173,8 +179,38 @@ select, input[type="text"], input[type="time"], input[type="date"] { width: 100%
 input:checked + .slider { background-color: #31b0d5; } 
 input:checked + .slider:before { transform: translateX(20px); }
 
+
 /* =========================================================
-   5. MASTER 4-COLUMN MAGNETIC GRID
+   5. NEW: WAFFLE SETTINGS MODAL 
+   ========================================================= */
+.waffle-modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(3px);
+    z-index: 3000; display: none; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.3s ease;
+}
+.waffle-modal-overlay.show { display: flex; opacity: 1; }
+
+.waffle-modal-content {
+    width: 95%; max-width: 900px; max-height: 85vh;
+    display: flex; flex-direction: column; padding: 20px;
+    animation: popUp 0.3s ease;
+}
+
+.waffle-scroll-area { flex-grow: 1; overflow-y: auto; overflow-x: hidden; margin-top: 10px; padding-right: 5px; }
+
+.waffle-grid {
+    display: grid; grid-template-columns: minmax(80px, auto) 1fr; gap: 15px; align-items: center;
+    padding: 12px 10px; border-bottom: 1px solid rgba(150,150,150,0.2); transition: background-color 0.2s;
+}
+.waffle-grid:hover { background-color: rgba(150,150,150,0.05); }
+body.dark-mode .waffle-grid:hover { background-color: rgba(255,255,255,0.05); }
+
+.waffle-header { font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3) !important; margin-bottom: 5px; padding-bottom: 8px;}
+body.dark-mode .waffle-header { color: #90caf9; border-bottom: 2px solid #444 !important; }
+
+/* =========================================================
+   6. MASTER 4-COLUMN MAGNETIC GRID
    ========================================================= */
 .main-content-area {
     width: 100%; max-width: 1800px; margin: 0 auto; 
@@ -183,33 +219,41 @@ input:checked + .slider:before { transform: translateX(20px); }
 
 .master-grid {
     display: grid;
-    /* Strict 25% columns */
     grid-template-columns: repeat(4, minmax(0, 1fr));
     grid-auto-flow: row dense;
     gap: 20px;
     width: 100%;
 }
 
-/* Span Classes for Magnetic Sizing */
 .span-1 { grid-column: span 1; }
 .span-2 { grid-column: span 2; }
 
 /* --- WIDGET CARDS (Grid Children) --- */
 .widget-card { 
-    border-radius: 15px; padding: 15px; padding-bottom: 20px; display: none; flex-direction: column; 
+    border-radius: 15px; padding: 15px; padding-bottom: 15px; display: none; flex-direction: column; 
     position: relative; transition: grid-column 0.3s ease; 
     background-color: rgba(255, 255, 255, 0.85); 
     width: 100%; min-width: 0; 
     /* THIS ENABLES DRAGGABLE HEIGHTS */
     resize: vertical; overflow: hidden;
-    height: 180px; min-height: 60px; /* Default 1/3 height for widgets */
+    height: 180px; min-height: 60px; /* Default 1/3 height for standard widgets */
 }
 .widget-card.active-widget { display: flex; }
-#widget-schedule { height: 500px; } /* Override default height for schedule */
+
+/* Custom "Grab Here" rounded indicator inside the transparent native resizer */
+.widget-card::after {
+    content: ''; position: absolute; bottom: 5px; right: 5px; width: 14px; height: 14px;
+    border-right: 2px solid rgba(150, 150, 150, 0.4); border-bottom: 2px solid rgba(150, 150, 150, 0.4);
+    border-bottom-right-radius: 8px; pointer-events: none; transition: border-color 0.2s;
+}
+.widget-card:hover::after { border-color: #31b0d5; }
+body.dark-mode .widget-card::after { border-color: rgba(255,255,255,0.2); }
+body.dark-mode .widget-card:hover::after { border-color: #90caf9; }
 
 /* FOCUS MODE OVERRIDES: Minimizes widgets to just their headers */
 body.minimal-active .widget-card > .widget-body { display: none !important; }
 body.minimal-active .widget-card { height: auto !important; min-height: 0 !important; resize: none !important; padding-bottom: 15px; }
+body.minimal-active .widget-card::after { display: none !important; }
 
 /* Push headers to top layer so they aren't clipped */
 .widget-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 8px; margin-bottom: 12px; position: relative; z-index: 10;}
@@ -226,12 +270,15 @@ body.dark-mode .widget-header-row { border-bottom: 1px solid #444; }
 .widget-close:hover { color: #d9534f; }
 
 /* =========================================================
-   6. WIDGET INNER CONTENT (Scrollable logic)
+   7. WIDGET INNER CONTENT
    ========================================================= */
 .widget-body {
     flex-grow: 1; overflow-y: auto; overflow-x: hidden; height: 100%; width: 100%;
     scrollbar-width: thin; scrollbar-color: rgba(150,150,150,0.5) transparent;
 }
+
+/* Schedule Widget specifics */
+#widget-schedule { height: 400px; } /* Give the schedule more breathing room by default */
 
 .schedule-title-row { display: flex; justify-content: center; align-items: center; margin-bottom: 10px; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 8px;}
 .schedule-title-row h3 { margin: 0; font-size: 1.5rem; color: #003366;}
@@ -239,7 +286,7 @@ body.dark-mode .widget-header-row { border-bottom: 1px solid #444; }
 @keyframes pulseAlert { 0% { opacity: 1; box-shadow: 0 0 8px rgba(217, 83, 79, 0.2); } 50% { opacity: 0.7; box-shadow: none; } 100% { opacity: 1; box-shadow: 0 0 8px rgba(217, 83, 79, 0.2); } }
 .dead-time-warning { color: #d9534f !important; font-weight: 900; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.5px; animation: pulseAlert 2s infinite; background: rgba(217, 83, 79, 0.15); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(217, 83, 79, 0.3) !important; margin-left: 15px; display: none; }
 
-.schedule-grid { display: grid; grid-template-columns: minmax(80px, auto) minmax(0, 1fr) minmax(100px, auto); gap: 10px; align-items: center; padding: 8px 10px; transition: all 0.6s ease; width: 100%; box-sizing: border-box; }
+.schedule-grid { display: grid; grid-template-columns: minmax(80px, auto) 1fr minmax(100px, auto); gap: 10px; align-items: center; padding: 8px 10px; transition: all 0.6s ease; width: 100%; box-sizing: border-box; }
 .schedule-header { font-size: 0.9rem; font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 6px; margin-bottom: 6px; }
 
 .middle-section { display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; overflow-x: auto; scrollbar-width: none; }
@@ -292,7 +339,7 @@ body.dark-mode #weather-container-main iframe { filter: none !important; }
 .docked-progress-fill { height: 100%; width: 0%; background: #5cb85c; transition: width 1s linear, background-color 0.5s ease; }
 
 /* =========================================================
-   7. MOBILE RESPONSIVE OVERRIDES
+   8. MOBILE RESPONSIVE OVERRIDES
    ========================================================= */
 @media (max-width: 1100px) {
     .master-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
