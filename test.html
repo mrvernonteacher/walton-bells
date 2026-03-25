@@ -7,7 +7,6 @@
     <style>
         /* --- Clean Browser Resets --- */
         * { -webkit-tap-highlight-color: transparent !important; outline: none !important; box-sizing: border-box; }
-
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(150,150,150,0.5); border-radius: 10px; }
@@ -270,10 +269,10 @@
         .widget-close { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1.2rem; line-height: 1; padding: 0 5px; transition: color 0.2s; pointer-events: auto;}
         .widget-close:hover { color: #d9534f; }
 
-        /* Weather Widget */
+        /* Weather Widget Tweaks */
         #widget-weather { min-height: 250px; flex-grow: 1;}
         #weather-container-main { height: 100%; min-height: 200px; display: block; width: 100%; overflow: hidden;}
-        body.dark-mode #weather-container-main iframe { filter: none !important; } 
+        body.dark-mode #weather-container-main iframe { filter: none !important; }
 
         /* --- Timer Widget Styles --- */
         .timer-display { font-size: 4rem; font-weight: bold; text-align: center; margin: 10px 0; font-variant-numeric: tabular-nums; }
@@ -345,8 +344,6 @@
             
             #widget-menu-wrapper { bottom: 65px !important; left: 50% !important; transform: translateX(-50%) !important; flex-direction: column-reverse; }
 
-            .drag-handle { display: none !important; } 
-            .float-volume input { width: 65px !important; } 
             .float-info { max-width: 110px; font-size: 0.8rem; }
             .footer { position: relative; transform: none; left: 0; bottom: 0; margin-top: 20px; padding-bottom: 20px;}
         }
@@ -358,7 +355,7 @@
 
     <div id="floating-header" class="floating-header glass-panel">
         <div class="header-left">
-            <button id="hamburgerBtn" class="header-icon-btn" onclick="toggleSidebar(event)">☰</button>
+            <button id="hamburgerBtn" class="header-icon-btn" onclick="toggleSidebar(event)" title="Toggle Settings">☰</button>
             <img src="https://drive.google.com/thumbnail?id=1XJEeGiblu9O3iGevy_j8RLR06LcyimqQ&sz=w400" alt="Walton Logo" class="header-logo">
         </div>
         
@@ -377,13 +374,13 @@
         </div>
         
         <div class="header-right">
-            <button id="minimalViewBtn" class="header-icon-btn" onclick="toggleMinimalView()">
+            <button id="minimalViewBtn" class="header-icon-btn" onclick="toggleMinimalView()" title="Focus Mode">
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M4 11h16v2H4z"/></svg>
             </button>
-            <button id="waffleViewBtn" class="header-icon-btn" onclick="toggleWaffleMenu()">
+            <button id="waffleViewBtn" class="header-icon-btn" onclick="toggleWaffleMenu()" title="Toggle Options">
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><rect x="4" y="4" width="4" height="4" rx="1"/><rect x="10" y="4" width="4" height="4" rx="1"/><rect x="16" y="4" width="4" height="4" rx="1"/><rect x="4" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="16" y="10" width="4" height="4" rx="1"/><rect x="4" y="16" width="4" height="4" rx="1"/><rect x="10" y="16" width="4" height="4" rx="1"/><rect x="16" y="16" width="4" height="4" rx="1"/></svg>
             </button>
-            <button id="fullScreenBtn" class="header-icon-btn" onclick="toggleFullScreen()">⛶</button>
+            <button id="fullScreenBtn" class="header-icon-btn" onclick="toggleFullScreen()" title="Full Screen">⛶</button>
             <div id="clock">00:00:00 AM</div>
         </div>
     </div>
@@ -520,7 +517,7 @@
                         <input type="range" id="vibeVolumeControl" min="0" max="100" step="1" value="50" oninput="syncVibeVolume(this.value)"><span>🔊</span>
                     </div>
                     <div style="display:flex; gap:6px;">
-                        <button class="btn inline" style="flex-grow: 1;" onclick="startVibe()">▶ Start Vibe</button>
+                        <button class="btn inline" style="flex-grow: 1;" onclick="startVibe()">▶ Start</button>
                         <button class="btn btn-danger inline" onclick="stopVibe()">Stop</button>
                     </div>
                 </div>
@@ -532,7 +529,7 @@
                 </div>
                 <div class="accordion-content" id="sec-schedule">
                     <div id="autoIndicator" style="font-weight:bold; margin-bottom:10px; color:#888;">Sync Status: Waiting...</div>
-                    <button class="timer-btn-hollow" onclick="fetchDailySchedule(true)" style="width:100%; margin-bottom:10px;">Force Sync</button>
+                    <button class="timer-btn-hollow" onclick="fetchDailySchedule()" style="width:100%; margin-bottom:10px;">Force Sync</button>
                     
                     <div class="setting-row">
                         <span class="sub-label">Show 0 Period</span>
@@ -619,28 +616,15 @@
 
     <script>
         // ==========================================================================
-        // 1. CORE LOGIC & STATE
+        // 1. CORE LOGIC & STATE 
         // ==========================================================================
-        const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec"; 
-        const QOTD_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxTHBPh45e_R7clf_hx3j3OLJP1ThFEBlDIu4OLyt4tTEDZg6_xImwzO08bE0JzG_ezlQ/exec";
+        const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec?tab=Daily"; 
+        const QOTD_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxMkp5nc7yKrXEKO7qpPMcj-uhktEsBTxfxmnALoNRo6GTtv5vBpSQ1agKoiNnIwhOoGQ/exec";
         const DEFAULT_PREFS = { open: false, putaway: false, attendance: false, cleanup: false, retrieve: false, icalUrl: '' };
 
-        const GOODBYE_MESSAGES = [
-            "Great work today. Have a wonderful rest of your day.",
-            "Class is dismissed. Keep up the fantastic effort!",
-            "Thank you for your hard work today. See you next time.",
-            "Have a great day, and make good choices!",
-            "Class is over. I hope you have a fantastic afternoon.",
-            "Thanks for a great class. Stay curious and keep learning.",
-            "You all did great today. Have a safe and happy afternoon.",
-            "Class dismissed. Remember to be kind to one another.",
-            "Excellent effort today. Have a beautiful rest of your day."
-        ];
+        const GOODBYE_MESSAGES = ["Great work today.", "Class dismissed!", "Make good choices!"];
 
-        const playSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
-        const pauseSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
-
-        let isBooting = true; 
+        let isBooting = true; // ABSOLUTE LOCK ON LOCAL STORAGE SAVING
 
         let activeSchedule = []; 
         let currentScheduleName = "Loading..."; 
@@ -656,7 +640,7 @@
         let activeWidgets = { weather: true, timer: false, qotd: true }; 
 
         let timerInterval = null, timerTotalSeconds = 300, timerIsPlaying = false;
-        let qotdQrVisible = true;
+        let qotdQrVisible = true; 
 
         let playedActions = {}, currentMinuteTracker = "", lastAutoState = null; 
         let mrBsJukebox = false, jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
@@ -699,7 +683,6 @@
             }
         }
 
-        // Player Drag Logic
         document.querySelectorAll('.drag-handle').forEach(handle => {
             handle.addEventListener('mousedown', function(e) {
                 if (window.innerWidth <= 850) return; 
@@ -739,7 +722,7 @@
             p.style.display = p.style.display === 'none' ? 'flex' : 'none';
         }
 
-        function toggleWidget(id, isChecked, shouldSave = true) {
+        function toggleWidget(id, isChecked) {
             activeWidgets[id] = isChecked;
             const card = document.getElementById(`widget-${id}`);
             if(card) {
@@ -750,7 +733,7 @@
             
             const floatTog = document.getElementById(`wm-tog-${id}`);
             if(floatTog) floatTog.checked = isChecked;
-            if(shouldSave) saveLocalSettings();
+            saveLocalSettings();
         }
 
         function toggleSidebar(e) {
@@ -1194,10 +1177,11 @@
             try {
                 const voiceSelect = document.getElementById("voicePreference");
                 if(!voiceSelect) return;
-                let voices = window.speechSynthesis.getVoices();
+                const voices = window.speechSynthesis.getVoices();
                 if(voices.length === 0) {
-                    setTimeout(safePopulateVoiceList, 500); // Browser fallback kick
-                    return;
+                    // Try again in half a second if browser is slow
+                    setTimeout(safePopulateVoiceList, 500);
+                    return; 
                 }
                 
                 const selectedURI = globalVoicePref;
@@ -1308,7 +1292,7 @@
 
             const day = parseInt(dayVal.value);
             const half = parseInt(halfVal.value);
-            const period = periodVal.value; // Removed .trim() to ensure select dropdown match
+            const period = periodVal.value; // Removed .trim() to ensure correct mapping
             if (period) {
                 lunchDuties.push({ day, half, period });
                 renderLunchDuties(); saveLocalSettings(); 
@@ -1593,12 +1577,17 @@
                 
                 if(!Array.isArray(activeSchedule)) return;
 
+                const isWebDay = currentScheduleName.toLowerCase().includes('web');
+
                 activeSchedule.forEach(period => {
                     if (!period || !period.name) return;
                     const pNameStr = String(period.name);
+
                     const s = classSettings[pNameStr] || { ...DEFAULT_PREFS };
+
                     const hasLunch1 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 1);
                     const hasLunch2 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 2);
+                    if (isWebDay) hasLunch2 = false; 
 
                     const pStartStr = String(period.start); const pEndStr = String(period.end);
                     const startMinus1 = subtractMinutes(pStartStr, 1); const startPlus5 = addMinutes(pStartStr, 5);
@@ -1683,6 +1672,7 @@
                 .catch(e => console.error("Error loading QotD:", e));
         }
 
+        // Auto-poll QotD stats every 15 seconds
         setInterval(() => {
             if (activeWidgets.qotd) {
                 try { fetchQotdData(); } catch(e){}
