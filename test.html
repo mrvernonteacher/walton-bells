@@ -32,7 +32,7 @@
             <button id="minimalViewBtn" class="header-icon-btn" onclick="toggleMinimalView()" title="Focus Mode">
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M4 11h16v2H4z"/></svg>
             </button>
-            <button id="waffleViewBtn" class="header-icon-btn" onclick="toggleWaffleMenu()" title="Toggle Options">
+            <button id="waffleViewBtn" class="header-icon-btn" onclick="toggleWaffleMenu()" title="Period Settings">
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><rect x="4" y="4" width="4" height="4" rx="1"/><rect x="10" y="4" width="4" height="4" rx="1"/><rect x="16" y="4" width="4" height="4" rx="1"/><rect x="4" y="10" width="4" height="4" rx="1"/><rect x="10" y="10" width="4" height="4" rx="1"/><rect x="16" y="10" width="4" height="4" rx="1"/><rect x="4" y="16" width="4" height="4" rx="1"/><rect x="10" y="16" width="4" height="4" rx="1"/><rect x="16" y="16" width="4" height="4" rx="1"/></svg>
             </button>
             <button id="fullScreenBtn" class="header-icon-btn" onclick="toggleFullScreen()" title="Full Screen">⛶</button>
@@ -70,6 +70,25 @@
         <button class="float-btn" id="widget-menu-btn" onclick="toggleWidgetPanel(event)" title="Toggle Widgets">
             <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
         </button>
+    </div>
+
+    <div id="waffle-modal" class="waffle-modal-overlay">
+        <div class="waffle-modal-content glass-panel">
+            <div class="widget-header-row" style="margin-bottom: 5px;">
+                <h4 class="widget-title">Class Period Settings</h4>
+                <button class="widget-close" onclick="toggleWaffleMenu(false)">✖</button>
+            </div>
+            <div class="waffle-scroll-area">
+                <div class="waffle-grid waffle-header">
+                    <div class="period-name" style="font-size: 1rem;">Class</div>
+                    <div class="options-wrapper">
+                        <div class="options-col">Cell Caddy</div><div class="options-col">Attend.</div><div class="options-col">Clean</div><div class="options-col">1 min left</div><div class="options-col">WEB Open</div><div class="options-col">iCal</div>
+                    </div>
+                </div>
+                <ul id="waffle-settings-list" style="list-style: none; padding: 0; margin: 0;">
+                    </ul>
+            </div>
+        </div>
     </div>
 
     <div id="toast">Loaded Successfully</div>
@@ -220,11 +239,7 @@
                 <div class="widget-body schedule-container" id="schedule-container">
                     <div class="schedule-grid schedule-header">
                         <div class="period-name">Class</div>
-                        <div class="middle-section">
-                            <div class="options-wrapper">
-                                <div class="options-col">Cell Caddy</div><div class="options-col">Attend.</div><div class="options-col">Clean</div><div class="options-col">1 min left</div><div class="options-col">WEB Open</div><div class="options-col">iCal</div>
-                            </div>
-                        </div>
+                        <div class="middle-section" style="font-size: 0.9rem; color: #888;">Agenda</div>
                         <div class="period-time">Time</div>
                     </div>
                     <ul id="schedule-list"></ul>
