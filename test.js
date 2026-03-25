@@ -55,7 +55,6 @@ function initWidgets() {
     if (!masterGrid) return;
     let draggedWidget = null;
 
-    // Grab by the Handle
     document.querySelectorAll('.widget-drag-handle').forEach(handle => {
         handle.addEventListener('mousedown', (e) => {
             const widget = e.target.closest('.widget-card');
@@ -107,7 +106,6 @@ function initWidgets() {
             }
         });
 
-        // Trigger height save when letting go of native CSS resizer
         widget.addEventListener('mouseup', (e) => {
             if (!isMinimalView && !draggedWidget) {
                 saveLayout();
@@ -143,7 +141,7 @@ function applyLayout() {
             if (item.height && !isMinimalView) {
                 el.style.height = item.height;
             } else if (isMinimalView) {
-                el.style.height = 'auto'; // Force height to collapse in Focus Mode
+                el.style.height = 'auto'; 
             }
             grid.appendChild(el); 
         }
@@ -159,7 +157,6 @@ function safePopulateVoiceList() {
     if (!('speechSynthesis' in window)) return;
     let voices = window.speechSynthesis.getVoices();
     
-    // Some browsers need a tiny delay to load the API list
     if (voices.length === 0) {
         setTimeout(safePopulateVoiceList, 500);
         return;
@@ -337,23 +334,38 @@ function updateJukeboxUrl() {
 // 4. UI TOGGLES, SETTINGS & MODALS
 // ==========================================================================
 
-// Global Click Listener (Fixes the "Click Outside" bug)
+// --- THE GLOBAL CLICK BOUNCER ---
+// This listens to every click on the page and automatically closes open menus
 document.addEventListener('click', (e) => {
-    // Close audio dropdown if clicking outside
-    if (!e.target.matches('.split-button-caret')) {
-        var dropdowns = document.getElementsByClassName("dropdown-content");
-        for (var i = 0; i < dropdowns.length; i++) {
-            var openDropdown = dropdowns[i];
-            if (openDropdown.classList.contains('show')) openDropdown.classList.remove('show');
+    
+    // 1. Audio Voice Test Dropdown
+    if (!e.target.matches('.split-button-caret') && !e.target.closest('.dropdown-content')) {
+        document.querySelectorAll('.dropdown-content.show').forEach(el => el.classList.remove('show'));
+    }
+
+    // 2. Widget Add/Remove Menu Panel
+    const widgetPanel = document.getElementById('widget-panel-menu');
+    const widgetBtn = document.getElementById('widget-menu-btn');
+    if (widgetPanel && widgetPanel.style.display === 'flex') {
+        if (!widgetPanel.contains(e.target) && (!widgetBtn || !widgetBtn.contains(e.target))) {
+            widgetPanel.style.display = 'none';
         }
     }
 
-    // Close Widget Add Menu if clicking outside
-    const widgetMenu = document.getElementById('widget-panel-menu');
-    const widgetBtn = document.getElementById('widget-menu-btn');
-    if (widgetMenu && widgetMenu.style.display === 'flex') {
-        if (!widgetMenu.contains(e.target) && !widgetBtn.contains(e.target)) {
-            widgetMenu.style.display = 'none';
+    // 3. Waffle Settings Modal
+    const waffleModal = document.getElementById('waffle-modal');
+    const waffleBtn = document.getElementById('waffleViewBtn');
+    if (waffleModal && waffleModal.classList.contains('show')) {
+        // If they click exactly on the dark overlay background...
+        if (e.target === waffleModal) {
+            toggleWaffleMenu(false);
+        } 
+        // Or if they click somewhere else entirely outside the content box (and not the waffle button)
+        else {
+            const modalContent = waffleModal.querySelector('.waffle-modal-content');
+            if (modalContent && !modalContent.contains(e.target) && (!waffleBtn || !waffleBtn.contains(e.target))) {
+                toggleWaffleMenu(false);
+            }
         }
     }
 });
@@ -466,7 +478,6 @@ function toggleWaffleMenu(force) {
     saveLocalSettings();
 }
 
-// Builds the settings pop-up using your exact new CSS grid layout
 function renderWaffleSettings() {
     const list = document.getElementById('waffle-settings-list');
     if(!list) return;
