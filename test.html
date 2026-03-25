@@ -7,6 +7,7 @@
     <style>
         /* --- Clean Browser Resets --- */
         * { -webkit-tap-highlight-color: transparent !important; outline: none !important; box-sizing: border-box; }
+
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(150,150,150,0.5); border-radius: 10px; }
@@ -209,6 +210,7 @@
         @keyframes pulseAlert { 0% { opacity: 1; box-shadow: 0 0 8px rgba(217, 83, 79, 0.2); } 50% { opacity: 0.7; box-shadow: none; } 100% { opacity: 1; box-shadow: 0 0 8px rgba(217, 83, 79, 0.2); } }
         .dead-time-warning { color: #d9534f !important; font-weight: 900; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.5px; animation: pulseAlert 2s infinite; background: rgba(217, 83, 79, 0.15); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(217, 83, 79, 0.3) !important; margin-left: 15px; display: none; }
 
+        /* Center column uses minmax(0, 1fr) and overflow-x */
         .schedule-grid { display: grid; grid-template-columns: minmax(80px, auto) minmax(0, 1fr) minmax(100px, auto); gap: 10px; align-items: center; padding: 8px 10px; transition: all 0.6s ease; width: 100%; box-sizing: border-box; }
         .schedule-header { font-size: 0.9rem; font-weight: bold; color: #003366; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 6px; margin-bottom: 6px; }
         
@@ -517,7 +519,7 @@
                         <input type="range" id="vibeVolumeControl" min="0" max="100" step="1" value="50" oninput="syncVibeVolume(this.value)"><span>🔊</span>
                     </div>
                     <div style="display:flex; gap:6px;">
-                        <button class="btn inline" style="flex-grow: 1;" onclick="startVibe()">▶ Start</button>
+                        <button class="btn inline" style="flex-grow: 1;" onclick="startVibe()">▶ Start Vibe</button>
                         <button class="btn btn-danger inline" onclick="stopVibe()">Stop</button>
                     </div>
                 </div>
@@ -529,7 +531,7 @@
                 </div>
                 <div class="accordion-content" id="sec-schedule">
                     <div id="autoIndicator" style="font-weight:bold; margin-bottom:10px; color:#888;">Sync Status: Waiting...</div>
-                    <button class="timer-btn-hollow" onclick="fetchDailySchedule()" style="width:100%; margin-bottom:10px;">Force Sync</button>
+                    <button class="timer-btn-hollow" onclick="fetchDailySchedule()" style="width:100%; margin-bottom:10px;">Force Sync Schedule</button>
                     
                     <div class="setting-row">
                         <span class="sub-label">Show 0 Period</span>
@@ -574,7 +576,7 @@
                     <div class="period-name">Class</div>
                     <div class="middle-section">
                         <div class="options-wrapper">
-                            <div class="options-col">Caddy</div><div class="options-col">Attend.</div><div class="options-col">Clean</div><div class="options-col">1 min left</div><div class="options-col">WEB Open</div><div class="options-col">iCal</div>
+                            <div class="options-col">Cell Caddy</div><div class="options-col">Attend.</div><div class="options-col">Clean</div><div class="options-col">1 min left</div><div class="options-col">WEB Open</div><div class="options-col">iCal</div>
                         </div>
                     </div>
                     <div class="period-time">Time</div>
@@ -619,12 +621,25 @@
         // 1. CORE LOGIC & STATE 
         // ==========================================================================
         const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec?tab=Daily"; 
-        const QOTD_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxMkp5nc7yKrXEKO7qpPMcj-uhktEsBTxfxmnALoNRo6GTtv5vBpSQ1agKoiNnIwhOoGQ/exec";
+        const QOTD_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxTHBPh45e_R7clf_hx3j3OLJP1ThFEBlDIu4OLyt4tTEDZg6_xImwzO08bE0JzG_ezlQ/exec";
         const DEFAULT_PREFS = { open: false, putaway: false, attendance: false, cleanup: false, retrieve: false, icalUrl: '' };
 
-        const GOODBYE_MESSAGES = ["Great work today.", "Class dismissed!", "Make good choices!"];
+        const GOODBYE_MESSAGES = [
+            "Great work today. Have a wonderful rest of your day.",
+            "Class is dismissed. Keep up the fantastic effort!",
+            "Thank you for your hard work today. See you next time.",
+            "Have a great day, and make good choices!",
+            "Class is over. I hope you have a fantastic afternoon.",
+            "Thanks for a great class. Stay curious and keep learning.",
+            "You all did great today. Have a safe and happy afternoon.",
+            "Class dismissed. Remember to be kind to one another.",
+            "Excellent effort today. Have a beautiful rest of your day."
+        ];
 
-        let isBooting = true; // ABSOLUTE LOCK ON LOCAL STORAGE SAVING
+        const playSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+        const pauseSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+
+        let isBooting = true; // ABSOLUTE LOCK TO PREVENT MEMORY WIPES
 
         let activeSchedule = []; 
         let currentScheduleName = "Loading..."; 
@@ -640,7 +655,6 @@
         let activeWidgets = { weather: true, timer: false, qotd: true }; 
 
         let timerInterval = null, timerTotalSeconds = 300, timerIsPlaying = false;
-        let qotdQrVisible = true; 
 
         let playedActions = {}, currentMinuteTracker = "", lastAutoState = null; 
         let mrBsJukebox = false, jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
@@ -648,6 +662,213 @@
 
         let agendaCache = {}, agendaPromises = {};
         let savedVibeVol = 50, isVibeMuted = false, savedGlobalVol = 1.0, isGlobalMuted = false;
+
+        // ==========================================================================
+        // MISSING FUNCTIONS RESTORED (Audio, Reminders, Toggles)
+        // ==========================================================================
+        let availableVoices = [];
+        
+        function safePopulateVoiceList() {
+            if (!('speechSynthesis' in window)) return;
+            availableVoices = window.speechSynthesis.getVoices();
+            const select = document.getElementById('voicePreference');
+            if (!select) return;
+            if (availableVoices.length === 0) {
+                select.innerHTML = '<option value="">Loading voices...</option>';
+                return;
+            }
+            select.innerHTML = '';
+            availableVoices.forEach((voice) => {
+                const opt = document.createElement('option');
+                opt.value = voice.name;
+                opt.textContent = `${voice.name} (${voice.lang})`;
+                if (voice.name === globalVoicePref) opt.selected = true;
+                select.appendChild(opt);
+            });
+            if (!globalVoicePref && availableVoices.length > 0) {
+                globalVoicePref = availableVoices[0].name;
+                saveLocalSettings();
+            }
+        }
+
+        function changeVoicePref() {
+            const select = document.getElementById('voicePreference');
+            if (select) {
+                globalVoicePref = select.value;
+                saveLocalSettings();
+                speak("Voice updated.");
+            }
+        }
+
+        function speak(text) {
+            if (!('speechSynthesis' in window) || !text) return;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.volume = globalVolume;
+            if (globalVoicePref) {
+                const voice = availableVoices.find(v => v.name === globalVoicePref);
+                if (voice) utterance.voice = voice;
+            }
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function playBellWithQueue(rings, callback) {
+            if (muteBells && callback) { callback(); return; }
+            if (muteBells) return;
+            const bell = document.getElementById('regularBellAudio');
+            if (!bell) { if(callback) callback(); return; }
+            let count = 0;
+            bell.volume = globalVolume;
+            const playNext = () => {
+                if (count < rings) {
+                    count++;
+                    bell.currentTime = 0;
+                    bell.play().catch(e => console.log(e));
+                } else {
+                    bell.removeEventListener('ended', playNext);
+                    if (callback) callback();
+                }
+            };
+            bell.addEventListener('ended', playNext);
+            playNext();
+        }
+
+        function toggleDropdown(e) {
+            e.stopPropagation();
+            document.getElementById("soundDropdown").classList.toggle("show");
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.split-button-caret')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) openDropdown.classList.remove('show');
+                }
+            }
+        }
+
+        function selectTestSound(id, name) {
+            currentTestSound = id;
+            document.getElementById("playBtn").innerHTML = "▶ Play " + name;
+            saveLocalSettings();
+        }
+
+        function testSelectedSound() {
+            if (currentTestSound === 'positive') speak("Testing voice output. Have a great day!");
+            else if (currentTestSound === 'start') playBellWithQueue(3, () => speak("Class is beginning."));
+            else if (currentTestSound === 'end') playBellWithQueue(3, () => { if(playGoodbyes) speak(GOODBYE_MESSAGES[0]); });
+            else if (currentTestSound === 'warning1m') playBellWithQueue(1, () => speak("One minute until class begins."));
+            else if (currentTestSound === 'attendance') speak("Reminder. Please take attendance.");
+            else if (currentTestSound === 'cleanup') speak("Five minutes remaining. Please begin cleaning up your area.");
+            else if (currentTestSound === 'lunch') speak("Reminder. You have lunch duty today.");
+        }
+
+        function toggleGoodbyes() {
+            const el = document.getElementById('playGoodbyes');
+            playGoodbyes = el ? el.checked : false;
+            saveLocalSettings();
+        }
+
+        function toggleMuteBells() {
+            const el = document.getElementById('muteBellsToggle');
+            muteBells = el ? el.checked : false;
+            saveLocalSettings();
+        }
+
+        function addCustomReminder() {
+            const name = document.getElementById('remName').value;
+            const time = document.getElementById('remTime').value;
+            const day = document.getElementById('remDay').value;
+            if(!name || !time) return showToast("Please enter a name and time.");
+            customReminders.push({ name, time, day });
+            document.getElementById('remName').value = '';
+            document.getElementById('remTime').value = '';
+            saveLocalSettings();
+            renderCustomReminders();
+            showToast("Reminder added");
+        }
+
+        function removeCustomReminder(index) {
+            customReminders.splice(index, 1);
+            saveLocalSettings();
+            renderCustomReminders();
+        }
+
+        function renderCustomReminders() {
+            const list = document.getElementById('custom-reminder-list');
+            if(!list) return;
+            list.innerHTML = '';
+            const days = {"All": "Daily", "1":"Mon", "2":"Tue", "3":"Wed", "4":"Thu", "5":"Fri"};
+            customReminders.forEach((r, i) => {
+                const li = document.createElement('li');
+                li.style.display = 'flex'; li.style.justifyContent = 'space-between'; li.style.marginBottom = '4px';
+                li.innerHTML = `<span><b>${formatTime12(r.time)}</b> - ${r.name} (${days[r.day]})</span> <button style="background:none;border:none;color:#d9534f;cursor:pointer;" onclick="removeCustomReminder(${i})">✖</button>`;
+                list.appendChild(li);
+            });
+        }
+
+        function addLunchDuty() {
+            const day = document.getElementById('lunchDay').value;
+            const half = document.getElementById('lunchHalf').value;
+            const period = document.getElementById('lunchPeriod').value;
+            lunchDuties.push({ day: parseInt(day), half: parseInt(half), period: period });
+            saveLocalSettings();
+            renderLunchDuties();
+            showToast("Lunch duty added");
+        }
+
+        function removeLunchDuty(index) {
+            lunchDuties.splice(index, 1);
+            saveLocalSettings();
+            renderLunchDuties();
+        }
+
+        function renderLunchDuties() {
+            const list = document.getElementById('lunch-duty-list');
+            if(!list) return;
+            list.innerHTML = '';
+            const days = ["", "Mon", "Tue", "Wed", "Thu", "Fri"];
+            lunchDuties.forEach((d, i) => {
+                const li = document.createElement('li');
+                li.style.display = 'flex'; li.style.justifyContent = 'space-between'; li.style.marginBottom = '4px';
+                li.innerHTML = `<span><b>${days[d.day]}</b> - ${d.period} (${d.half === 1 ? '1st' : '2nd'} Half)</span> <button style="background:none;border:none;color:#d9534f;cursor:pointer;" onclick="removeLunchDuty(${i})">✖</button>`;
+                list.appendChild(li);
+            });
+        }
+
+        function toggleSetting(key, prop, isChecked) {
+            if (!classSettings[key]) classSettings[key] = { ...DEFAULT_PREFS };
+            classSettings[key][prop] = isChecked;
+            saveLocalSettings();
+            renderSchedule(); 
+        }
+
+        function setIcalFeed(key) {
+            if (!classSettings[key]) classSettings[key] = { ...DEFAULT_PREFS };
+            const currentUrl = classSettings[key].icalUrl || '';
+            const newUrl = prompt(`Enter Secret iCal URL for ${key} (Leave blank to remove):`, currentUrl);
+            if (newUrl !== null) {
+                classSettings[key].icalUrl = newUrl.trim();
+                saveLocalSettings();
+                renderSchedule();
+            }
+        }
+
+        function toggleJukebox() {
+            const el = document.getElementById('jukeboxToggle');
+            mrBsJukebox = el ? el.checked : false;
+            saveLocalSettings();
+        }
+
+        function updateJukeboxUrl() {
+            const el = document.getElementById('jukeboxUrlInput');
+            if (el) {
+                jukeboxUrl = el.value.trim() || "https://www.youtube.com/watch?v=CLLpSmaof4E";
+                saveLocalSettings();
+            }
+        }
+
 
         // ==========================================================================
         // 2. GLOBAL EVENT LISTENERS
@@ -683,6 +904,7 @@
             }
         }
 
+        // Player Drag Logic
         document.querySelectorAll('.drag-handle').forEach(handle => {
             handle.addEventListener('mousedown', function(e) {
                 if (window.innerWidth <= 850) return; 
@@ -1093,227 +1315,367 @@
             if(vc) syncGlobalVolume(vc.value); 
         }
 
-        function toggleJukebox() {
-            const tog = document.getElementById('jukeboxToggle');
-            if(tog) mrBsJukebox = tog.checked;
-            lastPeriodStatus = null; 
-            saveLocalSettings();
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            if(!toast) return;
+            toast.innerText = message; toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 4000);
         }
 
-        function updateJukeboxUrl() {
-            const inp = document.getElementById('jukeboxUrlInput');
-            if(inp && inp.value.trim() !== '') {
-                jukeboxUrl = inp.value.trim();
+        function updateTimerDisplay() {
+            const d = document.getElementById('timer-display');
+            if(!d) return;
+            const m = Math.floor(timerTotalSeconds / 60).toString().padStart(2, '0');
+            const s = (timerTotalSeconds % 60).toString().padStart(2, '0');
+            d.innerText = `${m}:${s}`;
+            if(timerTotalSeconds === 0) d.style.color = '#d9534f';
+            else d.style.color = '';
+        }
+        function addTimerMinutes(mins) {
+            timerTotalSeconds += (mins * 60);
+            updateTimerDisplay();
+        }
+        function resetTimer() {
+            timerTotalSeconds = 300; 
+            updateTimerDisplay();
+            if(timerIsPlaying) togglePlayTimer();
+        }
+        function togglePlayTimer() {
+            const btn = document.getElementById('timer-start-btn');
+            if(timerIsPlaying) {
+                clearInterval(timerInterval);
+                timerIsPlaying = false;
+                if(btn) { btn.innerText = "Start"; btn.style.backgroundColor = '#31b0d5'; }
             } else {
-                jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
-            }
-            lastPeriodStatus = null; 
-            saveLocalSettings();
-        }
-
-        function toggleGoodbyes() { 
-            const tog = document.getElementById('playGoodbyes');
-            if(tog) playGoodbyes = tog.checked; 
-            saveLocalSettings(); 
-        }
-
-        function toggleMuteBells() { 
-            const tog = document.getElementById('muteBellsToggle');
-            if(tog) muteBells = tog.checked; 
-            saveLocalSettings(); 
-        }
-
-        function toggleDropdown(event) { 
-            event.stopPropagation(); 
-            const dd = document.getElementById("soundDropdown");
-            if(dd) dd.classList.toggle("show"); 
-        }
-
-        function selectTestSound(value, label) {
-            currentTestSound = value; 
-            const btn = document.getElementById("playBtn");
-            const dd = document.getElementById("soundDropdown");
-            if(btn) btn.innerHTML = "▶ Play " + label;
-            if(dd) dd.classList.remove("show"); 
-            saveLocalSettings();
-        }
-
-        function playBellWithQueue(timesLeft = 1, onCompleteCallback = null) {
-            if (muteBells) {
-                if (onCompleteCallback) onCompleteCallback();
-                return;
-            }
-
-            const audio = document.getElementById('regularBellAudio'); 
-            if(!audio) {
-                if (onCompleteCallback) onCompleteCallback();
-                return;
-            }
-            
-            audio.currentTime = 0;
-            audio.onended = () => { 
-                if (timesLeft > 1) playBellWithQueue(timesLeft - 1, onCompleteCallback); 
-                else { 
-                    audio.onended = null; 
-                    if (onCompleteCallback) onCompleteCallback(); 
-                } 
-            };
-            
-            let playPromise = audio.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.catch(e => {
-                    console.error("Audio play blocked. Triggering failsafe voice delay.", e);
-                    audio.onended = null; 
-                    setTimeout(() => {
-                        if (timesLeft > 1) playBellWithQueue(timesLeft - 1, onCompleteCallback);
-                        else if (onCompleteCallback) onCompleteCallback();
-                    }, 1500); 
-                });
-            }
-        }
-
-        function safePopulateVoiceList() {
-            try {
-                const voiceSelect = document.getElementById("voicePreference");
-                if(!voiceSelect) return;
-                const voices = window.speechSynthesis.getVoices();
-                if(voices.length === 0) {
-                    // Try again in half a second if browser is slow
-                    setTimeout(safePopulateVoiceList, 500);
-                    return; 
-                }
-                
-                const selectedURI = globalVoicePref;
-                voiceSelect.innerHTML = '';
-                const enVoices = voices.filter(v => v.lang.startsWith('en'));
-                
-                let found = false;
-                enVoices.forEach(voice => {
-                    const option = document.createElement('option');
-                    option.textContent = `${voice.name} (${voice.lang})`;
-                    option.value = voice.voiceURI;
-                    if(voice.voiceURI === selectedURI) {
-                        option.selected = true;
-                        found = true;
+                if(timerTotalSeconds <= 0) return; 
+                timerIsPlaying = true;
+                if(btn) { btn.innerText = "Pause"; btn.style.backgroundColor = '#d9534f'; }
+                timerInterval = setInterval(() => {
+                    if(timerTotalSeconds > 0) {
+                        timerTotalSeconds--;
+                        updateTimerDisplay();
+                    } else {
+                        togglePlayTimer();
+                        playBellWithQueue(2); 
                     }
-                    voiceSelect.appendChild(option);
-                });
-                
-                if(!found && enVoices.length > 0) {
-                    voiceSelect.value = enVoices[0].voiceURI;
-                    globalVoicePref = enVoices[0].voiceURI;
-                    saveLocalSettings();
-                } else if (found) {
-                    voiceSelect.value = globalVoicePref;
-                }
-            } catch(e) {}
-        }
-        
-        function changeVoicePref() { 
-            const vp = document.getElementById('voicePreference');
-            if(vp) globalVoicePref = vp.value; 
-            saveLocalSettings(); 
-        }
-
-        function speak(text) {
-            try {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.rate = 0.9; utterance.volume = globalVolume;
-                const voices = window.speechSynthesis.getVoices();
-                const selectedVoice = voices.find(v => v.voiceURI === globalVoicePref);
-                if (selectedVoice) utterance.voice = selectedVoice;
-                window.speechSynthesis.speak(utterance);
-            } catch (e) { console.error("Speech Synthesis failed:", e); }
-        }
-
-        function testSelectedSound() {
-            triggerVisualAlert();
-            if (currentTestSound === 'positive') {
-                const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
-                speak(randomMsg);
+                }, 1000);
             }
-            else if (currentTestSound === 'start') playBellWithQueue(3, () => speak("Class is beginning. Please place your phones in the cell phone caddy."));
-            else if (currentTestSound === 'end') {
-                if (playGoodbyes) {
-                    const randomMsg = GOODBYE_MESSAGES[Math.floor(Math.random() * GOODBYE_MESSAGES.length)];
-                    playBellWithQueue(3, () => speak(randomMsg));
-                } else {
-                    playBellWithQueue(3);
-                }
-            }
-            else if (currentTestSound === 'warning1m') playBellWithQueue(1, () => speak("One minute until class begins. Please place your phones in the cell phone caddy."));
-            else if (currentTestSound === 'attendance') speak("Reminder. Please take attendance.");
-            else if (currentTestSound === 'cleanup') speak("Five minutes remaining. Please begin cleaning up your area.");
-            else if (currentTestSound === 'lunch') speak("Reminder. You have lunch duty.");
         }
 
-        function addCustomReminder() {
-            const name = document.getElementById('remName').value;
-            const time = document.getElementById('remTime').value;
-            const day = document.getElementById('remDay').value;
+        // ==========================================================================
+        // DYNAMIC QOTD BACKEND LOGIC
+        // ==========================================================================
+        let qotdQrVisible = true;
+
+        function toggleQotdQR() {
+            qotdQrVisible = !qotdQrVisible;
+            document.getElementById('qotd-qr-section').style.display = qotdQrVisible ? 'flex' : 'none';
+            document.getElementById('qotd-toggle-btn').innerText = qotdQrVisible ? '👁️ Hide QR Code' : '👁️ Show QR Code';
+        }
+
+        function fetchQotdData() {
+            fetch(QOTD_APPS_SCRIPT_URL + "?action=getToday")
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('qotd-question').innerText = data.q || "No question today";
+                    document.getElementById('qotd-label-a').innerText = data.a || "Option A";
+                    document.getElementById('qotd-label-b').innerText = data.b || "Option B";
+                    
+                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(QOTD_APPS_SCRIPT_URL)}`;
+                    document.getElementById('qotd-qr-img').src = qrUrl;
+
+                    const votesA = parseInt(data.votesA) || 0;
+                    const votesB = parseInt(data.votesB) || 0;
+                    const total = votesA + votesB;
+                    const pctA = total === 0 ? 0 : Math.round((votesA / total) * 100);
+                    const pctB = total === 0 ? 0 : 100 - pctA;
+                    
+                    document.getElementById('qotd-bar-a').style.width = pctA + '%';
+                    document.getElementById('qotd-pct-a').innerText = pctA + '%';
+                    document.getElementById('qotd-bar-b').style.width = pctB + '%';
+                    document.getElementById('qotd-pct-b').innerText = pctB + '%';
+                    document.getElementById('qotd-total-votes').innerText = "Total Votes: " + total;
+                })
+                .catch(e => console.error("Error loading QotD:", e));
+        }
+
+        // Auto-poll QotD stats every 15 seconds
+        setInterval(() => {
+            if (activeWidgets.qotd) {
+                try { fetchQotdData(); } catch(e){}
+            }
+        }, 15000);
+
+        // ==========================================================================
+        // ASYNC SCHEDULE FETCHING (Pure Google Sync)
+        // ==========================================================================
+        async function fetchDailySchedule() {
+            const ind = document.getElementById('autoIndicator');
+            if(ind) { ind.style.display = 'block'; ind.innerText = "Syncing..."; ind.style.color = '#888'; }
             
-            if(name && time) {
-                customReminders.push({ name, time, day });
-                renderCustomReminders();
-                saveLocalSettings();
-                document.getElementById('remName').value = '';
-                document.getElementById('remTime').value = '';
-            } else {
-                showToast("Please enter a Name and Time");
-            }
-        }
-        
-        function removeCustomReminder(index) { 
-            customReminders.splice(index, 1); 
-            renderCustomReminders(); 
-            saveLocalSettings(); 
-        }
+            try {
+                const response = await fetch(GOOGLE_CALENDAR_SCRIPT_URL);
+                const data = await response.json();
+                
+                if (data && data.schedule) {
+                    let cleanSchedule = [];
+                    data.schedule.forEach(p => {
+                        if(!p || !p.name) return;
+                        let cleanP = { name: String(p.name).trim(), start: String(p.start || '').trim(), end: String(p.end || '').trim() };
+                        if(cleanP.start.includes(':')) cleanP.start = cleanP.start.split(':').map(v => v.padStart(2, '0')).join(':');
+                        if(cleanP.end.includes(':')) cleanP.end = cleanP.end.split(':').map(v => v.padStart(2, '0')).join(':');
+                        cleanSchedule.push(cleanP);
+                    });
 
-        function renderCustomReminders() {
-            const list = document.getElementById('custom-reminder-list'); 
-            if(!list) return;
-            list.innerHTML = '';
-            const days = {"All": "Daily", "1": "Mon", "2": "Tue", "3": "Wed", "4": "Thu", "5": "Fri"};
-            customReminders.forEach((rem, index) => {
-                const li = document.createElement('li'); li.className = "duty-item";
-                li.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid rgba(150,150,150,0.2);";
-                li.innerHTML = `<span><b>${formatTime12(rem.time)}</b> - ${rem.name} (${days[rem.day]})</span>
-                                <button onclick="removeCustomReminder(${index})" style="background:none; border:none; color:#d9534f; cursor:pointer; font-size:1.1rem;" title="Remove Reminder">✖</button>`;
-                list.appendChild(li);
-            });
-        }
+                    activeSchedule = cleanSchedule;
+                    currentScheduleName = String(data.mode || 'Daily').toUpperCase();
 
-        function addLunchDuty() {
-            const dayVal = document.getElementById('lunchDay');
-            const halfVal = document.getElementById('lunchHalf');
-            const periodVal = document.getElementById('lunchPeriod');
-            if(!dayVal || !halfVal || !periodVal) return;
-
-            const day = parseInt(dayVal.value);
-            const half = parseInt(halfVal.value);
-            const period = periodVal.value; // Removed .trim() to ensure correct mapping
-            if (period) {
-                lunchDuties.push({ day, half, period });
-                renderLunchDuties(); saveLocalSettings(); 
-                periodVal.value = '3rd';
+                    if(ind) { ind.innerText = `✓ Synced: ${currentScheduleName}`; ind.style.color = '#5cb85c'; }
+                    document.getElementById('schedule-title').innerText = currentScheduleName + ' Schedule ';
+                    renderSchedule();
+                    showToast(`Loaded: ${currentScheduleName} Schedule`);
+                }
+            } catch (err) {
+                console.error("Schedule sync failed:", err);
+                if(ind) { ind.innerText = "⚠ Offline"; ind.style.color = '#d9534f'; }
+                showToast("Could not fetch schedule from Google.");
             }
         }
 
-        function removeLunchDuty(index) { lunchDuties.splice(index, 1); renderLunchDuties(); saveLocalSettings(); }
-        
-        function renderLunchDuties() {
-            const list = document.getElementById('lunch-duty-list'); 
-            if(!list) return;
-            list.innerHTML = '';
-            const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-            lunchDuties.forEach((duty, index) => {
-                const li = document.createElement('li'); li.className = "duty-item";
-                li.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid rgba(150,150,150,0.2);";
-                li.innerHTML = `<span><b>${days[duty.day]}</b> - ${duty.period} (${duty.half === 1 ? '1st' : '2nd'} Half)</span>
-                                <button onclick="removeLunchDuty(${index})" style="background:none; border:none; color:#d9534f; cursor:pointer; font-size:1.1rem;" title="Remove Duty">✖</button>`;
-                list.appendChild(li);
-            });
+        async function fetchAgenda(url, elementId) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            
+            let fetchUrlStr = url.trim();
+            if (fetchUrlStr.startsWith('webcal://')) {
+                fetchUrlStr = 'https://' + fetchUrlStr.substring(9);
+            }
+
+            if (agendaCache[fetchUrlStr]) {
+                if (agendaCache[fetchUrlStr] !== 'empty') {
+                    el.innerHTML = agendaCache[fetchUrlStr];
+                    el.classList.add('has-data');
+                } else {
+                    el.innerHTML = "";
+                    el.classList.remove('has-data');
+                }
+                return;
+            }
+
+            el.innerHTML = "<em>Fetching...</em>";
+            el.classList.add('has-data');
+
+            try {
+                if (!agendaPromises[fetchUrlStr]) {
+                    const fetchUrl = `${GOOGLE_CALENDAR_SCRIPT_URL.split('?')[0]}?icalUrl=${encodeURIComponent(fetchUrlStr)}`;
+                    
+                    agendaPromises[fetchUrlStr] = fetch(fetchUrl).then(async (response) => {
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        const icsData = await response.text();
+
+                        if (icsData.startsWith('Error:')) {
+                            return `<em class="agenda-error" title="${icsData}">Apps Script error</em>`;
+                        }
+
+                        if (!icsData || (!icsData.includes('BEGIN:VCALENDAR') && !icsData.includes('BEGIN:VEVENT'))) {
+                            return "<em class='agenda-error' title='Ensure you used the Secret iCal Address'>Invalid calendar data</em>";
+                        }
+
+                        const today = new Date();
+                        const todayInt = parseInt(today.getFullYear() + String(today.getMonth() + 1).padStart(2, '0') + String(today.getDate()).padStart(2, '0'), 10);
+                        
+                        const events = icsData.split('BEGIN:VEVENT');
+                        let todaysEvents = [];
+
+                        for (let i = 1; i < events.length; i++) {
+                            const eventText = events[i];
+                            
+                            const dtStartMatch = eventText.match(/DTSTART(?:;[^:]*)?:([0-9]{8})/); 
+                            const dtEndMatch = eventText.match(/DTEND(?:;[^:]*)?:([0-9]{8})/); 
+                            const isTimedMatch = eventText.match(/DTSTART(?:;[^:]*)?:[0-9]{8}T/);
+                            const summaryMatch = eventText.match(/SUMMARY:([^\r\n]*)/);
+
+                            if (dtStartMatch && summaryMatch) {
+                                const startInt = parseInt(dtStartMatch[1], 10);
+                                let isActive = false;
+
+                                if (dtEndMatch) {
+                                    const endInt = parseInt(dtEndMatch[1], 10);
+                                    if (isTimedMatch) {
+                                        isActive = (todayInt >= startInt && todayInt <= endInt);
+                                    } else {
+                                        isActive = (todayInt >= startInt && todayInt < endInt);
+                                    }
+                                } else {
+                                    isActive = (startInt === todayInt);
+                                }
+
+                                if (isActive) {
+                                    todaysEvents.push(summaryMatch[1].trim());
+                                }
+                            }
+                        }
+
+                        if (todaysEvents.length > 0) {
+                            return todaysEvents.join(' &nbsp;|&nbsp; ');
+                        } else {
+                            return "empty";
+                        }
+                    });
+                }
+
+                const resultHtml = await agendaPromises[fetchUrlStr];
+                agendaCache[fetchUrlStr] = resultHtml;
+
+                if (resultHtml !== 'empty') {
+                    el.innerHTML = resultHtml;
+                    el.classList.add('has-data');
+                } else {
+                    el.innerHTML = "";
+                    el.classList.remove('has-data');
+                }
+
+            } catch (error) {
+                el.innerHTML = "<em class='agenda-error'>Error loading feed.</em>";
+                agendaCache[fetchUrlStr] = "<em class='agenda-error'>Error loading feed.</em>";
+            }
+        }
+
+        // ==========================================================================
+        // LOCAL STORAGE (SAFE)
+        // ==========================================================================
+        function saveLocalSettings() {
+            if (isBooting) return; 
+            try {
+                const data = {
+                    vol: globalVolume, voice: globalVoicePref, testSound: currentTestSound,
+                    side: sidebarVisible, waffleClosed: isWaffleClosed, minimalView: isMinimalView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
+                    settings: classSettings, lunchDuties: lunchDuties,
+                    savedVibes: savedVibes, vibe: currentVibeUrl, vibeVol: vibeVolume, muteB: muteBells,
+                    mrBsJukebox: mrBsJukebox, jukeboxUrl: jukeboxUrl, isMainVibePlaying: isMainVibePlaying,
+                    customReminders: customReminders, accordions: accordionStates, widgets: activeWidgets
+                };
+                localStorage.setItem('waltonBellState', JSON.stringify(data)); 
+            } catch (e) {}
+        }
+
+        function loadLocalSettings() {
+            try {
+                const saved = localStorage.getItem('waltonBellState');
+                if (!saved) return;
+                
+                const p = JSON.parse(saved);
+                
+                try { if (p.settings) classSettings = p.settings; } catch(e){}
+                try { if (p.lunchDuties) { lunchDuties = p.lunchDuties; renderLunchDuties(); } } catch(e){}
+                try { if (p.customReminders) { customReminders = p.customReminders; renderCustomReminders(); } } catch(e){}
+                
+                try { if (p.vol !== undefined) { syncGlobalVolume(p.vol); } else { syncGlobalVolume(1.0); } } catch(e){}
+                try { if (p.vibeVol !== undefined) { syncVibeVolume(p.vibeVol); } } catch(e){}
+
+                try { 
+                    if (p.testSound) {
+                        currentTestSound = p.testSound;
+                        const labels = {
+                            'positive': 'Voice Test', 'start': 'Class Start', 'end': 'Class End', 'warning1m': '1-Min Warning',
+                            'attendance': 'Take Attend.', 'cleanup': '5-Min Clean', 'lunch': 'Lunch Duty'
+                        };
+                        const pBtn = document.getElementById("playBtn");
+                        if (labels[currentTestSound] && pBtn) pBtn.innerHTML = "▶ Play " + labels[currentTestSound];
+                    }
+                } catch(e){}
+                
+                try { if (p.waffleClosed !== undefined) { setWaffleState(p.waffleClosed, false); } } catch(e){}
+                try { if (p.minimalView !== undefined) { setMinimalView(p.minimalView, false); } } catch(e){}
+                
+                try { 
+                    if (p.dark === true) { 
+                        isDarkMode = true;
+                        const dmToggle = document.getElementById('darkModeToggle');
+                        if(dmToggle) dmToggle.checked = true; 
+                        document.body.classList.add('dark-mode');
+                    }
+                } catch(e){}
+
+                try { 
+                    if (p.zero === true) { 
+                        showZero = true; 
+                        const zeroToggle = document.getElementById('showZeroPeriod');
+                        if(zeroToggle) zeroToggle.checked = true; 
+                    }
+                } catch(e){}
+
+                try { 
+                    if (p.playGoodbyes === true) { 
+                        playGoodbyes = true; 
+                        const pgToggle = document.getElementById('playGoodbyes');
+                        if(pgToggle) pgToggle.checked = true; 
+                    }
+                } catch(e){}
+
+                try { 
+                    if (p.muteB === true) { 
+                        muteBells = true; 
+                        const mbToggle = document.getElementById('muteBellsToggle');
+                        if(mbToggle) mbToggle.checked = true; 
+                    }
+                } catch(e){}
+                
+                try { 
+                    if (p.savedVibes) savedVibes = p.savedVibes;
+                    if (p.vibe && savedVibes.length === 0) {
+                        savedVibes.push({ url: p.vibe, title: 'Saved Vibe' });
+                        currentVibeUrl = p.vibe;
+                    } else if (p.vibe) {
+                        currentVibeUrl = p.vibe;
+                    }
+                    renderVibeDropdown();
+                } catch(e){}
+
+                try { 
+                    if (p.mrBsJukebox !== undefined) mrBsJukebox = p.mrBsJukebox;
+                    if (p.jukeboxUrl) jukeboxUrl = p.jukeboxUrl;
+                    if (p.isMainVibePlaying !== undefined) isMainVibePlaying = p.isMainVibePlaying;
+
+                    const jkToggle = document.getElementById('jukeboxToggle');
+                    if(jkToggle) jkToggle.checked = mrBsJukebox;
+                    const jkInput = document.getElementById('jukeboxUrlInput');
+                    if(jkInput && jukeboxUrl !== "https://www.youtube.com/watch?v=CLLpSmaof4E") {
+                        jkInput.value = jukeboxUrl;
+                    }
+                } catch(e){}
+
+                try { 
+                    if (p.widgets) {
+                        activeWidgets = p.widgets;
+                        Object.keys(p.widgets).forEach(key => {
+                            const tog = document.getElementById(`wm-tog-${key}`);
+                            if(tog) {
+                                tog.checked = p.widgets[key];
+                                toggleWidget(key, p.widgets[key], false); 
+                            }
+                        });
+                    }
+                } catch(e){}
+
+                try { 
+                    if (p.accordions) {
+                        accordionStates = p.accordions;
+                        Object.keys(accordionStates).forEach(id => {
+                            if(accordionStates[id] === false) {
+                                const el = document.getElementById(id);
+                                if(el) el.style.maxHeight = "0px";
+                                const chev = document.getElementById('chev-'+id);
+                                if(chev) chev.style.transform = "rotate(-90deg)";
+                            }
+                        });
+                    }
+                } catch(e){}
+                
+                try { if(p.voice) globalVoicePref = p.voice; } catch(e){}
+            } catch (e) {
+                console.error("Local Storage parse error.", e);
+            }
         }
 
         function toggleZeroPeriod() {
@@ -1321,44 +1683,6 @@
             if(sz) showZero = sz.checked;
             saveLocalSettings();
             fetchDailySchedule(); 
-        }
-
-        function changeMode(shouldSave = true) {
-            const sz = document.getElementById('showZeroPeriod');
-            if(sz) showZero = sz.checked;
-            
-            let hasZero = activeSchedule.some(p => /^0/i.test(String(p.name).trim()));
-            if (showZero && !hasZero) {
-                activeSchedule.unshift({ name: "0 pd", start: "07:10", end: "08:13" });
-            } else if (!showZero && hasZero) {
-                activeSchedule = activeSchedule.filter(p => !/^0/i.test(String(p.name).trim()));
-            }
-
-            const st = document.getElementById('schedule-title');
-            if(st && st.childNodes[0]) st.childNodes[0].nodeValue = currentScheduleName.toUpperCase() + ' Schedule '; 
-            
-            renderSchedule(); 
-            if (shouldSave) saveLocalSettings();
-        }
-
-        function toggleSetting(periodName, settingType, isChecked) {
-            const key = periodName; 
-            if (!classSettings[key]) classSettings[key] = { ...DEFAULT_PREFS };
-            classSettings[key][settingType] = isChecked;
-            saveLocalSettings();
-            if (settingType === 'open') renderSchedule(); 
-        }
-
-        function setIcalFeed(periodName) {
-            const currentUrl = classSettings[periodName]?.icalUrl || '';
-            const url = prompt(`Paste the iCal feed URL for ${periodName}:`, currentUrl);
-            if (url !== null) {
-                if (!classSettings[periodName]) classSettings[periodName] = { ...DEFAULT_PREFS };
-                classSettings[periodName].icalUrl = url.trim();
-                saveLocalSettings();
-                renderSchedule(); 
-                showToast("iCal feed updated");
-            }
         }
 
         function renderSchedule() {
@@ -1370,13 +1694,11 @@
                 list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Schedule data is missing or corrupted.</em></li>'; return; 
             }
 
-            let filteredSchedule = activeSchedule;
-
-            if (!filteredSchedule || filteredSchedule.length === 0) { 
+            if (activeSchedule.length === 0) { 
                 list.innerHTML = '<li style="text-align:center; padding: 20px;"><em>Waiting for Google...</em></li>'; return; 
             }
 
-            filteredSchedule.forEach(period => {
+            activeSchedule.forEach(period => {
                 try {
                     const key = String(period.name);
                     const safeKey = key.replace(/'/g, "\\'"); 
@@ -1577,17 +1899,12 @@
                 
                 if(!Array.isArray(activeSchedule)) return;
 
-                const isWebDay = currentScheduleName.toLowerCase().includes('web');
-
                 activeSchedule.forEach(period => {
                     if (!period || !period.name) return;
                     const pNameStr = String(period.name);
-
                     const s = classSettings[pNameStr] || { ...DEFAULT_PREFS };
-
                     const hasLunch1 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 1);
                     const hasLunch2 = lunchDuties.some(d => d.day === todayDayOfWeek && String(d.period).toLowerCase() === pNameStr.toLowerCase() && d.half === 2);
-                    if (isWebDay) hasLunch2 = false; 
 
                     const pStartStr = String(period.start); const pEndStr = String(period.end);
                     const startMinus1 = subtractMinutes(pStartStr, 1); const startPlus5 = addMinutes(pStartStr, 5);
@@ -1636,83 +1953,40 @@
         }
 
         // ==========================================================================
-        // 9. DYNAMIC QOTD BACKEND LOGIC
-        // ==========================================================================
-        let qotdQrVisible = true;
-
-        function toggleQotdQR() {
-            qotdQrVisible = !qotdQrVisible;
-            document.getElementById('qotd-qr-section').style.display = qotdQrVisible ? 'flex' : 'none';
-            document.getElementById('qotd-toggle-btn').innerText = qotdQrVisible ? '👁️ Hide QR Code' : '👁️ Show QR Code';
-        }
-
-        function fetchQotdData() {
-            fetch(QOTD_APPS_SCRIPT_URL + "?action=getToday")
-                .then(r => r.json())
-                .then(data => {
-                    document.getElementById('qotd-question').innerText = data.q || "No question today";
-                    document.getElementById('qotd-label-a').innerText = data.a || "Option A";
-                    document.getElementById('qotd-label-b').innerText = data.b || "Option B";
-                    
-                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(QOTD_APPS_SCRIPT_URL)}`;
-                    document.getElementById('qotd-qr-img').src = qrUrl;
-
-                    const votesA = parseInt(data.votesA) || 0;
-                    const votesB = parseInt(data.votesB) || 0;
-                    const total = votesA + votesB;
-                    const pctA = total === 0 ? 0 : Math.round((votesA / total) * 100);
-                    const pctB = total === 0 ? 0 : 100 - pctA;
-                    
-                    document.getElementById('qotd-bar-a').style.width = pctA + '%';
-                    document.getElementById('qotd-pct-a').innerText = pctA + '%';
-                    document.getElementById('qotd-bar-b').style.width = pctB + '%';
-                    document.getElementById('qotd-pct-b').innerText = pctB + '%';
-                    document.getElementById('qotd-total-votes').innerText = "Total Votes: " + total;
-                })
-                .catch(e => console.error("Error loading QotD:", e));
-        }
-
-        // Auto-poll QotD stats every 15 seconds
-        setInterval(() => {
-            if (activeWidgets.qotd) {
-                try { fetchQotdData(); } catch(e){}
-            }
-        }, 15000);
-
-        // ==========================================================================
-        // 10. SAFE BOOT SEQUENCE
+        // INITIALIZATION
         // ==========================================================================
         document.addEventListener('DOMContentLoaded', () => {
-            isBooting = true; // Lock local storage saving
+            // Load saved settings
+            loadLocalSettings();
             
-            // 1. Load Local Memory safely
-            try { loadLocalSettings(); } catch(e) { console.error(e); }
+            // Fetch QotD Backend Data Instantly
+            fetchQotdData();
             
-            // 2. Draw initial UI elements
-            try { updateTimerDisplay(); } catch(e) {}
-            try { updateClock(); } catch(e) {}
-            
-            // 3. Force Sidebar strictly closed on boot
+            // Force the sidebar strictly closed on load
             const sidebar = document.getElementById('sidebar');
             const hamBtn = document.getElementById('hamburgerBtn');
             if(sidebar) sidebar.classList.add('collapsed');
             if(hamBtn) hamBtn.classList.remove('active-btn');
             sidebarVisible = false;
 
-            // 4. Start isolated Clock loop
-            setInterval(() => {
-                try { updateClock(); } catch(e) { console.error(e); }
-            }, 1000);
+            // Start the clock ticks
+            updateTimerDisplay();
+            updateClock();
+            setInterval(updateClock, 1000);
             
-            // 5. Fire async data fetches 
-            try { fetchDailySchedule(); } catch(e) {}
-            try { fetchQotdData(); } catch(e) {}
+            // Fetch schedule from Google 
+            fetchDailySchedule();
 
-            // 6. Async load TTS Voices and Release Memory Lock
-            setTimeout(() => {
-                try { if ('speechSynthesis' in window) safePopulateVoiceList(); } catch(e) {}
-                isBooting = false; // UNLOCK SAVING
-            }, 1500);
+            // Load voices
+            try {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.onvoiceschanged = safePopulateVoiceList;
+                    safePopulateVoiceList();
+                }
+            } catch(e) {}
+            
+            // FINALLY UNLOCK SAVING
+            setTimeout(() => { isBooting = false; }, 1500);
         });
 
     </script>
