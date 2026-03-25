@@ -35,23 +35,8 @@ let playGoodbyes = false, muteBells = false;
 let accordionStates = { 'sec-audio': true, 'sec-reminders': true, 'sec-vibe': true, 'sec-schedule': true };
 let activeWidgets = { weather: true, timer: false, qotd: true, spacer1: false, spacer2: false }; 
 
-// --- DUAL-STATE LAYOUT MEMORY ARRAYS ---
-let layoutNormal = [
-    {id: 'widget-weather', span: 1, rowSpan: 1},
-    {id: 'widget-schedule', span: 2, rowSpan: 1},
-    {id: 'widget-timer', span: 1, rowSpan: 1},
-    {id: 'widget-qotd', span: 1, rowSpan: 1},
-    {id: 'widget-spacer1', span: 1, rowSpan: 1},
-    {id: 'widget-spacer2', span: 1, rowSpan: 1}
-];
-let layoutFocus = [
-    {id: 'widget-schedule', span: 2, rowSpan: 1},
-    {id: 'widget-weather', span: 1, rowSpan: 1},
-    {id: 'widget-timer', span: 1, rowSpan: 1},
-    {id: 'widget-qotd', span: 1, rowSpan: 1},
-    {id: 'widget-spacer1', span: 1, rowSpan: 1},
-    {id: 'widget-spacer2', span: 1, rowSpan: 1}
-];
+let layoutNormal = [];
+let layoutFocus = [];
 
 let timerInterval = null, timerTotalSeconds = 300, timerIsPlaying = false;
 let playedActions = {}, currentMinuteTracker = "", lastAutoState = null; 
@@ -68,7 +53,6 @@ function initWidgets() {
     const masterGrid = document.getElementById('master-grid');
     let draggedWidget = null;
 
-    // --- DRAG HANDLERS ---
     document.querySelectorAll('.widget-drag-handle').forEach(handle => {
         handle.addEventListener('mousedown', (e) => {
             const widget = e.target.closest('.widget-card');
@@ -125,44 +109,6 @@ function initWidgets() {
             if (!isMinimalView) saveLayout();
         });
     });
-
-    // --- WIDTH CLICK-TO-RESIZE (↔) ---
-    document.querySelectorAll('.widget-resize-width').forEach(handle => {
-        handle.addEventListener('click', function(e) {
-            e.preventDefault();
-            const widget = this.closest('.widget-card');
-            
-            let currentSpan = 1;
-            if (widget.classList.contains('span-2')) currentSpan = 2;
-            if (widget.classList.contains('span-3')) currentSpan = 3;
-            if (widget.classList.contains('span-4')) currentSpan = 4;
-            
-            widget.classList.remove(`span-${currentSpan}`);
-            let nextSpan = currentSpan >= 4 ? 1 : currentSpan + 1;
-            widget.classList.add(`span-${nextSpan}`);
-            
-            saveLayout(); 
-        });
-    });
-
-    // --- HEIGHT CLICK-TO-RESIZE (↕) ---
-    document.querySelectorAll('.widget-resize-height').forEach(handle => {
-        handle.addEventListener('click', function(e) {
-            e.preventDefault();
-            const widget = this.closest('.widget-card');
-            
-            let currentSpan = 1;
-            if (widget.classList.contains('row-span-2')) currentSpan = 2;
-            if (widget.classList.contains('row-span-3')) currentSpan = 3;
-            if (widget.classList.contains('row-span-4')) currentSpan = 4;
-            
-            widget.classList.remove(`row-span-${currentSpan}`);
-            let nextSpan = currentSpan >= 4 ? 1 : currentSpan + 1;
-            widget.classList.add(`row-span-${nextSpan}`);
-            
-            saveLayout(); 
-        });
-    });
 }
 
 function saveLayout() {
@@ -171,16 +117,7 @@ function saveLayout() {
     const widgets = Array.from(grid.querySelectorAll('.widget-card'));
     
     const currentLayout = widgets.map(el => {
-        let wSpan = 1; let hSpan = 1;
-        if (el.classList.contains('span-2')) wSpan = 2;
-        if (el.classList.contains('span-3')) wSpan = 3;
-        if (el.classList.contains('span-4')) wSpan = 4;
-        
-        if (el.classList.contains('row-span-2')) hSpan = 2;
-        if (el.classList.contains('row-span-3')) hSpan = 3;
-        if (el.classList.contains('row-span-4')) hSpan = 4;
-
-        return { id: el.id, span: wSpan, rowSpan: hSpan, height: el.style.height }; 
+        return { id: el.id, height: el.style.height }; 
     });
 
     if (isMinimalView) layoutFocus = currentLayout;
@@ -198,9 +135,6 @@ function applyLayout() {
     activeLayout.forEach(item => {
         const el = document.getElementById(item.id);
         if (el) {
-            el.classList.remove('span-1', 'span-2', 'span-3', 'span-4', 'row-span-1', 'row-span-2', 'row-span-3', 'row-span-4');
-            el.classList.add(`span-${item.span || 1}`);
-            el.classList.add(`row-span-${item.rowSpan || 1}`);
             if (item.height) el.style.height = item.height;
             grid.appendChild(el); 
         }
@@ -481,7 +415,7 @@ function toggleSidebar(e) {
     saveLocalSettings();
 }
 
-// --- THE NEW WAFFLE SETTINGS MODAL ---
+// --- THE WAFFLE SETTINGS MODAL ---
 function toggleWaffleMenu(force) {
     const modal = document.getElementById('waffle-modal');
     const btn = document.getElementById('waffleViewBtn');
@@ -512,7 +446,6 @@ function renderWaffleSettings() {
     if(!list) return;
     list.innerHTML = '';
     
-    // Hardcoded list of all possible blocks
     const periods = ['1', 'HR', '2', '3', '4', '5', '6', '7', 'A Block', 'B Block', 'C Block', 'D Block'];
 
     periods.forEach(key => {
@@ -557,8 +490,8 @@ function setIcalFeed(key) {
     if (newUrl !== null) {
         classSettings[key].icalUrl = newUrl.trim();
         saveLocalSettings();
-        renderWaffleSettings(); // Refresh popup UI
-        renderSchedule();       // Refresh schedule widget UI
+        renderWaffleSettings(); 
+        renderSchedule();       
     }
 }
 
@@ -979,7 +912,6 @@ setInterval(() => {
     }
 }, 15000);
 
-// --- CLEANED UP SCHEDULE RENDERER ---
 async function fetchDailySchedule() {
     const ind = document.getElementById('autoIndicator');
     if(ind) { ind.style.display = 'block'; ind.innerText = "Syncing..."; ind.style.color = '#888'; }
@@ -1138,7 +1070,6 @@ function renderSchedule() {
             
             let openBadgeHtml = s.open ? `<span class="open-badge">OPEN</span>` : ``;
 
-            // Schedule widget is now super clean! Just Name, Agenda, and Time.
             li.innerHTML = `
                 <div class="period-name">${key} ${openBadgeHtml}</div>
                 <div class="middle-section">
@@ -1206,8 +1137,6 @@ function loadLocalSettings() {
                 if (isMinimalView) {
                     document.body.classList.add('minimal-active'); 
                     if(btn) btn.classList.add('active-btn');
-                    const schedWidget = document.getElementById('widget-schedule');
-                    if(schedWidget) schedWidget.style.setProperty('display', 'flex', 'important');
                 }
             } 
         } catch(e){}
@@ -1422,7 +1351,7 @@ function updateClock() {
         if (dProg) {
             if (status && status.actualClass) {
                 dProg.style.width = currentProgress + '%';
-                dProg.style.backgroundColor = isDeadTime ? '#d9534f' : '#5cb85c';
+                dProg.style.backgroundColor = isDeadTime ? '#d9534f' : '#31b0d5';
             } else { dProg.style.width = '0%'; }
         }
 
@@ -1523,9 +1452,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadLocalSettings();
     applyLayout();
     fetchQotdData();
-    
-    // Render the new hidden Waffle Menu
-    renderWaffleSettings();
     
     const sidebar = document.getElementById('sidebar');
     const hamBtn = document.getElementById('hamburgerBtn');
