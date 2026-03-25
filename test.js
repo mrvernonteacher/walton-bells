@@ -35,6 +35,20 @@ let playGoodbyes = false, muteBells = false;
 let accordionStates = { 'sec-audio': true, 'sec-reminders': true, 'sec-vibe': true, 'sec-schedule': true };
 let activeWidgets = { weather: true, timer: false, qotd: true }; 
 
+// --- DUAL-STATE LAYOUT MEMORY ARRAYS ---
+let layoutNormal = [
+    {id: 'widget-weather', span: 1},
+    {id: 'widget-schedule', span: 2},
+    {id: 'widget-timer', span: 1},
+    {id: 'widget-qotd', span: 1}
+];
+let layoutFocus = [
+    {id: 'widget-schedule', span: 2},
+    {id: 'widget-weather', span: 1},
+    {id: 'widget-timer', span: 1},
+    {id: 'widget-qotd', span: 1}
+];
+
 let timerInterval = null, timerTotalSeconds = 300, timerIsPlaying = false;
 
 let playedActions = {}, currentMinuteTracker = "", lastAutoState = null; 
@@ -43,6 +57,127 @@ let isMainVibePlaying = false, activePlayerUrl = '', lastPeriodStatus = null;
 
 let agendaCache = {}, agendaPromises = {};
 let savedVibeVol = 50, isVibeMuted = false, savedGlobalVol = 1.0, isGlobalMuted = false;
+
+// ==========================================================================
+// MAGNETIC GRID SYSTEM (Drag, Drop & Resize)
+// ==========================================================================
+function initWidgets() {
+    const masterGrid = document.getElementById('master-grid');
+    let draggedWidget = null;
+
+    // --- DRAG HANDLERS ---
+    document.querySelectorAll('.widget-drag-handle').forEach(handle => {
+        handle.addEventListener('mousedown', (e) => {
+            const widget = e.target.closest('.widget-card');
+            widget.setAttribute('draggable', 'true');
+        });
+        handle.addEventListener('mouseup', (e) => {
+            const widget = e.target.closest('.widget-card');
+            widget.removeAttribute('draggable');
+        });
+    });
+
+    document.querySelectorAll('.widget-card').forEach(widget => {
+        widget.addEventListener('dragstart', (e) => {
+            draggedWidget = widget;
+            setTimeout(() => widget.classList.add('is-dragging'), 0);
+        });
+        
+        widget.addEventListener('dragend', () => {
+            if(draggedWidget) draggedWidget.classList.remove('is-dragging');
+            widget.removeAttribute('draggable');
+            draggedWidget = null;
+            saveLayout(); // Save state on drop
+        });
+    });
+
+    masterGrid.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        if (!draggedWidget) return;
+        const target = e.target.closest('.widget-card');
+        
+        if (target && target !== draggedWidget && !target.classList.contains('is-dragging')) {
+            const rect = target.getBoundingClientRect();
+            // Determine if mouse is past the halfway point of the target
+            const next = (e.clientX - rect.left) / (rect.width) > 0.5;
+            masterGrid.insertBefore(draggedWidget, next ? target.nextSibling : target);
+        }
+    });
+
+    // --- RESIZE HANDLERS ---
+    document.querySelectorAll('.widget-resize-handle').forEach(handle => {
+        handle.addEventListener('mousedown', function(e) {
+            e.preventDefault();
+            const widget = this.closest('.widget-card');
+            
+            const startX = e.clientX;
+            const initialWidth = widget.offsetWidth;
+            const gridWidth = masterGrid.offsetWidth;
+            const colWidth = (gridWidth + 20) / 4; // 20 is the CSS gap
+
+            function onMouseMove(ev) {
+                const diff = ev.clientX - startX;
+                const newWidth = initialWidth + diff;
+                
+                // Snap math to columns
+                let spans = Math.round(newWidth / colWidth);
+                if (spans < 1) spans = 1;
+                if (spans > 4) spans = 4;
+                
+                // Apply visual snap
+                widget.classList.remove('span-1', 'span-2', 'span-3', 'span-4');
+                widget.classList.add(`span-${spans}`);
+            }
+
+            function onMouseUp() {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+                saveLayout(); // Save state when mouse released
+            }
+
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+    });
+}
+
+function saveLayout() {
+    if (isBooting) return;
+    const grid = document.getElementById('master-grid');
+    const widgets = Array.from(grid.querySelectorAll('.widget-card'));
+    
+    // Map current DOM order and span sizes
+    const currentLayout = widgets.map(el => {
+        let span = 1;
+        if (el.classList.contains('span-2')) span = 2;
+        if (el.classList.contains('span-3')) span = 3;
+        if (el.classList.contains('span-4')) span = 4;
+        return { id: el.id, span: span };
+    });
+
+    // Save to the currently active view mode array
+    if (isMinimalView) layoutFocus = currentLayout;
+    else layoutNormal = currentLayout;
+    
+    saveLocalSettings();
+}
+
+function applyLayout() {
+    const activeLayout = isMinimalView ? layoutFocus : layoutNormal;
+    const grid = document.getElementById('master-grid');
+    
+    activeLayout.forEach(item => {
+        const el = document.getElementById(item.id);
+        if (el) {
+            // Apply saved span size
+            el.classList.remove('span-1', 'span-2', 'span-3', 'span-4');
+            el.classList.add(`span-${item.span}`);
+            
+            // Re-append to physical DOM to enforce saved order
+            grid.appendChild(el); 
+        }
+    });
+}
 
 // ==========================================================================
 // AUDIO, VOICES, AND REMINDERS
@@ -258,16 +393,6 @@ document.addEventListener('fullscreenchange', () => {
     if(fsBtn) fsBtn.classList.toggle('active-btn', document.fullscreenElement);
 });
 
-document.addEventListener('click', (e) => {
-    const menu = document.getElementById('widget-panel-menu');
-    const btn = document.getElementById('widget-menu-btn');
-    if (menu && menu.style.display === 'flex') {
-        if (!menu.contains(e.target) && !btn.contains(e.target)) {
-            menu.style.display = 'none';
-        }
-    }
-});
-
 window.addEventListener('resize', () => {
     if (window.innerWidth <= 850) {
         document.querySelectorAll('.floating-player').forEach(el => {
@@ -335,6 +460,8 @@ function toggleWidget(id, isChecked) {
     
     const floatTog = document.getElementById(`wm-tog-${id}`);
     if(floatTog) floatTog.checked = isChecked;
+    
+    applyLayout(); // Ensure standard positioning applies
     saveLocalSettings();
 }
 
@@ -357,7 +484,7 @@ function toggleSidebar(e) {
 
 function toggleWaffleMenu(force) {
     isWaffleClosed = force !== undefined ? force : !isWaffleClosed;
-    const container = document.getElementById('schedule-container');
+    const container = document.getElementById('widget-schedule'); // Uses the full widget ID now
     const btn = document.getElementById('waffleViewBtn');
     if(container && btn) {
         if (isWaffleClosed) {
@@ -383,6 +510,20 @@ function toggleMinimalView(force) {
             btn.classList.remove('active-btn');
         }
     }
+
+    // Apply the saved memory layout for this specific state
+    applyLayout();
+
+    // Override the CSS that hides the schedule so it can be arranged as a widget
+    const schedWidget = document.getElementById('widget-schedule');
+    if(schedWidget) {
+        if (isMinimalView) {
+            schedWidget.style.setProperty('display', 'flex', 'important'); 
+        } else {
+            schedWidget.style.removeProperty('display');
+        }
+    }
+
     saveLocalSettings();
 }
 
@@ -936,7 +1077,8 @@ function saveLocalSettings() {
             settings: classSettings, lunchDuties: lunchDuties,
             savedVibes: savedVibes, vibe: currentVibeUrl, vibeVol: vibeVolume, muteB: muteBells,
             mrBsJukebox: mrBsJukebox, jukeboxUrl: jukeboxUrl, isMainVibePlaying: isMainVibePlaying,
-            customReminders: customReminders, accordions: accordionStates, widgets: activeWidgets
+            customReminders: customReminders, accordions: accordionStates, widgets: activeWidgets,
+            layoutNormal: layoutNormal, layoutFocus: layoutFocus // Saves Layouts
         };
         localStorage.setItem('waltonBellState', JSON.stringify(data)); 
     } catch (e) {}
@@ -949,6 +1091,10 @@ function loadLocalSettings() {
         
         const p = JSON.parse(saved);
         
+        // --- LOAD LAYOUT MEMORY ---
+        try { if (p.layoutNormal) layoutNormal = p.layoutNormal; } catch(e){}
+        try { if (p.layoutFocus) layoutFocus = p.layoutFocus; } catch(e){}
+
         try { if (p.settings) classSettings = p.settings; } catch(e){}
         try { if (p.lunchDuties) { lunchDuties = p.lunchDuties; renderLunchDuties(); } } catch(e){}
         try { if (p.customReminders) { customReminders = p.customReminders; renderCustomReminders(); } } catch(e){}
@@ -969,7 +1115,20 @@ function loadLocalSettings() {
         } catch(e){}
         
         try { if (p.waffleClosed !== undefined) { setWaffleState(p.waffleClosed, false); } } catch(e){}
-        try { if (p.minimalView !== undefined) { setMinimalView(p.minimalView, false); } } catch(e){}
+        
+        // Needs specific override for layout loading
+        try { 
+            if (p.minimalView !== undefined) { 
+                isMinimalView = p.minimalView;
+                const btn = document.getElementById('minimalViewBtn');
+                if (isMinimalView) {
+                    document.body.classList.add('minimal-active'); 
+                    if(btn) btn.classList.add('active-btn');
+                    const schedWidget = document.getElementById('widget-schedule');
+                    if(schedWidget) schedWidget.style.setProperty('display', 'flex', 'important');
+                }
+            } 
+        } catch(e){}
         
         try { 
             if (p.dark === true) { 
@@ -1035,7 +1194,12 @@ function loadLocalSettings() {
                     const tog = document.getElementById(`wm-tog-${key}`);
                     if(tog) {
                         tog.checked = p.widgets[key];
-                        toggleWidget(key, p.widgets[key], false); 
+                        // Just apply classes to avoid layout loops
+                        const card = document.getElementById(`widget-${key}`);
+                        if(card) {
+                            if(p.widgets[key]) card.classList.add('active-widget');
+                            else card.classList.remove('active-widget');
+                        }
                     }
                 });
             }
@@ -1339,28 +1503,34 @@ function updateClock() {
 // INITIALIZATION
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', () => {
-    // Load saved settings
+    // 1. Initialize dragging and resizing engines
+    initWidgets();
+    
+    // 2. Load saved settings (this also loads the saved layout arrays)
     loadLocalSettings();
     
-    // Fetch QotD Backend Data Instantly
+    // 3. Immediately apply the saved layout before the user sees it
+    applyLayout();
+    
+    // 4. Fetch QotD Backend Data Instantly
     fetchQotdData();
     
-    // Force the sidebar strictly closed on load
+    // 5. Force the sidebar strictly closed on load
     const sidebar = document.getElementById('sidebar');
     const hamBtn = document.getElementById('hamburgerBtn');
     if(sidebar) sidebar.classList.add('collapsed');
     if(hamBtn) hamBtn.classList.remove('active-btn');
     sidebarVisible = false;
 
-    // Start the clock ticks
+    // 6. Start the clock ticks
     updateTimerDisplay();
     updateClock();
     setInterval(updateClock, 1000);
     
-    // Fetch schedule from Google 
+    // 7. Fetch schedule from Google 
     fetchDailySchedule();
 
-    // Load voices
+    // 8. Load voices
     try {
         if ('speechSynthesis' in window) {
             window.speechSynthesis.onvoiceschanged = safePopulateVoiceList;
@@ -1368,6 +1538,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     } catch(e) {}
     
-    // FINALLY UNLOCK SAVING
+    // 9. FINALLY UNLOCK SAVING
     setTimeout(() => { isBooting = false; }, 1500);
 });
