@@ -199,15 +199,48 @@
     </div>
 
     <div class="main-content-area">
-        
-        <div class="widget-column">
-            <div class="widget-card glass-panel" id="widget-weather">
-                <div class="widget-header-row"><h4 class="widget-title">Local Forecast</h4><button class="widget-close" onclick="toggleWidget('weather', false)">✖</button></div>
+        <div id="master-grid" class="master-grid">
+            
+            <div class="widget-card glass-panel span-1" id="widget-weather">
+                <div class="widget-header-row">
+                    <span class="widget-drag-handle" title="Drag to move">⠿</span>
+                    <h4 class="widget-title">Local Forecast</h4>
+                    <button class="widget-close" onclick="toggleWidget('weather', false)">✖</button>
+                </div>
                 <div id="weather-container-main" style="flex-grow: 1; overflow-y: auto; overflow-x: hidden; height: 100%; min-height: 200px;"></div>
+                <div class="widget-resize-handle" title="Drag to resize">⤡</div>
             </div>
 
-            <div class="widget-card glass-panel" id="widget-timer">
-                <div class="widget-header-row"><h4 class="widget-title">Class Timer</h4><button class="widget-close" onclick="toggleWidget('timer', false)">✖</button></div>
+            <div class="widget-card glass-panel span-2 waffle-closed active-widget" id="widget-schedule">
+                <div class="widget-header-row">
+                    <span class="widget-drag-handle" title="Drag to move">⠿</span>
+                    <div class="schedule-title-row" style="border:none; margin:0; padding:0;">
+                        <h3 id="schedule-title" style="font-size: 1.2rem;">Loading...</h3>
+                    </div>
+                    <span id="main-dead-time-warning" class="dead-time-warning" style="padding: 2px 6px; font-size: 0.8rem;">DEAD TIME</span>
+                </div>
+                
+                <div class="schedule-container" id="schedule-container" style="padding: 0;">
+                    <div class="schedule-grid schedule-header">
+                        <div class="period-name">Class</div>
+                        <div class="middle-section">
+                            <div class="options-wrapper">
+                                <div class="options-col">Cell Caddy</div><div class="options-col">Attend.</div><div class="options-col">Clean</div><div class="options-col">1 min left</div><div class="options-col">WEB Open</div><div class="options-col">iCal</div>
+                            </div>
+                        </div>
+                        <div class="period-time">Time</div>
+                    </div>
+                    <ul id="schedule-list"></ul>
+                </div>
+                <div class="widget-resize-handle" title="Drag to resize">⤡</div>
+            </div>
+
+            <div class="widget-card glass-panel span-1" id="widget-timer">
+                <div class="widget-header-row">
+                    <span class="widget-drag-handle" title="Drag to move">⠿</span>
+                    <h4 class="widget-title">Class Timer</h4>
+                    <button class="widget-close" onclick="toggleWidget('timer', false)">✖</button>
+                </div>
                 <div style="display:flex; flex-direction:column; flex-grow: 1; justify-content:center;">
                     <div class="timer-display" id="timer-display">05:00</div>
                     <div class="timer-quick-add">
@@ -219,32 +252,15 @@
                         <button class="timer-btn-hollow timer-btn-reset" onclick="resetTimer()" style="width: 100px;">Reset</button>
                     </div>
                 </div>
+                <div class="widget-resize-handle" title="Drag to resize">⤡</div>
             </div>
-        </div>
 
-        <div class="schedule-column">
-            <div class="schedule-container waffle-closed glass-panel" id="schedule-container">
-                <div class="schedule-title-row">
-                    <h3 id="schedule-title">Loading...</h3>
-                    <span id="main-dead-time-warning" class="dead-time-warning">DEAD TIME &mdash; NO HALL PASSES</span>
+            <div class="widget-card glass-panel span-1" id="widget-qotd">
+                <div class="widget-header-row">
+                    <span class="widget-drag-handle" title="Drag to move">⠿</span>
+                    <h4 class="widget-title">Question of the Day</h4>
+                    <button class="widget-close" onclick="toggleWidget('qotd', false)">✖</button>
                 </div>
-                <div class="schedule-grid schedule-header">
-                    <div class="period-name">Class</div>
-                    <div class="middle-section">
-                        <div class="options-wrapper">
-                            <div class="options-col">Cell Caddy</div><div class="options-col">Attend.</div><div class="options-col">Clean</div><div class="options-col">1 min left</div><div class="options-col">WEB Open</div><div class="options-col">iCal</div>
-                        </div>
-                    </div>
-                    <div class="period-time">Time</div>
-                </div>
-                <ul id="schedule-list"></ul>
-            </div>
-        </div>
-
-        <div class="widget-column">
-            <div class="widget-card glass-panel" id="widget-qotd">
-                <div class="widget-header-row"><h4 class="widget-title">Question of the Day</h4><button class="widget-close" onclick="toggleWidget('qotd', false)">✖</button></div>
-                
                 <div class="qotd-container" id="qotd-main-view">
                     <div class="qotd-text" id="qotd-question">Loading question...</div>
                     <div id="qotd-qr-section" style="display:flex; flex-direction:column; align-items:center; width:100%;">
@@ -260,9 +276,10 @@
                     </div>
                     <div class="qotd-manual-unlock" onclick="toggleQotdQR()" id="qotd-toggle-btn">👁️ Hide QR Code</div>
                 </div>
+                <div class="widget-resize-handle" title="Drag to resize">⤡</div>
             </div>
-        </div>
 
+        </div>
     </div>
 
     <div class="footer">
