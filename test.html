@@ -16,9 +16,9 @@
             <img src="https://drive.google.com/thumbnail?id=1XJEeGiblu9O3iGevy_j8RLR06LcyimqQ&sz=w400" alt="Walton Logo" class="header-logo">
         </div>
         <div class="header-center">
-            <div id="docked-schedule" class="docked-schedule">
+            <div id="docked-schedule" class="docked-schedule" style="opacity: 1; transform: translateY(0); pointer-events: auto; visibility: visible;">
                 <div class="docked-info-row" style="display:flex; align-items:center; justify-content:center; gap:20px;">
-                    <div id="docked-name" class="docked-name">Focus Mode</div>
+                    <div id="docked-name" class="docked-name">Loading Schedule...</div>
                     <div id="docked-badge" class="open-badge docked-badge" style="display:none;">OPEN</div>
                     <div id="docked-time" class="docked-time">--:--</div>
                     <span id="docked-warning" class="dead-time-warning">DEAD TIME</span>
@@ -29,7 +29,7 @@
             </div>
         </div>
         <div class="header-right">
-            <button id="minimalViewBtn" class="header-icon-btn" onclick="toggleMinimalView()" title="Focus Mode">
+            <button id="minimalViewBtn" class="header-icon-btn" onclick="toggleMinimalView()" title="Focus Mode (Minimize Widgets)">
                 <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M4 11h16v2H4z"/></svg>
             </button>
             <button id="waffleViewBtn" class="header-icon-btn" onclick="toggleWaffleMenu()" title="Period Settings">
@@ -226,7 +226,6 @@
                     <button class="widget-close" onclick="toggleWidget('weather', false)">✖</button>
                 </div>
                 <div class="widget-body" id="weather-container-main"></div>
-                <div class="widget-resize-controls"><span class="widget-resize-width" title="Cycle Width">↔</span></div>
             </div>
 
             <div class="widget-card glass-panel span-2 active-widget" id="widget-schedule" draggable="true">
@@ -245,7 +244,6 @@
                     </div>
                     <ul id="schedule-list"></ul>
                 </div>
-                <div class="widget-resize-controls"><span class="widget-resize-width" title="Cycle Width">↔</span></div>
             </div>
 
             <div class="widget-card glass-panel span-1" id="widget-timer" draggable="true">
@@ -265,7 +263,6 @@
                         <button class="timer-btn-hollow timer-btn-reset" onclick="resetTimer()" style="width: 100px;">Reset</button>
                     </div>
                 </div>
-                <div class="widget-resize-controls"><span class="widget-resize-width" title="Cycle Width">↔</span></div>
             </div>
 
             <div class="widget-card glass-panel span-1" id="widget-qotd" draggable="true">
@@ -289,7 +286,6 @@
                     </div>
                     <div class="qotd-manual-unlock" onclick="toggleQotdQR()" id="qotd-toggle-btn">👁️ Hide QR Code</div>
                 </div>
-                <div class="widget-resize-controls"><span class="widget-resize-width" title="Cycle Width">↔</span></div>
             </div>
 
             <div class="widget-card spacer-card span-1" id="widget-spacer1" draggable="true" style="background: transparent !important; box-shadow: none !important; border: 2px dashed rgba(150,150,150,0.3) !important;">
