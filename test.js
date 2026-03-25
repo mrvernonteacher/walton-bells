@@ -20,7 +20,7 @@ const GOODBYE_MESSAGES = [
 const playSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
 const pauseSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
 
-let isBooting = true; // ABSOLUTE LOCK TO PREVENT MEMORY WIPES
+let isBooting = true; 
 
 let activeSchedule = []; 
 let currentScheduleName = "Loading..."; 
@@ -35,26 +35,11 @@ let playGoodbyes = false, muteBells = false;
 let accordionStates = { 'sec-audio': true, 'sec-reminders': true, 'sec-vibe': true, 'sec-schedule': true };
 let activeWidgets = { weather: true, timer: false, qotd: true, spacer1: false, spacer2: false }; 
 
-// --- DUAL-STATE LAYOUT MEMORY ARRAYS (Now tracks width and height) ---
-let layoutNormal = [
-    {id: 'widget-weather', span: 1, rowSpan: 1},
-    {id: 'widget-schedule', span: 2, rowSpan: 1},
-    {id: 'widget-timer', span: 1, rowSpan: 1},
-    {id: 'widget-qotd', span: 1, rowSpan: 1},
-    {id: 'widget-spacer1', span: 1, rowSpan: 1},
-    {id: 'widget-spacer2', span: 1, rowSpan: 1}
-];
-let layoutFocus = [
-    {id: 'widget-schedule', span: 2, rowSpan: 1},
-    {id: 'widget-weather', span: 1, rowSpan: 1},
-    {id: 'widget-timer', span: 1, rowSpan: 1},
-    {id: 'widget-qotd', span: 1, rowSpan: 1},
-    {id: 'widget-spacer1', span: 1, rowSpan: 1},
-    {id: 'widget-spacer2', span: 1, rowSpan: 1}
-];
+// Default starting layout
+let layoutNormal = [];
+let layoutFocus = [];
 
 let timerInterval = null, timerTotalSeconds = 300, timerIsPlaying = false;
-
 let playedActions = {}, currentMinuteTracker = "", lastAutoState = null; 
 let mrBsJukebox = false, jukeboxUrl = "https://www.youtube.com/watch?v=CLLpSmaof4E"; 
 let isMainVibePlaying = false, activePlayerUrl = '', lastPeriodStatus = null; 
@@ -63,13 +48,13 @@ let agendaCache = {}, agendaPromises = {};
 let savedVibeVol = 50, isVibeMuted = false, savedGlobalVol = 1.0, isGlobalMuted = false;
 
 // ==========================================================================
-// 2. MAGNETIC GRID SYSTEM (Drag, Drop & Dual Resizing)
+// 2. MAGNETIC GRID SYSTEM (Drag, Drop & Heights)
 // ==========================================================================
 function initWidgets() {
     const masterGrid = document.getElementById('master-grid');
     let draggedWidget = null;
 
-    // --- DRAG HANDLERS (Only active when clicking the ⠿ handle) ---
+    // --- DRAG HANDLERS ---
     document.querySelectorAll('.widget-drag-handle').forEach(handle => {
         handle.addEventListener('mousedown', (e) => {
             const widget = e.target.closest('.widget-card');
@@ -92,7 +77,7 @@ function initWidgets() {
             widget.removeAttribute('draggable');
             document.querySelectorAll('.widget-card').forEach(w => w.classList.remove('drag-over'));
             draggedWidget = null;
-            saveLayout(); // Save new order
+            saveLayout(); 
         });
 
         widget.addEventListener('dragover', (e) => {
@@ -120,43 +105,10 @@ function initWidgets() {
                 masterGrid.insertBefore(draggedWidget, widget);
             }
         });
-    });
 
-    // --- WIDTH CLICK-TO-RESIZE (↔) ---
-    document.querySelectorAll('.widget-resize-width').forEach(handle => {
-        handle.addEventListener('click', function(e) {
-            e.preventDefault();
-            const widget = this.closest('.widget-card');
-            
-            let currentSpan = 1;
-            if (widget.classList.contains('span-2')) currentSpan = 2;
-            if (widget.classList.contains('span-3')) currentSpan = 3;
-            if (widget.classList.contains('span-4')) currentSpan = 4;
-            
-            widget.classList.remove(`span-${currentSpan}`);
-            let nextSpan = currentSpan >= 4 ? 1 : currentSpan + 1;
-            widget.classList.add(`span-${nextSpan}`);
-            
-            saveLayout(); 
-        });
-    });
-
-    // --- HEIGHT CLICK-TO-RESIZE (↕) ---
-    document.querySelectorAll('.widget-resize-height').forEach(handle => {
-        handle.addEventListener('click', function(e) {
-            e.preventDefault();
-            const widget = this.closest('.widget-card');
-            
-            let currentSpan = 1;
-            if (widget.classList.contains('row-span-2')) currentSpan = 2;
-            if (widget.classList.contains('row-span-3')) currentSpan = 3;
-            if (widget.classList.contains('row-span-4')) currentSpan = 4;
-            
-            widget.classList.remove(`row-span-${currentSpan}`);
-            let nextSpan = currentSpan >= 4 ? 1 : currentSpan + 1;
-            widget.classList.add(`row-span-${nextSpan}`);
-            
-            saveLayout(); 
+        // Save Height when user stops dragging the native resize handle
+        widget.addEventListener('mouseup', (e) => {
+            if (!isMinimalView) saveLayout();
         });
     });
 }
@@ -166,21 +118,10 @@ function saveLayout() {
     const grid = document.getElementById('master-grid');
     const widgets = Array.from(grid.querySelectorAll('.widget-card'));
     
-    // Map current DOM order, width span, and height span
     const currentLayout = widgets.map(el => {
-        let wSpan = 1; let hSpan = 1;
-        if (el.classList.contains('span-2')) wSpan = 2;
-        if (el.classList.contains('span-3')) wSpan = 3;
-        if (el.classList.contains('span-4')) wSpan = 4;
-        
-        if (el.classList.contains('row-span-2')) hSpan = 2;
-        if (el.classList.contains('row-span-3')) hSpan = 3;
-        if (el.classList.contains('row-span-4')) hSpan = 4;
-
-        return { id: el.id, span: wSpan, rowSpan: hSpan };
+        return { id: el.id, height: el.style.height }; // Save DOM order and explicit height
     });
 
-    // Save to the currently active view mode array
     if (isMinimalView) layoutFocus = currentLayout;
     else layoutNormal = currentLayout;
     
@@ -191,17 +132,14 @@ function applyLayout() {
     const activeLayout = isMinimalView ? layoutFocus : layoutNormal;
     const grid = document.getElementById('master-grid');
     
+    if(!activeLayout || activeLayout.length === 0) return;
+
     activeLayout.forEach(item => {
         const el = document.getElementById(item.id);
         if (el) {
-            // Remove old spans
-            el.classList.remove('span-1', 'span-2', 'span-3', 'span-4', 'row-span-1', 'row-span-2', 'row-span-3', 'row-span-4');
-            
-            // Apply saved width and height (defaulting to 1 to be safe)
-            el.classList.add(`span-${item.span || 1}`);
-            el.classList.add(`row-span-${item.rowSpan || 1}`);
-            
-            // Re-append to physical DOM to enforce saved order
+            // Restore height if it was explicitly resized
+            if (item.height) el.style.height = item.height;
+            // Physical reordering
             grid.appendChild(el); 
         }
     });
@@ -421,14 +359,6 @@ document.addEventListener('fullscreenchange', () => {
     if(fsBtn) fsBtn.classList.toggle('active-btn', document.fullscreenElement);
 });
 
-window.addEventListener('resize', () => {
-    if (window.innerWidth <= 850) {
-        document.querySelectorAll('.floating-player').forEach(el => {
-            el.style.top = ''; el.style.left = ''; el.style.right = ''; el.style.bottom = '';
-        });
-    }
-});
-
 function updateFloatingPlayerVisibility() {
     const player = document.getElementById('floating-player');
     if (player) {
@@ -512,13 +442,15 @@ function toggleWaffleMenu(force) {
     const container = document.getElementById('widget-schedule'); 
     const btn = document.getElementById('waffleViewBtn');
     if(container && btn) {
-        if (isWaffleClosed) {
-            container.classList.add('waffle-closed'); 
-            btn.classList.remove('active-btn');
-        } else {
-            container.classList.remove('waffle-closed'); 
-            btn.classList.add('active-btn');
+        // Toggle the waffle display inside the widget
+        const schedBody = document.getElementById('schedule-container');
+        if(schedBody) {
+             if (isWaffleClosed) schedBody.classList.add('waffle-closed'); 
+             else schedBody.classList.remove('waffle-closed');
         }
+        
+        if (isWaffleClosed) btn.classList.remove('active-btn');
+        else btn.classList.add('active-btn');
     }
     saveLocalSettings();
 }
@@ -536,19 +468,7 @@ function toggleMinimalView(force) {
         }
     }
 
-    // Apply the saved memory layout for this specific state
     applyLayout();
-
-    // Override the CSS that hides the schedule so it can be arranged as a widget
-    const schedWidget = document.getElementById('widget-schedule');
-    if(schedWidget) {
-        if (isMinimalView) {
-            schedWidget.style.setProperty('display', 'flex', 'important'); 
-        } else {
-            schedWidget.style.removeProperty('display');
-        }
-    }
-
     saveLocalSettings();
 }
 
@@ -1094,9 +1014,17 @@ function loadLocalSettings() {
         
         const p = JSON.parse(saved);
         
-        // --- LOAD LAYOUT MEMORY ---
-        try { if (p.layoutNormal) layoutNormal = p.layoutNormal; } catch(e){}
-        try { if (p.layoutFocus) layoutFocus = p.layoutFocus; } catch(e){}
+        // This failsafe ensures old layouts (missing spacers or heights) don't overwrite the new default
+        try { 
+            if (p.layoutNormal && p.layoutNormal.some(w => w.id === 'widget-spacer1')) {
+                layoutNormal = p.layoutNormal; 
+            }
+        } catch(e){}
+        try { 
+            if (p.layoutFocus && p.layoutFocus.some(w => w.id === 'widget-spacer1')) {
+                layoutFocus = p.layoutFocus; 
+            }
+        } catch(e){}
 
         try { if (p.settings) classSettings = p.settings; } catch(e){}
         try { if (p.lunchDuties) { lunchDuties = p.lunchDuties; renderLunchDuties(); } } catch(e){}
@@ -1119,7 +1047,7 @@ function loadLocalSettings() {
         
         try { if (p.waffleClosed !== undefined) { setWaffleState(p.waffleClosed, false); } } catch(e){}
         
-        // Needs specific override for layout loading
+        // Set Minimal View state
         try { 
             if (p.minimalView !== undefined) { 
                 isMinimalView = p.minimalView;
@@ -1127,8 +1055,6 @@ function loadLocalSettings() {
                 if (isMinimalView) {
                     document.body.classList.add('minimal-active'); 
                     if(btn) btn.classList.add('active-btn');
-                    const schedWidget = document.getElementById('widget-schedule');
-                    if(schedWidget) schedWidget.style.setProperty('display', 'flex', 'important');
                 }
             } 
         } catch(e){}
@@ -1197,7 +1123,6 @@ function loadLocalSettings() {
                     const tog = document.getElementById(`wm-tog-${key}`);
                     if(tog) {
                         tog.checked = p.widgets[key];
-                        // Just apply classes to avoid layout loops
                         const card = document.getElementById(`widget-${key}`);
                         if(card) {
                             if(p.widgets[key]) card.classList.add('active-widget');
