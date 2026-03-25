@@ -39,7 +39,6 @@ body.dark-mode .glass-panel {
     color: #e0e0e0 !important;
 }
 
-/* Deep Dark Mode Overrides */
 body.dark-mode h1, body.dark-mode h3, body.dark-mode h4, body.dark-mode .period-name, body.dark-mode .title, body.dark-mode #clock { color: #90caf9 !important; }
 body.dark-mode .sub-label { color: #ccc !important; }
 body.dark-mode #schedule-list li { border-bottom: 1px solid #444 !important; }
@@ -61,7 +60,6 @@ body.dark-mode .qotd-bar-bg { background: rgba(255,255,255,0.1) !important; }
 /* =========================================================
    3. NAVIGATION, SIDEBAR, & FLOATING MENUS
    ========================================================= */
-/* --- Master Top Navigation Bar --- */
 .floating-header {
     position: fixed; top: 0; left: 0; width: 100%; height: 75px;
     display: grid; grid-template-columns: 240px 1fr auto; align-items: center; 
@@ -71,13 +69,10 @@ body.dark-mode .qotd-bar-bg { background: rgba(255,255,255,0.1) !important; }
 .header-left { display: flex; align-items: center; gap: 15px; justify-self: start; height: 75px;}
 .header-right { display: flex; align-items: center; gap: 10px; justify-self: end; height: 75px;}
 .header-center { justify-self: center; display: flex; align-items: center; justify-content: center; width: 100%; height: 75px; position: relative;}
-
 .header-logo { height: 38px; width: auto; opacity: 0.8; transition: opacity 0.4s ease; display: block; }
 .header-logo:hover { opacity: 1; }
-
 #clock { font-size: 2rem; font-weight: bold; color: #003366; text-align: right; white-space: nowrap; flex-shrink: 0; transition: color 0.4s ease;}
 
-/* Icon Buttons */
 .header-icon-btn {
     background: none; border: none; color: #666; cursor: pointer; padding: 6px 8px; border-radius: 8px;
     display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; font-size: 1.6rem; line-height: 1;
@@ -85,7 +80,6 @@ body.dark-mode .qotd-bar-bg { background: rgba(255,255,255,0.1) !important; }
 .header-icon-btn:hover { background-color: rgba(150,150,150,0.2); color: #333; transform: scale(1.05);}
 .header-icon-btn.active-btn { color: #31b0d5 !important; transform: scale(1.1);} 
 
-/* --- Sidebar --- */
 .sidebar-wrapper { position: fixed; top: 90px; left: 20px; z-index: 2000; pointer-events: none; }
 .sidebar {
     width: 350px; padding: 15px 20px; border-radius: 10px; 
@@ -94,7 +88,6 @@ body.dark-mode .qotd-bar-bg { background: rgba(255,255,255,0.1) !important; }
 }
 .sidebar.collapsed { width: 0; padding: 0; opacity: 0; transform: scaleX(0); border: none !important; box-shadow: none !important;}
 
-/* Floating Widget Menu (+ Button) */
 #widget-menu-wrapper { position: fixed; bottom: 20px; left: 20px; z-index: 1050; }
 .widget-panel-menu {
     position: absolute; bottom: 60px; left: 0; border-radius: 15px; padding: 15px 20px; 
@@ -110,7 +103,6 @@ body.dark-mode .qotd-bar-bg { background: rgba(255,255,255,0.1) !important; }
 .float-btn:hover { transform: scale(1.1); }
 body.dark-mode .float-btn { background: #1976d2; }
 
-/* --- Floating Player --- */
 .floating-player {
     position: fixed; bottom: 20px; right: 20px; top: auto; left: auto;
     border-radius: 20px; padding: 10px 15px 10px 10px; display: flex; align-items: center; gap: 12px;
@@ -130,13 +122,11 @@ body.dark-mode .float-info { color: #90caf9; }
 .float-volume span:hover { transform: scale(1.2); }
 .float-volume input { width: 100px; cursor: pointer; height: 4px; margin: 0;}
 
-/* --- Floating Footer --- */
 .footer { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); font-size: 0.85rem; text-align: center; width: 100%; transition: color 0.4s ease; z-index: 10; pointer-events: none; }
 .footer p { margin: 0 0 5px 0; font-weight: bold; color: #333; text-shadow: 1px 1px 2px rgba(255,255,255,0.8); }
 body.dark-mode .footer p { color: #e0e0e0 !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.9) !important; }
 .footer-logo { max-width: 160px; height: auto; display: inline-block; opacity: 0.7; }
 
-/* --- Toast Notification --- */
 #toast {
     position: fixed; top: -60px; left: 50%; transform: translateX(-50%);
     background-color: #5cb85c; color: white !important; padding: 12px 24px;
@@ -180,7 +170,6 @@ select, input[type="text"], input[type="time"], input[type="date"] { width: 100%
 .goodbye-box { background: rgba(92, 184, 92, 0.15); border: 1px solid rgba(150,150,150,0.2); padding: 12px; border-radius: 8px; margin-top: 15px; }
 .goodbye-box label { color: #003366; font-weight: bold; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 8px;}
 
-/* Toggles */
 .switch-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; margin-top: 5px;}
 .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
 .switch input { opacity: 0; width: 0; height: 0; margin: 0; }
@@ -199,10 +188,10 @@ input:checked + .slider:before { transform: translateX(20px); }
 
 .master-grid {
     display: grid;
-    /* THIS IS THE FIX: minmax(0, 1fr) ensures columns are exactly 25% and never blowout */
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    grid-auto-flow: row dense; /* Fills in empty gaps automatically */
-    grid-auto-rows: min-content; /* Lets rows size naturally to their content */
+    /* grid-auto-rows dictates the height of 1 "Row Block" */
+    grid-auto-rows: 150px; 
+    grid-auto-flow: row dense;
     gap: 20px;
     width: 100%;
 }
@@ -213,34 +202,47 @@ input:checked + .slider:before { transform: translateX(20px); }
 .span-3 { grid-column: span 3; }
 .span-4 { grid-column: span 4; }
 
+/* Row Classes for Height Sizing */
+.row-span-1 { grid-row: span 1; }
+.row-span-2 { grid-row: span 2; }
+.row-span-3 { grid-row: span 3; }
+.row-span-4 { grid-row: span 4; }
+
 /* --- WIDGET CARDS (Grid Children) --- */
 .widget-card { 
     border-radius: 15px; padding: 15px; display: none; flex-direction: column; 
-    position: relative; transition: opacity 0.4s ease, transform 0.2s, grid-column 0.3s ease; 
+    position: relative; transition: opacity 0.4s ease, transform 0.2s, grid-column 0.3s ease, grid-row 0.3s ease; 
     background-color: rgba(255, 255, 255, 0.85); /* Fallback */
-    height: 100%; /* Stretch to match row height */
-    min-width: 0; /* FIX: Prevents widget content from forcing it to be wider than its grid column */
-    overflow: hidden; /* Contains any overflowing content */
+    height: 100%; width: 100%;
+    min-width: 0; min-height: 0;
+    overflow: hidden; 
 }
 .widget-card.active-widget { display: flex; animation: fadeWidgetIn 0.5s ease; }
 @keyframes fadeWidgetIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
-/* Drag & Resize Handles */
-.widget-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 8px; margin-bottom: 12px; }
+/* Fix overlapping icons by pushing them to the top layer */
+.widget-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(150,150,150,0.3); padding-bottom: 8px; margin-bottom: 12px; position: relative; z-index: 10;}
 body.dark-mode .widget-header-row { border-bottom: 1px solid #444; }
 .widget-title { font-weight: bold; font-size: 1.1rem; margin: 0; pointer-events: none;}
 
+/* Drag & Drop Visuals */
 .widget-drag-handle { cursor: grab; font-size: 1.2rem; color: #aaa; padding-right: 10px; user-select: none; }
 .widget-drag-handle:active { cursor: grabbing; color: #31b0d5; }
 .widget-card.is-dragging { opacity: 0.5; border: 2px dashed #31b0d5 !important; z-index: 50; }
-.widget-card.drag-over { border: 2px solid #5cb85c !important; transform: scale(1.02); } /* Visual drop indicator */
+.widget-card.drag-over { border: 2px solid #5cb85c !important; transform: scale(1.02); }
 
-.widget-resize-handle {
-    position: absolute; bottom: 5px; right: 5px; cursor: pointer;
-    font-size: 1.2rem; color: #aaa; padding: 5px; user-select: none; line-height: 1;
-    transition: color 0.2s;
+/* The New Separate Width & Height Resize Icons */
+.widget-resize-controls {
+    position: absolute; bottom: 5px; right: 5px; 
+    display: flex; gap: 8px; z-index: 100;
+    background: rgba(255,255,255,0.7); border-radius: 5px; padding: 2px;
 }
-.widget-resize-handle:hover { color: #31b0d5; }
+body.dark-mode .widget-resize-controls { background: rgba(0,0,0,0.5); }
+
+.widget-resize-width, .widget-resize-height {
+    cursor: pointer; font-size: 1.1rem; color: #888; user-select: none; line-height: 1; transition: color 0.2s; font-weight: bold;
+}
+.widget-resize-width:hover, .widget-resize-height:hover { color: #31b0d5; }
 
 .widget-close { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1.2rem; line-height: 1; padding: 0 5px; transition: color 0.2s; }
 .widget-close:hover { color: #d9534f; }
@@ -249,7 +251,7 @@ body.dark-mode .widget-header-row { border-bottom: 1px solid #444; }
    6. SCHEDULE WIDGET STYLING
    ========================================================= */
 #widget-schedule .schedule-container { max-height: none; background: transparent !important; box-shadow: none !important; border: none !important; padding: 0 !important;}
-body.minimal-active #widget-schedule { display: none !important; } /* Hides schedule body when docked to top */
+body.minimal-active #widget-schedule { display: none !important; }
 
 .schedule-title-row { display: flex; justify-content: center; align-items: center; margin-bottom: 10px; border-bottom: 2px solid rgba(150,150,150,0.3); padding-bottom: 8px;}
 .schedule-title-row h3 { margin: 0; font-size: 1.5rem; color: #003366;}
@@ -278,7 +280,6 @@ body.minimal-active #widget-schedule { display: none !important; } /* Hides sche
 .agenda-display { font-size: 1.1rem; font-weight: 600; color: #004080; text-align: center; width: 100%; max-height: 0px; opacity: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; transition: max-height 0.4s ease, opacity 0.3s ease; }
 .agenda-error { color: #d9534f !important; font-style: italic; font-weight: normal; }
 
-/* Open Block Badge */
 .open-badge { background-color: #5cb85c; color: white !important; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; margin-left: 10px; vertical-align: middle; font-weight: bold; border: none !important;}
 
 /* Schedule State 1: WAFFLE CLOSED */
@@ -303,12 +304,10 @@ body.minimal-active .docked-schedule { opacity: 1; transform: translateY(0); poi
 /* =========================================================
    7. INDIVIDUAL WIDGET STYLES (Timer, Weather, QotD)
    ========================================================= */
-/* Weather Widget Tweaks */
-#widget-weather { min-height: 250px; flex-grow: 1;}
-#weather-container-main { height: 100%; min-height: 200px; display: block; width: 100%; overflow: hidden;}
+#widget-weather { flex-grow: 1;}
+#weather-container-main { height: 100%; min-height: 100px; display: block; width: 100%; overflow: hidden;}
 body.dark-mode #weather-container-main iframe { filter: none !important; }
 
-/* Timer Widget Styles */
 .timer-display { font-size: 4rem; font-weight: bold; text-align: center; margin: 10px 0; font-variant-numeric: tabular-nums; }
 .timer-controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;}
 .timer-quick-add { display: flex; gap: 8px; justify-content: center; }
@@ -317,15 +316,13 @@ body.dark-mode #weather-container-main iframe { filter: none !important; }
 .timer-btn-reset { border-color: #888; color: #888;}
 .timer-btn-reset:hover { background-color: rgba(150, 150, 150, 0.15); }
 
-/* QotD Widget Styles */
-#widget-qotd { min-height: 450px; flex-grow: 1;}
+#widget-qotd { flex-grow: 1;}
 .qotd-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; gap: 15px; position: relative; flex-grow: 1;}
 .qotd-text { font-size: 1.2rem; font-weight: bold; margin-bottom: 10px;}
 .qotd-qr { width: 150px; height: 150px; background: white !important; padding: 10px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 5px; border: none !important;}
 .qotd-bar-bg { width: 100%; background: rgba(0,0,0,0.1); border-radius: 10px; height: 24px; overflow: hidden; position: relative;}
 .qotd-bar-fill { height: 100%; background: #31b0d5; width: 0%; transition: width 1s ease; }
 .qotd-bar-label { position: absolute; top: 0; left: 10px; line-height: 24px; font-size: 0.85rem; font-weight: bold; color: white !important; text-shadow: 0 1px 3px rgba(0,0,0,0.5); border: none !important;}
-
 .qotd-manual-unlock { font-size: 1rem; cursor: pointer; transition: transform 0.2s; margin-top: 5px; padding: 6px 12px; background: rgba(150,150,150,0.1); border-radius: 5px; font-weight: bold;}
 .qotd-manual-unlock:hover { background: rgba(150,150,150,0.2); }
 
@@ -333,8 +330,7 @@ body.dark-mode #weather-container-main iframe { filter: none !important; }
    8. MOBILE RESPONSIVE OVERRIDES
    ========================================================= */
 @media (max-width: 1100px) {
-    /* Collapse grid to 2 columns on medium screens */
-    .master-grid { grid-template-columns: repeat(2, 1fr); }
+    .master-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .span-3, .span-4 { grid-column: span 2; }
 }
 
@@ -355,7 +351,6 @@ body.dark-mode #weather-container-main iframe { filter: none !important; }
     .sidebar-wrapper { top: 75px; left: 10px; }
     .sidebar { max-width: calc(100vw - 20px); width: calc(100vw - 20px); }
     
-    /* Collapse grid to 1 column on mobile */
     .master-grid { grid-template-columns: 1fr; }
     .span-1, .span-2, .span-3, .span-4 { grid-column: span 1; }
     
@@ -379,7 +374,6 @@ body.dark-mode #weather-container-main iframe { filter: none !important; }
     #floating-player.visible { transform: translateY(0) !important; }
     
     #widget-menu-wrapper { bottom: 65px !important; left: 50% !important; transform: translateX(-50%) !important; flex-direction: column-reverse; }
-
     .float-info { max-width: 110px; font-size: 0.8rem; }
     .footer { position: relative; transform: none; left: 0; bottom: 0; margin-top: 20px; padding-bottom: 20px;}
 }
