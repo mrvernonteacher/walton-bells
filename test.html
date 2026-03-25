@@ -188,7 +188,6 @@
                 <div class="accordion-content" id="sec-schedule">
                     <div id="autoIndicator" style="font-weight:bold; margin-bottom:10px; color:#888;">Sync Status: Waiting...</div>
                     <button class="timer-btn-hollow" onclick="fetchDailySchedule()" style="width:100%; margin-bottom:10px;">Force Sync Schedule</button>
-                    
                     <div class="setting-row">
                         <span class="sub-label">Show 0 Period</span>
                         <label class="switch"><input type="checkbox" id="showZeroPeriod" onchange="toggleZeroPeriod()"><span class="slider"></span></label>
@@ -201,20 +200,16 @@
     <div class="main-content-area">
         <div id="master-grid" class="master-grid">
             
-            <div class="widget-card glass-panel span-1 row-span-1" id="widget-weather" draggable="true">
+            <div class="widget-card glass-panel span-1" id="widget-weather" draggable="true">
                 <div class="widget-header-row">
                     <span class="widget-drag-handle" title="Drag to move">⠿</span>
                     <h4 class="widget-title">Local Forecast</h4>
                     <button class="widget-close" onclick="toggleWidget('weather', false)">✖</button>
                 </div>
-                <div id="weather-container-main" style="flex-grow: 1; overflow-y: auto; overflow-x: hidden; height: 100%; min-height: 200px;"></div>
-                <div class="widget-resize-controls">
-                    <span class="widget-resize-width" title="Cycle Width">↔</span>
-                    <span class="widget-resize-height" title="Cycle Height">↕</span>
-                </div>
+                <div class="widget-body" id="weather-container-main"></div>
             </div>
 
-            <div class="widget-card glass-panel span-2 row-span-1 waffle-closed active-widget" id="widget-schedule" draggable="true">
+            <div class="widget-card glass-panel span-2 active-widget" id="widget-schedule" draggable="true">
                 <div class="widget-header-row">
                     <span class="widget-drag-handle" title="Drag to move">⠿</span>
                     <div class="schedule-title-row" style="border:none; margin:0; padding:0;">
@@ -222,7 +217,7 @@
                     </div>
                     <span id="main-dead-time-warning" class="dead-time-warning" style="padding: 2px 6px; font-size: 0.8rem;">DEAD TIME</span>
                 </div>
-                <div class="schedule-container" id="schedule-container" style="padding: 0; overflow-y: auto;">
+                <div class="widget-body schedule-container" id="schedule-container">
                     <div class="schedule-grid schedule-header">
                         <div class="period-name">Class</div>
                         <div class="middle-section">
@@ -234,19 +229,15 @@
                     </div>
                     <ul id="schedule-list"></ul>
                 </div>
-                <div class="widget-resize-controls">
-                    <span class="widget-resize-width" title="Cycle Width">↔</span>
-                    <span class="widget-resize-height" title="Cycle Height">↕</span>
-                </div>
             </div>
 
-            <div class="widget-card glass-panel span-1 row-span-1" id="widget-timer" draggable="true">
+            <div class="widget-card glass-panel span-1" id="widget-timer" draggable="true">
                 <div class="widget-header-row">
                     <span class="widget-drag-handle" title="Drag to move">⠿</span>
                     <h4 class="widget-title">Class Timer</h4>
                     <button class="widget-close" onclick="toggleWidget('timer', false)">✖</button>
                 </div>
-                <div style="display:flex; flex-direction:column; flex-grow: 1; justify-content:center;">
+                <div class="widget-body" style="display:flex; flex-direction:column; justify-content:center;">
                     <div class="timer-display" id="timer-display">05:00</div>
                     <div class="timer-quick-add">
                         <button class="timer-btn-hollow" onclick="addTimerMinutes(1)">+1m</button>
@@ -257,19 +248,15 @@
                         <button class="timer-btn-hollow timer-btn-reset" onclick="resetTimer()" style="width: 100px;">Reset</button>
                     </div>
                 </div>
-                <div class="widget-resize-controls">
-                    <span class="widget-resize-width" title="Cycle Width">↔</span>
-                    <span class="widget-resize-height" title="Cycle Height">↕</span>
-                </div>
             </div>
 
-            <div class="widget-card glass-panel span-1 row-span-1" id="widget-qotd" draggable="true">
+            <div class="widget-card glass-panel span-1" id="widget-qotd" draggable="true">
                 <div class="widget-header-row">
                     <span class="widget-drag-handle" title="Drag to move">⠿</span>
                     <h4 class="widget-title">Question of the Day</h4>
                     <button class="widget-close" onclick="toggleWidget('qotd', false)">✖</button>
                 </div>
-                <div class="qotd-container" id="qotd-main-view" style="overflow-y: auto;">
+                <div class="widget-body qotd-container" id="qotd-main-view">
                     <div class="qotd-text" id="qotd-question">Loading question...</div>
                     <div id="qotd-qr-section" style="display:flex; flex-direction:column; align-items:center; width:100%;">
                         <img id="qotd-qr-img" class="qotd-qr" src="" alt="Scan to vote">
@@ -284,19 +271,19 @@
                     </div>
                     <div class="qotd-manual-unlock" onclick="toggleQotdQR()" id="qotd-toggle-btn">👁️ Hide QR Code</div>
                 </div>
-                <div class="widget-resize-controls">
-                    <span class="widget-resize-width" title="Cycle Width">↔</span>
-                    <span class="widget-resize-height" title="Cycle Height">↕</span>
-                </div>
             </div>
 
-            <div class="widget-card spacer-card span-1 row-span-1" id="widget-spacer1" draggable="true" style="background: transparent !important; box-shadow: none !important; border: 2px dashed rgba(150,150,150,0.3) !important;">
-                <span class="widget-drag-handle" title="Drag to move spacer" style="text-align:center; padding: 20px; font-size:2rem;">⠿</span>
-                <button class="widget-close" onclick="toggleWidget('spacer1', false)" style="position:absolute; top:10px; right:10px;">✖</button>
+            <div class="widget-card spacer-card span-1" id="widget-spacer1" draggable="true" style="background: transparent !important; box-shadow: none !important; border: 2px dashed rgba(150,150,150,0.3) !important;">
+                <div class="widget-header-row" style="border: none;">
+                    <span class="widget-drag-handle" title="Drag to move spacer">⠿</span>
+                    <button class="widget-close" onclick="toggleWidget('spacer1', false)">✖</button>
+                </div>
             </div>
-            <div class="widget-card spacer-card span-1 row-span-1" id="widget-spacer2" draggable="true" style="background: transparent !important; box-shadow: none !important; border: 2px dashed rgba(150,150,150,0.3) !important;">
-                <span class="widget-drag-handle" title="Drag to move spacer" style="text-align:center; padding: 20px; font-size:2rem;">⠿</span>
-                <button class="widget-close" onclick="toggleWidget('spacer2', false)" style="position:absolute; top:10px; right:10px;">✖</button>
+            <div class="widget-card spacer-card span-1" id="widget-spacer2" draggable="true" style="background: transparent !important; box-shadow: none !important; border: 2px dashed rgba(150,150,150,0.3) !important;">
+                <div class="widget-header-row" style="border: none;">
+                    <span class="widget-drag-handle" title="Drag to move spacer">⠿</span>
+                    <button class="widget-close" onclick="toggleWidget('spacer2', false)">✖</button>
+                </div>
             </div>
 
         </div>
