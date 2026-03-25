@@ -33,20 +33,24 @@ let currentTestSound = 'positive', sidebarVisible = false, isDarkMode = false, s
 let playGoodbyes = false, muteBells = false;
 
 let accordionStates = { 'sec-audio': true, 'sec-reminders': true, 'sec-vibe': true, 'sec-schedule': true };
-let activeWidgets = { weather: true, timer: false, qotd: true }; 
+let activeWidgets = { weather: true, timer: false, qotd: true, spacer1: false, spacer2: false }; 
 
-// --- DUAL-STATE LAYOUT MEMORY ARRAYS ---
+// --- DUAL-STATE LAYOUT MEMORY ARRAYS (Now tracks width and height) ---
 let layoutNormal = [
-    {id: 'widget-schedule', span: 2},
-    {id: 'widget-weather', span: 1},
-    {id: 'widget-qotd', span: 1},
-    {id: 'widget-timer', span: 1}
+    {id: 'widget-weather', span: 1, rowSpan: 1},
+    {id: 'widget-schedule', span: 2, rowSpan: 1},
+    {id: 'widget-timer', span: 1, rowSpan: 1},
+    {id: 'widget-qotd', span: 1, rowSpan: 1},
+    {id: 'widget-spacer1', span: 1, rowSpan: 1},
+    {id: 'widget-spacer2', span: 1, rowSpan: 1}
 ];
 let layoutFocus = [
-    {id: 'widget-schedule', span: 2},
-    {id: 'widget-weather', span: 1},
-    {id: 'widget-qotd', span: 1},
-    {id: 'widget-timer', span: 1}
+    {id: 'widget-schedule', span: 2, rowSpan: 1},
+    {id: 'widget-weather', span: 1, rowSpan: 1},
+    {id: 'widget-timer', span: 1, rowSpan: 1},
+    {id: 'widget-qotd', span: 1, rowSpan: 1},
+    {id: 'widget-spacer1', span: 1, rowSpan: 1},
+    {id: 'widget-spacer2', span: 1, rowSpan: 1}
 ];
 
 let timerInterval = null, timerTotalSeconds = 300, timerIsPlaying = false;
@@ -59,7 +63,7 @@ let agendaCache = {}, agendaPromises = {};
 let savedVibeVol = 50, isVibeMuted = false, savedGlobalVol = 1.0, isGlobalMuted = false;
 
 // ==========================================================================
-// 2. MAGNETIC GRID SYSTEM (Drag, Drop & Click-to-Resize)
+// 2. MAGNETIC GRID SYSTEM (Drag, Drop & Dual Resizing)
 // ==========================================================================
 function initWidgets() {
     const masterGrid = document.getElementById('master-grid');
@@ -118,26 +122,41 @@ function initWidgets() {
         });
     });
 
-    // --- CLICK-TO-RESIZE HANDLERS ---
-    document.querySelectorAll('.widget-resize-handle').forEach(handle => {
+    // --- WIDTH CLICK-TO-RESIZE (↔) ---
+    document.querySelectorAll('.widget-resize-width').forEach(handle => {
         handle.addEventListener('click', function(e) {
             e.preventDefault();
             const widget = this.closest('.widget-card');
             
-            // Determine current span
             let currentSpan = 1;
             if (widget.classList.contains('span-2')) currentSpan = 2;
             if (widget.classList.contains('span-3')) currentSpan = 3;
             if (widget.classList.contains('span-4')) currentSpan = 4;
             
-            // Remove old class
             widget.classList.remove(`span-${currentSpan}`);
-            
-            // Cycle to next span (1 -> 2 -> 3 -> 4 -> 1)
             let nextSpan = currentSpan >= 4 ? 1 : currentSpan + 1;
             widget.classList.add(`span-${nextSpan}`);
             
-            saveLayout(); // Save new size
+            saveLayout(); 
+        });
+    });
+
+    // --- HEIGHT CLICK-TO-RESIZE (↕) ---
+    document.querySelectorAll('.widget-resize-height').forEach(handle => {
+        handle.addEventListener('click', function(e) {
+            e.preventDefault();
+            const widget = this.closest('.widget-card');
+            
+            let currentSpan = 1;
+            if (widget.classList.contains('row-span-2')) currentSpan = 2;
+            if (widget.classList.contains('row-span-3')) currentSpan = 3;
+            if (widget.classList.contains('row-span-4')) currentSpan = 4;
+            
+            widget.classList.remove(`row-span-${currentSpan}`);
+            let nextSpan = currentSpan >= 4 ? 1 : currentSpan + 1;
+            widget.classList.add(`row-span-${nextSpan}`);
+            
+            saveLayout(); 
         });
     });
 }
@@ -147,13 +166,18 @@ function saveLayout() {
     const grid = document.getElementById('master-grid');
     const widgets = Array.from(grid.querySelectorAll('.widget-card'));
     
-    // Map current DOM order and span sizes
+    // Map current DOM order, width span, and height span
     const currentLayout = widgets.map(el => {
-        let span = 1;
-        if (el.classList.contains('span-2')) span = 2;
-        if (el.classList.contains('span-3')) span = 3;
-        if (el.classList.contains('span-4')) span = 4;
-        return { id: el.id, span: span };
+        let wSpan = 1; let hSpan = 1;
+        if (el.classList.contains('span-2')) wSpan = 2;
+        if (el.classList.contains('span-3')) wSpan = 3;
+        if (el.classList.contains('span-4')) wSpan = 4;
+        
+        if (el.classList.contains('row-span-2')) hSpan = 2;
+        if (el.classList.contains('row-span-3')) hSpan = 3;
+        if (el.classList.contains('row-span-4')) hSpan = 4;
+
+        return { id: el.id, span: wSpan, rowSpan: hSpan };
     });
 
     // Save to the currently active view mode array
@@ -170,9 +194,12 @@ function applyLayout() {
     activeLayout.forEach(item => {
         const el = document.getElementById(item.id);
         if (el) {
-            // Apply saved span size
-            el.classList.remove('span-1', 'span-2', 'span-3', 'span-4');
-            el.classList.add(`span-${item.span}`);
+            // Remove old spans
+            el.classList.remove('span-1', 'span-2', 'span-3', 'span-4', 'row-span-1', 'row-span-2', 'row-span-3', 'row-span-4');
+            
+            // Apply saved width and height (defaulting to 1 to be safe)
+            el.classList.add(`span-${item.span || 1}`);
+            el.classList.add(`row-span-${item.rowSpan || 1}`);
             
             // Re-append to physical DOM to enforce saved order
             grid.appendChild(el); 
