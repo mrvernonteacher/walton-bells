@@ -20,8 +20,6 @@ const GOODBYE_MESSAGES = [
 const playSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
 const pauseSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
 
-let isBooting = true; 
-
 let activeSchedule = []; 
 let currentScheduleName = "Loading..."; 
 let globalVolume = 1.0, globalVoicePref = '', classSettings = {};
@@ -35,8 +33,23 @@ let playGoodbyes = false, muteBells = false;
 let accordionStates = { 'sec-audio': true, 'sec-reminders': true, 'sec-vibe': true, 'sec-schedule': true };
 let activeWidgets = { weather: true, timer: false, qotd: true, spacer1: false, spacer2: false }; 
 
-let layoutNormal = [];
-let layoutFocus = [];
+// --- DUAL-STATE LAYOUT MEMORY ARRAYS ---
+let layoutNormal = [
+    {id: 'widget-weather', span: 1, rowSpan: 1},
+    {id: 'widget-schedule', span: 2, rowSpan: 1},
+    {id: 'widget-timer', span: 1, rowSpan: 1},
+    {id: 'widget-qotd', span: 1, rowSpan: 1},
+    {id: 'widget-spacer1', span: 1, rowSpan: 1},
+    {id: 'widget-spacer2', span: 1, rowSpan: 1}
+];
+let layoutFocus = [
+    {id: 'widget-schedule', span: 2, rowSpan: 1},
+    {id: 'widget-weather', span: 1, rowSpan: 1},
+    {id: 'widget-timer', span: 1, rowSpan: 1},
+    {id: 'widget-qotd', span: 1, rowSpan: 1},
+    {id: 'widget-spacer1', span: 1, rowSpan: 1},
+    {id: 'widget-spacer2', span: 1, rowSpan: 1}
+];
 
 let timerInterval = null, timerTotalSeconds = 300, timerIsPlaying = false;
 let playedActions = {}, currentMinuteTracker = "", lastAutoState = null; 
@@ -109,15 +122,61 @@ function initWidgets() {
             if (!isMinimalView) saveLayout();
         });
     });
+
+    // --- WIDTH CLICK-TO-RESIZE (↔) ---
+    document.querySelectorAll('.widget-resize-width').forEach(handle => {
+        handle.addEventListener('click', function(e) {
+            e.preventDefault();
+            const widget = this.closest('.widget-card');
+            
+            let currentSpan = 1;
+            if (widget.classList.contains('span-2')) currentSpan = 2;
+            if (widget.classList.contains('span-3')) currentSpan = 3;
+            if (widget.classList.contains('span-4')) currentSpan = 4;
+            
+            widget.classList.remove(`span-${currentSpan}`);
+            let nextSpan = currentSpan >= 4 ? 1 : currentSpan + 1;
+            widget.classList.add(`span-${nextSpan}`);
+            
+            saveLayout(); 
+        });
+    });
+
+    // --- HEIGHT CLICK-TO-RESIZE (↕) ---
+    document.querySelectorAll('.widget-resize-height').forEach(handle => {
+        handle.addEventListener('click', function(e) {
+            e.preventDefault();
+            const widget = this.closest('.widget-card');
+            
+            let currentSpan = 1;
+            if (widget.classList.contains('row-span-2')) currentSpan = 2;
+            if (widget.classList.contains('row-span-3')) currentSpan = 3;
+            if (widget.classList.contains('row-span-4')) currentSpan = 4;
+            
+            widget.classList.remove(`row-span-${currentSpan}`);
+            let nextSpan = currentSpan >= 4 ? 1 : currentSpan + 1;
+            widget.classList.add(`row-span-${nextSpan}`);
+            
+            saveLayout(); 
+        });
+    });
 }
 
 function saveLayout() {
-    if (isBooting) return;
     const grid = document.getElementById('master-grid');
     const widgets = Array.from(grid.querySelectorAll('.widget-card'));
     
     const currentLayout = widgets.map(el => {
-        return { id: el.id, height: el.style.height }; 
+        let wSpan = 1; let hSpan = 1;
+        if (el.classList.contains('span-2')) wSpan = 2;
+        if (el.classList.contains('span-3')) wSpan = 3;
+        if (el.classList.contains('span-4')) wSpan = 4;
+        
+        if (el.classList.contains('row-span-2')) hSpan = 2;
+        if (el.classList.contains('row-span-3')) hSpan = 3;
+        if (el.classList.contains('row-span-4')) hSpan = 4;
+
+        return { id: el.id, span: wSpan, rowSpan: hSpan, height: el.style.height }; 
     });
 
     if (isMinimalView) layoutFocus = currentLayout;
@@ -135,6 +194,9 @@ function applyLayout() {
     activeLayout.forEach(item => {
         const el = document.getElementById(item.id);
         if (el) {
+            el.classList.remove('span-1', 'span-2', 'span-3', 'span-4', 'row-span-1', 'row-span-2', 'row-span-3', 'row-span-4');
+            el.classList.add(`span-${item.span || 1}`);
+            el.classList.add(`row-span-${item.rowSpan || 1}`);
             if (item.height) el.style.height = item.height;
             grid.appendChild(el); 
         }
@@ -415,7 +477,6 @@ function toggleSidebar(e) {
     saveLocalSettings();
 }
 
-// --- THE WAFFLE SETTINGS MODAL ---
 function toggleWaffleMenu(force) {
     const modal = document.getElementById('waffle-modal');
     const btn = document.getElementById('waffleViewBtn');
@@ -1089,153 +1150,6 @@ function renderSchedule() {
 }
 
 // ==========================================================================
-// 7. LOCAL STORAGE & INITIALIZATION
-// ==========================================================================
-function loadLocalSettings() {
-    try {
-        const saved = localStorage.getItem('waltonBellState');
-        if (!saved) return;
-        
-        const p = JSON.parse(saved);
-        
-        try { 
-            if (p.layoutNormal && p.layoutNormal.some(w => w.id === 'widget-spacer1')) {
-                layoutNormal = p.layoutNormal; 
-            }
-        } catch(e){}
-        try { 
-            if (p.layoutFocus && p.layoutFocus.some(w => w.id === 'widget-spacer1')) {
-                layoutFocus = p.layoutFocus; 
-            }
-        } catch(e){}
-
-        try { if (p.settings) classSettings = p.settings; } catch(e){}
-        try { if (p.lunchDuties) { lunchDuties = p.lunchDuties; renderLunchDuties(); } } catch(e){}
-        try { if (p.customReminders) { customReminders = p.customReminders; renderCustomReminders(); } } catch(e){}
-        
-        try { if (p.vol !== undefined) { syncGlobalVolume(p.vol); } else { syncGlobalVolume(1.0); } } catch(e){}
-        try { if (p.vibeVol !== undefined) { syncVibeVolume(p.vibeVol); } } catch(e){}
-
-        try { 
-            if (p.testSound) {
-                currentTestSound = p.testSound;
-                const labels = {
-                    'positive': 'Voice Test', 'start': 'Class Start', 'end': 'Class End', 'warning1m': '1-Min Warning',
-                    'attendance': 'Take Attend.', 'cleanup': '5-Min Clean', 'lunch': 'Lunch Duty'
-                };
-                const pBtn = document.getElementById("playBtn");
-                if (labels[currentTestSound] && pBtn) pBtn.innerHTML = "▶ Play " + labels[currentTestSound];
-            }
-        } catch(e){}
-        
-        try { if (p.waffleClosed !== undefined) { setWaffleState(p.waffleClosed, false); } } catch(e){}
-        
-        try { 
-            if (p.minimalView !== undefined) { 
-                isMinimalView = p.minimalView;
-                const btn = document.getElementById('minimalViewBtn');
-                if (isMinimalView) {
-                    document.body.classList.add('minimal-active'); 
-                    if(btn) btn.classList.add('active-btn');
-                }
-            } 
-        } catch(e){}
-        
-        try { 
-            if (p.dark === true) { 
-                isDarkMode = true;
-                const dmToggle = document.getElementById('darkModeToggle');
-                if(dmToggle) dmToggle.checked = true; 
-                document.body.classList.add('dark-mode');
-            }
-        } catch(e){}
-
-        try { 
-            if (p.zero === true) { 
-                showZero = true; 
-                const zeroToggle = document.getElementById('showZeroPeriod');
-                if(zeroToggle) zeroToggle.checked = true; 
-            }
-        } catch(e){}
-
-        try { 
-            if (p.playGoodbyes === true) { 
-                playGoodbyes = true; 
-                const pgToggle = document.getElementById('playGoodbyes');
-                if(pgToggle) pgToggle.checked = true; 
-            }
-        } catch(e){}
-
-        try { 
-            if (p.muteB === true) { 
-                muteBells = true; 
-                const mbToggle = document.getElementById('muteBellsToggle');
-                if(mbToggle) mbToggle.checked = true; 
-            }
-        } catch(e){}
-        
-        try { 
-            if (p.savedVibes) savedVibes = p.savedVibes;
-            if (p.vibe && savedVibes.length === 0) {
-                savedVibes.push({ url: p.vibe, title: 'Saved Vibe' });
-                currentVibeUrl = p.vibe;
-            } else if (p.vibe) {
-                currentVibeUrl = p.vibe;
-            }
-            renderVibeDropdown();
-        } catch(e){}
-
-        try { 
-            if (p.mrBsJukebox !== undefined) mrBsJukebox = p.mrBsJukebox;
-            if (p.jukeboxUrl) jukeboxUrl = p.jukeboxUrl;
-            if (p.isMainVibePlaying !== undefined) isMainVibePlaying = p.isMainVibePlaying;
-
-            const jkToggle = document.getElementById('jukeboxToggle');
-            if(jkToggle) jkToggle.checked = mrBsJukebox;
-            const jkInput = document.getElementById('jukeboxUrlInput');
-            if(jkInput && jukeboxUrl !== "https://www.youtube.com/watch?v=CLLpSmaof4E") {
-                jkInput.value = jukeboxUrl;
-            }
-        } catch(e){}
-
-        try { 
-            if (p.widgets) {
-                activeWidgets = p.widgets;
-                Object.keys(p.widgets).forEach(key => {
-                    const tog = document.getElementById(`wm-tog-${key}`);
-                    if(tog) {
-                        tog.checked = p.widgets[key];
-                        const card = document.getElementById(`widget-${key}`);
-                        if(card) {
-                            if(p.widgets[key]) card.classList.add('active-widget');
-                            else card.classList.remove('active-widget');
-                        }
-                    }
-                });
-            }
-        } catch(e){}
-
-        try { 
-            if (p.accordions) {
-                accordionStates = p.accordions;
-                Object.keys(accordionStates).forEach(id => {
-                    if(accordionStates[id] === false) {
-                        const el = document.getElementById(id);
-                        if(el) el.style.maxHeight = "0px";
-                        const chev = document.getElementById('chev-'+id);
-                        if(chev) chev.style.transform = "rotate(-90deg)";
-                    }
-                });
-            }
-        } catch(e){}
-        
-        try { if(p.voice) globalVoicePref = p.voice; } catch(e){}
-    } catch (e) {
-        console.error("Local Storage parse error.", e);
-    }
-}
-
-// ==========================================================================
 // 8. MASTER CLOCK LOOP
 // ==========================================================================
 function timeToMins(t) { if (!t || !t.includes(':')) return 0; let [h, m] = t.split(':').map(Number); return h * 60 + m; }
@@ -1448,29 +1362,47 @@ function updateClock() {
 // INITIALIZATION
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', () => {
+    // 1. Initialize dragging and resizing engines
     initWidgets();
+    
+    // 2. Load saved settings (this also loads the saved layout arrays)
     loadLocalSettings();
+    
+    // 3. Immediately apply the saved layout before the user sees it
     applyLayout();
+    
+    // 4. Fetch QotD Backend Data Instantly
     fetchQotdData();
     
+    // 5. Force the sidebar strictly closed on load
     const sidebar = document.getElementById('sidebar');
     const hamBtn = document.getElementById('hamburgerBtn');
     if(sidebar) sidebar.classList.add('collapsed');
     if(hamBtn) hamBtn.classList.remove('active-btn');
     sidebarVisible = false;
 
+    // Force Waffle settings modal closed on load
+    const waffleModal = document.getElementById('waffle-modal');
+    if (waffleModal) waffleModal.classList.remove('show');
+
+    // 6. Start the clock ticks
     updateTimerDisplay();
     updateClock();
     setInterval(updateClock, 1000);
     
+    // 7. Fetch schedule from Google 
     fetchDailySchedule();
 
+    // 8. Load voices
     try {
         if ('speechSynthesis' in window) {
             window.speechSynthesis.onvoiceschanged = safePopulateVoiceList;
             safePopulateVoiceList();
         }
     } catch(e) {}
+    
+    // 9. Change storage key inside code to reset user cache to version 2
+    localStorage.setItem('waltonDashboardV2', JSON.stringify({})); 
     
     setTimeout(() => { isBooting = false; }, 1500);
 });
