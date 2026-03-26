@@ -5,13 +5,10 @@ const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6
 const QOTD_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxTHBPh45e_R7clf_hx3j3OLJP1ThFEBlDIu4OLyt4tTEDZg6_xImwzO08bE0JzG_ezlQ/exec";
 const DEFAULT_PREFS = { open: false, putaway: false, attendance: false, cleanup: false, retrieve: false, icalUrl: '' };
 
-// V7 wipe to fix the corrupted width memory
 const SAVE_KEY = 'waltonDataV7'; 
 
 // --- EASTER EGG SETTINGS ---
-// Change this number to match exactly how many wacky files you have!
-// Make sure they are named wacky1.mp3, wacky2.mp3, etc. inside the wackybells folder.
-const MAX_WACKY_BELLS = 6; 
+const MAX_WACKY_BELLS = 10; 
 
 let logoClickCount = 0;
 let wackyBellsMode = false;
@@ -131,9 +128,9 @@ function saveLayout() {
 
     const widgets = Array.from(grid.querySelectorAll('.widget-card'));
     const currentLayout = widgets.map(el => {
-        // We completely removed the ability for memory to alter widths. 
-        // It now only tracks the order (ID) and the customized height.
-        return { id: el.id, height: el.style.height }; 
+        let wSpan = 1;
+        if (el.classList.contains('span-2')) wSpan = 2;
+        return { id: el.id, span: wSpan, height: el.style.height }; 
     });
 
     if (isMinimalView) layoutFocus = currentLayout;
@@ -150,25 +147,14 @@ function applyLayout() {
     activeLayout.forEach(item => {
         const el = document.getElementById(item.id);
         if (el) {
+            el.classList.remove('span-1', 'span-2', 'span-3', 'span-4');
+            el.classList.add(`span-${item.span || 1}`);
             
-            // 1. STRICT WIDTH ENFORCEMENT 
-            // Re-asserts the strict 50% / 25% rule every time the layout is applied
-            if (el.id === 'widget-schedule') {
-                el.classList.remove('span-1', 'span-3', 'span-4');
-                el.classList.add('span-2');
-            } else {
-                el.classList.remove('span-2', 'span-3', 'span-4');
-                el.classList.add('span-1');
-            }
-
-            // 2. HEIGHT APPLICATION
             if (item.height && !isMinimalView) {
                 el.style.height = item.height;
             } else if (isMinimalView) {
                 el.style.height = 'auto'; 
             }
-            
-            // 3. PHYSICAL DOM REORDERING
             grid.appendChild(el); 
         }
     });
@@ -234,7 +220,6 @@ function playBellWithQueue(rings, callback) {
     const bell = document.getElementById('regularBellAudio');
     if (!bell) { if(callback) callback(); return; }
     
-    // --- EASTER EGG AUDIO SWAP ---
     if (wackyBellsMode && MAX_WACKY_BELLS > 0) {
         const randomNum = Math.floor(Math.random() * MAX_WACKY_BELLS) + 1;
         bell.src = 'wackybells/wacky' + randomNum + '.mp3';
@@ -366,9 +351,7 @@ function updateJukeboxUrl() {
     }
 }
 
-// --- EASTER EGG LISTENER ATTACHMENT ---
 function setupEasterEgg() {
-    // Switched to the floating header logo so it can actually be clicked!
     const logo = document.querySelector('.header-logo');
     if(logo) {
         logo.addEventListener('click', () => {
@@ -397,17 +380,14 @@ function setupEasterEgg() {
 // 4. UI TOGGLES, SETTINGS & MODALS
 // ==========================================================================
 
-// THE GLOBAL CLICK BOUNCER
 document.addEventListener('click', (e) => {
     if (!e.target || typeof e.target.closest !== 'function') return;
 
     try {
-        // 1. Audio Dropdown 
         if (!e.target.closest('.split-button-caret') && !e.target.closest('.dropdown-content')) {
             document.querySelectorAll('.dropdown-content.show').forEach(el => el.classList.remove('show'));
         }
 
-        // 2. Widget Floating Menu
         const widgetMenu = document.getElementById('widget-panel-menu');
         const widgetBtn = document.getElementById('widget-menu-btn');
         if (widgetMenu && widgetMenu.style.display === 'flex') {
@@ -416,7 +396,6 @@ document.addEventListener('click', (e) => {
             }
         }
 
-        // 3. Waffle Settings Modal
         const waffleModal = document.getElementById('waffle-modal');
         const waffleBtn = document.getElementById('waffleViewBtn');
         if (waffleModal && waffleModal.classList.contains('show')) {
@@ -448,7 +427,6 @@ function updateFloatingPlayerVisibility() {
     }
 }
 
-// Floating Player Drag Logic
 document.querySelectorAll('.drag-handle').forEach(handle => {
     handle.addEventListener('mousedown', function(e) {
         if (window.innerWidth <= 850) return; 
@@ -476,7 +454,13 @@ function reloadWeatherWidget() {
     if(!container1) return;
     const color = isDarkMode ? '#ffffff' : '#333333';
     container1.innerHTML = `<a class="weatherwidget-io" href="https://forecast7.com/en/33d98n84d43/east-cobb/?unit=us" data-label_1="EAST COBB" data-theme="pure" data-basecolor="rgba(0,0,0,0)" data-textcolor="${color}">EAST COBB</a>`;
-    !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;}else{js=d.getElementById(id);js.remove();js=d.createElement(s);js.id=id;}js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}(document,'script','weatherwidget-io-js');
+    
+    // Check if the script is already downloaded to avoid hot-swap bugs
+    if (typeof __weatherwidget_init === 'function') {
+        __weatherwidget_init();
+    } else {
+        !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
+    }
 }
 
 function toggleWidgetPanel(e) {
@@ -995,16 +979,22 @@ function toggleQotdQR() {
 }
 
 function fetchQotdData() {
+    // Generate QR code right away to prevent loading blocks
+    const qrImg = document.getElementById('qotd-qr-img');
+    if (qrImg && !qrImg.src.includes('api.qrserver.com')) {
+        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(QOTD_APPS_SCRIPT_URL)}`;
+    }
+
     fetch(QOTD_APPS_SCRIPT_URL + "?action=getToday")
-        .then(r => r.json())
+        .then(r => {
+            if (!r.ok) throw new Error("QotD network response error.");
+            return r.json();
+        })
         .then(data => {
             document.getElementById('qotd-question').innerText = data.q || "No question today";
             document.getElementById('qotd-label-a').innerText = data.a || "Option A";
             document.getElementById('qotd-label-b').innerText = data.b || "Option B";
             
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(QOTD_APPS_SCRIPT_URL)}`;
-            document.getElementById('qotd-qr-img').src = qrUrl;
-
             const votesA = parseInt(data.votesA) || 0;
             const votesB = parseInt(data.votesB) || 0;
             const total = votesA + votesB;
@@ -1017,7 +1007,10 @@ function fetchQotdData() {
             document.getElementById('qotd-pct-b').innerText = pctB + '%';
             document.getElementById('qotd-total-votes').innerText = "Total Votes: " + total;
         })
-        .catch(e => console.error("Error loading QotD:", e));
+        .catch(e => {
+            console.error("Error loading QotD:", e);
+            document.getElementById('qotd-question').innerText = "Database offline.";
+        });
 }
 
 setInterval(() => {
