@@ -1475,14 +1475,14 @@ function updateClock() {
         
         if (status && status.actualClass) {
             const p = status.periodData;
-            if (dName) dName.innerText = p.li.querySelector('.period-name').innerText;
-            if (dTime) dTime.innerText = p.li.querySelector('.period-time').innerText;
+            if (dName) dName.innerText = p.li.querySelector('.period-name').textContent;
+            if (dTime) dTime.innerText = p.li.querySelector('.period-time').textContent;
             const s = classSettings[dName.innerText.trim()] || DEFAULT_PREFS;
             if (s.open && dBadge) dBadge.style.display = 'inline-block'; else if (dBadge) dBadge.style.display = 'none';
         } else if (status && status.isPassing) {
             if (dName) dName.innerText = "Passing Period";
             const p = status.periodData;
-            if (dTime) dTime.innerText = "Next: " + p.li.querySelector('.period-name').innerText;
+            if (dTime) dTime.innerText = "Next: " + p.li.querySelector('.period-name').textContent;
             if (dBadge) dBadge.style.display = 'none';
         } else {
             if (dName) dName.innerText = "Outside School Hours";
@@ -1503,6 +1503,7 @@ function updateClock() {
         if (warningElMain) warningElMain.style.display = isDeadTime ? 'inline-block' : 'none';
         if (warningElDock) warningElDock.style.display = isDeadTime ? 'inline-block' : 'none';
 
+        // Auto-collapse trigger completely removed. Just updating the lastAutoState tracking.
         lastAutoState = autoState;
 
         if (lastPeriodStatus !== currentStatus) {
