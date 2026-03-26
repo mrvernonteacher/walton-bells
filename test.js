@@ -4,7 +4,9 @@
 const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec?tab=Daily"; 
 const QOTD_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxTHBPh45e_R7clf_hx3j3OLJP1ThFEBlDIu4OLyt4tTEDZg6_xImwzO08bE0JzG_ezlQ/exec";
 const DEFAULT_PREFS = { open: false, putaway: false, attendance: false, cleanup: false, retrieve: false, icalUrl: '' };
-const SAVE_KEY = 'waltonDataV6'; 
+
+// V7 wipe to fix the corrupted width memory
+const SAVE_KEY = 'waltonDataV7'; 
 
 // --- EASTER EGG SETTINGS ---
 // Change this number to match exactly how many wacky files you have!
@@ -114,7 +116,6 @@ function initWidgets() {
             }
         });
 
-        // Trigger height save when letting go of the native CSS resizer
         widget.addEventListener('mouseup', (e) => {
             if (!isMinimalView && !draggedWidget) {
                 saveLayout();
@@ -130,9 +131,9 @@ function saveLayout() {
 
     const widgets = Array.from(grid.querySelectorAll('.widget-card'));
     const currentLayout = widgets.map(el => {
-        let wSpan = 1;
-        if (el.classList.contains('span-2')) wSpan = 2;
-        return { id: el.id, span: wSpan, height: el.style.height }; 
+        // We completely removed the ability for memory to alter widths. 
+        // It now only tracks the order (ID) and the customized height.
+        return { id: el.id, height: el.style.height }; 
     });
 
     if (isMinimalView) layoutFocus = currentLayout;
@@ -149,14 +150,25 @@ function applyLayout() {
     activeLayout.forEach(item => {
         const el = document.getElementById(item.id);
         if (el) {
-            el.classList.remove('span-1', 'span-2', 'span-3', 'span-4');
-            el.classList.add(`span-${item.span || 1}`);
             
+            // 1. STRICT WIDTH ENFORCEMENT 
+            // Re-asserts the strict 50% / 25% rule every time the layout is applied
+            if (el.id === 'widget-schedule') {
+                el.classList.remove('span-1', 'span-3', 'span-4');
+                el.classList.add('span-2');
+            } else {
+                el.classList.remove('span-2', 'span-3', 'span-4');
+                el.classList.add('span-1');
+            }
+
+            // 2. HEIGHT APPLICATION
             if (item.height && !isMinimalView) {
                 el.style.height = item.height;
             } else if (isMinimalView) {
                 el.style.height = 'auto'; 
             }
+            
+            // 3. PHYSICAL DOM REORDERING
             grid.appendChild(el); 
         }
     });
@@ -227,7 +239,7 @@ function playBellWithQueue(rings, callback) {
         const randomNum = Math.floor(Math.random() * MAX_WACKY_BELLS) + 1;
         bell.src = 'wackybells/wacky' + randomNum + '.mp3';
     } else {
-        bell.src = 'bell.mp3'; // Standard fallback
+        bell.src = 'bell.mp3'; 
     }
 
     let count = 0;
@@ -356,7 +368,8 @@ function updateJukeboxUrl() {
 
 // --- EASTER EGG LISTENER ATTACHMENT ---
 function setupEasterEgg() {
-    const logo = document.querySelector('.footer-logo');
+    // Switched to the floating header logo so it can actually be clicked!
+    const logo = document.querySelector('.header-logo');
     if(logo) {
         logo.addEventListener('click', () => {
             logoClickCount++;
@@ -1583,13 +1596,14 @@ document.addEventListener('DOMContentLoaded', () => {
     try { initWidgets(); } catch(e) { console.error(e); }
 
     try {
-        const isV6 = localStorage.getItem('waltonV6_Migrated');
-        if (!isV6) {
+        const isV7 = localStorage.getItem('waltonV7_Migrated');
+        if (!isV7) {
+            localStorage.removeItem('waltonDataV6');
             localStorage.removeItem('waltonDataV5');
             localStorage.removeItem('waltonSettingsV3');
             localStorage.removeItem('waltonDashboardV2');
             localStorage.removeItem('waltonBellState');
-            localStorage.setItem('waltonV6_Migrated', 'true');
+            localStorage.setItem('waltonV7_Migrated', 'true');
         }
     } catch(e) { console.error(e); }
 
