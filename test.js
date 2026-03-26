@@ -478,7 +478,6 @@ function reloadWeatherWidget() {
 function toggleWidgetPanel(e) {
     if(e) e.stopPropagation();
     const p = document.getElementById('widget-panel-menu');
-    // FIX FOR DOUBLE CLICK: Explicitly check if it is flex
     if (p.style.display === 'flex') {
         p.style.display = 'none';
     } else {
@@ -650,7 +649,6 @@ function toggleAccordion(id) {
     const chevron = document.getElementById('chev-' + id);
     if (!content || !chevron) return;
     
-    // FIX FOR DOUBLE CLICK: Read the direct state instead of inline CSS
     const isCurrentlyOpen = accordionStates[id] !== false; 
     
     if (!isCurrentlyOpen) {
@@ -660,7 +658,7 @@ function toggleAccordion(id) {
         setTimeout(() => { if(accordionStates[id]) content.style.maxHeight = "none"; }, 300);
     } else {
         content.style.maxHeight = content.scrollHeight + "px"; 
-        void content.offsetWidth; // Force a browser repaint so the transition catches
+        void content.offsetWidth; 
         setTimeout(() => {
             content.style.maxHeight = "0px";
             chevron.style.transform = "rotate(-90deg)";
@@ -1005,7 +1003,6 @@ function fetchQotdData() {
         qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(QOTD_APPS_SCRIPT_URL)}`;
     }
 
-    // CACHE BUSTER APPLIED HERE!
     fetch(QOTD_APPS_SCRIPT_URL + "?action=getToday&nocache=" + new Date().getTime())
         .then(r => {
             if (!r.ok) throw new Error("QotD network response error.");
@@ -1044,7 +1041,6 @@ async function fetchDailySchedule() {
     if(ind) { ind.style.display = 'block'; ind.innerText = "Syncing..."; ind.style.color = '#888'; }
     
     try {
-        // CACHE BUSTER APPLIED HERE!
         const response = await fetch(GOOGLE_CALENDAR_SCRIPT_URL + "&nocache=" + new Date().getTime());
         const data = await response.json();
         
@@ -1098,8 +1094,7 @@ async function fetchAgenda(url, elementId) {
 
     try {
         if (!agendaPromises[fetchUrlStr]) {
-            // CACHE BUSTER APPLIED TO THE APP SCRIPT PROXY CALL
-            const fetchUrl = `${GOOGLE_CALENDAR_SCRIPT_URL.split('?')[0]}?icalUrl=${encodeURIComponent(fetchUrlStr)}&nocache=${new Date().getTime()}`;
+            const fetchUrl = `${GOOGLE_CALENDAR_SCRIPT_URL.split('?')[0]}?icalUrl=${encodeURIComponent(fetchUrlStr)}`;
             
             agendaPromises[fetchUrlStr] = fetch(fetchUrl).then(async (response) => {
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1114,32 +1109,50 @@ async function fetchAgenda(url, elementId) {
                 }
 
                 const today = new Date();
-                const todayInt = parseInt(today.getFullYear() + String(today.getMonth() + 1).padStart(2, '0') + String(today.getDate()).padStart(2, '0'), 10);
+                const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+                const endOfDay = startOfDay + 86400000;
                 
                 const events = icsData.split('BEGIN:VEVENT');
                 let todaysEvents = [];
 
+                function parseICalDate(dateStr) {
+                    if (!dateStr) return null;
+                    if (dateStr.endsWith('Z') && dateStr.length >= 15) {
+                        return new Date(Date.UTC(dateStr.substring(0,4), dateStr.substring(4,6)-1, dateStr.substring(6,8), dateStr.substring(9,11), dateStr.substring(11,13), dateStr.substring(13,15)));
+                    }
+                    if (dateStr.length === 8) {
+                        return new Date(dateStr.substring(0,4), dateStr.substring(4,6)-1, dateStr.substring(6,8));
+                    }
+                    if (dateStr.length >= 15) {
+                        return new Date(dateStr.substring(0,4), dateStr.substring(4,6)-1, dateStr.substring(6,8), dateStr.substring(9,11), dateStr.substring(11,13), dateStr.substring(13,15));
+                    }
+                    return null;
+                }
+
                 for (let i = 1; i < events.length; i++) {
                     const eventText = events[i];
                     
-                    const dtStartMatch = eventText.match(/DTSTART(?:;[^:]*)?:([0-9]{8})/); 
-                    const dtEndMatch = eventText.match(/DTEND(?:;[^:]*)?:([0-9]{8})/); 
-                    const isTimedMatch = eventText.match(/DTSTART(?:;[^:]*)?:[0-9]{8}T/);
-                    const summaryMatch = eventText.match(/SUMMARY:([^\r\n]*)/);
+                    const dtStartMatch = eventText.match(/DTSTART(?:;[^:]*)?:([A-Z0-9]+)/); 
+                    const dtEndMatch = eventText.match(/DTEND(?:;[^:]*)?:([A-Z0-9]+)/); 
+                    const summaryMatch = eventText.match(/SUMMARY(?:;[^:]*)?:([^\r\n]*)/);
 
                     if (dtStartMatch && summaryMatch) {
-                        const startInt = parseInt(dtStartMatch[1], 10);
+                        const startDate = parseICalDate(dtStartMatch[1]);
+                        if (!startDate) continue;
+                        
                         let isActive = false;
-
+                        
                         if (dtEndMatch) {
-                            const endInt = parseInt(dtEndMatch[1], 10);
-                            if (isTimedMatch) {
-                                isActive = (todayInt >= startInt && todayInt <= endInt);
-                            } else {
-                                isActive = (todayInt >= startInt && todayInt < endInt);
+                            const endDate = parseICalDate(dtEndMatch[1]);
+                            if (endDate) {
+                                if (startDate.getTime() < endOfDay && endDate.getTime() > startOfDay) {
+                                    isActive = true;
+                                }
                             }
                         } else {
-                            isActive = (startInt === todayInt);
+                            if (startDate.getTime() >= startOfDay && startDate.getTime() < endOfDay) {
+                                isActive = true;
+                            }
                         }
 
                         if (isActive) {
@@ -1170,6 +1183,7 @@ async function fetchAgenda(url, elementId) {
     } catch (error) {
         el.innerHTML = "<em class='agenda-error'>Error loading feed.</em>";
         agendaCache[fetchUrlStr] = "<em class='agenda-error'>Error loading feed.</em>";
+        delete agendaPromises[fetchUrlStr];
     }
 }
 
@@ -1190,7 +1204,6 @@ function renderSchedule() {
         try {
             const key = String(period.name);
             const safeKey = key.replace(/'/g, "\\'"); 
-            // ENSURE THE HTML ID ONLY CONTAINS ALPHANUMERIC CHARS + HYPHENS
             const safeId = key.replace(/[^a-zA-Z0-9]/g, '-'); 
             const s = classSettings[key] || { ...DEFAULT_PREFS };
             
@@ -1517,11 +1530,9 @@ function updateClock() {
         const warningElMain = document.getElementById('main-dead-time-warning');
         const warningElDock = document.getElementById('docked-warning');
         
-        // Force the main warning to stay hidden since it's redundant!
         if (warningElMain) warningElMain.style.display = 'none'; 
         if (warningElDock) warningElDock.style.display = isDeadTime ? 'inline-block' : 'none';
 
-        // Auto-collapse trigger completely removed. Just updating the lastAutoState tracking.
         lastAutoState = autoState;
 
         if (lastPeriodStatus !== currentStatus) {
@@ -1629,6 +1640,8 @@ document.addEventListener('DOMContentLoaded', () => {
     try { loadLocalSettings(); } catch(e) { console.error(e); }
     try { applyLayout(); } catch(e) { console.error(e); }
     try { fetchQotdData(); } catch(e) { console.error(e); }
+    
+    try { if (activeWidgets.weather) reloadWeatherWidget(); } catch(e) { console.error(e); }
     
     try {
         const sidebar = document.getElementById('sidebar');
