@@ -9,7 +9,7 @@ const SAVE_KEY = 'waltonDataV6';
 // --- EASTER EGG SETTINGS ---
 // Change this number to match exactly how many wacky files you have!
 // Make sure they are named wacky1.mp3, wacky2.mp3, etc. inside the wackybells folder.
-const MAX_WACKY_BELLS = 10; 
+const MAX_WACKY_BELLS = 6; 
 
 let logoClickCount = 0;
 let wackyBellsMode = false;
