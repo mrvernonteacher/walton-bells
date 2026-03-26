@@ -5,8 +5,8 @@ const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6
 const QOTD_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxTHBPh45e_R7clf_hx3j3OLJP1ThFEBlDIu4OLyt4tTEDZg6_xImwzO08bE0JzG_ezlQ/exec";
 const DEFAULT_PREFS = { open: false, putaway: false, attendance: false, cleanup: false, retrieve: false, icalUrl: '' };
 
-// Wiped clean to guarantee no conflicts with old 3-column layout data
-const SAVE_KEY = 'waltonDataV5'; 
+// V6 guarantees a completely clean, uncorrupted save file
+const SAVE_KEY = 'waltonDataV6'; 
 
 const GOODBYE_MESSAGES = [
     "Great work today. Have a wonderful rest of your day.",
@@ -23,6 +23,9 @@ const GOODBYE_MESSAGES = [
 const playSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
 const pauseSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
 
+// THE BOOT LOCK: Prevents saving while settings are still loading
+let isBooting = true; 
+
 let activeSchedule = []; 
 let currentScheduleName = "Loading..."; 
 let globalVolume = 1.0, globalVoicePref = '', classSettings = {};
@@ -36,8 +39,15 @@ let playGoodbyes = false, muteBells = false;
 let accordionStates = { 'sec-audio': true, 'sec-reminders': true, 'sec-vibe': true, 'sec-schedule': true };
 let activeWidgets = { weather: true, timer: false, qotd: true, spacer1: false, spacer2: false }; 
 
-let layoutNormal = [];
-let layoutFocus = [];
+let layoutNormal = [
+    {id: 'widget-schedule', span: 2, height: 'auto'},
+    {id: 'widget-weather', span: 1, height: 'auto'},
+    {id: 'widget-timer', span: 1, height: 'auto'},
+    {id: 'widget-qotd', span: 1, height: 'auto'},
+    {id: 'widget-spacer1', span: 1, height: 'auto'},
+    {id: 'widget-spacer2', span: 1, height: 'auto'}
+];
+let layoutFocus = JSON.parse(JSON.stringify(layoutNormal));
 
 let timerInterval = null, timerTotalSeconds = 300, timerIsPlaying = false;
 let playedActions = {}, currentMinuteTracker = "", lastAutoState = null; 
@@ -116,12 +126,16 @@ function initWidgets() {
 }
 
 function saveLayout() {
+    if (isBooting) return; // Failsafe
     const grid = document.getElementById('master-grid');
     if (!grid) return;
 
     const widgets = Array.from(grid.querySelectorAll('.widget-card'));
     const currentLayout = widgets.map(el => {
-        return { id: el.id, height: el.style.height }; 
+        // Find width span (1 or 2) purely for memory structure, height is dynamically saved
+        let wSpan = 1;
+        if (el.classList.contains('span-2')) wSpan = 2;
+        return { id: el.id, span: wSpan, height: el.style.height }; 
     });
 
     if (isMinimalView) layoutFocus = currentLayout;
@@ -138,10 +152,15 @@ function applyLayout() {
     activeLayout.forEach(item => {
         const el = document.getElementById(item.id);
         if (el) {
+            // Re-apply span safely
+            el.classList.remove('span-1', 'span-2', 'span-3', 'span-4');
+            el.classList.add(`span-${item.span || 1}`);
+            
+            // Re-apply explicit height
             if (item.height && !isMinimalView) {
                 el.style.height = item.height;
             } else if (isMinimalView) {
-                el.style.height = 'auto'; // Force height to collapse smoothly in Focus Mode
+                el.style.height = 'auto'; // Force collapse in Focus Mode
             }
             grid.appendChild(el); 
         }
@@ -174,9 +193,10 @@ function safePopulateVoiceList() {
         if (voice.name === globalVoicePref) opt.selected = true;
         select.appendChild(opt);
     });
+    
     if (!globalVoicePref && availableVoices.length > 0) {
         globalVoicePref = availableVoices[0].name;
-        saveLocalSettings();
+        if (!isBooting) saveLocalSettings();
     }
 }
 
@@ -334,13 +354,12 @@ function updateJukeboxUrl() {
 // 4. UI TOGGLES, SETTINGS & MODALS
 // ==========================================================================
 
-// --- THE INVINCIBLE GLOBAL CLICK BOUNCER ---
+// THE GLOBAL CLICK BOUNCER
 document.addEventListener('click', (e) => {
-    // FAILSAFE: If the user clicked on a weird element (like raw document body) that doesn't support .closest, safely ignore it.
     if (!e.target || typeof e.target.closest !== 'function') return;
 
     try {
-        // 1. Audio Dropdown (Closes if you click outside the caret or dropdown)
+        // 1. Audio Dropdown 
         if (!e.target.closest('.split-button-caret') && !e.target.closest('.dropdown-content')) {
             document.querySelectorAll('.dropdown-content.show').forEach(el => el.classList.remove('show'));
         }
@@ -433,7 +452,6 @@ function toggleWidget(id, isChecked) {
             card.classList.add('active-widget');
             applyLayout(); 
         } else {
-            // Give CSS animation 350ms to finish shrinking before we cut it from the grid
             card.classList.add('closing-widget');
             setTimeout(() => {
                 if (!activeWidgets[id]) { 
@@ -1145,17 +1163,9 @@ function renderSchedule() {
 // 7. LOCAL STORAGE & INITIALIZATION
 // ==========================================================================
 function saveLocalSettings() {
+    if (isBooting) return; // THE ABSOLUTE GATEKEEPER
+    
     try {
-        const grid = document.getElementById('master-grid');
-        if(grid) {
-            const widgets = Array.from(grid.querySelectorAll('.widget-card'));
-            const currentLayout = widgets.map(el => {
-                return { id: el.id, height: el.style.height }; 
-            });
-            if (isMinimalView) layoutFocus = currentLayout;
-            else layoutNormal = currentLayout;
-        }
-
         const data = {
             vol: globalVolume, voice: globalVoicePref, testSound: currentTestSound,
             side: sidebarVisible, waffleClosed: isWaffleClosed, minimalView: isMinimalView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
@@ -1212,35 +1222,36 @@ function loadLocalSettings() {
         } catch(e){}
         
         try { 
-            if (p.dark === true) { 
-                isDarkMode = true;
+            if (p.dark !== undefined) { 
+                isDarkMode = p.dark;
                 const dmToggle = document.getElementById('darkModeToggle');
-                if(dmToggle) dmToggle.checked = true; 
-                document.body.classList.add('dark-mode');
+                if(dmToggle) dmToggle.checked = isDarkMode; 
+                if (isDarkMode) document.body.classList.add('dark-mode');
+                else document.body.classList.remove('dark-mode');
             }
         } catch(e){}
 
         try { 
-            if (p.zero === true) { 
-                showZero = true; 
+            if (p.zero !== undefined) { 
+                showZero = p.zero; 
                 const zeroToggle = document.getElementById('showZeroPeriod');
-                if(zeroToggle) zeroToggle.checked = true; 
+                if(zeroToggle) zeroToggle.checked = showZero; 
             }
         } catch(e){}
 
         try { 
-            if (p.playGoodbyes === true) { 
-                playGoodbyes = true; 
+            if (p.playGoodbyes !== undefined) { 
+                playGoodbyes = p.playGoodbyes; 
                 const pgToggle = document.getElementById('playGoodbyes');
-                if(pgToggle) pgToggle.checked = true; 
+                if(pgToggle) pgToggle.checked = playGoodbyes; 
             }
         } catch(e){}
 
         try { 
-            if (p.muteB === true) { 
-                muteBells = true; 
+            if (p.muteB !== undefined) { 
+                muteBells = p.muteB; 
                 const mbToggle = document.getElementById('muteBellsToggle');
-                if(mbToggle) mbToggle.checked = true; 
+                if(mbToggle) mbToggle.checked = muteBells; 
             }
         } catch(e){}
         
@@ -1516,24 +1527,25 @@ function updateClock() {
             }
         });
     } catch(e) { 
-        console.error("Clock loop error:", e); 
+        // Silent catch keeps clock alive
     }
 }
 
 // ==========================================================================
-// INITIALIZATION (Wrapped in failsafes)
+// INITIALIZATION
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', () => {
     
     try { initWidgets(); } catch(e) { console.error(e); }
 
     try {
-        const isV5 = localStorage.getItem('waltonV5_Migrated');
-        if (!isV5) {
+        const isV6 = localStorage.getItem('waltonV6_Migrated');
+        if (!isV6) {
+            localStorage.removeItem('waltonDataV5');
             localStorage.removeItem('waltonSettingsV3');
             localStorage.removeItem('waltonDashboardV2');
             localStorage.removeItem('waltonBellState');
-            localStorage.setItem('waltonV5_Migrated', 'true');
+            localStorage.setItem('waltonV6_Migrated', 'true');
         }
     } catch(e) { console.error(e); }
 
@@ -1567,4 +1579,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     } catch(e) { console.error(e); }
     
+    // Unlock saves
+    setTimeout(() => { isBooting = false; }, 500); 
 });
