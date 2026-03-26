@@ -260,12 +260,15 @@ body.dark-mode .waffle-header { color: #90caf9; border-bottom: 2px solid #444 !i
 .widget-card { 
     border-radius: 15px; padding: 15px; padding-bottom: 15px; display: none; flex-direction: column; 
     position: relative; 
-    /* Added opacity, visibility, height, padding, and margin to the transition to make the fade smooth */
-    transition: grid-column 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease, border-color 0.3s ease, opacity 0.3s ease, visibility 0.3s ease, height 0.3s ease, padding 0.3s ease, margin 0.3s ease; 
+    
+    /* We transition max-height, padding, and opacity together for a smooth collapse */
+    transition: max-height 0.6s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.4s ease, visibility 0.4s ease, padding 0.6s ease, margin 0.6s ease, grid-column 0.4s ease; 
     width: 100%; min-width: 0; 
+    
+    /* max-height is required to make the accordion animation work */
     height: auto; 
+    max-height: 1200px; 
     min-height: 100px; 
-    max-height: none; 
     resize: vertical; 
     overflow: hidden;
 }
@@ -308,12 +311,12 @@ body.dark-mode .widget-card:hover::after { border-color: #90caf9; }
     transform-origin: top center;
 }
 
-/* Updated: This now targets ALL widget cards and cleanly fades/collapses them */
+/* Collapse the max-height down to 0 smoothly */
 body.minimal-active .widget-card {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    height: 0 !important;
+    max-height: 0 !important;
     min-height: 0 !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
