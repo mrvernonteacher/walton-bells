@@ -4,7 +4,9 @@
 const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec?tab=Daily"; 
 const QOTD_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxTHBPh45e_R7clf_hx3j3OLJP1ThFEBlDIu4OLyt4tTEDZg6_xImwzO08bE0JzG_ezlQ/exec";
 const DEFAULT_PREFS = { open: false, putaway: false, attendance: false, cleanup: false, retrieve: false, icalUrl: '' };
-const SAVE_KEY = 'waltonSettingsV3'; 
+
+// Wiped clean to guarantee no conflicts with old 3-column layout data
+const SAVE_KEY = 'waltonDataV5'; 
 
 const GOODBYE_MESSAGES = [
     "Great work today. Have a wonderful rest of your day.",
@@ -20,8 +22,6 @@ const GOODBYE_MESSAGES = [
 
 const playSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
 const pauseSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
-
-let isBooting = true; 
 
 let activeSchedule = []; 
 let currentScheduleName = "Loading..."; 
@@ -106,6 +106,7 @@ function initWidgets() {
             }
         });
 
+        // Trigger height save when letting go of the native CSS resizer
         widget.addEventListener('mouseup', (e) => {
             if (!isMinimalView && !draggedWidget) {
                 saveLayout();
@@ -115,7 +116,6 @@ function initWidgets() {
 }
 
 function saveLayout() {
-    if (isBooting) return;
     const grid = document.getElementById('master-grid');
     if (!grid) return;
 
@@ -141,7 +141,7 @@ function applyLayout() {
             if (item.height && !isMinimalView) {
                 el.style.height = item.height;
             } else if (isMinimalView) {
-                el.style.height = 'auto'; 
+                el.style.height = 'auto'; // Force height to collapse smoothly in Focus Mode
             }
             grid.appendChild(el); 
         }
@@ -334,36 +334,42 @@ function updateJukeboxUrl() {
 // 4. UI TOGGLES, SETTINGS & MODALS
 // ==========================================================================
 
-// --- THE GLOBAL CLICK BOUNCER ---
+// --- THE INVINCIBLE GLOBAL CLICK BOUNCER ---
 document.addEventListener('click', (e) => {
-    
-    // 1. Audio Dropdown (Closes if you click outside the caret or dropdown)
-    if (!e.target.closest('.split-button-caret') && !e.target.closest('.dropdown-content')) {
-        document.querySelectorAll('.dropdown-content.show').forEach(el => el.classList.remove('show'));
-    }
+    // FAILSAFE: If the user clicked on a weird element (like raw document body) that doesn't support .closest, safely ignore it.
+    if (!e.target || typeof e.target.closest !== 'function') return;
 
-    // 2. Widget Floating Menu
-    const widgetMenu = document.getElementById('widget-panel-menu');
-    const widgetBtn = document.getElementById('widget-menu-btn');
-    if (widgetMenu && widgetMenu.style.display === 'flex') {
-        if (!widgetMenu.contains(e.target) && (!widgetBtn || !widgetBtn.contains(e.target))) {
-            widgetMenu.style.display = 'none';
+    try {
+        // 1. Audio Dropdown (Closes if you click outside the caret or dropdown)
+        if (!e.target.closest('.split-button-caret') && !e.target.closest('.dropdown-content')) {
+            document.querySelectorAll('.dropdown-content.show').forEach(el => el.classList.remove('show'));
         }
-    }
 
-    // 3. Waffle Settings Modal
-    const waffleModal = document.getElementById('waffle-modal');
-    const waffleBtn = document.getElementById('waffleViewBtn');
-    if (waffleModal && waffleModal.classList.contains('show')) {
-        if (e.target === waffleModal) {
-            toggleWaffleMenu(false);
-        } 
-        else {
-            const modalContent = waffleModal.querySelector('.waffle-modal-content');
-            if (modalContent && !modalContent.contains(e.target) && (!waffleBtn || !waffleBtn.contains(e.target))) {
-                toggleWaffleMenu(false);
+        // 2. Widget Floating Menu
+        const widgetMenu = document.getElementById('widget-panel-menu');
+        const widgetBtn = document.getElementById('widget-menu-btn');
+        if (widgetMenu && widgetMenu.style.display === 'flex') {
+            if (!widgetMenu.contains(e.target) && (!widgetBtn || !widgetBtn.contains(e.target))) {
+                widgetMenu.style.display = 'none';
             }
         }
+
+        // 3. Waffle Settings Modal
+        const waffleModal = document.getElementById('waffle-modal');
+        const waffleBtn = document.getElementById('waffleViewBtn');
+        if (waffleModal && waffleModal.classList.contains('show')) {
+            if (e.target === waffleModal) {
+                toggleWaffleMenu(false);
+            } 
+            else {
+                const modalContent = waffleModal.querySelector('.waffle-modal-content');
+                if (modalContent && !modalContent.contains(e.target) && (!waffleBtn || !waffleBtn.contains(e.target))) {
+                    toggleWaffleMenu(false);
+                }
+            }
+        }
+    } catch (err) {
+        console.error("Click listener error safely caught.", err);
     }
 });
 
@@ -423,23 +429,19 @@ function toggleWidget(id, isChecked) {
     
     if(card) {
         if(isChecked) {
-            // Spring open instantly
             card.classList.remove('closing-widget');
             card.classList.add('active-widget');
             applyLayout(); 
         } else {
-            // Trigger the fade-out animation
+            // Give CSS animation 350ms to finish shrinking before we cut it from the grid
             card.classList.add('closing-widget');
-            
-            // Wait for CSS animation to finish before removing it from the layout flow
             setTimeout(() => {
-                // Double check they didn't toggle it back on super fast
                 if (!activeWidgets[id]) { 
                     card.classList.remove('active-widget');
                     card.classList.remove('closing-widget');
                     applyLayout(); 
                 }
-            }, 300);
+            }, 350); 
         }
     }
     
@@ -1140,6 +1142,170 @@ function renderSchedule() {
 }
 
 // ==========================================================================
+// 7. LOCAL STORAGE & INITIALIZATION
+// ==========================================================================
+function saveLocalSettings() {
+    try {
+        const grid = document.getElementById('master-grid');
+        if(grid) {
+            const widgets = Array.from(grid.querySelectorAll('.widget-card'));
+            const currentLayout = widgets.map(el => {
+                return { id: el.id, height: el.style.height }; 
+            });
+            if (isMinimalView) layoutFocus = currentLayout;
+            else layoutNormal = currentLayout;
+        }
+
+        const data = {
+            vol: globalVolume, voice: globalVoicePref, testSound: currentTestSound,
+            side: sidebarVisible, waffleClosed: isWaffleClosed, minimalView: isMinimalView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
+            settings: classSettings, lunchDuties: lunchDuties,
+            savedVibes: savedVibes, vibe: currentVibeUrl, vibeVol: vibeVolume, muteB: muteBells,
+            mrBsJukebox: mrBsJukebox, jukeboxUrl: jukeboxUrl, isMainVibePlaying: isMainVibePlaying,
+            customReminders: customReminders, accordions: accordionStates, widgets: activeWidgets,
+            layoutNormal: layoutNormal, layoutFocus: layoutFocus
+        };
+        localStorage.setItem(SAVE_KEY, JSON.stringify(data)); 
+    } catch (e) {
+        console.error("Save Error:", e);
+    }
+}
+
+function loadLocalSettings() {
+    try {
+        const saved = localStorage.getItem(SAVE_KEY); 
+        if (!saved) return;
+        
+        const p = JSON.parse(saved);
+        
+        try { if (p.layoutNormal) layoutNormal = p.layoutNormal; } catch(e){}
+        try { if (p.layoutFocus) layoutFocus = p.layoutFocus; } catch(e){}
+
+        try { if (p.settings) classSettings = p.settings; } catch(e){}
+        try { if (p.lunchDuties) { lunchDuties = p.lunchDuties; renderLunchDuties(); } } catch(e){}
+        try { if (p.customReminders) { customReminders = p.customReminders; renderCustomReminders(); } } catch(e){}
+        
+        try { if (p.vol !== undefined) { syncGlobalVolume(p.vol); } else { syncGlobalVolume(1.0); } } catch(e){}
+        try { if (p.vibeVol !== undefined) { syncVibeVolume(p.vibeVol); } } catch(e){}
+
+        try { 
+            if (p.testSound) {
+                currentTestSound = p.testSound;
+                const labels = {
+                    'positive': 'Voice Test', 'start': 'Class Start', 'end': 'Class End', 'warning1m': '1-Min Warning',
+                    'attendance': 'Take Attend.', 'cleanup': '5-Min Clean', 'lunch': 'Lunch Duty'
+                };
+                const pBtn = document.getElementById("playBtn");
+                if (labels[currentTestSound] && pBtn) pBtn.innerHTML = "▶ Play " + labels[currentTestSound];
+            }
+        } catch(e){}
+        
+        try { 
+            if (p.minimalView !== undefined) { 
+                isMinimalView = p.minimalView;
+                const btn = document.getElementById('minimalViewBtn');
+                if (isMinimalView && btn) {
+                    document.body.classList.add('minimal-active'); 
+                    btn.classList.add('active-btn');
+                }
+            } 
+        } catch(e){}
+        
+        try { 
+            if (p.dark === true) { 
+                isDarkMode = true;
+                const dmToggle = document.getElementById('darkModeToggle');
+                if(dmToggle) dmToggle.checked = true; 
+                document.body.classList.add('dark-mode');
+            }
+        } catch(e){}
+
+        try { 
+            if (p.zero === true) { 
+                showZero = true; 
+                const zeroToggle = document.getElementById('showZeroPeriod');
+                if(zeroToggle) zeroToggle.checked = true; 
+            }
+        } catch(e){}
+
+        try { 
+            if (p.playGoodbyes === true) { 
+                playGoodbyes = true; 
+                const pgToggle = document.getElementById('playGoodbyes');
+                if(pgToggle) pgToggle.checked = true; 
+            }
+        } catch(e){}
+
+        try { 
+            if (p.muteB === true) { 
+                muteBells = true; 
+                const mbToggle = document.getElementById('muteBellsToggle');
+                if(mbToggle) mbToggle.checked = true; 
+            }
+        } catch(e){}
+        
+        try { 
+            if (p.savedVibes) savedVibes = p.savedVibes;
+            if (p.vibe && savedVibes.length === 0) {
+                savedVibes.push({ url: p.vibe, title: 'Saved Vibe' });
+                currentVibeUrl = p.vibe;
+            } else if (p.vibe) {
+                currentVibeUrl = p.vibe;
+            }
+            renderVibeDropdown();
+        } catch(e){}
+
+        try { 
+            if (p.mrBsJukebox !== undefined) mrBsJukebox = p.mrBsJukebox;
+            if (p.jukeboxUrl) jukeboxUrl = p.jukeboxUrl;
+            if (p.isMainVibePlaying !== undefined) isMainVibePlaying = p.isMainVibePlaying;
+
+            const jkToggle = document.getElementById('jukeboxToggle');
+            if(jkToggle) jkToggle.checked = mrBsJukebox;
+            const jkInput = document.getElementById('jukeboxUrlInput');
+            if(jkInput && jukeboxUrl !== "https://www.youtube.com/watch?v=CLLpSmaof4E") {
+                jkInput.value = jukeboxUrl;
+            }
+        } catch(e){}
+
+        try { 
+            if (p.widgets) {
+                activeWidgets = p.widgets;
+                Object.keys(p.widgets).forEach(key => {
+                    const tog = document.getElementById(`wm-tog-${key}`);
+                    if(tog) {
+                        tog.checked = p.widgets[key];
+                        const card = document.getElementById(`widget-${key}`);
+                        if(card) {
+                            if(p.widgets[key]) card.classList.add('active-widget');
+                            else card.classList.remove('active-widget');
+                        }
+                    }
+                });
+            }
+        } catch(e){}
+
+        try { 
+            if (p.accordions) {
+                accordionStates = p.accordions;
+                Object.keys(accordionStates).forEach(id => {
+                    if(accordionStates[id] === false) {
+                        const el = document.getElementById(id);
+                        if(el) el.style.maxHeight = "0px";
+                        const chev = document.getElementById('chev-'+id);
+                        if(chev) chev.style.transform = "rotate(-90deg)";
+                    }
+                });
+            }
+        } catch(e){}
+        
+        try { if(p.voice) globalVoicePref = p.voice; } catch(e){}
+    } catch (e) {
+        console.error("Local Storage parse error.", e);
+    }
+}
+
+// ==========================================================================
 // 8. MASTER CLOCK LOOP
 // ==========================================================================
 function timeToMins(t) { if (!t || !t.includes(':')) return 0; let [h, m] = t.split(':').map(Number); return h * 60 + m; }
@@ -1205,11 +1371,13 @@ function triggerEvent(time, action, callback) {
 }
 
 function updateClock() {
-    const clk = document.getElementById('clock');
-    if(clk) {
-        const now = new Date();
-        clk.innerText = now.toLocaleTimeString('en-US'); 
-    }
+    try {
+        const clk = document.getElementById('clock');
+        if(clk) {
+            const now = new Date();
+            clk.innerText = now.toLocaleTimeString('en-US'); 
+        }
+    } catch(e) {}
     
     try {
         const now = new Date();
@@ -1353,43 +1521,50 @@ function updateClock() {
 }
 
 // ==========================================================================
-// INITIALIZATION
+// INITIALIZATION (Wrapped in failsafes)
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', () => {
-    initWidgets();
     
-    const isV3 = localStorage.getItem('waltonSettingsV3_Migrated');
-    if (!isV3) {
-        localStorage.removeItem('waltonDashboardV2');
-        localStorage.removeItem('waltonBellState');
-        localStorage.setItem('waltonSettingsV3_Migrated', 'true');
-    }
+    try { initWidgets(); } catch(e) { console.error(e); }
 
-    loadLocalSettings();
-    applyLayout();
-    fetchQotdData();
+    try {
+        const isV5 = localStorage.getItem('waltonV5_Migrated');
+        if (!isV5) {
+            localStorage.removeItem('waltonSettingsV3');
+            localStorage.removeItem('waltonDashboardV2');
+            localStorage.removeItem('waltonBellState');
+            localStorage.setItem('waltonV5_Migrated', 'true');
+        }
+    } catch(e) { console.error(e); }
+
+    try { loadLocalSettings(); } catch(e) { console.error(e); }
+    try { applyLayout(); } catch(e) { console.error(e); }
+    try { fetchQotdData(); } catch(e) { console.error(e); }
     
-    const sidebar = document.getElementById('sidebar');
-    const hamBtn = document.getElementById('hamburgerBtn');
-    if(sidebar) sidebar.classList.add('collapsed');
-    if(hamBtn) hamBtn.classList.remove('active-btn');
-    sidebarVisible = false;
+    try {
+        const sidebar = document.getElementById('sidebar');
+        const hamBtn = document.getElementById('hamburgerBtn');
+        if(sidebar) sidebar.classList.add('collapsed');
+        if(hamBtn) hamBtn.classList.remove('active-btn');
+        sidebarVisible = false;
 
-    const waffleModal = document.getElementById('waffle-modal');
-    if (waffleModal) waffleModal.classList.remove('show');
+        const waffleModal = document.getElementById('waffle-modal');
+        if (waffleModal) waffleModal.classList.remove('show');
+    } catch(e) { console.error(e); }
 
-    updateTimerDisplay();
-    updateClock();
-    setInterval(updateClock, 1000);
+    try {
+        updateTimerDisplay();
+        updateClock();
+        setInterval(updateClock, 1000);
+    } catch(e) { console.error(e); }
     
-    fetchDailySchedule();
+    try { fetchDailySchedule(); } catch(e) { console.error(e); }
 
     try {
         if ('speechSynthesis' in window) {
             safePopulateVoiceList();
             window.speechSynthesis.onvoiceschanged = safePopulateVoiceList;
         }
-    } catch(e) {}
+    } catch(e) { console.error(e); }
     
-    setTimeout(() => { isBooting = false; }, 1500);
 });
