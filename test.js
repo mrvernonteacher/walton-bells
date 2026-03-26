@@ -5,8 +5,8 @@ const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6
 const QOTD_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxMkp5nc7yKrXEKO7qpPMcj-uhktEsBTxfxmnALoNRo6GTtv5vBpSQ1agKoiNnIwhOoGQ/exec";
 const DEFAULT_PREFS = { open: false, putaway: false, attendance: false, cleanup: false, retrieve: false, icalUrl: '' };
 
-// V9 Wipe: Eliminates the layout ghosts permanently
-const SAVE_KEY = 'waltonDataV9'; 
+// V10 Wipe: Clean slate for the cache-buster update
+const SAVE_KEY = 'waltonDataV10'; 
 
 // --- EASTER EGG SETTINGS ---
 const MAX_WACKY_BELLS = 10; 
@@ -144,13 +144,12 @@ function applyLayout() {
     if (!grid) return;
 
     // 1. ABSOLUTE WIDTH ENFORCEMENT
-    // This runs on every widget on the screen, independent of memory
     document.querySelectorAll('.widget-card').forEach(el => {
         el.classList.remove('span-1', 'span-2', 'span-3', 'span-4');
         if (el.id === 'widget-schedule') {
-            el.classList.add('span-2'); // Schedule is ALWAYS 50%
+            el.classList.add('span-2'); 
         } else {
-            el.classList.add('span-1'); // Everything else is ALWAYS 25%
+            el.classList.add('span-1'); 
         }
     });
 
@@ -164,7 +163,7 @@ function applyLayout() {
                 } else if (isMinimalView) {
                     el.style.height = 'auto'; 
                 }
-                grid.appendChild(el); // Shifts it to the correct order position
+                grid.appendChild(el); 
             }
         });
     }
@@ -988,15 +987,17 @@ function toggleQotdQR() {
 }
 
 function fetchQotdData() {
-    // Generate QR code instantly, uncoupled from the fetch request
     const qrImg = document.getElementById('qotd-qr-img');
     if (qrImg) {
         qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(QOTD_APPS_SCRIPT_URL)}`;
     }
 
-    // Fetch the data robustly
-    fetch(QOTD_APPS_SCRIPT_URL + "?action=getToday")
-        .then(r => r.json())
+    // CACHE BUSTER APPLIED HERE!
+    fetch(QOTD_APPS_SCRIPT_URL + "?action=getToday&nocache=" + new Date().getTime())
+        .then(r => {
+            if (!r.ok) throw new Error("QotD network response error.");
+            return r.json();
+        })
         .then(data => {
             document.getElementById('qotd-question').innerText = data.q || "No question today";
             document.getElementById('qotd-label-a').innerText = data.a || "Option A";
@@ -1030,7 +1031,8 @@ async function fetchDailySchedule() {
     if(ind) { ind.style.display = 'block'; ind.innerText = "Syncing..."; ind.style.color = '#888'; }
     
     try {
-        const response = await fetch(GOOGLE_CALENDAR_SCRIPT_URL);
+        // CACHE BUSTER APPLIED HERE!
+        const response = await fetch(GOOGLE_CALENDAR_SCRIPT_URL + "&nocache=" + new Date().getTime());
         const data = await response.json();
         
         if (data && data.schedule) {
@@ -1595,8 +1597,9 @@ document.addEventListener('DOMContentLoaded', () => {
     try { initWidgets(); } catch(e) { console.error(e); }
 
     try {
-        const isV9 = localStorage.getItem('waltonV9_Migrated');
-        if (!isV9) {
+        const isV10 = localStorage.getItem('waltonV10_Migrated');
+        if (!isV10) {
+            localStorage.removeItem('waltonDataV9');
             localStorage.removeItem('waltonDataV8');
             localStorage.removeItem('waltonDataV7');
             localStorage.removeItem('waltonDataV6');
@@ -1604,7 +1607,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.removeItem('waltonSettingsV3');
             localStorage.removeItem('waltonDashboardV2');
             localStorage.removeItem('waltonBellState');
-            localStorage.setItem('waltonV9_Migrated', 'true');
+            localStorage.setItem('waltonV10_Migrated', 'true');
         }
     } catch(e) { console.error(e); }
 
