@@ -464,17 +464,26 @@ function reloadWeatherWidget() {
     const color = isDarkMode ? '#ffffff' : '#333333';
     container1.innerHTML = `<a class="weatherwidget-io" href="https://forecast7.com/en/33d98n84d43/east-cobb/?unit=us" data-label_1="EAST COBB" data-theme="pure" data-basecolor="rgba(0,0,0,0)" data-textcolor="${color}">EAST COBB</a>`;
     
-    if (typeof __weatherwidget_init === 'function') {
-        __weatherwidget_init();
-    } else {
-        !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
-    }
+    // FORCE FULL SCRIPT RELOAD FOR RELIABILITY
+    const oldScript = document.getElementById('weatherwidget-io-js');
+    if(oldScript) oldScript.remove();
+    
+    const js = document.createElement('script');
+    js.id = 'weatherwidget-io-js';
+    js.src = 'https://weatherwidget.io/js/widget.min.js';
+    const fjs = document.getElementsByTagName('script')[0];
+    fjs.parentNode.insertBefore(js, fjs);
 }
 
 function toggleWidgetPanel(e) {
     if(e) e.stopPropagation();
     const p = document.getElementById('widget-panel-menu');
-    p.style.display = p.style.display === 'none' ? 'flex' : 'none';
+    // FIX FOR DOUBLE CLICK: Explicitly check if it is flex
+    if (p.style.display === 'flex') {
+        p.style.display = 'none';
+    } else {
+        p.style.display = 'flex';
+    }
 }
 
 function toggleWidget(id, isChecked) {
@@ -641,13 +650,17 @@ function toggleAccordion(id) {
     const chevron = document.getElementById('chev-' + id);
     if (!content || !chevron) return;
     
-    if (content.style.maxHeight === "0px" || content.style.maxHeight === "") {
+    // FIX FOR DOUBLE CLICK: Read the direct state instead of inline CSS
+    const isCurrentlyOpen = accordionStates[id] !== false; 
+    
+    if (!isCurrentlyOpen) {
         content.style.maxHeight = content.scrollHeight + "px";
         chevron.style.transform = "rotate(0deg)";
         accordionStates[id] = true;
         setTimeout(() => { if(accordionStates[id]) content.style.maxHeight = "none"; }, 300);
     } else {
         content.style.maxHeight = content.scrollHeight + "px"; 
+        void content.offsetWidth; // Force a browser repaint so the transition catches
         setTimeout(() => {
             content.style.maxHeight = "0px";
             chevron.style.transform = "rotate(-90deg)";
