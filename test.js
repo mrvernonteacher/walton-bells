@@ -2,7 +2,7 @@
 // 1. CORE LOGIC & STATE 
 // ==========================================================================
 const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec?tab=Daily"; 
-const QOTD_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxTHBPh45e_R7clf_hx3j3OLJP1ThFEBlDIu4OLyt4tTEDZg6_xImwzO08bE0JzG_ezlQ/exec";
+const QOTD_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxMkp5nc7yKrXEKO7qpPMcj-uhktEsBTxfxmnALoNRo6GTtv5vBpSQ1agKoiNnIwhOoGQ/exec";
 const DEFAULT_PREFS = { open: false, putaway: false, attendance: false, cleanup: false, retrieve: false, icalUrl: '' };
 
 // V9 Wipe: Eliminates the layout ghosts permanently
