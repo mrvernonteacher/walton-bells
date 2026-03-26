@@ -260,7 +260,8 @@ body.dark-mode .waffle-header { color: #90caf9; border-bottom: 2px solid #444 !i
 .widget-card { 
     border-radius: 15px; padding: 15px; padding-bottom: 15px; display: none; flex-direction: column; 
     position: relative; 
-    transition: grid-column 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease, border-color 0.3s ease; 
+    /* Added opacity, visibility, height, padding, and margin to the transition to make the fade smooth */
+    transition: grid-column 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease, border-color 0.3s ease, opacity 0.3s ease, visibility 0.3s ease, height 0.3s ease, padding 0.3s ease, margin 0.3s ease; 
     width: 100%; min-width: 0; 
     height: auto; 
     min-height: 100px; 
@@ -307,23 +308,21 @@ body.dark-mode .widget-card:hover::after { border-color: #90caf9; }
     transform-origin: top center;
 }
 
-body.minimal-active .widget-card > .widget-body { 
-    opacity: 0; 
-    transform: scaleY(0); 
-    height: 0 !important; 
-    min-height: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
+/* Updated: This now targets ALL widget cards and cleanly fades/collapses them */
+body.minimal-active .widget-card {
+    opacity: 0;
+    visibility: hidden;
     pointer-events: none;
+    height: 0 !important;
+    min-height: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    border: none !important;
+    overflow: hidden;
 }
-body.minimal-active .widget-card { 
-    height: auto !important; 
-    min-height: 0 !important; 
-    resize: none !important; 
-    padding-bottom: 15px; 
-    transition: height 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-body.minimal-active .widget-card::after { display: none !important; }
+
 body.minimal-active .spacer-card { display: none !important; }
 
 
