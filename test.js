@@ -4,9 +4,15 @@
 const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6uF01goN2oNrWAIKal_FB-m-AuPUiBSnQbohr5XLR_AaKt5bTY8hQZN9RmYIrq-6/exec?tab=Daily"; 
 const QOTD_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxTHBPh45e_R7clf_hx3j3OLJP1ThFEBlDIu4OLyt4tTEDZg6_xImwzO08bE0JzG_ezlQ/exec";
 const DEFAULT_PREFS = { open: false, putaway: false, attendance: false, cleanup: false, retrieve: false, icalUrl: '' };
-
-// V6 guarantees a completely clean, uncorrupted save file
 const SAVE_KEY = 'waltonDataV6'; 
+
+// --- EASTER EGG SETTINGS ---
+// Change this number to match exactly how many wacky files you have!
+// Make sure they are named wacky1.mp3, wacky2.mp3, etc. inside the wackybells folder.
+const MAX_WACKY_BELLS = 10; 
+
+let logoClickCount = 0;
+let wackyBellsMode = false;
 
 const GOODBYE_MESSAGES = [
     "Great work today. Have a wonderful rest of your day.",
@@ -23,7 +29,6 @@ const GOODBYE_MESSAGES = [
 const playSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
 const pauseSVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
 
-// THE BOOT LOCK: Prevents saving while settings are still loading
 let isBooting = true; 
 
 let activeSchedule = []; 
@@ -39,15 +44,8 @@ let playGoodbyes = false, muteBells = false;
 let accordionStates = { 'sec-audio': true, 'sec-reminders': true, 'sec-vibe': true, 'sec-schedule': true };
 let activeWidgets = { weather: true, timer: false, qotd: true, spacer1: false, spacer2: false }; 
 
-let layoutNormal = [
-    {id: 'widget-schedule', span: 2, height: 'auto'},
-    {id: 'widget-weather', span: 1, height: 'auto'},
-    {id: 'widget-timer', span: 1, height: 'auto'},
-    {id: 'widget-qotd', span: 1, height: 'auto'},
-    {id: 'widget-spacer1', span: 1, height: 'auto'},
-    {id: 'widget-spacer2', span: 1, height: 'auto'}
-];
-let layoutFocus = JSON.parse(JSON.stringify(layoutNormal));
+let layoutNormal = [];
+let layoutFocus = [];
 
 let timerInterval = null, timerTotalSeconds = 300, timerIsPlaying = false;
 let playedActions = {}, currentMinuteTracker = "", lastAutoState = null; 
@@ -126,13 +124,12 @@ function initWidgets() {
 }
 
 function saveLayout() {
-    if (isBooting) return; // Failsafe
+    if (isBooting) return;
     const grid = document.getElementById('master-grid');
     if (!grid) return;
 
     const widgets = Array.from(grid.querySelectorAll('.widget-card'));
     const currentLayout = widgets.map(el => {
-        // Find width span (1 or 2) purely for memory structure, height is dynamically saved
         let wSpan = 1;
         if (el.classList.contains('span-2')) wSpan = 2;
         return { id: el.id, span: wSpan, height: el.style.height }; 
@@ -152,15 +149,13 @@ function applyLayout() {
     activeLayout.forEach(item => {
         const el = document.getElementById(item.id);
         if (el) {
-            // Re-apply span safely
             el.classList.remove('span-1', 'span-2', 'span-3', 'span-4');
             el.classList.add(`span-${item.span || 1}`);
             
-            // Re-apply explicit height
             if (item.height && !isMinimalView) {
                 el.style.height = item.height;
             } else if (isMinimalView) {
-                el.style.height = 'auto'; // Force collapse in Focus Mode
+                el.style.height = 'auto'; 
             }
             grid.appendChild(el); 
         }
@@ -226,6 +221,15 @@ function playBellWithQueue(rings, callback) {
     if (muteBells) return;
     const bell = document.getElementById('regularBellAudio');
     if (!bell) { if(callback) callback(); return; }
+    
+    // --- EASTER EGG AUDIO SWAP ---
+    if (wackyBellsMode && MAX_WACKY_BELLS > 0) {
+        const randomNum = Math.floor(Math.random() * MAX_WACKY_BELLS) + 1;
+        bell.src = 'wackybells/wacky' + randomNum + '.mp3';
+    } else {
+        bell.src = 'bell.mp3'; // Standard fallback
+    }
+
     let count = 0;
     bell.volume = globalVolume;
     const playNext = () => {
@@ -347,6 +351,32 @@ function updateJukeboxUrl() {
     if (el) {
         jukeboxUrl = el.value.trim() || "https://www.youtube.com/watch?v=CLLpSmaof4E";
         saveLocalSettings();
+    }
+}
+
+// --- EASTER EGG LISTENER ATTACHMENT ---
+function setupEasterEgg() {
+    const logo = document.querySelector('.footer-logo');
+    if(logo) {
+        logo.addEventListener('click', () => {
+            logoClickCount++;
+            if(logoClickCount >= 9) {
+                logoClickCount = 0;
+                wackyBellsMode = !wackyBellsMode;
+                saveLocalSettings();
+                
+                if(wackyBellsMode) {
+                    try {
+                        let secretAudio = new Audio('loz_secret.mp3');
+                        secretAudio.volume = globalVolume;
+                        secretAudio.play();
+                    } catch(e) { console.error("Could not play Zelda sound:", e); }
+                    showToast("Wacky Bells Mode Unlocked! 🤪");
+                } else {
+                    showToast("Wacky Bells Mode Disabled.");
+                }
+            }
+        });
     }
 }
 
@@ -1163,13 +1193,23 @@ function renderSchedule() {
 // 7. LOCAL STORAGE & INITIALIZATION
 // ==========================================================================
 function saveLocalSettings() {
-    if (isBooting) return; // THE ABSOLUTE GATEKEEPER
+    if (isBooting) return; 
     
     try {
+        const grid = document.getElementById('master-grid');
+        if(grid) {
+            const widgets = Array.from(grid.querySelectorAll('.widget-card'));
+            const currentLayout = widgets.map(el => {
+                return { id: el.id, height: el.style.height }; 
+            });
+            if (isMinimalView) layoutFocus = currentLayout;
+            else layoutNormal = currentLayout;
+        }
+
         const data = {
             vol: globalVolume, voice: globalVoicePref, testSound: currentTestSound,
             side: sidebarVisible, waffleClosed: isWaffleClosed, minimalView: isMinimalView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
-            settings: classSettings, lunchDuties: lunchDuties,
+            settings: classSettings, lunchDuties: lunchDuties, wackyBells: wackyBellsMode,
             savedVibes: savedVibes, vibe: currentVibeUrl, vibeVol: vibeVolume, muteB: muteBells,
             mrBsJukebox: mrBsJukebox, jukeboxUrl: jukeboxUrl, isMainVibePlaying: isMainVibePlaying,
             customReminders: customReminders, accordions: accordionStates, widgets: activeWidgets,
@@ -1253,6 +1293,10 @@ function loadLocalSettings() {
                 const mbToggle = document.getElementById('muteBellsToggle');
                 if(mbToggle) mbToggle.checked = muteBells; 
             }
+        } catch(e){}
+
+        try {
+            if (p.wackyBells !== undefined) wackyBellsMode = p.wackyBells;
         } catch(e){}
         
         try { 
@@ -1564,6 +1608,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (waffleModal) waffleModal.classList.remove('show');
     } catch(e) { console.error(e); }
 
+    try { setupEasterEgg(); } catch(e) { console.error(e); }
+
     try {
         updateTimerDisplay();
         updateClock();
@@ -1579,6 +1625,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     } catch(e) { console.error(e); }
     
-    // Unlock saves
     setTimeout(() => { isBooting = false; }, 500); 
 });
