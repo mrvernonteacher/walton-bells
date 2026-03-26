@@ -5,11 +5,11 @@ const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6
 const QOTD_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxTHBPh45e_R7clf_hx3j3OLJP1ThFEBlDIu4OLyt4tTEDZg6_xImwzO08bE0JzG_ezlQ/exec";
 const DEFAULT_PREFS = { open: false, putaway: false, attendance: false, cleanup: false, retrieve: false, icalUrl: '' };
 
-// V8 wipe to obliterate the lingering 25% width bug
-const SAVE_KEY = 'waltonDataV8'; 
+// V9 Wipe: Eliminates the layout ghosts permanently
+const SAVE_KEY = 'waltonDataV9'; 
 
 // --- EASTER EGG SETTINGS ---
-const MAX_WACKY_BELLS = 6; 
+const MAX_WACKY_BELLS = 10; 
 
 let logoClickCount = 0;
 let wackyBellsMode = false;
@@ -129,7 +129,6 @@ function saveLayout() {
 
     const widgets = Array.from(grid.querySelectorAll('.widget-card'));
     const currentLayout = widgets.map(el => {
-        // ONLY save ID and height. Width is strictly hardcoded below.
         return { id: el.id, height: el.style.height }; 
     });
 
@@ -142,29 +141,33 @@ function saveLayout() {
 function applyLayout() {
     const activeLayout = isMinimalView ? layoutFocus : layoutNormal;
     const grid = document.getElementById('master-grid');
-    if (!grid || !activeLayout || activeLayout.length === 0) return;
+    if (!grid) return;
 
-    activeLayout.forEach(item => {
-        const el = document.getElementById(item.id);
-        if (el) {
-            // --- STRICT WIDTH ENFORCEMENT ---
-            el.classList.remove('span-1', 'span-2', 'span-3', 'span-4');
-            if (el.id === 'widget-schedule') {
-                el.classList.add('span-2'); // Force Schedule to 50%
-            } else {
-                el.classList.add('span-1'); // Force everything else to 25%
-            }
-            
-            // --- HEIGHT APPLICATION ---
-            if (item.height && !isMinimalView) {
-                el.style.height = item.height;
-            } else if (isMinimalView) {
-                el.style.height = 'auto'; 
-            }
-            
-            grid.appendChild(el); 
+    // 1. ABSOLUTE WIDTH ENFORCEMENT
+    // This runs on every widget on the screen, independent of memory
+    document.querySelectorAll('.widget-card').forEach(el => {
+        el.classList.remove('span-1', 'span-2', 'span-3', 'span-4');
+        if (el.id === 'widget-schedule') {
+            el.classList.add('span-2'); // Schedule is ALWAYS 50%
+        } else {
+            el.classList.add('span-1'); // Everything else is ALWAYS 25%
         }
     });
+
+    // 2. HEIGHT & ORDER APPLICATION
+    if (activeLayout && activeLayout.length > 0) {
+        activeLayout.forEach(item => {
+            const el = document.getElementById(item.id);
+            if (el) {
+                if (item.height && !isMinimalView) {
+                    el.style.height = item.height;
+                } else if (isMinimalView) {
+                    el.style.height = 'auto'; 
+                }
+                grid.appendChild(el); // Shifts it to the correct order position
+            }
+        });
+    }
 }
 
 // ==========================================================================
@@ -985,16 +988,15 @@ function toggleQotdQR() {
 }
 
 function fetchQotdData() {
+    // Generate QR code instantly, uncoupled from the fetch request
     const qrImg = document.getElementById('qotd-qr-img');
-    if (qrImg && !qrImg.src.includes('api.qrserver.com')) {
+    if (qrImg) {
         qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(QOTD_APPS_SCRIPT_URL)}`;
     }
 
+    // Fetch the data robustly
     fetch(QOTD_APPS_SCRIPT_URL + "?action=getToday")
-        .then(r => {
-            if (!r.ok) throw new Error("QotD network response error.");
-            return r.json();
-        })
+        .then(r => r.json())
         .then(data => {
             document.getElementById('qotd-question').innerText = data.q || "No question today";
             document.getElementById('qotd-label-a').innerText = data.a || "Option A";
@@ -1013,8 +1015,7 @@ function fetchQotdData() {
             document.getElementById('qotd-total-votes').innerText = "Total Votes: " + total;
         })
         .catch(e => {
-            console.error("Error loading QotD:", e);
-            document.getElementById('qotd-question').innerText = "Database offline.";
+            console.error("Error loading QotD data. Keeping UI as is.", e);
         });
 }
 
@@ -1594,15 +1595,16 @@ document.addEventListener('DOMContentLoaded', () => {
     try { initWidgets(); } catch(e) { console.error(e); }
 
     try {
-        const isV8 = localStorage.getItem('waltonV8_Migrated');
-        if (!isV8) {
+        const isV9 = localStorage.getItem('waltonV9_Migrated');
+        if (!isV9) {
+            localStorage.removeItem('waltonDataV8');
             localStorage.removeItem('waltonDataV7');
             localStorage.removeItem('waltonDataV6');
             localStorage.removeItem('waltonDataV5');
             localStorage.removeItem('waltonSettingsV3');
             localStorage.removeItem('waltonDashboardV2');
             localStorage.removeItem('waltonBellState');
-            localStorage.setItem('waltonV8_Migrated', 'true');
+            localStorage.setItem('waltonV9_Migrated', 'true');
         }
     } catch(e) { console.error(e); }
 
