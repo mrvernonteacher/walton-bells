@@ -335,7 +335,6 @@ function updateJukeboxUrl() {
 // ==========================================================================
 
 // --- THE GLOBAL CLICK BOUNCER ---
-// Actively listens for clicks anywhere on the screen to close open menus
 document.addEventListener('click', (e) => {
     
     // 1. Audio Dropdown (Closes if you click outside the caret or dropdown)
@@ -343,7 +342,7 @@ document.addEventListener('click', (e) => {
         document.querySelectorAll('.dropdown-content.show').forEach(el => el.classList.remove('show'));
     }
 
-    // 2. Widget Floating Menu (Closes if you click outside the menu panel and the float button)
+    // 2. Widget Floating Menu
     const widgetMenu = document.getElementById('widget-panel-menu');
     const widgetBtn = document.getElementById('widget-menu-btn');
     if (widgetMenu && widgetMenu.style.display === 'flex') {
@@ -352,15 +351,13 @@ document.addEventListener('click', (e) => {
         }
     }
 
-    // 3. Waffle Settings Modal (Closes if you click the background overlay)
+    // 3. Waffle Settings Modal
     const waffleModal = document.getElementById('waffle-modal');
     const waffleBtn = document.getElementById('waffleViewBtn');
     if (waffleModal && waffleModal.classList.contains('show')) {
-        // If they click exactly on the dark semi-transparent background...
         if (e.target === waffleModal) {
             toggleWaffleMenu(false);
         } 
-        // Or if they click somewhere else entirely outside the white box
         else {
             const modalContent = waffleModal.querySelector('.waffle-modal-content');
             if (modalContent && !modalContent.contains(e.target) && (!waffleBtn || !waffleBtn.contains(e.target))) {
@@ -423,16 +420,34 @@ function toggleWidgetPanel(e) {
 function toggleWidget(id, isChecked) {
     activeWidgets[id] = isChecked;
     const card = document.getElementById(`widget-${id}`);
+    
     if(card) {
-        if(isChecked) card.classList.add('active-widget');
-        else card.classList.remove('active-widget');
+        if(isChecked) {
+            // Spring open instantly
+            card.classList.remove('closing-widget');
+            card.classList.add('active-widget');
+            applyLayout(); 
+        } else {
+            // Trigger the fade-out animation
+            card.classList.add('closing-widget');
+            
+            // Wait for CSS animation to finish before removing it from the layout flow
+            setTimeout(() => {
+                // Double check they didn't toggle it back on super fast
+                if (!activeWidgets[id]) { 
+                    card.classList.remove('active-widget');
+                    card.classList.remove('closing-widget');
+                    applyLayout(); 
+                }
+            }, 300);
+        }
     }
+    
     if (id === 'weather' && isChecked) reloadWeatherWidget();
     
     const floatTog = document.getElementById(`wm-tog-${id}`);
     if(floatTog) floatTog.checked = isChecked;
     
-    applyLayout(); 
     saveLocalSettings();
 }
 
@@ -1122,169 +1137,6 @@ function renderSchedule() {
     });
     
     highlightCurrentPeriod(new Date());
-}
-
-// ==========================================================================
-// 7. LOCAL STORAGE & INITIALIZATION
-// ==========================================================================
-function saveLocalSettings() {
-    if (isBooting) return;
-    const grid = document.getElementById('master-grid');
-    if(grid) {
-        const widgets = Array.from(grid.querySelectorAll('.widget-card'));
-        const currentLayout = widgets.map(el => {
-            return { id: el.id, height: el.style.height }; 
-        });
-        if (isMinimalView) layoutFocus = currentLayout;
-        else layoutNormal = currentLayout;
-    }
-
-    try {
-        const data = {
-            vol: globalVolume, voice: globalVoicePref, testSound: currentTestSound,
-            side: sidebarVisible, waffleClosed: isWaffleClosed, minimalView: isMinimalView, dark: isDarkMode, zero: showZero, playGoodbyes: playGoodbyes,
-            settings: classSettings, lunchDuties: lunchDuties,
-            savedVibes: savedVibes, vibe: currentVibeUrl, vibeVol: vibeVolume, muteB: muteBells,
-            mrBsJukebox: mrBsJukebox, jukeboxUrl: jukeboxUrl, isMainVibePlaying: isMainVibePlaying,
-            customReminders: customReminders, accordions: accordionStates, widgets: activeWidgets,
-            layoutNormal: layoutNormal, layoutFocus: layoutFocus
-        };
-        localStorage.setItem(SAVE_KEY, JSON.stringify(data)); 
-    } catch (e) {}
-}
-
-function loadLocalSettings() {
-    try {
-        const saved = localStorage.getItem(SAVE_KEY); 
-        if (!saved) return;
-        
-        const p = JSON.parse(saved);
-        
-        try { if (p.layoutNormal) layoutNormal = p.layoutNormal; } catch(e){}
-        try { if (p.layoutFocus) layoutFocus = p.layoutFocus; } catch(e){}
-
-        try { if (p.settings) classSettings = p.settings; } catch(e){}
-        try { if (p.lunchDuties) { lunchDuties = p.lunchDuties; renderLunchDuties(); } } catch(e){}
-        try { if (p.customReminders) { customReminders = p.customReminders; renderCustomReminders(); } } catch(e){}
-        
-        try { if (p.vol !== undefined) { syncGlobalVolume(p.vol); } else { syncGlobalVolume(1.0); } } catch(e){}
-        try { if (p.vibeVol !== undefined) { syncVibeVolume(p.vibeVol); } } catch(e){}
-
-        try { 
-            if (p.testSound) {
-                currentTestSound = p.testSound;
-                const labels = {
-                    'positive': 'Voice Test', 'start': 'Class Start', 'end': 'Class End', 'warning1m': '1-Min Warning',
-                    'attendance': 'Take Attend.', 'cleanup': '5-Min Clean', 'lunch': 'Lunch Duty'
-                };
-                const pBtn = document.getElementById("playBtn");
-                if (labels[currentTestSound] && pBtn) pBtn.innerHTML = "▶ Play " + labels[currentTestSound];
-            }
-        } catch(e){}
-        
-        try { 
-            if (p.minimalView !== undefined) { 
-                isMinimalView = p.minimalView;
-                const btn = document.getElementById('minimalViewBtn');
-                if (isMinimalView) {
-                    document.body.classList.add('minimal-active'); 
-                    if(btn) btn.classList.add('active-btn');
-                }
-            } 
-        } catch(e){}
-        
-        try { 
-            if (p.dark === true) { 
-                isDarkMode = true;
-                const dmToggle = document.getElementById('darkModeToggle');
-                if(dmToggle) dmToggle.checked = true; 
-                document.body.classList.add('dark-mode');
-            }
-        } catch(e){}
-
-        try { 
-            if (p.zero === true) { 
-                showZero = true; 
-                const zeroToggle = document.getElementById('showZeroPeriod');
-                if(zeroToggle) zeroToggle.checked = true; 
-            }
-        } catch(e){}
-
-        try { 
-            if (p.playGoodbyes === true) { 
-                playGoodbyes = true; 
-                const pgToggle = document.getElementById('playGoodbyes');
-                if(pgToggle) pgToggle.checked = true; 
-            }
-        } catch(e){}
-
-        try { 
-            if (p.muteB === true) { 
-                muteBells = true; 
-                const mbToggle = document.getElementById('muteBellsToggle');
-                if(mbToggle) mbToggle.checked = true; 
-            }
-        } catch(e){}
-        
-        try { 
-            if (p.savedVibes) savedVibes = p.savedVibes;
-            if (p.vibe && savedVibes.length === 0) {
-                savedVibes.push({ url: p.vibe, title: 'Saved Vibe' });
-                currentVibeUrl = p.vibe;
-            } else if (p.vibe) {
-                currentVibeUrl = p.vibe;
-            }
-            renderVibeDropdown();
-        } catch(e){}
-
-        try { 
-            if (p.mrBsJukebox !== undefined) mrBsJukebox = p.mrBsJukebox;
-            if (p.jukeboxUrl) jukeboxUrl = p.jukeboxUrl;
-            if (p.isMainVibePlaying !== undefined) isMainVibePlaying = p.isMainVibePlaying;
-
-            const jkToggle = document.getElementById('jukeboxToggle');
-            if(jkToggle) jkToggle.checked = mrBsJukebox;
-            const jkInput = document.getElementById('jukeboxUrlInput');
-            if(jkInput && jukeboxUrl !== "https://www.youtube.com/watch?v=CLLpSmaof4E") {
-                jkInput.value = jukeboxUrl;
-            }
-        } catch(e){}
-
-        try { 
-            if (p.widgets) {
-                activeWidgets = p.widgets;
-                Object.keys(p.widgets).forEach(key => {
-                    const tog = document.getElementById(`wm-tog-${key}`);
-                    if(tog) {
-                        tog.checked = p.widgets[key];
-                        const card = document.getElementById(`widget-${key}`);
-                        if(card) {
-                            if(p.widgets[key]) card.classList.add('active-widget');
-                            else card.classList.remove('active-widget');
-                        }
-                    }
-                });
-            }
-        } catch(e){}
-
-        try { 
-            if (p.accordions) {
-                accordionStates = p.accordions;
-                Object.keys(accordionStates).forEach(id => {
-                    if(accordionStates[id] === false) {
-                        const el = document.getElementById(id);
-                        if(el) el.style.maxHeight = "0px";
-                        const chev = document.getElementById('chev-'+id);
-                        if(chev) chev.style.transform = "rotate(-90deg)";
-                    }
-                });
-            }
-        } catch(e){}
-        
-        try { if(p.voice) globalVoicePref = p.voice; } catch(e){}
-    } catch (e) {
-        console.error("Local Storage parse error.", e);
-    }
 }
 
 // ==========================================================================
