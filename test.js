@@ -1503,10 +1503,6 @@ function updateClock() {
         if (warningElMain) warningElMain.style.display = isDeadTime ? 'inline-block' : 'none';
         if (warningElDock) warningElDock.style.display = isDeadTime ? 'inline-block' : 'none';
 
-        if (lastAutoState !== null && autoState !== lastAutoState) {
-            if (autoState === 'core-class') { toggleMinimalView(true); } 
-            else if (autoState === 'dead-start' || autoState === 'dead-end' || autoState === 'passing') { toggleMinimalView(false); }
-        }
         lastAutoState = autoState;
 
         if (lastPeriodStatus !== currentStatus) {
