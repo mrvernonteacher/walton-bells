@@ -5,10 +5,11 @@ const GOOGLE_CALENDAR_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzM6
 const QOTD_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxTHBPh45e_R7clf_hx3j3OLJP1ThFEBlDIu4OLyt4tTEDZg6_xImwzO08bE0JzG_ezlQ/exec";
 const DEFAULT_PREFS = { open: false, putaway: false, attendance: false, cleanup: false, retrieve: false, icalUrl: '' };
 
-const SAVE_KEY = 'waltonDataV7'; 
+// V8 wipe to obliterate the lingering 25% width bug
+const SAVE_KEY = 'waltonDataV8'; 
 
 // --- EASTER EGG SETTINGS ---
-const MAX_WACKY_BELLS = 10; 
+const MAX_WACKY_BELLS = 6; 
 
 let logoClickCount = 0;
 let wackyBellsMode = false;
@@ -128,9 +129,8 @@ function saveLayout() {
 
     const widgets = Array.from(grid.querySelectorAll('.widget-card'));
     const currentLayout = widgets.map(el => {
-        let wSpan = 1;
-        if (el.classList.contains('span-2')) wSpan = 2;
-        return { id: el.id, span: wSpan, height: el.style.height }; 
+        // ONLY save ID and height. Width is strictly hardcoded below.
+        return { id: el.id, height: el.style.height }; 
     });
 
     if (isMinimalView) layoutFocus = currentLayout;
@@ -147,14 +147,21 @@ function applyLayout() {
     activeLayout.forEach(item => {
         const el = document.getElementById(item.id);
         if (el) {
+            // --- STRICT WIDTH ENFORCEMENT ---
             el.classList.remove('span-1', 'span-2', 'span-3', 'span-4');
-            el.classList.add(`span-${item.span || 1}`);
+            if (el.id === 'widget-schedule') {
+                el.classList.add('span-2'); // Force Schedule to 50%
+            } else {
+                el.classList.add('span-1'); // Force everything else to 25%
+            }
             
+            // --- HEIGHT APPLICATION ---
             if (item.height && !isMinimalView) {
                 el.style.height = item.height;
             } else if (isMinimalView) {
                 el.style.height = 'auto'; 
             }
+            
             grid.appendChild(el); 
         }
     });
@@ -455,7 +462,6 @@ function reloadWeatherWidget() {
     const color = isDarkMode ? '#ffffff' : '#333333';
     container1.innerHTML = `<a class="weatherwidget-io" href="https://forecast7.com/en/33d98n84d43/east-cobb/?unit=us" data-label_1="EAST COBB" data-theme="pure" data-basecolor="rgba(0,0,0,0)" data-textcolor="${color}">EAST COBB</a>`;
     
-    // Check if the script is already downloaded to avoid hot-swap bugs
     if (typeof __weatherwidget_init === 'function') {
         __weatherwidget_init();
     } else {
@@ -979,7 +985,6 @@ function toggleQotdQR() {
 }
 
 function fetchQotdData() {
-    // Generate QR code right away to prevent loading blocks
     const qrImg = document.getElementById('qotd-qr-img');
     if (qrImg && !qrImg.src.includes('api.qrserver.com')) {
         qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(QOTD_APPS_SCRIPT_URL)}`;
@@ -1589,14 +1594,15 @@ document.addEventListener('DOMContentLoaded', () => {
     try { initWidgets(); } catch(e) { console.error(e); }
 
     try {
-        const isV7 = localStorage.getItem('waltonV7_Migrated');
-        if (!isV7) {
+        const isV8 = localStorage.getItem('waltonV8_Migrated');
+        if (!isV8) {
+            localStorage.removeItem('waltonDataV7');
             localStorage.removeItem('waltonDataV6');
             localStorage.removeItem('waltonDataV5');
             localStorage.removeItem('waltonSettingsV3');
             localStorage.removeItem('waltonDashboardV2');
             localStorage.removeItem('waltonBellState');
-            localStorage.setItem('waltonV7_Migrated', 'true');
+            localStorage.setItem('waltonV8_Migrated', 'true');
         }
     } catch(e) { console.error(e); }
 
