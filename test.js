@@ -1098,7 +1098,8 @@ async function fetchAgenda(url, elementId) {
 
     try {
         if (!agendaPromises[fetchUrlStr]) {
-            const fetchUrl = `${GOOGLE_CALENDAR_SCRIPT_URL.split('?')[0]}?icalUrl=${encodeURIComponent(fetchUrlStr)}`;
+            // CACHE BUSTER APPLIED TO THE APP SCRIPT PROXY CALL
+            const fetchUrl = `${GOOGLE_CALENDAR_SCRIPT_URL.split('?')[0]}?icalUrl=${encodeURIComponent(fetchUrlStr)}&nocache=${new Date().getTime()}`;
             
             agendaPromises[fetchUrlStr] = fetch(fetchUrl).then(async (response) => {
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1189,6 +1190,8 @@ function renderSchedule() {
         try {
             const key = String(period.name);
             const safeKey = key.replace(/'/g, "\\'"); 
+            // ENSURE THE HTML ID ONLY CONTAINS ALPHANUMERIC CHARS + HYPHENS
+            const safeId = key.replace(/[^a-zA-Z0-9]/g, '-'); 
             const s = classSettings[key] || { ...DEFAULT_PREFS };
             
             const li = document.createElement('li'); 
@@ -1201,14 +1204,14 @@ function renderSchedule() {
             li.innerHTML = `
                 <div class="period-name">${key} ${openBadgeHtml}</div>
                 <div class="middle-section">
-                    <div class="agenda-display" id="agenda-${safeKey}"></div>
+                    <div class="agenda-display" id="agenda-${safeId}"></div>
                 </div>
                 <div class="period-time">${formatTime12(String(period.start))} - ${formatTime12(String(period.end))}</div>
             `;
             list.appendChild(li);
             
             if (s.icalUrl) {
-                fetchAgenda(s.icalUrl, `agenda-${safeKey}`);
+                fetchAgenda(s.icalUrl, `agenda-${safeId}`);
             }
         } catch(e) { console.error("Error rendering a row:", e); }
     });
@@ -1513,7 +1516,9 @@ function updateClock() {
 
         const warningElMain = document.getElementById('main-dead-time-warning');
         const warningElDock = document.getElementById('docked-warning');
-        if (warningElMain) warningElMain.style.display = isDeadTime ? 'inline-block' : 'none';
+        
+        // Force the main warning to stay hidden since it's redundant!
+        if (warningElMain) warningElMain.style.display = 'none'; 
         if (warningElDock) warningElDock.style.display = isDeadTime ? 'inline-block' : 'none';
 
         // Auto-collapse trigger completely removed. Just updating the lastAutoState tracking.
